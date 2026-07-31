@@ -314,15 +314,17 @@ fn nearest_hit(scene: &SceneData, origin: Vec3, direction: Vec3) -> Option<Hit> 
                 .map(|index| transform_point(instance.transform, scene.vertices[index as usize]));
             if let Some((distance, normal)) =
                 intersect_triangle(origin, direction, vertices[0], vertices[1], vertices[2])
-                && nearest
+            {
+                if nearest
                     .as_ref()
                     .is_none_or(|hit: &Hit| distance < hit.distance)
-            {
-                nearest = Some(Hit {
-                    distance,
-                    normal,
-                    material_index: scene.triangle_materials[triangle_index] as usize,
-                });
+                {
+                    nearest = Some(Hit {
+                        distance,
+                        normal,
+                        material_index: scene.triangle_materials[triangle_index] as usize,
+                    });
+                }
             }
         }
     }
