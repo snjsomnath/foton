@@ -217,7 +217,11 @@ fn has_required_extensions(instance: &ash::Instance, device: vk::PhysicalDevice)
         ash::khr::deferred_host_operations::NAME,
     ]
     .iter()
-    .all(|required| names.iter().any(|name| *name == required)))
+    .all(|required| {
+        names
+            .iter()
+            .any(|name| name.to_bytes() == required.to_bytes())
+    }))
 }
 
 pub struct VulkanBackend {
