@@ -1,8 +1,9 @@
 use std::sync::atomic::AtomicBool;
 
+#[cfg(target_os = "macos")]
+use daylight_core::InstanceUpdate;
 use daylight_core::{
-    AnalysisQuality, AnalysisRequest, Backend, InstanceUpdate, ShoeboxOptions, SkyBasis, SkyMatrix,
-    shoebox_scene,
+    AnalysisQuality, AnalysisRequest, Backend, ShoeboxOptions, SkyBasis, SkyMatrix, shoebox_scene,
 };
 #[cfg(target_os = "macos")]
 use daylight_metal::MetalBackend;
@@ -29,6 +30,7 @@ fn request() -> AnalysisRequest {
     }
 }
 
+#[cfg(target_os = "macos")]
 fn direct_request() -> AnalysisRequest {
     AnalysisRequest {
         sky: SkyMatrix::new(
