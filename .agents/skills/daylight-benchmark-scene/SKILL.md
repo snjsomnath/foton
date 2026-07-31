@@ -27,3 +27,15 @@ mutating the caller. Triangulate punched opaque parent faces, omit aperture poly
 openings remain open, and include overhangs, fins, orphaned shades, and shade meshes as
 opaque geometry. Feed identical patch-center directions, flattened sensor ordering, and
 geometry semantics to the GPU and Radiance paths.
+
+Maintain a complete canonical benchmark suite rather than a single fixture:
+
+- A shaded Honeybee shoebox with aperture, overhang, fins, and 216 sensors for direct
+  visibility.
+- The same material/geometry contract with diffuse and thin-glass transport.
+- Annual illuminance and DA/sDA derived from matching coefficient and sky matrices.
+- An instanced 1,000-room scene with 25 sensors per room for cold AS construction.
+- An unchanged rerun of that scene for resident BLAS/TLAS cache validation.
+
+Version the fixture identity and all scale/sample parameters in each report. Do not
+replace the 1,000-room fixture with a smaller smoke scene in published hardware tables.

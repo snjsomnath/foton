@@ -1,0 +1,4 @@
+interface:
+  display_name: "Foton Release Pipeline"
+  short_description: "Build and publish Foton Python releases"
+  default_prompt: "Use $foton-release-pipeline to prepare, publish, or recover a Foton release."

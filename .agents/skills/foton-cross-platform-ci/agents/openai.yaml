@@ -1,0 +1,4 @@
+interface:
+  display_name: "Foton Cross-Platform CI"
+  short_description: "Debug Rust, Python, and viewer CI"
+  default_prompt: "Use $foton-cross-platform-ci to diagnose and fix Foton CI across supported platforms."

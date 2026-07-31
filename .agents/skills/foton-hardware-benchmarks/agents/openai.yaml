@@ -1,0 +1,4 @@
+interface:
+  display_name: "Foton Hardware Benchmarks"
+  short_description: "Run and publish reproducible benchmarks"
+  default_prompt: "Use $foton-hardware-benchmarks to run Foton hardware and Radiance comparisons and update the README tables."

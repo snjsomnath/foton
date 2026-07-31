@@ -29,6 +29,16 @@ Radiance executables are external and require their function library. Preserve
 `rayinit.cal` when an executable is under `.../bin`. Pass the same environment to every
 Radiance subprocess.
 
+Resolve binaries from an explicit recipe input, `RADIANCE_BIN`, Honeybee configuration,
+bundled OpenStudio installations, then `PATH`. On macOS, search versioned paths such as
+`/Applications/OpenStudio-3.9.0/Radiance/bin`. Require both `oconv` and `rcontrib`.
+An executable existing on disk is insufficient when its function-library path is
+missing.
+
+Keep version probing non-fatal. Some bundled Radiance commands emit errors for
+`-version` or cannot find `rayinit.cal` during a probe even though correctly configured
+simulation subprocesses work. Store probe output separately from command success.
+
 ```text
 python scripts/validate_dc.py --oct scene.oct --pts sensors.pts \
   --gpu gpu_coefficients.csv --basis tregenza --mode daylight-coefficient \
@@ -37,6 +47,10 @@ python scripts/validate_dc.py --oct scene.oct --pts sensors.pts \
 
 Do not expect one-ray binary sky visibility to agree with a multi-bounce Radiance
 daylight-coefficient matrix. Compare like-for-like transport stages.
+
+For benchmark reports, require Radiance timing for every stage with a genuine
+like-for-like reference, including cold and cached 1,000-room scene runs. Use `n/a`
+only for an intentional non-comparison, never to hide a failed subprocess.
 
 For binary edge rays, report total mismatches, identified edge-ray mismatches,
 non-edge mismatches, and solid-angle/cosine-weighted visible-energy error separately.

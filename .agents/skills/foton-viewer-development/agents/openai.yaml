@@ -1,0 +1,4 @@
+interface:
+  display_name: "Foton Viewer Development"
+  short_description: "Run and debug the Foton web viewer"
+  default_prompt: "Use $foton-viewer-development to start or debug the Foton viewer frontend and Python backend."
