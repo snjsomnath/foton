@@ -1,0 +1,21 @@
+#version 460
+#include "common.glsl"
+
+layout(local_size_x = 64) in;
+layout(push_constant, scalar) uniform Uniforms {
+    uint coefficient_count;
+    float scale;
+    uvec2 padding;
+} uniforms;
+layout(set=0,binding=0,scalar) readonly buffer Indirect { uint values[]; } indirect_values;
+layout(set=0,binding=1,scalar) buffer Coefficients { vec3 values[]; } coefficients;
+
+void main() {
+    uint index = gl_GlobalInvocationID.x;
+    if (index >= uniforms.coefficient_count) return;
+    uint source = index * 3;
+    coefficients.values[index] += vec3(
+        indirect_values.values[source],
+        indirect_values.values[source+1],
+        indirect_values.values[source+2]) / uniforms.scale;
+}

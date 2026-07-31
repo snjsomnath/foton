@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vulkan SPIR-V Compiler"
+  short_description: "Compile and validate Vulkan ray-query shaders"
+  default_prompt: "Use $vulkan-spirv-compiler to compile and validate this Vulkan compute shader."

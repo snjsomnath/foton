@@ -1,0 +1,236 @@
+void plastic diffuse_mat
+0
+0
+5 0.5 0.5 0.5 0 0
+
+
+diffuse_mat polygon triangle_0
+0
+0
+9
+    0 0 0
+    0 9 0
+    6 9 0
+
+
+diffuse_mat polygon triangle_1
+0
+0
+9
+    0 0 0
+    6 9 0
+    6 0 0
+
+
+diffuse_mat polygon triangle_2
+0
+0
+9
+    6 9 0
+    0 9 0
+    0 9 3
+
+
+diffuse_mat polygon triangle_3
+0
+0
+9
+    6 9 0
+    0 9 3
+    6 9 3
+
+
+diffuse_mat polygon triangle_4
+0
+0
+9
+    6 9 3
+    6 0 3
+    6 0 0
+
+
+diffuse_mat polygon triangle_5
+0
+0
+9
+    6 9 3
+    6 0 0
+    6 9 0
+
+
+diffuse_mat polygon triangle_6
+0
+0
+9
+    6 0 0
+    6 0 3
+    4.5 0 2.5
+
+
+diffuse_mat polygon triangle_7
+0
+0
+9
+    1.5 0 2.5
+    4.5 0 2.5
+    6 0 3
+
+
+diffuse_mat polygon triangle_8
+0
+0
+9
+    6 0 0
+    4.5 0 2.5
+    4.5 0 1
+
+
+diffuse_mat polygon triangle_9
+0
+0
+9
+    1.5 0 2.5
+    6 0 3
+    0 0 3
+
+
+diffuse_mat polygon triangle_10
+0
+0
+9
+    0 0 0
+    6 0 0
+    4.5 0 1
+
+
+diffuse_mat polygon triangle_11
+0
+0
+9
+    1.5 0 1
+    1.5 0 2.5
+    0 0 3
+
+
+diffuse_mat polygon triangle_12
+0
+0
+9
+    0 0 0
+    4.5 0 1
+    1.5 0 1
+
+
+diffuse_mat polygon triangle_13
+0
+0
+9
+    1.5 0 1
+    0 0 3
+    0 0 0
+
+
+diffuse_mat polygon triangle_14
+0
+0
+9
+    0 0 0
+    0 0 3
+    0 9 3
+
+
+diffuse_mat polygon triangle_15
+0
+0
+9
+    0 0 0
+    0 9 3
+    0 9 0
+
+
+diffuse_mat polygon triangle_16
+0
+0
+9
+    6 0 3
+    6 9 3
+    0 9 3
+
+
+diffuse_mat polygon triangle_17
+0
+0
+9
+    6 0 3
+    0 9 3
+    0 0 3
+
+
+diffuse_mat polygon triangle_18
+0
+0
+9
+    4.5 0 2.5
+    1.5 0 2.5
+    1.5 -0.75 2.5
+
+
+diffuse_mat polygon triangle_19
+0
+0
+9
+    4.5 0 2.5
+    1.5 -0.75 2.5
+    4.5 -0.75 2.5
+
+
+diffuse_mat polygon triangle_20
+0
+0
+9
+    1.5 0 1
+    1.5 -0.5 1
+    1.5 -0.5 2.5
+
+
+diffuse_mat polygon triangle_21
+0
+0
+9
+    1.5 0 1
+    1.5 -0.5 2.5
+    1.5 0 2.5
+
+
+diffuse_mat polygon triangle_22
+0
+0
+9
+    4.5 0 1
+    4.5 -0.5 1
+    4.5 -0.5 2.5
+
+
+diffuse_mat polygon triangle_23
+0
+0
+9
+    4.5 0 1
+    4.5 -0.5 2.5
+    4.5 0 2.5
+
+
+void glow environment_glow
+0
+0
+4 1 1 1 0
+
+environment_glow source sky
+0
+0
+4 0 0 1 180
+
+environment_glow source ground
+0
+0
+4 0 0 -1 180

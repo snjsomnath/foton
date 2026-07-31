@@ -1,0 +1,111 @@
+{
+  "aperture_semantics": "geometric_opening",
+  "backend": "compare",
+  "engine_backend": "auto",
+  "engine_version": "0.1.0",
+  "geometry": {
+    "aperture_mode": "geometric_opening",
+    "instance_count": 1,
+    "shade_mode": "opaque",
+    "triangle_count": 24,
+    "triangle_counts": {
+      "Shoebox": 24
+    },
+    "vertex_count": 40
+  },
+  "gpu": {
+    "capabilities": {
+      "hardware_acceleration": true,
+      "name": "Metal device: Apple M4 Pro (GPU direct, diffuse, glass, and annual reduction)",
+      "supports_async_jobs": true,
+      "supports_ray_tracing": true
+    },
+    "solver": {
+      "basis": "Tregenza",
+      "convergence": 1.0,
+      "glazing_model": "radiance_thin_glass_non_refracting",
+      "metric_label": "static_sDA300_50",
+      "quality": "Preview",
+      "scene_fingerprint": 6006595176495115128,
+      "schedule_timestep_count": 1,
+      "solver_version": "0.1.0",
+      "transport_backend": "metal",
+      "used_reference_fallback": false
+    },
+    "timings_ms": {
+      "acceleration_structure_ms": 0.0,
+      "annual_reduction_ms": 0.06408333138097078,
+      "snapshot_ms": 0.0,
+      "tracing_ms": 0.1727499984554015,
+      "upload_ms": 0.056708
+    }
+  },
+  "matrix_orientation": [
+    "sensor",
+    "sky_patch"
+  ],
+  "metal": {
+    "capabilities": {
+      "hardware_acceleration": true,
+      "name": "Metal device: Apple M4 Pro (GPU direct, diffuse, glass, and annual reduction)",
+      "supports_async_jobs": true,
+      "supports_ray_tracing": true
+    },
+    "solver": {
+      "basis": "Tregenza",
+      "convergence": 1.0,
+      "glazing_model": "radiance_thin_glass_non_refracting",
+      "metric_label": "static_sDA300_50",
+      "quality": "Preview",
+      "scene_fingerprint": 6006595176495115128,
+      "schedule_timestep_count": 1,
+      "solver_version": "0.1.0",
+      "transport_backend": "metal",
+      "used_reference_fallback": false
+    },
+    "timings_ms": {
+      "acceleration_structure_ms": 0.0,
+      "annual_reduction_ms": 0.06408333138097078,
+      "snapshot_ms": 0.0,
+      "tracing_ms": 0.1727499984554015,
+      "upload_ms": 0.056708
+    }
+  },
+  "model_fingerprint": "d5315a76544a4b0697e17d016ebcf9356a35381e11cac350586cf0f7ec117636",
+  "model_identifier": "ShadedShoebox",
+  "model_units": "Meters",
+  "radiance": {
+    "commands": [
+      [
+        "/Applications/OpenStudio-3.9.0/Radiance/bin/oconv",
+        "/Users/ssanjay/GitHub/foton/benchmarks/results/20260731T053509Z-CM-GHHXPN239T/direct/ShadedShoebox-direct-visibility/.work/scene.rad"
+      ],
+      [
+        "/Applications/OpenStudio-3.9.0/Radiance/bin/rcontrib",
+        "-h",
+        "-w",
+        "-ab",
+        "0",
+        "-M",
+        "/Users/ssanjay/GitHub/foton/benchmarks/results/20260731T053509Z-CM-GHHXPN239T/direct/ShadedShoebox-direct-visibility/.work/modifiers.txt",
+        "/Users/ssanjay/GitHub/foton/benchmarks/results/20260731T053509Z-CM-GHHXPN239T/direct/ShadedShoebox-direct-visibility/.work/scene.oct"
+      ]
+    ],
+    "debug_files": null,
+    "elapsed_ms": 65.19012499848031,
+    "versions": {
+      "oconv": "/Applications/OpenStudio-3.9.0/Radiance/bin/oconv: fatal - unknown option: '-version'",
+      "rcontrib": "/Applications/OpenStudio-3.9.0/Radiance/bin/rcontrib: system - cannot find function file \"rayinit.cal\": No such file or directory"
+    }
+  },
+  "recipe": "direct_visibility",
+  "recipe_schema": 1,
+  "room_map": {
+    "Shoebox": 1
+  },
+  "run_fingerprint": "14d5587e68e5b2a59fa10238e46550461c2ecb13d1a4c26b3a0cd8b7e0203dd5",
+  "sensor_count": 216,
+  "shade_semantics": "opaque_static",
+  "sky_basis": "tregenza",
+  "sky_patch_count": 146
+}

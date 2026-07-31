@@ -1,0 +1,45 @@
+{
+  "bounces": 1,
+  "capabilities": {
+    "hardware_acceleration": true,
+    "name": "Metal device: Apple M4 Pro (GPU direct, diffuse, glass, and annual reduction)",
+    "supports_async_jobs": true,
+    "supports_ray_tracing": true
+  },
+  "estimated_input_bytes": 977008,
+  "first_run": {
+    "room_metric_count": 1000,
+    "sensor_metric_count": 25000,
+    "timings_ms": {
+      "acceleration_structure_ms": 0.0,
+      "annual_reduction_ms": 2.187374993809499,
+      "snapshot_ms": 0.0,
+      "tracing_ms": 12.245583333424293,
+      "upload_ms": 2.406916
+    },
+    "wall_clock_ms": 59.429749999253545
+  },
+  "fixture": "canonical-instanced-shoebox-1000-v1",
+  "glass_transmittance": 0.6,
+  "instance_count": 1000,
+  "mesh_count": 1,
+  "resident_scene_reuse": {
+    "room_metric_count": 1000,
+    "sensor_metric_count": 25000,
+    "timings_ms": {
+      "acceleration_structure_ms": 0.0,
+      "annual_reduction_ms": 2.047500001935987,
+      "snapshot_ms": 0.0,
+      "tracing_ms": 4.324458332121139,
+      "upload_ms": 2.684375
+    },
+    "wall_clock_ms": 40.1095829984115
+  },
+  "rooms": 1000,
+  "samples": 64,
+  "scene_commit_ms": 5.267749998893123,
+  "sensor_count": 25000,
+  "sensors_per_room": 25,
+  "transport_backend": "metal",
+  "triangles_per_room": 26
+}

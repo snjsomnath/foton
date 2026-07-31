@@ -1,0 +1,82 @@
+{
+  "samples": 65536,
+  "bounces": 2,
+  "glass_transmittance": null,
+  "comparison": {
+    "shape": [
+      216,
+      146,
+      3
+    ],
+    "nmbe_percent": -0.22831968365938068,
+    "cvrmse_percent": 326.3558850167035,
+    "mean_absolute_error": 0.0003517526596509046,
+    "maximum_absolute_error": 0.11164817214012146,
+    "reference_energy": 72.21309661865234,
+    "candidate_energy": 72.0482177734375
+  },
+  "uniform_sky_sensor_comparison": {
+    "shape": [
+      216,
+      3
+    ],
+    "nmbe_percent": -0.22830946848441286,
+    "cvrmse_percent": 25.927791080528028,
+    "mean_absolute_error": 0.020029224006942025,
+    "maximum_absolute_error": 0.10981568694114685,
+    "reference_energy": 72.21308898925781,
+    "candidate_energy": 72.0482177734375
+  },
+  "metal": {
+    "transport_backend": "metal",
+    "used_reference_fallback": false,
+    "timings_ms": {
+      "upload_ms": 0.051,
+      "acceleration_structure_ms": 0.0,
+      "tracing_ms": 24.892541667213663,
+      "annual_reduction_ms": 0.01941666596394498,
+      "snapshot_ms": 0.0
+    },
+    "wall_clock_ms": 34.736083000098006
+  },
+  "radiance": {
+    "commands": [
+      [
+        "/usr/local/radiance/bin/oconv",
+        "/Users/ssanjay/GitHub/vulkanDemo/simulation/full-transport/scene.rad"
+      ],
+      [
+        "/usr/local/radiance/bin/rcontrib",
+        "-I+",
+        "-h",
+        "-w",
+        "-V-",
+        "-ab",
+        "3",
+        "-ad",
+        "65536",
+        "-as",
+        "0",
+        "-aa",
+        "0",
+        "-lr",
+        "-10",
+        "-lw",
+        "1.52587891e-06",
+        "-e",
+        "MF:1",
+        "-f",
+        "reinhart.cal",
+        "-b",
+        "rbin",
+        "-bn",
+        "Nrbins",
+        "-m",
+        "environment_glow",
+        "/Users/ssanjay/GitHub/vulkanDemo/simulation/full-transport/scene.oct"
+      ]
+    ],
+    "ambient_bounces": 3,
+    "elapsed_ms": 53459.28287499919
+  }
+}

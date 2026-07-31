@@ -1,0 +1,87 @@
+{
+  "samples": 4096,
+  "bounces": 2,
+  "glass_transmittance": 0.6,
+  "comparison": {
+    "shape": [
+      216,
+      146,
+      3
+    ],
+    "nmbe_percent": 5.254608316432112,
+    "cvrmse_percent": 344.7375311500781,
+    "mean_absolute_error": 0.0002137096523912382,
+    "maximum_absolute_error": 0.06366927176713943,
+    "reference_energy": 39.32843780517578,
+    "candidate_energy": 41.394996643066406
+  },
+  "uniform_sky_sensor_comparison": {
+    "shape": [
+      216,
+      3
+    ],
+    "nmbe_percent": 5.25460805939079,
+    "cvrmse_percent": 27.740256738877225,
+    "mean_absolute_error": 0.011737609648628643,
+    "maximum_absolute_error": 0.06265705823898315,
+    "reference_energy": 39.32843780517578,
+    "candidate_energy": 41.39499282836914
+  },
+  "engine": {
+    "requested_backend": "auto",
+    "transport_backend": "metal",
+    "used_reference_fallback": false,
+    "timings_ms": {
+      "upload_ms": 0.054209,
+      "acceleration_structure_ms": 0.0,
+      "tracing_ms": 5.053500000940403,
+      "annual_reduction_ms": 0.06912500248290598,
+      "snapshot_ms": 0.0
+    },
+    "wall_clock_ms": 14.866249999613501
+  },
+  "radiance": {
+    "commands": [
+      [
+        "/Applications/OpenStudio-3.9.0/Radiance/bin/oconv",
+        "/Users/ssanjay/GitHub/foton/benchmarks/results/20260731T052459Z-CM-GHHXPN239T/full/scene.rad"
+      ],
+      [
+        "/Applications/OpenStudio-3.9.0/Radiance/bin/rcontrib",
+        "-I+",
+        "-h",
+        "-w",
+        "-V-",
+        "-ab",
+        "3",
+        "-ad",
+        "4096",
+        "-as",
+        "0",
+        "-aa",
+        "0",
+        "-lr",
+        "-10",
+        "-lw",
+        "2.44140625e-05",
+        "-e",
+        "MF:1",
+        "-f",
+        "reinhart.cal",
+        "-b",
+        "rbin",
+        "-bn",
+        "Nrbins",
+        "-m",
+        "environment_glow",
+        "/Users/ssanjay/GitHub/foton/benchmarks/results/20260731T052459Z-CM-GHHXPN239T/full/scene.oct"
+      ]
+    ],
+    "versions": {
+      "oconv": "/Applications/OpenStudio-3.9.0/Radiance/bin/oconv: fatal - unknown option: '-version'",
+      "rcontrib": "/Applications/OpenStudio-3.9.0/Radiance/bin/rcontrib: system - cannot find function file \"rayinit.cal\": No such file or directory"
+    },
+    "ambient_bounces": 3,
+    "elapsed_ms": 3517.04462500129
+  }
+}

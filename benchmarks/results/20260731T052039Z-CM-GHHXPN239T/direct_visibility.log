@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "/Users/ssanjay/GitHub/foton/scripts/compare_honeybee_shoebox.py", line 105, in <module>
+    main()
+    ~~~~^^
+  File "/Users/ssanjay/GitHub/foton/scripts/compare_honeybee_shoebox.py", line 93, in main
+    project = recipe.run(
+        RecipeSettings(
+    ...<4 lines>...
+        )
+    )
+  File "/Users/ssanjay/GitHub/foton/python/daylight_engine/honeybee/recipe.py", line 186, in run
+    executables = resolve_radiance_executables(self._inputs["radiance_bin"])
+  File "/Users/ssanjay/GitHub/foton/python/daylight_engine/honeybee/radiance.py", line 54, in resolve_radiance_executables
+    raise FileNotFoundError(
+    ...<3 lines>...
+    )
+FileNotFoundError: missing Radiance executable(s) oconv, rcontrib; checked no configured directories and PATH. Set the recipe 'radiance_bin' input or RADIANCE_BIN.

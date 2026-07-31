@@ -1,0 +1,4 @@
+interface:
+  display_name: "Daylight Benchmark Scene"
+  short_description: "Generate GPU and Radiance benchmark scenes"
+  default_prompt: "Use $daylight-benchmark-scene to generate a canonical GPU and Radiance validation scene."

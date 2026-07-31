@@ -1,0 +1,4 @@
+interface:
+  display_name: "Metal Ray Tracing"
+  short_description: "Build and debug portable Metal ray tracing"
+  default_prompt: "Use $metal-raytracing to implement or debug Metal acceleration structures and ray-intersection shaders."

@@ -1,0 +1,83 @@
+{
+  "aperture_semantics": "geometric_opening",
+  "backend": "compare",
+  "engine_version": "0.1.0",
+  "geometry": {
+    "aperture_mode": "geometric_opening",
+    "instance_count": 1,
+    "shade_mode": "opaque",
+    "triangle_count": 24,
+    "triangle_counts": {
+      "Shoebox": 24
+    },
+    "vertex_count": 40
+  },
+  "matrix_orientation": [
+    "sensor",
+    "sky_patch"
+  ],
+  "metal": {
+    "capabilities": {
+      "hardware_acceleration": true,
+      "name": "Metal device: Apple M4 Pro (GPU direct, diffuse, glass, and annual reduction)",
+      "supports_async_jobs": true,
+      "supports_ray_tracing": true
+    },
+    "solver": {
+      "basis": "Tregenza",
+      "convergence": 1.0,
+      "glazing_model": "radiance_thin_glass_non_refracting",
+      "metric_label": "static_sDA300_50",
+      "quality": "Preview",
+      "scene_fingerprint": 6006595176495115128,
+      "schedule_timestep_count": 1,
+      "solver_version": "0.1.0",
+      "transport_backend": "metal",
+      "used_reference_fallback": false
+    },
+    "timings_ms": {
+      "acceleration_structure_ms": 0.0,
+      "annual_reduction_ms": 0.06554166793648619,
+      "snapshot_ms": 0.0,
+      "tracing_ms": 0.17387499974574894,
+      "upload_ms": 0.0635
+    }
+  },
+  "model_fingerprint": "9a64fd1ef1d40531f4f41b7c6015250c8949b9253f0c0fe7a16d501c4a6269c9",
+  "model_identifier": "ShadedShoebox",
+  "model_units": "Meters",
+  "radiance": {
+    "commands": [
+      [
+        "/usr/local/radiance/bin/oconv",
+        "/Users/ssanjay/GitHub/vulkanDemo/simulation/ShadedShoebox-direct-visibility/.work/scene.rad"
+      ],
+      [
+        "/usr/local/radiance/bin/rcontrib",
+        "-h",
+        "-w",
+        "-ab",
+        "0",
+        "-M",
+        "/Users/ssanjay/GitHub/vulkanDemo/simulation/ShadedShoebox-direct-visibility/.work/modifiers.txt",
+        "/Users/ssanjay/GitHub/vulkanDemo/simulation/ShadedShoebox-direct-visibility/.work/scene.oct"
+      ]
+    ],
+    "debug_files": null,
+    "elapsed_ms": 63.06487500114599,
+    "versions": {
+      "oconv": "/usr/local/radiance/bin/oconv: fatal - unknown option: '-version'",
+      "rcontrib": "/usr/local/radiance/bin/rcontrib: system - cannot find function file \"rayinit.cal\": No such file or directory"
+    }
+  },
+  "recipe": "direct_visibility",
+  "recipe_schema": 1,
+  "room_map": {
+    "Shoebox": 1
+  },
+  "run_fingerprint": "468ebd8ce1b46da8528a628cf5238daa3f218db13c3e0744d423ea091c70c1cc",
+  "sensor_count": 216,
+  "shade_semantics": "opaque_static",
+  "sky_basis": "tregenza",
+  "sky_patch_count": 146
+}

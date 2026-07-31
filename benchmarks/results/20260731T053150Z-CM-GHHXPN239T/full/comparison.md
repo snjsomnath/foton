@@ -1,0 +1,29 @@
+# Full Hardware Transport Comparison
+
+- Basis: `tregenza`
+- Matrix shape: `[216, 146, 3]`
+- Samples: `4096`
+- Diffuse bounces: `2`
+- Radiance ambient bounces: `3`
+- Glass visible transmittance: `0.6`
+- Requested backend: `auto`
+- Transport backend: `metal`
+- Reference fallback: `False`
+- NMBE: `5.2660%`
+- CV(RMSE): `345.7627%`
+- Mean absolute error: `0.00021335822`
+- Maximum absolute error: `0.06862748`
+- Uniform-sky sensor NMBE: `5.2660%`
+- Uniform-sky sensor CV(RMSE): `28.1174%`
+- Engine tracing: `5.7727 ms`
+- Radiance rcontrib: `3688.3753 ms`
+
+## Annual Metrics
+
+- Timesteps: `8760`
+- Occupied hours: `3650`
+- Illuminance NMBE: `5.3146%`
+- Illuminance CV(RMSE): `27.4165%`
+- Mean DA difference: `0.002128`
+- sDA difference: `0.0000 pp`
+- Engine/CPU reduction maximum DA error: `5.3970781e-09`

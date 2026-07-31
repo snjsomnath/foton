@@ -1,0 +1,89 @@
+{
+  "bounces": 1,
+  "capabilities": {
+    "hardware_acceleration": true,
+    "name": "Metal device: Apple M4 Pro (GPU direct, diffuse, glass, and annual reduction)",
+    "supports_async_jobs": true,
+    "supports_ray_tracing": true
+  },
+  "estimated_input_bytes": 977008,
+  "first_run": {
+    "room_metric_count": 1000,
+    "sensor_metric_count": 25000,
+    "timings_ms": {
+      "acceleration_structure_ms": 0.0,
+      "annual_reduction_ms": 2.1029999807069544,
+      "snapshot_ms": 0.0,
+      "tracing_ms": 18.27837499877205,
+      "upload_ms": 2.217625
+    },
+    "wall_clock_ms": 63.85929099997156
+  },
+  "fixture": "canonical-instanced-shoebox-1000-v1",
+  "glass_transmittance": 0.6,
+  "instance_count": 1000,
+  "mesh_count": 1,
+  "radiance": {
+    "cached_trace_ms": 4431.310708001547,
+    "cached_wall_clock_ms": 4431.310708001547,
+    "cold_wall_clock_ms": 4621.423499997036,
+    "commands": [
+      [
+        "/Applications/OpenStudio-3.9.0/Radiance/bin/oconv",
+        "/Users/ssanjay/GitHub/foton/benchmarks/results/20260731T054146Z-CM-GHHXPN239T/large_radiance/scene.rad"
+      ],
+      [
+        "/Applications/OpenStudio-3.9.0/Radiance/bin/rcontrib",
+        "-I+",
+        "-h",
+        "-w",
+        "-V-",
+        "-ab",
+        "2",
+        "-ad",
+        "64",
+        "-as",
+        "0",
+        "-aa",
+        "0",
+        "-lr",
+        "-10",
+        "-lw",
+        "0.0015625",
+        "-e",
+        "MF:1",
+        "-f",
+        "reinhart.cal",
+        "-b",
+        "rbin",
+        "-bn",
+        "Nrbins",
+        "-m",
+        "environment_glow",
+        "/Users/ssanjay/GitHub/foton/benchmarks/results/20260731T054146Z-CM-GHHXPN239T/large_radiance/scene.oct"
+      ]
+    ],
+    "first_trace_ms": 4461.057208998682,
+    "octree_build_ms": 160.3662909983541,
+    "scene_write_ms": 105.1221669986262
+  },
+  "resident_scene_reuse": {
+    "room_metric_count": 1000,
+    "sensor_metric_count": 25000,
+    "timings_ms": {
+      "acceleration_structure_ms": 0.0,
+      "annual_reduction_ms": 2.1046250076324213,
+      "snapshot_ms": 0.0,
+      "tracing_ms": 4.239833331666887,
+      "upload_ms": 1.9095
+    },
+    "wall_clock_ms": 39.17350000119768
+  },
+  "rooms": 1000,
+  "samples": 64,
+  "scene_commit_ms": 4.995458999474067,
+  "sensor_count": 25000,
+  "sensors_per_room": 25,
+  "transport_backend": "metal",
+  "triangles_per_room": 26
+}

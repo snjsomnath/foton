@@ -1,0 +1,756 @@
+{
+  "type": "Model",
+  "identifier": "ShadedShoebox",
+  "display_name": "ShadedShoebox",
+  "units": "Meters",
+  "properties": {
+    "type": "ModelProperties",
+    "radiance": {
+      "type": "ModelRadianceProperties",
+      "global_modifier_set": {
+        "type": "GlobalModifierSet",
+        "wall_set": {
+          "interior_modifier": "generic_wall_0.50",
+          "exterior_modifier": "generic_wall_0.50",
+          "type": "WallModifierSetAbridged"
+        },
+        "floor_set": {
+          "interior_modifier": "generic_floor_0.20",
+          "exterior_modifier": "generic_floor_0.20",
+          "type": "FloorModifierSetAbridged"
+        },
+        "roof_ceiling_set": {
+          "interior_modifier": "generic_ceiling_0.80",
+          "exterior_modifier": "generic_ceiling_0.80",
+          "type": "RoofCeilingModifierSetAbridged"
+        },
+        "aperture_set": {
+          "skylight_modifier": "generic_exterior_window_vis_0.64",
+          "interior_modifier": "generic_interior_window_vis_0.88",
+          "operable_modifier": "generic_exterior_window_vis_0.64",
+          "type": "ApertureModifierSetAbridged",
+          "window_modifier": "generic_exterior_window_vis_0.64"
+        },
+        "door_set": {
+          "interior_glass_modifier": "generic_interior_window_vis_0.88",
+          "exterior_modifier": "generic_opaque_door_0.50",
+          "interior_modifier": "generic_opaque_door_0.50",
+          "overhead_modifier": "generic_opaque_door_0.50",
+          "exterior_glass_modifier": "generic_exterior_window_vis_0.64",
+          "type": "DoorModifierSetAbridged"
+        },
+        "shade_set": {
+          "interior_modifier": "generic_interior_shade_0.50",
+          "exterior_modifier": "generic_exterior_shade_0.35",
+          "type": "ShadeModifierSetAbridged"
+        },
+        "air_boundary_modifier": "air_boundary",
+        "modifiers": [
+          {
+            "modifier": null,
+            "type": "Plastic",
+            "identifier": "generic_wall_0.50",
+            "r_reflectance": 0.5,
+            "g_reflectance": 0.5,
+            "b_reflectance": 0.5,
+            "specularity": 0.0,
+            "roughness": 0.0,
+            "dependencies": []
+          },
+          {
+            "modifier": null,
+            "type": "Glass",
+            "identifier": "generic_interior_window_vis_0.88",
+            "r_transmissivity": 0.9584154328610596,
+            "g_transmissivity": 0.9584154328610596,
+            "b_transmissivity": 0.9584154328610596,
+            "refraction_index": null,
+            "dependencies": []
+          },
+          {
+            "modifier": null,
+            "type": "Plastic",
+            "identifier": "generic_ceiling_0.80",
+            "r_reflectance": 0.8,
+            "g_reflectance": 0.8,
+            "b_reflectance": 0.8,
+            "specularity": 0.0,
+            "roughness": 0.0,
+            "dependencies": []
+          },
+          {
+            "modifier": null,
+            "type": "Plastic",
+            "identifier": "generic_opaque_door_0.50",
+            "r_reflectance": 0.5,
+            "g_reflectance": 0.5,
+            "b_reflectance": 0.5,
+            "specularity": 0.0,
+            "roughness": 0.0,
+            "dependencies": []
+          },
+          {
+            "modifier": null,
+            "type": "Plastic",
+            "identifier": "generic_exterior_shade_0.35",
+            "r_reflectance": 0.35,
+            "g_reflectance": 0.35,
+            "b_reflectance": 0.35,
+            "specularity": 0.0,
+            "roughness": 0.0,
+            "dependencies": []
+          },
+          {
+            "modifier": null,
+            "type": "Trans",
+            "identifier": "air_boundary",
+            "r_reflectance": 1.0,
+            "g_reflectance": 1.0,
+            "b_reflectance": 1.0,
+            "specularity": 0.0,
+            "roughness": 0.0,
+            "transmitted_diff": 1.0,
+            "transmitted_spec": 1.0,
+            "dependencies": []
+          },
+          {
+            "modifier": null,
+            "type": "Plastic",
+            "identifier": "generic_floor_0.20",
+            "r_reflectance": 0.2,
+            "g_reflectance": 0.2,
+            "b_reflectance": 0.2,
+            "specularity": 0.0,
+            "roughness": 0.0,
+            "dependencies": []
+          },
+          {
+            "modifier": null,
+            "type": "Glass",
+            "identifier": "generic_exterior_window_vis_0.64",
+            "r_transmissivity": 0.6975761815384331,
+            "g_transmissivity": 0.6975761815384331,
+            "b_transmissivity": 0.6975761815384331,
+            "refraction_index": null,
+            "dependencies": []
+          },
+          {
+            "modifier": null,
+            "type": "Plastic",
+            "identifier": "generic_interior_shade_0.50",
+            "r_reflectance": 0.5,
+            "g_reflectance": 0.5,
+            "b_reflectance": 0.5,
+            "specularity": 0.0,
+            "roughness": 0.0,
+            "dependencies": []
+          },
+          {
+            "modifier": null,
+            "type": "Plastic",
+            "identifier": "generic_context_0.20",
+            "r_reflectance": 0.2,
+            "g_reflectance": 0.2,
+            "b_reflectance": 0.2,
+            "specularity": 0.0,
+            "roughness": 0.0,
+            "dependencies": []
+          }
+        ],
+        "context_modifier": "generic_context_0.20"
+      },
+      "modifier_sets": [],
+      "modifiers": []
+    }
+  },
+  "rooms": [
+    {
+      "type": "Room",
+      "identifier": "Shoebox",
+      "display_name": "Shoebox",
+      "properties": {
+        "type": "RoomPropertiesAbridged",
+        "radiance": {
+          "type": "RoomRadiancePropertiesAbridged"
+        }
+      },
+      "faces": [
+        {
+          "type": "Face",
+          "identifier": "Shoebox_Bottom",
+          "display_name": "Shoebox_Bottom",
+          "properties": {
+            "type": "FacePropertiesAbridged",
+            "radiance": {
+              "type": "FaceRadiancePropertiesAbridged"
+            }
+          },
+          "geometry": {
+            "type": "Face3D",
+            "boundary": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                9.0,
+                0.0
+              ],
+              [
+                6.0,
+                9.0,
+                0.0
+              ],
+              [
+                6.0,
+                0.0,
+                0.0
+              ]
+            ],
+            "plane": {
+              "type": "Plane",
+              "n": [
+                -0.0,
+                -0.0,
+                -1.0
+              ],
+              "o": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "x": [
+                1.0,
+                0.0,
+                0.0
+              ]
+            }
+          },
+          "face_type": "Floor",
+          "boundary_condition": {
+            "type": "Ground"
+          }
+        },
+        {
+          "type": "Face",
+          "identifier": "Shoebox_Front",
+          "display_name": "Shoebox_Front",
+          "properties": {
+            "type": "FacePropertiesAbridged",
+            "radiance": {
+              "type": "FaceRadiancePropertiesAbridged"
+            }
+          },
+          "geometry": {
+            "type": "Face3D",
+            "boundary": [
+              [
+                6.0,
+                9.0,
+                0.0
+              ],
+              [
+                0.0,
+                9.0,
+                0.0
+              ],
+              [
+                0.0,
+                9.0,
+                3.0
+              ],
+              [
+                6.0,
+                9.0,
+                3.0
+              ]
+            ],
+            "plane": {
+              "type": "Plane",
+              "n": [
+                0.0,
+                1.0,
+                0.0
+              ],
+              "o": [
+                6.0,
+                9.0,
+                0.0
+              ],
+              "x": [
+                1.0,
+                -0.0,
+                0.0
+              ]
+            }
+          },
+          "face_type": "Wall",
+          "boundary_condition": {
+            "type": "Outdoors"
+          }
+        },
+        {
+          "type": "Face",
+          "identifier": "Shoebox_Right",
+          "display_name": "Shoebox_Right",
+          "properties": {
+            "type": "FacePropertiesAbridged",
+            "radiance": {
+              "type": "FaceRadiancePropertiesAbridged"
+            }
+          },
+          "geometry": {
+            "type": "Face3D",
+            "boundary": [
+              [
+                6.0,
+                9.0,
+                3.0
+              ],
+              [
+                6.0,
+                0.0,
+                3.0
+              ],
+              [
+                6.0,
+                0.0,
+                0.0
+              ],
+              [
+                6.0,
+                9.0,
+                0.0
+              ]
+            ],
+            "plane": {
+              "type": "Plane",
+              "n": [
+                1.0,
+                0.0,
+                0.0
+              ],
+              "o": [
+                6.0,
+                9.0,
+                3.0
+              ],
+              "x": [
+                0.0,
+                -1.0,
+                0.0
+              ]
+            }
+          },
+          "face_type": "Wall",
+          "boundary_condition": {
+            "type": "Outdoors"
+          }
+        },
+        {
+          "type": "Face",
+          "identifier": "Shoebox_Back",
+          "display_name": "Shoebox_Back",
+          "properties": {
+            "type": "FacePropertiesAbridged",
+            "radiance": {
+              "type": "FaceRadiancePropertiesAbridged"
+            }
+          },
+          "geometry": {
+            "type": "Face3D",
+            "boundary": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                6.0,
+                0.0,
+                0.0
+              ],
+              [
+                6.0,
+                0.0,
+                3.0
+              ],
+              [
+                0.0,
+                0.0,
+                3.0
+              ]
+            ],
+            "plane": {
+              "type": "Plane",
+              "n": [
+                0.0,
+                -1.0,
+                0.0
+              ],
+              "o": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "x": [
+                -1.0,
+                -0.0,
+                0.0
+              ]
+            }
+          },
+          "face_type": "Wall",
+          "boundary_condition": {
+            "type": "Outdoors"
+          },
+          "apertures": [
+            {
+              "type": "Aperture",
+              "identifier": "SouthWindow",
+              "display_name": "SouthWindow",
+              "properties": {
+                "type": "AperturePropertiesAbridged",
+                "radiance": {
+                  "type": "ApertureRadiancePropertiesAbridged"
+                }
+              },
+              "geometry": {
+                "type": "Face3D",
+                "boundary": [
+                  [
+                    1.5000000000000002,
+                    0.0,
+                    0.9999999999999998
+                  ],
+                  [
+                    4.5,
+                    0.0,
+                    0.9999999999999994
+                  ],
+                  [
+                    4.5,
+                    0.0,
+                    2.4999999999999996
+                  ],
+                  [
+                    1.5000000000000002,
+                    0.0,
+                    2.5
+                  ]
+                ],
+                "plane": {
+                  "type": "Plane",
+                  "n": [
+                    0.0,
+                    -1.0,
+                    0.0
+                  ],
+                  "o": [
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "x": [
+                    -1.0,
+                    -0.0,
+                    0.0
+                  ]
+                }
+              },
+              "is_operable": false,
+              "boundary_condition": {
+                "type": "Outdoors"
+              },
+              "outdoor_shades": [
+                {
+                  "type": "Shade",
+                  "identifier": "SouthWindow_SouthOverhang0",
+                  "display_name": "SouthWindow_SouthOverhang0",
+                  "properties": {
+                    "type": "ShadePropertiesAbridged",
+                    "radiance": {
+                      "type": "ShadeRadiancePropertiesAbridged"
+                    }
+                  },
+                  "geometry": {
+                    "type": "Face3D",
+                    "boundary": [
+                      [
+                        4.5,
+                        0.0,
+                        2.4999999000000006
+                      ],
+                      [
+                        1.5,
+                        0.0,
+                        2.4999999000000006
+                      ],
+                      [
+                        1.5,
+                        -0.75,
+                        2.4999999000000006
+                      ],
+                      [
+                        4.5,
+                        -0.75,
+                        2.4999999000000006
+                      ]
+                    ],
+                    "plane": {
+                      "type": "Plane",
+                      "n": [
+                        0.0,
+                        0.0,
+                        1.0
+                      ],
+                      "o": [
+                        4.5,
+                        0.0,
+                        2.4999999000000006
+                      ],
+                      "x": [
+                        1.0,
+                        0.0,
+                        0.0
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "Shade",
+                  "identifier": "SouthWindow_LeftFin",
+                  "display_name": "SouthWindow_LeftFin",
+                  "properties": {
+                    "type": "ShadePropertiesAbridged",
+                    "radiance": {
+                      "type": "ShadeRadiancePropertiesAbridged"
+                    }
+                  },
+                  "geometry": {
+                    "type": "Face3D",
+                    "boundary": [
+                      [
+                        1.5,
+                        0.0,
+                        1.0
+                      ],
+                      [
+                        1.5,
+                        -0.5,
+                        1.0
+                      ],
+                      [
+                        1.5,
+                        -0.5,
+                        2.5
+                      ],
+                      [
+                        1.5,
+                        0.0,
+                        2.5
+                      ]
+                    ],
+                    "plane": {
+                      "type": "Plane",
+                      "n": [
+                        -1.0,
+                        0.0,
+                        0.0
+                      ],
+                      "o": [
+                        1.5,
+                        0.0,
+                        1.0
+                      ],
+                      "x": [
+                        0.0,
+                        1.0,
+                        0.0
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": "Shade",
+                  "identifier": "SouthWindow_RightFin",
+                  "display_name": "SouthWindow_RightFin",
+                  "properties": {
+                    "type": "ShadePropertiesAbridged",
+                    "radiance": {
+                      "type": "ShadeRadiancePropertiesAbridged"
+                    }
+                  },
+                  "geometry": {
+                    "type": "Face3D",
+                    "boundary": [
+                      [
+                        4.5,
+                        0.0,
+                        1.0
+                      ],
+                      [
+                        4.5,
+                        -0.5,
+                        1.0
+                      ],
+                      [
+                        4.5,
+                        -0.5,
+                        2.5
+                      ],
+                      [
+                        4.5,
+                        0.0,
+                        2.5
+                      ]
+                    ],
+                    "plane": {
+                      "type": "Plane",
+                      "n": [
+                        -1.0,
+                        0.0,
+                        0.0
+                      ],
+                      "o": [
+                        4.5,
+                        0.0,
+                        1.0
+                      ],
+                      "x": [
+                        0.0,
+                        1.0,
+                        0.0
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Face",
+          "identifier": "Shoebox_Left",
+          "display_name": "Shoebox_Left",
+          "properties": {
+            "type": "FacePropertiesAbridged",
+            "radiance": {
+              "type": "FaceRadiancePropertiesAbridged"
+            }
+          },
+          "geometry": {
+            "type": "Face3D",
+            "boundary": [
+              [
+                0.0,
+                0.0,
+                0.0
+              ],
+              [
+                0.0,
+                0.0,
+                3.0
+              ],
+              [
+                0.0,
+                9.0,
+                3.0
+              ],
+              [
+                0.0,
+                9.0,
+                0.0
+              ]
+            ],
+            "plane": {
+              "type": "Plane",
+              "n": [
+                -1.0,
+                0.0,
+                0.0
+              ],
+              "o": [
+                0.0,
+                0.0,
+                0.0
+              ],
+              "x": [
+                0.0,
+                1.0,
+                0.0
+              ]
+            }
+          },
+          "face_type": "Wall",
+          "boundary_condition": {
+            "type": "Outdoors"
+          }
+        },
+        {
+          "type": "Face",
+          "identifier": "Shoebox_Top",
+          "display_name": "Shoebox_Top",
+          "properties": {
+            "type": "FacePropertiesAbridged",
+            "radiance": {
+              "type": "FaceRadiancePropertiesAbridged"
+            }
+          },
+          "geometry": {
+            "type": "Face3D",
+            "boundary": [
+              [
+                6.0,
+                0.0,
+                3.0
+              ],
+              [
+                6.0,
+                9.0,
+                3.0
+              ],
+              [
+                0.0,
+                9.0,
+                3.0
+              ],
+              [
+                0.0,
+                0.0,
+                3.0
+              ]
+            ],
+            "plane": {
+              "type": "Plane",
+              "n": [
+                0.0,
+                0.0,
+                1.0
+              ],
+              "o": [
+                0.0,
+                0.0,
+                3.0
+              ],
+              "x": [
+                1.0,
+                0.0,
+                0.0
+              ]
+            }
+          },
+          "face_type": "RoofCeiling",
+          "boundary_condition": {
+            "type": "Outdoors"
+          }
+        }
+      ]
+    }
+  ],
+  "tolerance": 0.01,
+  "angle_tolerance": 1.0,
+  "version": "2.2.0"
+}

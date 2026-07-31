@@ -1,0 +1,4 @@
+interface:
+  display_name: "Daylight Metric Evaluator"
+  short_description: "Compute DF and sDA from illuminance arrays"
+  default_prompt: "Use $daylight-metric-evaluator to compute DF and sDA metrics from simulation outputs."

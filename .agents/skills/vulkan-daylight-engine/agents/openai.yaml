@@ -1,0 +1,4 @@
+interface:
+  display_name: "Vulkan Daylight Engine"
+  short_description: "Design scalable Vulkan daylight analysis"
+  default_prompt: "Use $vulkan-daylight-engine to design or review a scalable ray-query daylight pipeline."

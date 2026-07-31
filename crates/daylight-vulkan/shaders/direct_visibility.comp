@@ -1,0 +1,71 @@
+#version 460
+#extension GL_EXT_ray_query : require
+#include "common.glsl"
+
+layout(local_size_x = 8, local_size_y = 8) in;
+layout(push_constant, scalar) uniform Uniforms {
+    uint sensor_count;
+    uint patch_count;
+    uint active_mask;
+    uint max_transparent;
+} uniforms;
+layout(set=0,binding=0,scalar) readonly buffer Sensors { Sensor values[]; } sensors;
+layout(set=0,binding=1,scalar) readonly buffer Directions { vec3 values[]; } directions;
+layout(set=0,binding=2,scalar) readonly buffer Angles { float values[]; } angles;
+layout(set=0,binding=3,scalar) readonly buffer Metadata { InstanceMetadata values[]; } metadata;
+layout(set=0,binding=4,scalar) readonly buffer TriangleMaterials { uint values[]; } triangle_materials;
+layout(set=0,binding=5,scalar) readonly buffer Materials { Material values[]; } materials;
+layout(set=0,binding=6,scalar) readonly buffer TriangleNormals { vec3 values[]; } triangle_normals;
+layout(set=0,binding=7,scalar) readonly buffer NormalTransforms { NormalTransform values[]; } normal_transforms;
+layout(set=0,binding=8,scalar) buffer Coefficients { vec3 values[]; } coefficients;
+layout(set=0,binding=9) uniform accelerationStructureEXT scene_as;
+
+vec3 hit_normal(uint instance_index, uint triangle_index, vec3 ray_direction) {
+    vec3 value = transform_normal(
+        triangle_normals.values[triangle_index],
+        normal_transforms.values[instance_index]);
+    return dot(value, ray_direction) > 0.0 ? -value : value;
+}
+
+void main() {
+    uint patch_index = gl_GlobalInvocationID.x;
+    uint sensor_index = gl_GlobalInvocationID.y;
+    if (patch_index >= uniforms.patch_count || sensor_index >= uniforms.sensor_count) return;
+    Sensor sensor = sensors.values[sensor_index];
+    vec3 direction = normalize(directions.values[patch_index]);
+    float cosine = max(dot(sensor.normal, direction), 0.0);
+    if (cosine == 0.0) {
+        coefficients.values[sensor_index * uniforms.patch_count + patch_index] = vec3(0);
+        return;
+    }
+    vec3 origin = sensor.position + sensor.normal * 1e-4;
+    vec3 transmission = vec3(1);
+    for (uint transparent = 0; transparent <= uniforms.max_transparent; ++transparent) {
+        rayQueryEXT query;
+        rayQueryInitializeEXT(
+            query, scene_as,
+            gl_RayFlagsOpaqueEXT | gl_RayFlagsTerminateOnFirstHitEXT,
+            uniforms.active_mask, origin, 1e-4, direction, 1e30);
+        while (rayQueryProceedEXT(query)) {}
+        if (rayQueryGetIntersectionTypeEXT(query, true)
+            == gl_RayQueryCommittedIntersectionNoneEXT) break;
+        uint instance_index = rayQueryGetIntersectionInstanceCustomIndexEXT(query, true);
+        uint triangle = metadata.values[instance_index].material_offset
+            + rayQueryGetIntersectionPrimitiveIndexEXT(query, true);
+        Material material = materials.values[triangle_materials.values[triangle]];
+        if (material.kind != 1 || transparent == uniforms.max_transparent) {
+            transmission = vec3(0);
+            break;
+        }
+        vec3 normal = hit_normal(instance_index, triangle, direction);
+        transmission *= thin_glass_transmission(
+            material.internal_transmissivity_rgb, abs(dot(direction, normal)));
+        if (all(lessThanEqual(transmission, vec3(1e-6)))) {
+            transmission = vec3(0);
+            break;
+        }
+        origin += direction * (rayQueryGetIntersectionTEXT(query, true) + 1e-4);
+    }
+    coefficients.values[sensor_index * uniforms.patch_count + patch_index] =
+        transmission * cosine * angles.values[patch_index];
+}

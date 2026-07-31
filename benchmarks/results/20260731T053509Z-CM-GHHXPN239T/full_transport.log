@@ -1,0 +1,31 @@
+# Full Hardware Transport Comparison
+
+- Basis: `tregenza`
+- Matrix shape: `[216, 146, 3]`
+- Samples: `4096`
+- Diffuse bounces: `2`
+- Radiance ambient bounces: `3`
+- Glass visible transmittance: `0.6`
+- Requested backend: `auto`
+- Transport backend: `metal`
+- Reference fallback: `False`
+- NMBE: `5.0366%`
+- CV(RMSE): `343.9671%`
+- Mean absolute error: `0.00021358056`
+- Maximum absolute error: `0.066359103`
+- Uniform-sky sensor NMBE: `5.0366%`
+- Uniform-sky sensor CV(RMSE): `27.3676%`
+- Engine tracing: `5.8159 ms`
+- Radiance rcontrib: `3614.0193 ms`
+
+## Annual Metrics
+
+- Timesteps: `8760`
+- Occupied hours: `3650`
+- Illuminance NMBE: `5.0163%`
+- Illuminance CV(RMSE): `26.3436%`
+- Mean DA difference: `0.002024`
+- sDA difference: `0.0000 pp`
+- Engine/CPU reduction maximum DA error: `5.3970781e-09`
+
+/Users/ssanjay/GitHub/foton/benchmarks/results/20260731T053509Z-CM-GHHXPN239T/full/comparison.md

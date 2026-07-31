@@ -1,0 +1,31 @@
+Traceback (most recent call last):
+  File "/Users/ssanjay/GitHub/foton/python/daylight_engine/honeybee/radiance.py", line 168, in _write_honeybee_radiance_scene
+    from honeybee_radiance.lib.modifiers import black
+ModuleNotFoundError: No module named 'honeybee_radiance'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/ssanjay/GitHub/foton/scripts/compare_honeybee_shoebox.py", line 105, in <module>
+    main()
+    ~~~~^^
+  File "/Users/ssanjay/GitHub/foton/scripts/compare_honeybee_shoebox.py", line 93, in main
+    project = recipe.run(
+        RecipeSettings(
+    ...<4 lines>...
+        )
+    )
+  File "/Users/ssanjay/GitHub/foton/python/daylight_engine/honeybee/recipe.py", line 296, in run
+    radiance_run = run_radiance_visibility(
+        prepared.model,
+    ...<6 lines>...
+        radiance_bin=self._inputs["radiance_bin"],
+    )
+  File "/Users/ssanjay/GitHub/foton/python/daylight_engine/honeybee/radiance.py", line 83, in run_radiance_visibility
+    _write_honeybee_radiance_scene(model, scene_path)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/Users/ssanjay/GitHub/foton/python/daylight_engine/honeybee/radiance.py", line 175, in _write_honeybee_radiance_scene
+    raise ImportError(
+    ...<2 lines>...
+    ) from error
+ImportError: Radiance comparison requires honeybee-radiance; install 'daylight-engine[honeybee]'

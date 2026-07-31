@@ -1,0 +1,16 @@
+[package]
+name = "daylight-vulkan"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+ash.workspace = true
+bytemuck.workspace = true
+daylight-core = { path = "../daylight-core" }
+
+[build-dependencies]
+shaderc.workspace = true
+
+[dev-dependencies]
+daylight-metal = { path = "../daylight-metal" }

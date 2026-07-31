@@ -1,0 +1,60 @@
+[build-system]
+requires = ["maturin>=1.8,<2"]
+build-backend = "maturin"
+
+[project]
+name = "foton-daylight"
+version = "0.1.0"
+description = "Hardware-accelerated daylight coefficients and annual metrics with Metal, Vulkan, and deterministic CPU backends"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.23"]
+keywords = [
+    "daylight",
+    "radiance",
+    "honeybee",
+    "metal",
+    "vulkan",
+    "ray-tracing",
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Rust",
+    "Topic :: Scientific/Engineering",
+]
+
+[project.optional-dependencies]
+honeybee = [
+    "honeybee-core>=1.64,<2",
+    "honeybee-radiance>=1.66,<2",
+]
+viewer = [
+    "fastapi>=0.115,<1",
+    "ladybug-core>=0.44,<1",
+    "platformdirs>=4.3,<5",
+    "python-multipart>=0.0.18,<1",
+    "uvicorn>=0.32,<1",
+    "websockets>=14,<16",
+]
+test = [
+    "pytest>=8,<10",
+]
+
+[project.scripts]
+foton-viewer = "foton.viewer.__main__:main"
+daylight-viewer = "foton.viewer.__main__:main"
+
+[tool.maturin]
+manifest-path = "crates/daylight-python/Cargo.toml"
+python-source = "python"
+module-name = "daylight_engine._native"
+features = ["extension-module"]

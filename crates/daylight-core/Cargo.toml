@@ -1,0 +1,10 @@
+[package]
+name = "daylight-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+bytemuck.workspace = true
+serde.workspace = true
+

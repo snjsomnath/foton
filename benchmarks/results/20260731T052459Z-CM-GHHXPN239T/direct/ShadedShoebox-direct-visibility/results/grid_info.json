@@ -1,0 +1,12 @@
+[
+  {
+    "full_identifier": "Shoebox_auto",
+    "identifier": "Shoebox_auto",
+    "room_ids": [
+      1
+    ],
+    "sensor_count": 216,
+    "source": "automatic",
+    "start_sensor_index": 0
+  }
+]

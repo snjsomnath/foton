@@ -1,0 +1,143 @@
+#version 460
+#extension GL_EXT_ray_query : require
+#include "common.glsl"
+
+layout(local_size_x = 8, local_size_y = 8) in;
+layout(push_constant, scalar) uniform Uniforms {
+    uint sensor_count;
+    uint sample_offset;
+    uint sample_count;
+    uint maximum_bounces;
+    uint patch_count;
+    uint active_mask;
+    uint max_transparent;
+    uint padding;
+    uint scene_seed_low;
+    uint scene_seed_high;
+    float accumulator_scale;
+    uint padding_two;
+} uniforms;
+layout(set=0,binding=0,scalar) readonly buffer Sensors { Sensor values[]; } sensors;
+layout(set=0,binding=1,scalar) readonly buffer Directions { vec3 values[]; } directions;
+layout(set=0,binding=2,scalar) readonly buffer Metadata { InstanceMetadata values[]; } metadata;
+layout(set=0,binding=3,scalar) readonly buffer TriangleMaterials { uint values[]; } triangle_materials;
+layout(set=0,binding=4,scalar) readonly buffer Materials { Material values[]; } materials;
+layout(set=0,binding=5,scalar) readonly buffer TriangleNormals { vec3 values[]; } triangle_normals;
+layout(set=0,binding=6,scalar) readonly buffer NormalTransforms { NormalTransform values[]; } normal_transforms;
+layout(set=0,binding=7,scalar) buffer Indirect { uint values[]; } indirect_values;
+layout(set=0,binding=8) uniform accelerationStructureEXT scene_as;
+
+vec3 hit_normal(uint instance_index, uint triangle_index, vec3 ray_direction) {
+    vec3 value = transform_normal(
+        triangle_normals.values[triangle_index],
+        normal_transforms.values[instance_index]);
+    return dot(value, ray_direction) > 0.0 ? -value : value;
+}
+
+uint mix32(uint value) {
+    value ^= value >> 16; value *= 0x7feb352d;
+    value ^= value >> 15; value *= 0x846ca68b;
+    return value ^ (value >> 16);
+}
+uint rotate_left(uint value, uint amount) {
+    return (value << amount) | (value >> (32u - amount));
+}
+uint sobol_uint(uint index, uint dimension) {
+    uint gray = index ^ (index >> 1), value = 0, direction = 0x80000000u;
+    for (uint bit=0; bit<32; ++bit) {
+        if ((gray & (1u << bit)) != 0) value ^= direction;
+        if (dimension == 0) direction >>= 1; else direction ^= direction >> 1;
+    }
+    return value;
+}
+uint owen_scramble(uint value, uint seed) {
+    value = bitfieldReverse(value);
+    value ^= value * 0x3d20adea; value += seed;
+    value *= (seed >> 16) | 1u;
+    value ^= value * 0x05526c56; value ^= value * 0x53a22864;
+    return bitfieldReverse(value);
+}
+float sequence_value(uint sensor_id, uint sample_index, uint bounce, uint dimension) {
+    uint seed = mix32(uniforms.scene_seed_low ^ uniforms.scene_seed_high
+        ^ rotate_left(sensor_id,7) ^ rotate_left(bounce,13) ^ dimension*0x9e3779b9);
+    return (float(owen_scramble(sobol_uint(sample_index, dimension & 1), seed)) + 0.5)
+        * (1.0 / 4294967296.0);
+}
+vec3 cosine_direction(vec3 normal, uint sensor_id, uint sample_index, uint bounce) {
+    float first = sequence_value(sensor_id,sample_index,bounce,0);
+    float second = sequence_value(sensor_id,sample_index,bounce,1);
+    float radius = sqrt(first), azimuth = 6.28318530718 * second;
+    vec3 local = vec3(radius*cos(azimuth), radius*sin(azimuth), sqrt(1.0-first));
+    vec3 helper = abs(normal.z)<0.999 ? vec3(0,0,1) : vec3(1,0,0);
+    vec3 tangent = normalize(cross(helper,normal)), bitangent = cross(normal,tangent);
+    return normalize(tangent*local.x + bitangent*local.y + normal*local.z);
+}
+uint ring_count(uint ring) {
+    const uint counts[7] = uint[7](30,30,24,24,18,12,6);
+    return counts[min(ring,6)];
+}
+uint radiance_patch(vec3 direction) {
+    if (direction.z < 0.0) return 0;
+    uint multiplier = uniforms.patch_count == 146 ? 1 : 2;
+    uint regular_rows = 7 * multiplier;
+    float increment = 1.57079632679 / (float(regular_rows)+0.5);
+    uint row = uint(floor(asin(clamp(direction.z,-1.0,1.0))/increment));
+    if (row >= regular_rows) return uniforms.patch_count-1;
+    uint parent = uint(floor((float(row)+0.5)/float(multiplier)));
+    uint row_count = ring_count(parent)*multiplier, offset=1;
+    for (uint prior=0; prior<row; ++prior)
+        offset += ring_count(uint(floor((float(prior)+0.5)/float(multiplier))))*multiplier;
+    float azimuth = atan(direction.x,direction.y);
+    if (azimuth<0.0) azimuth += 6.28318530718;
+    float step = 6.28318530718/float(row_count);
+    uint index = uint(floor((azimuth+0.5*step)/step));
+    return offset + (index>=row_count ? 0 : index);
+}
+void accumulate(uint destination, vec3 value) {
+    uvec3 ticks = uvec3(round(max(value,0.0)*uniforms.accumulator_scale));
+    atomicAdd(indirect_values.values[destination],ticks.x);
+    atomicAdd(indirect_values.values[destination+1],ticks.y);
+    atomicAdd(indirect_values.values[destination+2],ticks.z);
+}
+void main() {
+    uint local_sample=gl_GlobalInvocationID.x, sensor_index=gl_GlobalInvocationID.y;
+    if (local_sample>=uniforms.sample_count || sensor_index>=uniforms.sensor_count) return;
+    Sensor sensor=sensors.values[sensor_index];
+    uint sample_index=uniforms.sample_offset+local_sample;
+    vec3 origin=sensor.position+sensor.normal*1e-4;
+    vec3 direction=cosine_direction(normalize(sensor.normal),sensor.sensor_id,sample_index,0);
+    vec3 throughput=vec3(1);
+    uint diffuse_bounces=0, transparent=0;
+    uint maximum=uniforms.maximum_bounces+uniforms.max_transparent+1;
+    for (uint path=0; path<maximum; ++path) {
+        rayQueryEXT query;
+        rayQueryInitializeEXT(query,scene_as,gl_RayFlagsOpaqueEXT,uniforms.active_mask,origin,1e-4,direction,1e30);
+        while(rayQueryProceedEXT(query)) {}
+        if(rayQueryGetIntersectionTypeEXT(query,true)==gl_RayQueryCommittedIntersectionNoneEXT) {
+            if(diffuse_bounces>0) {
+                uint patch_index=radiance_patch(direction);
+                accumulate((sensor_index*uniforms.patch_count+patch_index)*3,
+                    throughput*(3.14159265359/float(uniforms.sample_count)));
+            }
+            break;
+        }
+        uint instance_index=rayQueryGetIntersectionInstanceCustomIndexEXT(query,true);
+        uint triangle=metadata.values[instance_index].material_offset
+            + rayQueryGetIntersectionPrimitiveIndexEXT(query,true);
+        Material material=materials.values[triangle_materials.values[triangle]];
+        vec3 normal=hit_normal(instance_index,triangle,direction);
+        float distance=rayQueryGetIntersectionTEXT(query,true);
+        if(material.kind==1) {
+            if(transparent>=uniforms.max_transparent) break;
+            throughput*=thin_glass_transmission(material.internal_transmissivity_rgb,abs(dot(direction,normal)));
+            if(all(lessThanEqual(throughput,vec3(1e-6)))) break;
+            origin+=direction*(distance+1e-4); ++transparent; continue;
+        }
+        if(diffuse_bounces>=uniforms.maximum_bounces) break;
+        throughput*=material.diffuse_rgb;
+        if(all(lessThanEqual(throughput,vec3(1e-6)))) break;
+        origin+=direction*distance+normal*1e-4;
+        ++diffuse_bounces;
+        direction=cosine_direction(normal,sensor.sensor_id,sample_index,diffuse_bounces);
+    }
+}

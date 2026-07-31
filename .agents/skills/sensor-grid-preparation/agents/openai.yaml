@@ -1,0 +1,4 @@
+interface:
+  display_name: "Sensor Grid Preparation"
+  short_description: "Prepare indexed per-room daylight sensor grids"
+  default_prompt: "Use $sensor-grid-preparation to validate and serialize a room sensor grid."

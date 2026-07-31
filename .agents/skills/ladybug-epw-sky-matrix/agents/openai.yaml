@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ladybug EPW Sky Matrix"
+  short_description: "Generate Radiance-compatible Perez sky matrices"
+  default_prompt: "Use $ladybug-epw-sky-matrix to generate a validated annual sky matrix from an EPW."

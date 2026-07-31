@@ -1,0 +1,12 @@
+[
+  {
+    "full_identifier": "ShoeboxGrid",
+    "identifier": "ShoeboxGrid",
+    "room_ids": [
+      1
+    ],
+    "sensor_count": 216,
+    "source": "embedded",
+    "start_sensor_index": 0
+  }
+]

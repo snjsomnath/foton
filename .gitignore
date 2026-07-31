@@ -1,0 +1,11 @@
+/target/
+/.venv/
+/.pytest_cache/
+**/__pycache__/
+*.pyc
+*.npy
+*.spv
+*.metallib
+.DS_Store
+/viewer/dist/
+/viewer/node_modules/

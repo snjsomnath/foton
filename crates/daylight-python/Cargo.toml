@@ -1,0 +1,23 @@
+[package]
+name = "daylight-python"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[lib]
+name = "daylight_engine"
+crate-type = ["cdylib", "rlib"]
+test = false
+doctest = false
+
+[features]
+default = []
+extension-module = ["pyo3/extension-module"]
+
+[dependencies]
+daylight-core = { path = "../daylight-core" }
+daylight-metal = { path = "../daylight-metal" }
+daylight-vulkan = { path = "../daylight-vulkan" }
+numpy.workspace = true
+pyo3.workspace = true
+serde_json.workspace = true

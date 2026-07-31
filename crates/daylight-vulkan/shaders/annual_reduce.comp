@@ -1,0 +1,32 @@
+#version 460
+#include "common.glsl"
+
+layout(local_size_x = 8, local_size_y = 8) in;
+layout(push_constant, scalar) uniform Uniforms {
+    uint sensor_count;
+    uint patch_count;
+    uint timestep_count;
+    uint sensor_offset;
+    float threshold_lux;
+} uniforms;
+layout(set=0,binding=0,scalar) readonly buffer Coefficients { vec3 values[]; } coefficients;
+layout(set=0,binding=1,scalar) readonly buffer Sky { vec3 values[]; } sky;
+layout(set=0,binding=2,scalar) readonly buffer Occupancy { float values[]; } occupancy;
+layout(set=0,binding=3,scalar) buffer Occupied { uint values[]; } occupied_out;
+layout(set=0,binding=4,scalar) buffer Threshold { uint values[]; } threshold_out;
+
+void main() {
+    uint timestep = gl_GlobalInvocationID.x;
+    uint sensor = uniforms.sensor_offset + gl_GlobalInvocationID.y;
+    if (sensor >= uniforms.sensor_count || timestep >= uniforms.timestep_count) return;
+    float occupied = occupancy.values[timestep];
+    if (occupied <= 0.0) return;
+    vec3 response = vec3(0);
+    for (uint patch_index=0; patch_index<uniforms.patch_count; ++patch_index)
+        response += coefficients.values[sensor*uniforms.patch_count+patch_index]
+            * sky.values[patch_index*uniforms.timestep_count+timestep];
+    uint ticks = uint(round(occupied * 100000.0));
+    atomicAdd(occupied_out.values[sensor], ticks);
+    if (dot(response, vec3(47.435,119.93,11.635)) >= uniforms.threshold_lux)
+        atomicAdd(threshold_out.values[sensor], ticks);
+}

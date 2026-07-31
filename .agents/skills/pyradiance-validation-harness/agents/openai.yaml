@@ -1,0 +1,4 @@
+interface:
+  display_name: "Radiance Validation Harness"
+  short_description: "Validate GPU daylight results with Radiance"
+  default_prompt: "Use $pyradiance-validation-harness to compare a GPU daylight result with its matching Radiance reference."
