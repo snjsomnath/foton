@@ -7,7 +7,9 @@ use daylight_core::{
 #[cfg(target_os = "macos")]
 use daylight_metal::MetalBackend;
 use daylight_metal::ReferenceBackend;
-use daylight_vulkan::{VulkanBackend, is_apple_gpu};
+use daylight_vulkan::VulkanBackend;
+#[cfg(target_os = "macos")]
+use daylight_vulkan::is_apple_gpu;
 
 #[derive(Parser)]
 #[command(version, about = "GPU daylight engine diagnostics and fixtures")]
