@@ -9,3 +9,4 @@
 .DS_Store
 /viewer/dist/
 /viewer/node_modules/
+/dist/

@@ -32,6 +32,11 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 
+[project.urls]
+Documentation = "https://github.com/snjsomnath/foton/tree/main/docs"
+Issues = "https://github.com/snjsomnath/foton/issues"
+Repository = "https://github.com/snjsomnath/foton"
+
 [project.optional-dependencies]
 honeybee = [
     "honeybee-core>=1.64,<2",
@@ -56,5 +61,11 @@ daylight-viewer = "foton.viewer.__main__:main"
 [tool.maturin]
 manifest-path = "crates/daylight-python/Cargo.toml"
 python-source = "python"
+python-packages = ["foton", "daylight_engine"]
 module-name = "daylight_engine._native"
 features = ["extension-module"]
+include = [
+    { path = "CHANGELOG.md", format = "sdist" },
+    { path = "CONTRIBUTING.md", format = "sdist" },
+    { path = "docs/**/*", format = "sdist" },
+]

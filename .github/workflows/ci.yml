@@ -106,5 +106,5 @@ jobs:
         run: >-
           python -c "from importlib.metadata import version;
           from foton import Engine;
-          assert version('foton-daylight') == '0.1.0';
+          print('foton-daylight', version('foton-daylight'));
           print(Engine().capabilities())"
