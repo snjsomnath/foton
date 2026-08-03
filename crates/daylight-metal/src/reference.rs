@@ -7,11 +7,13 @@ use daylight_core::{
     AnalysisMetadata, AnalysisRequest, AnalysisResult, AnnualIlluminance, Backend,
     BackendCapabilities, CoefficientMatrix, DaylightError, GpuTimings, MaterialKind, Result,
     SOLVER_VERSION, SceneData, Vec3, cosine_hemisphere, evaluate_daylight_factor,
-    low_discrepancy_sample, patch_directions, patch_solid_angles, radiance_patch_index,
-    reduce_annual_metrics, scene_fingerprint, thin_glass_transmittance_from_transmissivity,
+    low_discrepancy_sample, patch_directions, patch_sample_directions, patch_solid_angles,
+    radiance_patch_index, reduce_annual_metrics, scene_fingerprint,
+    thin_glass_reflectance_from_transmissivity, thin_glass_transmittance_from_transmissivity,
 };
 
 const RAY_EPSILON: f32 = 1.0e-4;
+const RAY_MIN_DISTANCE: f32 = 1.0e-6;
 
 #[derive(Clone, Debug, Default)]
 pub struct ReferenceBackend;
@@ -126,6 +128,7 @@ impl ReferenceBackend {
                 quality: request.quality,
                 glazing_model: "radiance_thin_glass_non_refracting".into(),
                 schedule_timestep_count: request.sky.timestep_count,
+                direct_sample_count: request.direct_samples,
                 convergence: 1.0,
                 transport_backend: "reference".into(),
                 used_reference_fallback: false,
@@ -168,7 +171,8 @@ fn trace_coefficients(
 ) -> Result<CoefficientMatrix> {
     let basis = request.sky.basis;
     let patch_count = basis.row_count();
-    let directions = patch_directions(basis);
+    let direct_samples = request.direct_samples.max(1);
+    let directions = patch_sample_directions(basis, direct_samples);
     let solid_angles = patch_solid_angles(basis);
     let mut values = vec![[0.0; 3]; scene.sensors.len() * patch_count];
     let mut reported_bucket = 0_u32;
@@ -176,19 +180,26 @@ fn trace_coefficients(
     for (sensor_index, sensor) in scene.sensors.iter().enumerate() {
         check_cancelled(cancelled)?;
         for patch_index in 0..patch_count {
-            let cosine = sensor.normal.dot(directions[patch_index]).max(0.0);
-            if cosine == 0.0 {
-                continue;
+            let mut integrated = [0.0_f32; 3];
+            for sample_index in 0..direct_samples as usize {
+                let direction = directions[patch_index * direct_samples as usize + sample_index];
+                let cosine = sensor.normal.dot(direction).max(0.0);
+                if cosine == 0.0 {
+                    continue;
+                }
+                let transmission = visibility_transmission(
+                    scene,
+                    sensor.position.add(sensor.normal.scale(RAY_EPSILON)),
+                    direction,
+                )?;
+                for component in 0..3 {
+                    integrated[component] += transmission[component] * cosine;
+                }
             }
-            let transmission = visibility_transmission(
-                scene,
-                sensor.position.add(sensor.normal.scale(RAY_EPSILON)),
-                directions[patch_index],
-            )?;
-            let geometric_weight = cosine * solid_angles[patch_index];
+            let geometric_weight = solid_angles[patch_index] / direct_samples as f32;
             for component in 0..3 {
                 values[sensor_index * patch_count + patch_index][component] =
-                    transmission[component] * geometric_weight;
+                    integrated[component] * geometric_weight;
             }
         }
 
@@ -250,13 +261,51 @@ fn accumulate_indirect(
                     break;
                 }
                 let incidence = direction.dot(hit.normal).abs();
-                for (component, value) in throughput.iter_mut().enumerate() {
-                    *value *= thin_glass_transmittance_from_transmissivity(
+                let mut transmission = [0.0_f32; 3];
+                let mut reflection = [0.0_f32; 3];
+                for component in 0..3 {
+                    transmission[component] = thin_glass_transmittance_from_transmissivity(
+                        material.internal_transmissivity_rgb[component],
+                        incidence,
+                    )?;
+                    reflection[component] = thin_glass_reflectance_from_transmissivity(
                         material.internal_transmissivity_rgb[component],
                         incidence,
                     )?;
                 }
-                origin = origin.add(direction.scale(hit.distance + RAY_EPSILON));
+                let transmission_energy = color_intensity(transmission);
+                let reflection_energy = color_intensity(reflection);
+                let total_energy = transmission_energy + reflection_energy;
+                if total_energy <= 1.0e-8 {
+                    break;
+                }
+                let reflection_probability = reflection_energy / total_energy;
+                let branch_sample = low_discrepancy_sample(daylight_core::SampleKey {
+                    sensor_id: sensor.sensor_id,
+                    sample_index,
+                    bounce_depth: diffuse_bounces,
+                    dimension: 2 + transparent_intersections,
+                    scene_seed: request.scene_seed,
+                });
+                if branch_sample < reflection_probability {
+                    for component in 0..3 {
+                        throughput[component] *= reflection[component] / reflection_probability;
+                    }
+                    origin = origin
+                        .add(direction.scale(hit.distance))
+                        .add(hit.normal.scale(RAY_EPSILON));
+                    direction =
+                        direction.subtract(hit.normal.scale(2.0 * direction.dot(hit.normal)));
+                } else {
+                    let transmission_probability = 1.0 - reflection_probability;
+                    if transmission_probability <= 1.0e-8 {
+                        break;
+                    }
+                    for component in 0..3 {
+                        throughput[component] *= transmission[component] / transmission_probability;
+                    }
+                    origin = origin.add(direction.scale(hit.distance + RAY_EPSILON));
+                }
                 transparent_intersections += 1;
                 continue;
             }
@@ -283,6 +332,10 @@ fn accumulate_indirect(
         }
     }
     Ok(())
+}
+
+fn color_intensity(color: [f32; 3]) -> f32 {
+    0.265 * color[0] + 0.670 * color[1] + 0.065 * color[2]
 }
 
 fn sample_direction(
@@ -415,7 +468,7 @@ fn intersect_triangle(
         return None;
     }
     let distance = edge_two.dot(cross) * inverse;
-    if distance <= RAY_EPSILON {
+    if distance <= RAY_MIN_DISTANCE {
         return None;
     }
     let geometric_normal = edge_one

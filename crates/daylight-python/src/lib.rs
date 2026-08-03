@@ -312,6 +312,7 @@ impl PyScene {
         udi_lower_lux=100.0,
         udi_upper_lux=3000.0,
         time_fraction=0.5,
+        direct_samples=1,
         maximum_samples=64,
         maximum_bounces=1,
         scene_seed=0,
@@ -330,6 +331,7 @@ impl PyScene {
         udi_lower_lux: f32,
         udi_upper_lux: f32,
         time_fraction: f32,
+        direct_samples: u32,
         maximum_samples: u32,
         maximum_bounces: u32,
         scene_seed: u64,
@@ -357,14 +359,9 @@ impl PyScene {
                 )));
             }
         };
-        if quality == AnalysisQuality::Preview && basis != SkyBasis::Tregenza {
+        if direct_samples == 0 {
             return Err(PyValueError::new_err(
-                "preview quality requires a 146-row Tregenza sky",
-            ));
-        }
-        if quality == AnalysisQuality::Final && basis != SkyBasis::ReinhartMf2 {
-            return Err(PyValueError::new_err(
-                "final quality requires a 578-row Reinhart MF:2 sky",
+                "direct_samples must be a positive integer",
             ));
         }
         validate_metrics(metrics.as_deref())?;
@@ -407,6 +404,7 @@ impl PyScene {
             udi_lower_lux,
             udi_upper_lux,
             time_fraction,
+            direct_samples,
             maximum_samples,
             maximum_bounces,
             scene_seed,
@@ -639,6 +637,26 @@ fn sky_patch_solid_angles(py: Python<'_>, basis: &str) -> PyResult<Py<PyArray1<f
     .unbind())
 }
 
+#[pyfunction]
+fn sky_patch_sample_directions(
+    py: Python<'_>,
+    basis: &str,
+    samples_per_patch: u32,
+) -> PyResult<Py<PyArray3<f32>>> {
+    if samples_per_patch == 0 {
+        return Err(PyValueError::new_err("samples_per_patch must be positive"));
+    }
+    let basis = parse_sky_basis(basis)?;
+    let directions = daylight_core::patch_sample_directions(basis, samples_per_patch);
+    let values = directions
+        .iter()
+        .flat_map(|direction| [direction.x, direction.y, direction.z])
+        .collect::<Vec<_>>();
+    let array = Array3::from_shape_vec((basis.row_count(), samples_per_patch as usize, 3), values)
+        .map_err(|error| PyRuntimeError::new_err(error.to_string()))?;
+    Ok(PyArray::from_owned_array(py, array).unbind())
+}
+
 fn parse_sky_basis(value: &str) -> PyResult<SkyBasis> {
     match value {
         "tregenza" => Ok(SkyBasis::Tregenza),
@@ -809,6 +827,7 @@ fn _native(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add("__version__", env!("CARGO_PKG_VERSION"))?;
     module.add_function(wrap_pyfunction!(sky_patch_directions, module)?)?;
     module.add_function(wrap_pyfunction!(sky_patch_solid_angles, module)?)?;
+    module.add_function(wrap_pyfunction!(sky_patch_sample_directions, module)?)?;
     module.add_class::<PyEngine>()?;
     module.add_class::<PyScene>()?;
     module.add_class::<PyAnalysisJob>()?;

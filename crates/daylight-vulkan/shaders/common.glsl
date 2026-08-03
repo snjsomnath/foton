@@ -51,9 +51,61 @@ float fresnel_reflectance(float cosine) {
 }
 
 vec3 thin_glass_transmission(vec3 transmissivity, float cosine) {
-    float reflectance = fresnel_reflectance(abs(cosine));
-    float interface_transmission = 1.0 - reflectance;
-    vec3 numerator = interface_transmission * interface_transmission * transmissivity;
-    vec3 denominator = 1.0 - reflectance * reflectance * transmissivity * transmissivity;
-    return max(numerator / denominator, 0.0);
+    const float index_of_refraction = 1.52;
+    float incident = abs(cosine);
+    float transmitted = sqrt(
+        (1.0 - 1.0 / (index_of_refraction * index_of_refraction))
+        + incident * incident / (index_of_refraction * index_of_refraction));
+    vec3 attenuation = pow(transmissivity, vec3(1.0 / transmitted));
+    float perpendicular_amplitude =
+        (incident - index_of_refraction * transmitted)
+        / (incident + index_of_refraction * transmitted);
+    float perpendicular = perpendicular_amplitude * perpendicular_amplitude;
+    float parallel_amplitude =
+        (transmitted - index_of_refraction * incident)
+        / (transmitted + index_of_refraction * incident);
+    float parallel = parallel_amplitude * parallel_amplitude;
+    vec3 attenuation_squared = attenuation * attenuation;
+    vec3 perpendicular_transmission =
+        (1.0 - perpendicular) * (1.0 - perpendicular) * attenuation
+        / (1.0 - perpendicular * perpendicular * attenuation_squared);
+    vec3 parallel_transmission =
+        (1.0 - parallel) * (1.0 - parallel) * attenuation
+        / (1.0 - parallel * parallel * attenuation_squared);
+    return max(
+        0.5 * (perpendicular_transmission + parallel_transmission),
+        0.0);
+}
+
+vec3 thin_glass_reflection(vec3 transmissivity, float cosine) {
+    const float index_of_refraction = 1.52;
+    float incident = abs(cosine);
+    float transmitted = sqrt(
+        (1.0 - 1.0 / (index_of_refraction * index_of_refraction))
+        + incident * incident / (index_of_refraction * index_of_refraction));
+    vec3 attenuation = pow(transmissivity, vec3(1.0 / transmitted));
+    float perpendicular_amplitude =
+        (incident - index_of_refraction * transmitted)
+        / (incident + index_of_refraction * transmitted);
+    float perpendicular = perpendicular_amplitude * perpendicular_amplitude;
+    float parallel_amplitude =
+        (transmitted - index_of_refraction * incident)
+        / (transmitted + index_of_refraction * incident);
+    float parallel = parallel_amplitude * parallel_amplitude;
+    vec3 attenuation_squared = attenuation * attenuation;
+    vec3 perpendicular_reflection =
+        perpendicular
+        * (1.0 + (1.0 - 2.0 * perpendicular) * attenuation_squared)
+        / (1.0 - perpendicular * perpendicular * attenuation_squared);
+    vec3 parallel_reflection =
+        parallel
+        * (1.0 + (1.0 - 2.0 * parallel) * attenuation_squared)
+        / (1.0 - parallel * parallel * attenuation_squared);
+    return max(
+        0.5 * (perpendicular_reflection + parallel_reflection),
+        0.0);
+}
+
+float color_intensity(vec3 color) {
+    return dot(color, vec3(0.265, 0.670, 0.065));
 }

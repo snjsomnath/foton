@@ -21,6 +21,11 @@ DEFAULT_THRESHOLD_LUX = 300.0
 DEFAULT_UDI_LOWER_LUX = 100.0
 DEFAULT_UDI_UPPER_LUX = 3000.0
 DEFAULT_TIME_FRACTION = 0.5
+SOLVER_REVISION = "radiance-glass-reflection-v3"
+QUALITY_PRESETS = {
+    "preview": {"direct_samples": 1, "maximum_samples": 64},
+    "final": {"direct_samples": 64, "maximum_samples": 4096},
+}
 
 
 @dataclass(frozen=True)
@@ -49,7 +54,7 @@ class AnnualDaylightRun:
     """Completed annual-daylight analysis grouped in HBJSON grid order."""
 
     grids: tuple[GridAnnualResult, ...]
-    timings: dict[str, float]
+    timings: dict[str, float | None]
     results_folder: Path | None
     metadata: dict[str, Any]
 
@@ -99,19 +104,9 @@ class HoneybeeStudy:
         self.engine = Engine({"backend": backend})
         self.capabilities = dict(self.engine.capabilities())
         self.scene = self.prepared.create_native_scene(self.engine)
-        sealed_room_ids = {
-            self.prepared.room_map[room.identifier]
-            for room in self.prepared.model.rooms
-            if not any(
-                face.apertures or face.doors for face in room.faces
-            )
-        }
-        self._sealed_sensor_mask = np.isin(
-            self.prepared.arrays["sensor_room_ids"],
-            np.asarray(sorted(sealed_room_ids), dtype=np.uint32),
-        )
         self._preparation_seconds = time.perf_counter() - started
         self._coefficient_cache: dict[tuple[Any, ...], np.ndarray] = {}
+        self._run_count = 0
 
     def annual_daylight(
         self,
@@ -124,7 +119,9 @@ class HoneybeeStudy:
         udi_lower: float = DEFAULT_UDI_LOWER_LUX,
         udi_upper: float = DEFAULT_UDI_UPPER_LUX,
         target_time: float = 50,
-        maximum_samples: int = 256,
+        sky_density: int = 1,
+        direct_samples: int | None = None,
+        maximum_samples: int | None = None,
         maximum_bounces: int = 1,
         scene_seed: int = 0,
         output_folder: str | Path | None = None,
@@ -136,22 +133,40 @@ class HoneybeeStudy:
         threshold, udi_lower, udi_upper, time_fraction = _metric_parameters(
             threshold, udi_lower, udi_upper, target_time
         )
+        if quality not in QUALITY_PRESETS:
+            raise ValueError("quality must be 'preview' or 'final'")
+        if direct_samples is None:
+            direct_samples = QUALITY_PRESETS[quality]["direct_samples"]
+        if maximum_samples is None:
+            maximum_samples = QUALITY_PRESETS[quality]["maximum_samples"]
+        if isinstance(direct_samples, bool) or int(direct_samples) <= 0:
+            raise ValueError("direct_samples must be a positive integer")
+        if isinstance(maximum_samples, bool) or int(maximum_samples) < 0:
+            raise ValueError("maximum_samples must be a non-negative integer")
+        direct_samples = int(direct_samples)
+        maximum_samples = int(maximum_samples)
         occupancy = honeybee_schedule(schedule, binary=binary_schedule)
 
         weather_started = time.perf_counter()
         weather = prepare_annual_weather(
             wea,
             north=north,
+            sky_density=sky_density,
             radiance_bin=self.radiance_bin,
             cache_directory=self.weather_cache,
         )
         weather_seconds = time.perf_counter() - weather_started
 
         cache_key = (
+            self.prepared.model_fingerprint,
+            self.prepared.geometry_info["material_fingerprint"],
+            weather.basis,
             quality,
-            int(maximum_samples),
+            direct_samples,
+            maximum_samples,
             int(maximum_bounces),
             int(scene_seed),
+            SOLVER_REVISION,
         )
         coefficients = self._coefficient_cache.get(cache_key)
         engine_timings: dict[str, float] = {}
@@ -173,7 +188,8 @@ class HoneybeeStudy:
                 udi_lower_lux=udi_lower,
                 udi_upper_lux=udi_upper,
                 time_fraction=time_fraction,
-                maximum_samples=int(maximum_samples),
+                direct_samples=direct_samples,
+                maximum_samples=maximum_samples,
                 maximum_bounces=int(maximum_bounces),
                 scene_seed=int(scene_seed),
                 export_coefficients=True,
@@ -209,7 +225,8 @@ class HoneybeeStudy:
                 udi_lower_lux=udi_lower,
                 udi_upper_lux=udi_upper,
                 time_fraction=time_fraction,
-                maximum_samples=int(maximum_samples),
+                direct_samples=direct_samples,
+                maximum_samples=maximum_samples,
                 maximum_bounces=int(maximum_bounces),
                 scene_seed=int(scene_seed),
                 export_coefficients=False,
@@ -224,17 +241,6 @@ class HoneybeeStudy:
                 else None
             )
             coefficient_cache_hit = True
-        if np.any(self._sealed_sensor_mask):
-            coefficients[self._sealed_sensor_mask] = 0
-            _zero_sealed_metrics(metrics, self._sealed_sensor_mask)
-            if annual_illuminance is not None:
-                # Honeybee's folder loader skips all metric calculation for an
-                # exactly-zero array. A positive subnormal preserves the
-                # physically-zero result while allowing UDI-low to evaluate to
-                # 100%, matching its file-based post-processor.
-                annual_illuminance[self._sealed_sensor_mask] = np.finfo(
-                    np.float32
-                ).tiny
         reduction_seconds = time.perf_counter() - reduction_started
 
         grids = _group_grid_metrics(
@@ -265,12 +271,21 @@ class HoneybeeStudy:
             )
         write_seconds = time.perf_counter() - write_started
 
+        run_seconds = time.perf_counter() - run_started
         timings = {
             "study_preparation_seconds": self._preparation_seconds,
             "weather_seconds": weather_seconds,
             "metric_reduction_seconds": reduction_seconds,
             "write_seconds": write_seconds,
-            "total_seconds": time.perf_counter() - run_started,
+            "total_seconds": run_seconds,
+            "cold_end_to_end_seconds": (
+                self._preparation_seconds + run_seconds
+                if self._run_count == 0
+                else None
+            ),
+            "warm_study_seconds": (
+                run_seconds if self._run_count > 0 else None
+            ),
             **write_timings,
             **engine_timings,
         }
@@ -283,7 +298,9 @@ class HoneybeeStudy:
             udi_upper=udi_upper,
             target_time=float(target_time),
             quality=quality,
-            maximum_samples=int(maximum_samples),
+            sky_density=int(sky_density),
+            direct_samples=direct_samples,
+            maximum_samples=maximum_samples,
             maximum_bounces=int(maximum_bounces),
             scene_seed=int(scene_seed),
             backend=self.capabilities,
@@ -302,6 +319,7 @@ class HoneybeeStudy:
             (output / "metadata.json").write_text(
                 json.dumps(metadata, indent=2, sort_keys=True), encoding="utf-8"
             )
+        self._run_count += 1
         return AnnualDaylightRun(
             grids=grids,
             timings=timings,
@@ -320,6 +338,7 @@ def run_annual_daylight(
     schedule=None,
     north: float = 0,
     quality: str = "final",
+    sky_density: int = 1,
     export_illuminance: bool = False,
     **kwargs,
 ) -> AnnualDaylightRun:
@@ -336,6 +355,7 @@ def run_annual_daylight(
         schedule=schedule,
         north=north,
         quality=quality,
+        sky_density=sky_density,
         output_folder=output_folder,
         export_illuminance=export_illuminance,
         **kwargs,
@@ -353,6 +373,10 @@ class AnnualDaylightRecipe:
         "schedule",
         "north",
         "quality",
+        "sky_density",
+        "direct_samples",
+        "maximum_samples",
+        "maximum_bounces",
         "threshold",
         "udi_lower",
         "udi_upper",
@@ -372,6 +396,10 @@ class AnnualDaylightRecipe:
             "schedule": None,
             "north": 0.0,
             "quality": "final",
+            "sky_density": 1,
+            "direct_samples": None,
+            "maximum_samples": None,
+            "maximum_bounces": 1,
             "threshold": 300.0,
             "udi_lower": 100.0,
             "udi_upper": 3000.0,
@@ -434,6 +462,22 @@ class AnnualDaylightRecipe:
             raise ValueError("invalid Foton backend")
         if name == "quality" and input_value not in {"preview", "final"}:
             raise ValueError("quality must be 'preview' or 'final'")
+        if (
+            name == "sky_density"
+            and (
+                isinstance(input_value, bool)
+                or input_value not in {1, 2}
+            )
+        ):
+            raise ValueError("sky_density must be 1 or 2")
+        if name in {"direct_samples", "maximum_samples"} and input_value is not None:
+            minimum = 1 if name == "direct_samples" else 0
+            if isinstance(input_value, bool) or int(input_value) < minimum:
+                raise ValueError(f"{name} must be at least {minimum}")
+        if name == "maximum_bounces" and (
+            isinstance(input_value, bool) or int(input_value) < 0
+        ):
+            raise ValueError("maximum_bounces must be non-negative")
         self._inputs[name] = input_value
 
     def output_value_by_name(self, output_name, project_folder=None):
@@ -486,6 +530,10 @@ class AnnualDaylightRecipe:
             schedule=self._inputs["schedule"],
             north=float(self._inputs["north"]),
             quality=self._inputs["quality"],
+            sky_density=int(self._inputs["sky_density"]),
+            direct_samples=self._inputs["direct_samples"],
+            maximum_samples=self._inputs["maximum_samples"],
+            maximum_bounces=int(self._inputs["maximum_bounces"]),
             threshold=float(self._inputs["threshold"]),
             udi_lower=float(self._inputs["udi_lower"]),
             udi_upper=float(self._inputs["udi_upper"]),
@@ -559,12 +607,6 @@ def _native_timings(result):
         for key, value in dict(result.timings()).items()
         if key.endswith("_ms")
     }
-
-
-def _zero_sealed_metrics(metrics, mask):
-    for name in ("da", "cda", "udi", "udi_upper"):
-        metrics[name][mask] = 0
-    metrics["udi_lower"][mask] = 100
 
 
 def _reduce_coefficients(
@@ -758,13 +800,19 @@ def _write_run(
         for grid in grids:
             start = int(grid.sensor_indices[0])
             end = start + grid.sensor_count
+            grid_values = annual_illuminance[start:end][:, sun_up_indices]
             target = np.lib.format.open_memmap(
                 raw_folder / f"{grid.full_identifier}.npy",
                 mode="w+",
                 dtype=np.float32,
                 shape=(grid.sensor_count, len(weather.sun_up_hours)),
             )
-            target[:] = annual_illuminance[start:end][:, sun_up_indices]
+            target[:] = grid_values
+            if not np.any(grid_values):
+                # The official loader skips metric calculation for an exactly
+                # zero matrix. A positive subnormal remains physically zero at
+                # daylight thresholds while preserving UDI-low evaluation.
+                target[:] = np.finfo(np.float32).tiny
             target.flush()
             del target
         raw_export_seconds = time.perf_counter() - raw_started
@@ -813,6 +861,8 @@ def _run_metadata(
     udi_upper,
     target_time,
     quality,
+    sky_density,
+    direct_samples,
     maximum_samples,
     maximum_bounces,
     scene_seed,
@@ -837,7 +887,8 @@ def _run_metadata(
             "source": weather.source,
             "north": weather.north,
             "location": weather.location,
-            "basis": "reinhart-mf2",
+            "basis": weather.basis,
+            "sky_density": sky_density,
             "sun_up_hour_count": len(weather.sun_up_hours),
             "cache_hit": weather.cache_hit,
             "gendaymtx": weather.gendaymtx,
@@ -858,6 +909,11 @@ def _run_metadata(
         "solver": {
             "backend": backend,
             "quality": quality,
+            "solver_revision": SOLVER_REVISION,
+            "material_fingerprint": prepared.geometry_info[
+                "material_fingerprint"
+            ],
+            "direct_samples": direct_samples,
             "maximum_samples": maximum_samples,
             "maximum_bounces": maximum_bounces,
             "scene_seed": scene_seed,

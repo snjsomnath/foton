@@ -3,7 +3,8 @@ use std::sync::atomic::AtomicBool;
 #[cfg(target_os = "macos")]
 use daylight_core::InstanceUpdate;
 use daylight_core::{
-    AnalysisQuality, AnalysisRequest, Backend, ShoeboxOptions, SkyBasis, SkyMatrix, shoebox_scene,
+    AnalysisQuality, AnalysisRequest, Backend, ShoeboxOptions, SkyBasis, SkyMatrix,
+    patch_directions, patch_solid_angles, shoebox_scene,
 };
 #[cfg(target_os = "macos")]
 use daylight_metal::MetalBackend;
@@ -25,6 +26,7 @@ fn request() -> AnalysisRequest {
         udi_lower_lux: 100.0,
         udi_upper_lux: 3000.0,
         time_fraction: 0.5,
+        direct_samples: 1,
         maximum_samples: 16,
         maximum_bounces: 1,
         scene_seed: 42,
@@ -34,7 +36,6 @@ fn request() -> AnalysisRequest {
     }
 }
 
-#[cfg(target_os = "macos")]
 fn direct_request() -> AnalysisRequest {
     AnalysisRequest {
         sky: SkyMatrix::new(
@@ -49,6 +50,7 @@ fn direct_request() -> AnalysisRequest {
         udi_lower_lux: 100.0,
         udi_upper_lux: 3000.0,
         time_fraction: 0.5,
+        direct_samples: 1,
         maximum_samples: 0,
         maximum_bounces: 0,
         scene_seed: 42,
@@ -56,6 +58,99 @@ fn direct_request() -> AnalysisRequest {
         export_illuminance: false,
         coefficient_override: None,
     }
+}
+
+fn coefficient_energy(result: &daylight_core::AnalysisResult) -> f32 {
+    result
+        .coefficients
+        .as_ref()
+        .unwrap()
+        .values
+        .iter()
+        .flatten()
+        .sum()
+}
+
+#[test]
+fn transport_microfixtures_cover_patch_edges_glass_bounce_sealing_and_overlap() {
+    let backend = ReferenceBackend;
+    let mut direct = direct_request();
+    direct.direct_samples = 64;
+
+    let open = shoebox_scene(ShoeboxOptions {
+        room_count: 1,
+        sensors_per_room: 1,
+        glazing_transmittance: None,
+    })
+    .unwrap();
+    let glass = shoebox_scene(ShoeboxOptions {
+        room_count: 1,
+        sensors_per_room: 1,
+        glazing_transmittance: Some([0.64; 3]),
+    })
+    .unwrap();
+    let sealed = shoebox_scene(ShoeboxOptions {
+        room_count: 1,
+        sensors_per_room: 1,
+        glazing_transmittance: Some([0.0; 3]),
+    })
+    .unwrap();
+    let open_result = backend
+        .analyze(&open, &direct, 1, &AtomicBool::new(false), &|_| {})
+        .unwrap();
+    let glass_result = backend
+        .analyze(&glass, &direct, 1, &AtomicBool::new(false), &|_| {})
+        .unwrap();
+    let sealed_result = backend
+        .analyze(&sealed, &direct, 1, &AtomicBool::new(false), &|_| {})
+        .unwrap();
+    let open_energy = coefficient_energy(&open_result);
+    let glass_energy = coefficient_energy(&glass_result);
+    assert!(open_energy > glass_energy && glass_energy > 0.0);
+    assert_eq!(coefficient_energy(&sealed_result), 0.0);
+
+    let directions = patch_directions(SkyBasis::Tregenza);
+    let solid_angles = patch_solid_angles(SkyBasis::Tregenza);
+    let coefficients = open_result.coefficients.as_ref().unwrap();
+    let has_partially_exposed_patch = (1..SkyBasis::Tregenza.row_count()).any(|patch| {
+        let cosine = directions[patch].z.max(0.0);
+        let maximum = cosine * solid_angles[patch];
+        if maximum <= 1.0e-8 {
+            return false;
+        }
+        let fraction = coefficients.get(0, patch)[0] / maximum;
+        fraction > 0.01 && fraction < 0.99
+    });
+    assert!(
+        has_partially_exposed_patch,
+        "64-sample integration must resolve a partially exposed sky patch"
+    );
+
+    let mut one_bounce = direct.clone();
+    one_bounce.maximum_samples = 512;
+    one_bounce.maximum_bounces = 1;
+    let bounced = backend
+        .analyze(&glass, &one_bounce, 1, &AtomicBool::new(false), &|_| {})
+        .unwrap();
+    assert!(coefficient_energy(&bounced) > glass_energy);
+
+    let mut overlapping = shoebox_scene(ShoeboxOptions {
+        room_count: 2,
+        sensors_per_room: 1,
+        glazing_transmittance: Some([0.64; 3]),
+    })
+    .unwrap();
+    overlapping.instances[1].transform = overlapping.instances[0].transform;
+    overlapping.sensors[1].position = overlapping.sensors[0].position;
+    overlapping.validate().unwrap();
+    let overlap_result = backend
+        .analyze(&overlapping, &direct, 1, &AtomicBool::new(false), &|_| {})
+        .unwrap();
+    let overlap_coefficients = overlap_result.coefficients.as_ref().unwrap();
+    assert_eq!(
+        overlap_coefficients.values[0], overlap_coefficients.values[1],
+        "overlapping-room geometry must be traced consistently, not suppressed"
+    );
 }
 
 #[test]
@@ -195,6 +290,46 @@ fn metal_direct_visibility_matches_cpu_reference_when_available() {
     );
     assert!(gpu.timings.acceleration_structure_ms > 0.0);
     assert!(gpu.timings.tracing_ms > 0.0);
+}
+
+#[cfg(target_os = "macos")]
+#[test]
+fn metal_integrated_direct_coefficients_match_cpu_reference_when_available() {
+    let Ok(metal) = MetalBackend::new() else {
+        return;
+    };
+    let scene = shoebox_scene(ShoeboxOptions {
+        room_count: 1,
+        sensors_per_room: 4,
+        glazing_transmittance: Some([0.6; 3]),
+    })
+    .unwrap();
+    let mut request = direct_request();
+    request.direct_samples = 64;
+    let cpu = ReferenceBackend
+        .analyze(&scene, &request, 1, &AtomicBool::new(false), &|_| {})
+        .unwrap();
+    let gpu = metal
+        .analyze(&scene, &request, 1, &AtomicBool::new(false), &|_| {})
+        .unwrap();
+    assert_eq!(gpu.metadata.direct_sample_count, 64);
+    let reference_energy: f32 = cpu
+        .coefficients
+        .as_ref()
+        .unwrap()
+        .values
+        .iter()
+        .flatten()
+        .sum();
+    let candidate_energy: f32 = gpu
+        .coefficients
+        .as_ref()
+        .unwrap()
+        .values
+        .iter()
+        .flatten()
+        .sum();
+    assert!((candidate_energy - reference_energy).abs() / reference_energy < 0.01);
 }
 
 #[cfg(target_os = "macos")]

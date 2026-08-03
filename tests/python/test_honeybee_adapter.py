@@ -28,6 +28,7 @@ from foton.honeybee.recipe import (
     _coefficients_to_visibility,
 )
 from foton.honeybee.settings import RecipeSettings
+from foton.honeybee.validation import compare_coefficient_repeatability
 
 
 class HoneybeeAdapterTests(unittest.TestCase):
@@ -97,6 +98,31 @@ class HoneybeeAdapterTests(unittest.TestCase):
 
 
 class RecipeContractTests(unittest.TestCase):
+    def test_radiance_repeatability_detects_stable_and_unstable_oracles(self):
+        prepared = SimpleNamespace(
+            grid_info=[
+                {
+                    "identifier": "grid",
+                    "start_sensor_index": 0,
+                    "sensor_count": 1,
+                }
+            ]
+        )
+        direct = np.ones((1, 2, 3), dtype=np.float32)
+        full = direct * 1.5
+        stable = compare_coefficient_repeatability(
+            prepared,
+            radiance_direct_runs=[direct, direct.copy()],
+            radiance_full_runs=[full, full.copy()],
+        )
+        self.assertTrue(stable["oracle_stable_at_release_gates"])
+        unstable = compare_coefficient_repeatability(
+            prepared,
+            radiance_direct_runs=[direct, direct * 1.2],
+            radiance_full_runs=[full, full * 1.2],
+        )
+        self.assertFalse(unstable["oracle_stable_at_release_gates"])
+
     def test_recipe_accepts_lbt_style_names(self):
         recipe = Recipe("direct-visibility")
         recipe.input_value_by_name("sky basis", "reinhart_mf2")
@@ -105,6 +131,9 @@ class RecipeContractTests(unittest.TestCase):
         annual = Recipe("annual_daylight")
         self.assertEqual(annual.name, "annual_daylight")
         self.assertTrue(annual.inputs["export_illuminance"])
+        self.assertEqual(annual.inputs["sky_density"], 1)
+        self.assertIsNone(annual.inputs["direct_samples"])
+        self.assertIsNone(annual.inputs["maximum_samples"])
 
     def test_recipe_settings_validate_workers(self):
         with self.assertRaises(ValueError):

@@ -20,6 +20,7 @@ fn request(samples: u32, bounces: u32) -> AnalysisRequest {
         udi_lower_lux: 100.0,
         udi_upper_lux: 3000.0,
         time_fraction: 0.5,
+        direct_samples: 1,
         maximum_samples: samples,
         maximum_bounces: bounces,
         scene_seed: 7,
@@ -70,6 +71,45 @@ fn direct_visibility_matches_reference_when_enabled() {
         .sum();
     assert_eq!(candidate.metadata.transport_backend, "vulkan");
     assert!(!candidate.metadata.used_reference_fallback);
+    assert!((candidate_energy - reference_energy).abs() / reference_energy < 0.01);
+}
+
+#[test]
+fn integrated_direct_coefficients_match_reference_when_enabled() {
+    let Some(vulkan) = enabled_backend() else {
+        return;
+    };
+    let scene = shoebox_scene(ShoeboxOptions {
+        room_count: 1,
+        sensors_per_room: 4,
+        glazing_transmittance: Some([0.6; 3]),
+    })
+    .unwrap();
+    let mut request = request(0, 0);
+    request.direct_samples = 64;
+    let reference = ReferenceBackend
+        .analyze(&scene, &request, 1, &AtomicBool::new(false), &|_| {})
+        .unwrap();
+    let candidate = vulkan
+        .analyze(&scene, &request, 1, &AtomicBool::new(false), &|_| {})
+        .unwrap();
+    assert_eq!(candidate.metadata.direct_sample_count, 64);
+    let reference_energy: f32 = reference
+        .coefficients
+        .as_ref()
+        .unwrap()
+        .values
+        .iter()
+        .flatten()
+        .sum();
+    let candidate_energy: f32 = candidate
+        .coefficients
+        .as_ref()
+        .unwrap()
+        .values
+        .iter()
+        .flatten()
+        .sum();
     assert!((candidate_energy - reference_energy).abs() / reference_energy < 0.01);
 }
 

@@ -102,6 +102,7 @@ fn benchmark(
         udi_lower_lux: 100.0,
         udi_upper_lux: 3000.0,
         time_fraction: 0.5,
+        direct_samples: 1,
         maximum_samples: samples,
         maximum_bounces: bounces,
         scene_seed: 0,

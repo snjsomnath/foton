@@ -22,8 +22,8 @@ pub use geometry::{Instance, Material, MaterialKind, MeshRange, SceneData, Senso
 pub use hash::scene_fingerprint;
 pub use job::{AnalysisJob, JobSnapshot, JobStatus};
 pub use material::{
-    fresnel_reflectance, radiance_glass_transmissivity, thin_glass_transmittance,
-    thin_glass_transmittance_from_transmissivity,
+    fresnel_reflectance, radiance_glass_transmissivity, thin_glass_reflectance_from_transmissivity,
+    thin_glass_transmittance, thin_glass_transmittance_from_transmissivity,
 };
 pub use metrics::{
     AnnualMetrics, DaylightFactorMetrics, SensorAnnualMetric, annual_metrics_from_accumulators,
@@ -33,7 +33,8 @@ pub use sampling::{SampleKey, cosine_hemisphere, low_discrepancy_sample, sobol_u
 pub use schedule::OccupancySchedule;
 pub use sky::{
     CoefficientMatrix, REINHART_MF2_ROWS, SkyBasis, SkyMatrix, TREGENZA_ROWS, closest_patch,
-    mf2_to_tregenza_map, patch_directions, patch_solid_angles, radiance_patch_index,
+    mf2_to_tregenza_map, patch_directions, patch_sample_directions, patch_solid_angles,
+    radiance_patch_index,
 };
 
 pub const SOLVER_VERSION: &str = env!("CARGO_PKG_VERSION");

@@ -240,7 +240,7 @@ kernel void diffuse_transport(
         ray path_ray;
         path_ray.origin = origin;
         path_ray.direction = direction;
-        path_ray.min_distance = 1.0e-4f;
+        path_ray.min_distance = 1.0e-6f;
         path_ray.max_distance = INFINITY;
         const auto intersection = path_intersector.intersect(
             path_ray,
@@ -276,13 +276,44 @@ kernel void diffuse_transport(
             if (transparent_intersections >= uniforms.maximum_transparent_intersections) {
                 break;
             }
-            throughput *= thin_glass_transmission(
+            const float incidence = abs(dot(direction, normal));
+            const float3 transmission = thin_glass_transmission(
                 material.internal_transmissivity_rgb,
-                abs(dot(direction, normal)));
+                incidence);
+            const float3 reflection = thin_glass_reflection(
+                material.internal_transmissivity_rgb,
+                incidence);
+            const float transmission_energy = color_intensity(transmission);
+            const float reflection_energy = color_intensity(reflection);
+            const float total_energy = transmission_energy + reflection_energy;
+            if (total_energy <= 1.0e-8f) {
+                break;
+            }
+            const float reflection_probability =
+                reflection_energy / total_energy;
+            const float branch_sample = sequence_value(
+                sensor.sensor_id,
+                sample_index,
+                diffuse_bounces,
+                2u + transparent_intersections,
+                uniforms.scene_seed_low,
+                uniforms.scene_seed_high);
+            if (branch_sample < reflection_probability) {
+                throughput *= reflection / reflection_probability;
+                origin += direction * intersection.distance + normal * 1.0e-4f;
+                direction = reflect(direction, normal);
+            } else {
+                const float transmission_probability =
+                    1.0f - reflection_probability;
+                if (transmission_probability <= 1.0e-8f) {
+                    break;
+                }
+                throughput *= transmission / transmission_probability;
+                origin += direction * (intersection.distance + 1.0e-4f);
+            }
             if (all(throughput <= 1.0e-6f)) {
                 break;
             }
-            origin += direction * (intersection.distance + 1.0e-4f);
             ++transparent_intersections;
             continue;
         }

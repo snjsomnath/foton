@@ -21,7 +21,20 @@ class RadianceRun:
     files: dict[str, str]
 
 
-def resolve_radiance_executables(radiance_bin=None):
+@dataclass(frozen=True)
+class RadianceCoefficientStages:
+    direct: np.ndarray
+    full: np.ndarray
+    indirect: np.ndarray
+    commands: list[list[str]]
+    versions: dict[str, str]
+    timings_ms: dict[str, float]
+    files: dict[str, str]
+
+
+def resolve_radiance_executables(
+    radiance_bin=None, *, required=("oconv", "rcontrib")
+):
     searched: list[str] = []
     candidate_directories: list[Path] = []
     if radiance_bin:
@@ -43,13 +56,11 @@ def resolve_radiance_executables(radiance_bin=None):
         searched.append(str(directory))
         if not directory.is_dir():
             continue
-        found = {
-            name: directory / name for name in ("oconv", "rcontrib")
-        }
+        found = {name: directory / name for name in required}
         if all(path.is_file() and os.access(path, os.X_OK) for path in found.values()):
             return {name: str(path.resolve()) for name, path in found.items()}
 
-    found = {name: shutil.which(name) for name in ("oconv", "rcontrib")}
+    found = {name: shutil.which(name) for name in required}
     if all(found.values()):
         return found
     missing = [name for name, path in found.items() if path is None]
@@ -147,7 +158,8 @@ def run_radiance_visibility(
     visibility = np.where(np.asarray(patch_weights) > 1.0e-8, visibility, 0.0)
     elapsed_ms = (time.perf_counter() - started) * 1_000.0
     versions = {
-        name: _executable_version(path) for name, path in executables.items()
+        name: _executable_version(path, subprocess_environment)
+        for name, path in executables.items()
     }
     return RadianceRun(
         visibility=np.ascontiguousarray(visibility, dtype=np.float32),
@@ -159,6 +171,124 @@ def run_radiance_visibility(
             "octree": str(octree_path),
             "modifiers": str(modifiers_path),
             "rays": str(rays_path),
+        },
+    )
+
+
+def run_radiance_coefficient_stages(
+    sensor_positions,
+    sensor_normals,
+    *,
+    octree,
+    sky_dome,
+    sky_density=1,
+    work_directory,
+    workers=None,
+    radiance_bin=None,
+    radiance_parameters=("-ad", "5000", "-lw", "2e-05", "-dr", "0"),
+) -> RadianceCoefficientStages:
+    """Run matching Radiance direct and one-material-bounce coefficients."""
+    if sky_density not in {1, 2}:
+        raise ValueError("sky_density must be 1 or 2")
+    rows = 146 if sky_density == 1 else 578
+    octree = Path(octree).expanduser().resolve()
+    sky_dome = Path(sky_dome).expanduser().resolve()
+    if not octree.is_file():
+        raise FileNotFoundError(octree)
+    if not sky_dome.is_file():
+        raise FileNotFoundError(sky_dome)
+    executables = resolve_radiance_executables(
+        radiance_bin, required=("rfluxmtx", "rcontrib")
+    )
+    environment = _radiance_subprocess_environment(executables)
+    work_directory = Path(work_directory).expanduser().resolve()
+    work_directory.mkdir(parents=True, exist_ok=True)
+    positions = np.asarray(sensor_positions, dtype=np.float64)
+    normals = np.asarray(sensor_normals, dtype=np.float64)
+    if positions.ndim != 2 or positions.shape[1] != 3:
+        raise ValueError("sensor_positions must have shape [sensor, 3]")
+    if normals.shape != positions.shape:
+        raise ValueError("sensor_normals must match sensor_positions")
+    sensor_rows = np.concatenate((positions, normals), axis=1)
+    sensor_text = "\n".join(
+        " ".join(f"{value:.12g}" for value in row) for row in sensor_rows
+    ) + "\n"
+    sensors_path = work_directory / "sensors.pts"
+    sensors_path.write_text(sensor_text, encoding="ascii")
+
+    commands = []
+    timings = {}
+    matrices = {}
+    parameters = [str(value) for value in radiance_parameters]
+    for name, ambient_bounces in (("direct", 1), ("full", 2)):
+        command = [
+            executables["rfluxmtx"],
+            "-I+",
+            "-h",
+            "-y",
+            str(positions.shape[0]),
+            "-ab",
+            str(ambient_bounces),
+            *parameters,
+        ]
+        if workers:
+            command.extend(["-n", str(workers)])
+        command.extend(["-", str(sky_dome), "-i", str(octree)])
+        commands.append(command)
+        started = time.perf_counter()
+        completed = subprocess.run(
+            command,
+            input=sensor_text,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=environment,
+            check=False,
+        )
+        timings[name] = (time.perf_counter() - started) * 1_000.0
+        if completed.returncode != 0:
+            raise RuntimeError(
+                f"rfluxmtx {name} stage failed with exit code "
+                f"{completed.returncode}: {completed.stderr.strip()}"
+            )
+        values = np.fromstring(completed.stdout, sep=" ", dtype=np.float64)
+        expected = positions.shape[0] * rows * 3
+        if values.size != expected:
+            raise RuntimeError(
+                f"rfluxmtx {name} stage returned {values.size} values; "
+                f"expected {expected}"
+            )
+        matrix = np.ascontiguousarray(
+            values.reshape(positions.shape[0], rows, 3), dtype=np.float32
+        )
+        if not np.isfinite(matrix).all():
+            raise RuntimeError(f"rfluxmtx {name} stage returned non-finite values")
+        matrices[name] = matrix
+        np.save(work_directory / f"radiance_{name}.npy", matrix)
+
+    indirect = np.ascontiguousarray(
+        matrices["full"].astype(np.float64)
+        - matrices["direct"].astype(np.float64),
+        dtype=np.float32,
+    )
+    np.save(work_directory / "radiance_indirect.npy", indirect)
+    return RadianceCoefficientStages(
+        direct=matrices["direct"],
+        full=matrices["full"],
+        indirect=indirect,
+        commands=commands,
+        versions={
+            name: _executable_version(path, environment)
+            for name, path in executables.items()
+        },
+        timings_ms=timings,
+        files={
+            "octree": str(octree),
+            "sky_dome": str(sky_dome),
+            "sensors": str(sensors_path),
+            "direct": str(work_directory / "radiance_direct.npy"),
+            "full": str(work_directory / "radiance_full.npy"),
+            "indirect": str(work_directory / "radiance_indirect.npy"),
         },
     )
 
@@ -269,16 +399,39 @@ def _radiance_subprocess_environment(executables):
             if resolved not in ray_paths:
                 ray_paths.insert(0, resolved)
     environment["RAYPATH"] = os.pathsep.join(ray_paths)
+    executable_directories = {
+        str(Path(path).resolve().parent) for path in executables.values()
+    }
+    path_entries = [
+        value for value in environment.get("PATH", "").split(os.pathsep) if value
+    ]
+    for directory in sorted(executable_directories):
+        if directory not in path_entries:
+            path_entries.insert(0, directory)
+    environment["PATH"] = os.pathsep.join(path_entries)
     return environment
 
 
-def _executable_version(path):
-    completed = subprocess.run(
-        [path, "-version"],
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        check=False,
-    )
-    output = (completed.stdout or completed.stderr).strip()
-    return output.splitlines()[0] if output else "unknown"
+def _executable_version(path, environment=None):
+    path = Path(path)
+    candidates = [path]
+    for sibling_name in ("rtrace", "rcontrib"):
+        sibling = path.parent / sibling_name
+        if sibling.is_file() and sibling not in candidates:
+            candidates.append(sibling)
+    first_result = None
+    for candidate in candidates:
+        completed = subprocess.run(
+            [str(candidate), "-version"],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=environment,
+            check=False,
+        )
+        output = (completed.stdout or completed.stderr).strip()
+        if first_result is None:
+            first_result = output.splitlines()[0] if output else "unknown"
+        if "RADIANCE" in output.upper():
+            return output.splitlines()[0]
+    return first_result

@@ -12,9 +12,12 @@ pub fn radiance_glass_transmissivity(transmittance: f32) -> Result<f32> {
     if transmittance == 0.0 {
         return Ok(0.0);
     }
-    let numerator =
-        (0.840_252_8 + 0.007_252_224 * transmittance * transmittance).sqrt() - 0.916_653_1;
-    Ok(numerator / (0.003_626_112 * transmittance))
+    // Evaluate in f64: the subtraction in the numerator loses too much
+    // precision in f32 for the Radiance constants.
+    let transmittance = f64::from(transmittance);
+    let numerator = (0.840_252_843_5 + 0.007_252_223_9 * transmittance * transmittance).sqrt()
+        - 0.916_653_066_1;
+    Ok((numerator / (0.003_626_111_9 * transmittance)) as f32)
 }
 
 pub fn fresnel_reflectance(cos_incident: f32, index_of_refraction: f32) -> Result<f32> {
@@ -51,19 +54,55 @@ pub fn thin_glass_transmittance_from_transmissivity(
     internal_transmissivity: f32,
     cos_incident: f32,
 ) -> Result<f32> {
-    if !internal_transmissivity.is_finite() || !(0.0..=1.0).contains(&internal_transmissivity) {
+    Ok(thin_glass_optics(internal_transmissivity, cos_incident)?.0)
+}
+
+pub fn thin_glass_reflectance_from_transmissivity(
+    internal_transmissivity: f32,
+    cos_incident: f32,
+) -> Result<f32> {
+    Ok(thin_glass_optics(internal_transmissivity, cos_incident)?.1)
+}
+
+fn thin_glass_optics(internal_transmissivity: f32, cos_incident: f32) -> Result<(f32, f32)> {
+    if !internal_transmissivity.is_finite()
+        || !(0.0..=1.0).contains(&internal_transmissivity)
+        || !cos_incident.is_finite()
+        || !(0.0..=1.0).contains(&cos_incident.abs())
+    {
         return Err(DaylightError::InvalidValue {
             field: "glass_transmissivity",
-            detail: "must be finite and within [0, 1]".into(),
+            detail: "transmissivity and incidence cosine must be finite and within [0, 1]".into(),
         });
     }
-    if internal_transmissivity == 0.0 {
-        return Ok(0.0);
-    }
-    let reflectance = fresnel_reflectance(cos_incident.abs(), GLASS_INDEX_OF_REFRACTION)?;
-    let interface_transmission = 1.0 - reflectance;
-    let numerator = interface_transmission * interface_transmission * internal_transmissivity;
-    let denominator =
-        1.0 - reflectance * reflectance * internal_transmissivity * internal_transmissivity;
-    Ok((numerator / denominator).max(0.0))
+    let incident = cos_incident.abs();
+    let index_squared = GLASS_INDEX_OF_REFRACTION * GLASS_INDEX_OF_REFRACTION;
+    let transmitted = ((1.0 - 1.0 / index_squared) + incident * incident / index_squared).sqrt();
+    let attenuation = internal_transmissivity.powf(1.0 / transmitted);
+
+    // This is the exact non-refracting thin-glass equation used by Radiance
+    // glass.c. The two terms are the perpendicular and parallel polarizations.
+    let perpendicular = (incident - GLASS_INDEX_OF_REFRACTION * transmitted)
+        / (incident + GLASS_INDEX_OF_REFRACTION * transmitted);
+    let perpendicular_reflectance = perpendicular * perpendicular;
+    let parallel = (transmitted - GLASS_INDEX_OF_REFRACTION * incident)
+        / (transmitted + GLASS_INDEX_OF_REFRACTION * incident);
+    let parallel_reflectance = parallel * parallel;
+    let attenuation_squared = attenuation * attenuation;
+    let perpendicular_transmission =
+        (1.0 - perpendicular_reflectance) * (1.0 - perpendicular_reflectance) * attenuation
+            / (1.0 - perpendicular_reflectance * perpendicular_reflectance * attenuation_squared);
+    let parallel_transmission =
+        (1.0 - parallel_reflectance) * (1.0 - parallel_reflectance) * attenuation
+            / (1.0 - parallel_reflectance * parallel_reflectance * attenuation_squared);
+    let perpendicular_reflection = perpendicular_reflectance
+        * (1.0 + (1.0 - 2.0 * perpendicular_reflectance) * attenuation_squared)
+        / (1.0 - perpendicular_reflectance * perpendicular_reflectance * attenuation_squared);
+    let parallel_reflection = parallel_reflectance
+        * (1.0 + (1.0 - 2.0 * parallel_reflectance) * attenuation_squared)
+        / (1.0 - parallel_reflectance * parallel_reflectance * attenuation_squared);
+    Ok((
+        (0.5 * (perpendicular_transmission + parallel_transmission)).max(0.0),
+        (0.5 * (perpendicular_reflection + parallel_reflection)).max(0.0),
+    ))
 }

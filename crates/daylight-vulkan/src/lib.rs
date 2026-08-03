@@ -19,7 +19,8 @@ use daylight_core::{
     AnalysisMetadata, AnalysisRequest, AnalysisResult, AnnualIlluminance, Backend,
     BackendCapabilities, CoefficientMatrix, DaylightError, GpuTimings, InstanceUpdate, Result,
     SOLVER_VERSION, SceneData, SceneHandle, Vec3, annual_metrics_from_accumulators,
-    evaluate_daylight_factor, patch_directions, patch_solid_angles, scene_fingerprint,
+    evaluate_daylight_factor, patch_directions, patch_sample_directions, patch_solid_angles,
+    scene_fingerprint,
 };
 
 mod runtime;
@@ -34,8 +35,10 @@ const MAX_TRANSPARENT: u32 = 64;
 struct DirectUniforms {
     sensor_count: u32,
     patch_count: u32,
+    direct_sample_count: u32,
     active_mask: u32,
     max_transparent: u32,
+    padding: [u32; 3],
 }
 
 #[repr(C)]
@@ -419,8 +422,10 @@ impl VulkanBackend {
                 bytemuck::bytes_of(&DirectUniforms {
                     sensor_count: scene.sensors.len() as u32,
                     patch_count: request.sky.basis.row_count() as u32,
+                    direct_sample_count: request.direct_samples,
                     active_mask: u32::MAX,
                     max_transparent: MAX_TRANSPARENT,
+                    padding: [0; 3],
                 }),
                 [
                     (request.sky.basis.row_count() as u32).div_ceil(8),
@@ -610,6 +615,7 @@ impl VulkanBackend {
                 quality: request.quality,
                 glazing_model: "radiance_thin_glass_non_refracting".into(),
                 schedule_timestep_count: request.sky.timestep_count,
+                direct_sample_count: request.direct_samples,
                 convergence: 1.0,
                 transport_backend: "vulkan".into(),
                 used_reference_fallback: false,
@@ -709,7 +715,11 @@ fn upload_scene(
         .collect::<Result<Vec<_>>>()?;
     Ok(SceneBuffers {
         sensors: Buffer::from_data(context, &scene.sensors, usage)?,
-        directions: Buffer::from_data(context, &patch_directions(request.sky.basis), usage)?,
+        directions: Buffer::from_data(
+            context,
+            &patch_sample_directions(request.sky.basis, request.direct_samples),
+            usage,
+        )?,
         angles: Buffer::from_data(context, &patch_solid_angles(request.sky.basis), usage)?,
         metadata: Buffer::from_data(context, &metadata, usage)?,
         triangle_materials: Buffer::from_data(context, &scene.triangle_materials, usage)?,
@@ -754,6 +764,12 @@ fn validate_request(request: &AnalysisRequest) -> Result<()> {
             field: "analysis request",
             detail: "maximum_samples and maximum_bounces must both be zero or both be positive"
                 .into(),
+        });
+    }
+    if request.direct_samples == 0 {
+        return Err(DaylightError::InvalidValue {
+            field: "direct_samples",
+            detail: "direct_samples must be positive".into(),
         });
     }
     Ok(())

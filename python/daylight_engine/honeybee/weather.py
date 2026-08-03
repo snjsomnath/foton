@@ -15,7 +15,8 @@ from typing import Any
 import numpy as np
 
 
-REINHART_MF2_ROWS = 578
+SKY_ROWS = {1: 146, 2: 578}
+SKY_BASIS = {1: "tregenza", 2: "reinhart-mf2"}
 
 
 @dataclass(frozen=True)
@@ -28,6 +29,8 @@ class AnnualWeather:
     source: str
     location: dict[str, Any]
     north: float
+    sky_density: int
+    basis: str
     cache_hit: bool
     gendaymtx: str
     gendaymtx_version: str
@@ -37,10 +40,11 @@ def prepare_annual_weather(
     wea_or_epw,
     *,
     north: float = 0,
+    sky_density: int = 1,
     radiance_bin: str | None = None,
     cache_directory: str | Path | None = None,
 ) -> AnnualWeather:
-    """Prepare the canonical hourly Reinhart MF:2 matrix with ``gendaymtx``."""
+    """Prepare a canonical hourly Radiance matrix with ``gendaymtx``."""
     try:
         from ladybug.epw import EPW
         from ladybug.wea import Wea
@@ -53,6 +57,11 @@ def prepare_annual_weather(
     north = float(north)
     if not np.isfinite(north):
         raise ValueError("north must be finite")
+    if isinstance(sky_density, bool) or sky_density not in SKY_ROWS:
+        raise ValueError("sky_density must be 1 (Tregenza) or 2 (Reinhart MF:2)")
+    sky_density = int(sky_density)
+    rows = SKY_ROWS[sky_density]
+    basis = SKY_BASIS[sky_density]
     wea, source, source_bytes = _coerce_wea(wea_or_epw, EPW, Wea)
     if len(wea) != 8760 or int(wea.timestep) != 1:
         raise ValueError("annual daylight requires an hourly 8,760-timestep WEA")
@@ -61,7 +70,7 @@ def prepare_annual_weather(
     digest = sha256()
     digest.update(source_bytes)
     digest.update(
-        f"\0north={north:.12g}\0mf=2\0binary-sky=v3\0{version}".encode(
+        f"\0north={north:.12g}\0mf={sky_density}\0binary-sky=v4\0{version}".encode(
             "utf-8"
         )
     )
@@ -73,11 +82,11 @@ def prepare_annual_weather(
         else _default_cache_directory()
     )
     cache = cache_root / weather_id
-    matrix_path = cache / "reinhart-mf2.npy"
+    matrix_path = cache / f"{basis}.npy"
     metadata_path = cache / "metadata.json"
     if matrix_path.is_file() and metadata_path.is_file():
         matrix = np.load(matrix_path, allow_pickle=False)
-        if matrix.shape == (REINHART_MF2_ROWS, 8760, 3):
+        if matrix.shape == (rows, 8760, 3):
             metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
             return AnnualWeather(
                 sky=np.ascontiguousarray(matrix, dtype=np.float32),
@@ -88,6 +97,8 @@ def prepare_annual_weather(
                 source=source,
                 location=dict(metadata["location"]),
                 north=north,
+                sky_density=sky_density,
+                basis=basis,
                 cache_hit=True,
                 gendaymtx=str(executable),
                 gendaymtx_version=version,
@@ -100,7 +111,7 @@ def prepare_annual_weather(
         command = [
             str(executable),
             "-m",
-            "2",
+            str(sky_density),
             "-of",
             "-O0",
             "-r",
@@ -122,7 +133,7 @@ def prepare_annual_weather(
             )
             raise RuntimeError(f"gendaymtx failed ({completed.returncode}): {detail}")
         matrix = parse_radiance_binary_matrix(
-            completed.stdout, REINHART_MF2_ROWS, 8760
+            completed.stdout, rows, 8760
         )
         sun_matrix_path = Path(temporary) / "sunpath.mtx"
         sun_modifiers_path = Path(temporary) / "suns.mod"
@@ -167,8 +178,9 @@ def prepare_annual_weather(
         "weather_id": weather_id,
         "source": source,
         "north": north,
-        "basis": "reinhart-mf2",
-        "rows": REINHART_MF2_ROWS,
+        "basis": basis,
+        "sky_density": sky_density,
+        "rows": rows,
         "timestep_count": 8760,
         "sun_up_hours": list(sun_up_hours),
         "location": location,
@@ -188,6 +200,8 @@ def prepare_annual_weather(
         source=source,
         location=location,
         north=north,
+        sky_density=sky_density,
+        basis=basis,
         cache_hit=False,
         gendaymtx=str(executable),
         gendaymtx_version=version,

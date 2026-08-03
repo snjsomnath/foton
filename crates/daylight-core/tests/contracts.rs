@@ -10,8 +10,10 @@ use daylight_core::{
     AnalysisJob, AnalysisQuality, AnalysisRequest, AnalysisResult, Backend, BackendCapabilities,
     CoefficientMatrix, DaylightError, InstanceUpdate, Material, SampleKey, Sensor, ShoeboxOptions,
     SkyBasis, SkyMatrix, Vec3, evaluate_daylight_factor, low_discrepancy_sample,
-    mf2_to_tregenza_map, patch_directions, radiance_glass_transmissivity, radiance_patch_index,
-    reduce_annual_metrics, scene_fingerprint, shoebox_scene, sobol_uint, thin_glass_transmittance,
+    mf2_to_tregenza_map, patch_directions, patch_sample_directions, radiance_glass_transmissivity,
+    radiance_patch_index, reduce_annual_metrics, scene_fingerprint, shoebox_scene, sobol_uint,
+    thin_glass_reflectance_from_transmissivity, thin_glass_transmittance,
+    thin_glass_transmittance_from_transmissivity,
 };
 
 fn assert_close(actual: f32, expected: f32, tolerance: f32) {
@@ -96,12 +98,94 @@ fn radiance_bins_contain_their_canonical_patch_centers() {
 }
 
 #[test]
+fn radiance_bins_use_exact_altitude_and_azimuth_boundaries() {
+    for basis in [SkyBasis::Tregenza, SkyBasis::ReinhartMf2] {
+        let multiplier = if basis == SkyBasis::Tregenza {
+            1.0
+        } else {
+            2.0
+        };
+        let altitude_step = 90.0_f32.to_radians() / (7.0 * multiplier + 0.5);
+        let azimuth_step = std::f32::consts::TAU / (30.0 * multiplier);
+        let direction = |altitude: f32, azimuth: f32| {
+            Vec3::new(
+                altitude.cos() * azimuth.sin(),
+                altitude.cos() * azimuth.cos(),
+                altitude.sin(),
+            )
+        };
+        let epsilon = 1.0e-5;
+        assert_eq!(
+            radiance_patch_index(basis, direction(altitude_step - epsilon, 0.0),),
+            1
+        );
+        assert_eq!(
+            radiance_patch_index(basis, direction(altitude_step + epsilon, 0.0),),
+            1 + (30.0 * multiplier) as usize
+        );
+        assert_eq!(
+            radiance_patch_index(
+                basis,
+                direction(0.5 * altitude_step, 0.5 * azimuth_step - epsilon),
+            ),
+            1
+        );
+        assert_eq!(
+            radiance_patch_index(
+                basis,
+                direction(0.5 * altitude_step, 0.5 * azimuth_step + epsilon),
+            ),
+            2
+        );
+    }
+}
+
+#[test]
+fn direct_samples_remain_inside_their_radiance_patches() {
+    for basis in [SkyBasis::Tregenza, SkyBasis::ReinhartMf2] {
+        let sample_count = 64;
+        let samples = patch_sample_directions(basis, sample_count);
+        assert_eq!(samples.len(), basis.row_count() * sample_count as usize);
+        for patch_index in 0..basis.row_count() {
+            for direction in &samples
+                [patch_index * sample_count as usize..(patch_index + 1) * sample_count as usize]
+            {
+                assert_close(direction.length(), 1.0, 1e-5);
+                assert_eq!(
+                    radiance_patch_index(basis, *direction),
+                    patch_index,
+                    "basis={basis:?}, patch={patch_index}, direction={direction:?}"
+                );
+            }
+        }
+    }
+}
+
+#[test]
 fn radiance_glass_conversion_matches_known_sixty_percent_case() {
     let transmissivity = radiance_glass_transmissivity(0.6).unwrap();
     assert_close(transmissivity, 0.654, 0.002);
     let normal_transmittance = thin_glass_transmittance(0.6, 1.0).unwrap();
     assert_close(normal_transmittance, 0.6, 0.001);
     assert!(thin_glass_transmittance(0.6, 0.2).unwrap() < normal_transmittance);
+}
+
+#[test]
+fn acceptance_glass_conversion_matches_honeybee_modifier() {
+    let transmissivity = radiance_glass_transmissivity(0.64).unwrap();
+    assert_close(transmissivity, 0.697_576_17, 1.0e-6);
+    let expected = [0.0, 0.296_596, 0.539_754, 0.615_525, 0.64];
+    let mut prior = 0.0;
+    for (cosine, expected_transmission) in [0.0, 0.2, 0.5, 0.8, 1.0].into_iter().zip(expected) {
+        let transmission =
+            thin_glass_transmittance_from_transmissivity(transmissivity, cosine).unwrap();
+        let reflection =
+            thin_glass_reflectance_from_transmissivity(transmissivity, cosine).unwrap();
+        assert_close(transmission, expected_transmission, 2.0e-5);
+        assert!(transmission + reflection <= 1.0 + 1.0e-6);
+        assert!(transmission >= prior);
+        prior = transmission;
+    }
 }
 
 #[test]
@@ -303,6 +387,7 @@ fn dropping_job_joins_cancelled_worker() {
         udi_lower_lux: 100.0,
         udi_upper_lux: 3000.0,
         time_fraction: 0.5,
+        direct_samples: 1,
         maximum_samples: 0,
         maximum_bounces: 0,
         scene_seed: 0,

@@ -14,7 +14,7 @@ use daylight_core::{
     AnalysisMetadata, AnalysisRequest, AnalysisResult, AnnualIlluminance, Backend,
     BackendCapabilities, CoefficientMatrix, DaylightError, GpuTimings, InstanceUpdate, Result,
     SOLVER_VERSION, SceneData, SceneHandle, Vec3, annual_metrics_from_accumulators,
-    patch_directions, patch_solid_angles, scene_fingerprint,
+    patch_sample_directions, patch_solid_angles, scene_fingerprint,
 };
 use objc2::{
     rc::{Retained, autoreleasepool},
@@ -70,8 +70,10 @@ struct AnnualUniforms {
 struct DirectUniforms {
     sensor_count: u32,
     patch_count: u32,
+    direct_sample_count: u32,
     active_category_mask: u32,
     maximum_transparent_intersections: u32,
+    padding: [u32; 3],
 }
 
 #[repr(C)]
@@ -496,7 +498,7 @@ impl MetalBackend {
 
         let upload_started = Instant::now();
         let basis = request.sky.basis;
-        let directions = patch_directions(basis);
+        let directions = patch_sample_directions(basis, request.direct_samples);
         let solid_angles = patch_solid_angles(basis);
         let metadata = scene
             .instances
@@ -544,8 +546,10 @@ impl MetalBackend {
         let uniforms = DirectUniforms {
             sensor_count: scene.sensors.len() as u32,
             patch_count: basis.row_count() as u32,
+            direct_sample_count: request.direct_samples,
             active_category_mask: u32::MAX,
             maximum_transparent_intersections: MAXIMUM_TRANSPARENT_INTERSECTIONS,
+            padding: [0; 3],
         };
         let command_buffer = self.command_buffer("direct visibility")?;
         let encoder =
@@ -963,6 +967,7 @@ impl MetalBackend {
                 quality: request.quality,
                 glazing_model: "radiance_thin_glass_non_refracting".into(),
                 schedule_timestep_count: request.sky.timestep_count,
+                direct_sample_count: request.direct_samples,
                 convergence: 1.0,
                 transport_backend: "metal".into(),
                 used_reference_fallback: false,
@@ -1009,6 +1014,12 @@ fn validate_request(request: &AnalysisRequest) -> Result<()> {
             field: "analysis request",
             detail: "maximum_samples and maximum_bounces must both be zero or both be positive"
                 .into(),
+        });
+    }
+    if request.direct_samples == 0 {
+        return Err(DaylightError::InvalidValue {
+            field: "direct_samples",
+            detail: "direct_samples must be positive".into(),
         });
     }
     Ok(())

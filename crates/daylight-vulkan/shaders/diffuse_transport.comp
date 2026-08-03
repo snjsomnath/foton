@@ -111,7 +111,7 @@ void main() {
     uint maximum=uniforms.maximum_bounces+uniforms.max_transparent+1;
     for (uint path=0; path<maximum; ++path) {
         rayQueryEXT query;
-        rayQueryInitializeEXT(query,scene_as,gl_RayFlagsOpaqueEXT,uniforms.active_mask,origin,1e-4,direction,1e30);
+        rayQueryInitializeEXT(query,scene_as,gl_RayFlagsOpaqueEXT,uniforms.active_mask,origin,1e-6,direction,1e30);
         while(rayQueryProceedEXT(query)) {}
         if(rayQueryGetIntersectionTypeEXT(query,true)==gl_RayQueryCommittedIntersectionNoneEXT) {
             if(diffuse_bounces>0) {
@@ -129,9 +129,28 @@ void main() {
         float distance=rayQueryGetIntersectionTEXT(query,true);
         if(material.kind==1) {
             if(transparent>=uniforms.max_transparent) break;
-            throughput*=thin_glass_transmission(material.internal_transmissivity_rgb,abs(dot(direction,normal)));
+            float incidence=abs(dot(direction,normal));
+            vec3 transmission=thin_glass_transmission(material.internal_transmissivity_rgb,incidence);
+            vec3 reflection=thin_glass_reflection(material.internal_transmissivity_rgb,incidence);
+            float transmission_energy=color_intensity(transmission);
+            float reflection_energy=color_intensity(reflection);
+            float total_energy=transmission_energy+reflection_energy;
+            if(total_energy<=1e-8) break;
+            float reflection_probability=reflection_energy/total_energy;
+            float branch_sample=sequence_value(
+                sensor.sensor_id,sample_index,diffuse_bounces,2+transparent);
+            if(branch_sample<reflection_probability) {
+                throughput*=reflection/reflection_probability;
+                origin+=direction*distance+normal*1e-4;
+                direction=reflect(direction,normal);
+            } else {
+                float transmission_probability=1.0-reflection_probability;
+                if(transmission_probability<=1e-8) break;
+                throughput*=transmission/transmission_probability;
+                origin+=direction*(distance+1e-4);
+            }
             if(all(lessThanEqual(throughput,vec3(1e-6)))) break;
-            origin+=direction*(distance+1e-4); ++transparent; continue;
+            ++transparent; continue;
         }
         if(diffuse_bounces>=uniforms.maximum_bounces) break;
         throughput*=material.diffuse_rgb;

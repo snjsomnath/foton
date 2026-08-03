@@ -9,8 +9,11 @@ from daylight_engine.honeybee import (
     Recipe,
     RecipeSettings,
     compare_annual_daylight,
+    compare_coefficient_repeatability,
+    compare_coefficient_stages,
     honeybee_schedule,
     run_annual_daylight,
+    verify_official_annual_daylight_loader,
 )
 from daylight_engine.honeybee import (
     adapter,
@@ -38,5 +41,8 @@ __all__ = [
     "RecipeSettings",
     "honeybee_schedule",
     "compare_annual_daylight",
+    "compare_coefficient_repeatability",
+    "compare_coefficient_stages",
+    "verify_official_annual_daylight_loader",
     "run_annual_daylight",
 ]

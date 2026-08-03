@@ -9,7 +9,12 @@ from .annual import (
 )
 from .recipe import Recipe
 from .settings import RecipeSettings
-from .validation import compare_annual_daylight
+from .validation import (
+    compare_annual_daylight,
+    compare_coefficient_repeatability,
+    compare_coefficient_stages,
+    verify_official_annual_daylight_loader,
+)
 
 __all__ = [
     "AnnualDaylightRun",
@@ -19,5 +24,8 @@ __all__ = [
     "RecipeSettings",
     "honeybee_schedule",
     "compare_annual_daylight",
+    "compare_coefficient_repeatability",
+    "compare_coefficient_stages",
+    "verify_official_annual_daylight_loader",
     "run_annual_daylight",
 ]

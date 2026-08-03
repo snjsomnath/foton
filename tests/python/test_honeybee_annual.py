@@ -6,6 +6,7 @@ import unittest
 import numpy as np
 
 from foton.honeybee import honeybee_schedule
+from foton import Engine
 from foton.honeybee.adapter import prepare_honeybee_scene
 from foton.honeybee.annual import _reduce_coefficients
 from foton.honeybee.weather import parse_radiance_binary_matrix
@@ -134,6 +135,21 @@ class AcceptanceFixtureTests(unittest.TestCase):
                 atol=1e-6,
                 rtol=0,
             )
+            np.testing.assert_allclose(
+                material["radiance_transmissivity_rgb"],
+                [0.697576182] * 3,
+                atol=1e-6,
+                rtol=0,
+            )
+            np.testing.assert_allclose(
+                material["solver_transmittance_rgb"],
+                [0.64] * 3,
+                atol=1e-6,
+                rtol=0,
+            )
+        self.assertEqual(
+            len(self.prepared.geometry_info["material_fingerprint"]), 64
+        )
         self.assertEqual(
             self.prepared.geometry_info["aperture_mode"], "thin_glass"
         )
@@ -158,6 +174,43 @@ class AcceptanceFixtureTests(unittest.TestCase):
             if room.display_name == "classroom_01"
         )
         self.assertEqual(sum(len(face.apertures) for face in classroom_room.faces), 0)
+
+    def test_near_corner_secondary_ray_does_not_escape_classroom(self):
+        arrays = self.prepared.arrays
+        sensor_index = 1426
+        engine = Engine({"backend": "reference"})
+        scene = engine.create_scene(
+            arrays["vertices"],
+            arrays["triangles"],
+            arrays["triangle_materials"],
+            arrays["mesh_ranges"],
+            arrays["instance_transforms"],
+            arrays["instance_mesh_indices"],
+            arrays["instance_room_ids"],
+            arrays["instance_masks"],
+            arrays["material_kinds"],
+            arrays["material_diffuse_rgb"],
+            arrays["material_transmittance_rgb"],
+            arrays["sensor_positions"][sensor_index : sensor_index + 1],
+            arrays["sensor_normals"][sensor_index : sensor_index + 1],
+            arrays["sensor_ids"][sensor_index : sensor_index + 1],
+            arrays["sensor_room_ids"][sensor_index : sensor_index + 1],
+            arrays["sensor_area_weights"][sensor_index : sensor_index + 1],
+        )
+        result = scene.analyze(
+            np.zeros((146, 1, 3), dtype=np.float32),
+            np.ones(1, dtype=np.float32),
+            quality="final",
+            direct_samples=64,
+            maximum_samples=470,
+            maximum_bounces=1,
+            scene_seed=0,
+            export_coefficients=True,
+        ).result()
+        self.assertEqual(
+            int(np.count_nonzero(result.coefficients())),
+            0,
+        )
 
 
 if __name__ == "__main__":

@@ -87,6 +87,7 @@ run = study.annual_daylight(
     schedule=None,
     north=0,
     quality="final",
+    sky_density=1,
 )
 
 office = run.grid("office_01")
@@ -111,6 +112,13 @@ The default schedule follows Honeybee Radiance: 08:00–18:00 exclusive, with
 3,650 occupied hours. Supplied schedule values are occupied at `>=0.1`.
 DA, cDA, UDI-low, UDI, UDI-high, and area-weighted sDA are returned in the
 original HBJSON SensorGrid and sensor order.
+
+`sky_density=1` is the Honeybee-compatible Tregenza MF:1 default (146 rows).
+Use `sky_density=2` for Reinhart MF:2 (578 rows). Final quality uses 64
+deterministic solid-angle samples per sky patch, 4,096 indirect samples, one
+diffuse bounce, and seed 0. `direct_samples` is available as an advanced
+override. Re-running only weather, schedule, thresholds, or raw export on the
+same study reuses compatible coefficients and reports zero tracing time.
 
 With `export_illuminance=True`, the `results` folder is directly loadable by
 `honeybee_radiance_postprocess.results.AnnualDaylight`. Raw export is opt-in for

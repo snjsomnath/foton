@@ -27,11 +27,13 @@ def _parser() -> argparse.ArgumentParser:
     annual.add_argument("--schedule")
     annual.add_argument("--north", type=float, default=0)
     annual.add_argument("--quality", choices=("preview", "final"), default="final")
+    annual.add_argument("--sky-density", choices=(1, 2), type=int, default=1)
     annual.add_argument("--threshold", type=float, default=300)
     annual.add_argument("--udi-lower", type=float, default=100)
     annual.add_argument("--udi-upper", type=float, default=3000)
     annual.add_argument("--target-time", type=float, default=50)
-    annual.add_argument("--maximum-samples", type=int, default=256)
+    annual.add_argument("--direct-samples", type=int)
+    annual.add_argument("--maximum-samples", type=int)
     annual.add_argument("--maximum-bounces", type=int, default=1)
     annual.add_argument("--scene-seed", type=int, default=0)
     annual.add_argument("--radiance-bin")
@@ -55,10 +57,12 @@ def main(argv=None) -> int:
             schedule=args.schedule,
             north=args.north,
             quality=args.quality,
+            sky_density=args.sky_density,
             threshold=args.threshold,
             udi_lower=args.udi_lower,
             udi_upper=args.udi_upper,
             target_time=args.target_time,
+            direct_samples=args.direct_samples,
             maximum_samples=args.maximum_samples,
             maximum_bounces=args.maximum_bounces,
             scene_seed=args.scene_seed,

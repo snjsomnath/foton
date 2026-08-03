@@ -195,7 +195,7 @@ def _prepare_geometry(model, room_map, *, include_aperture_glazing=False):
         key = (
             specification["kind"],
             *specification["diffuse_rgb"],
-            *specification["transmittance_rgb"],
+            *specification["solver_transmittance_rgb"],
         )
         if key in material_indices:
             return material_indices[key]
@@ -204,7 +204,7 @@ def _prepare_geometry(model, room_map, *, include_aperture_glazing=False):
         material_kinds.append(int(specification["kind"]))
         material_diffuse_rgb.append(list(specification["diffuse_rgb"]))
         material_transmittance_rgb.append(
-            list(specification["transmittance_rgb"])
+            list(specification["solver_transmittance_rgb"])
         )
         material_info.append(
             {
@@ -306,6 +306,14 @@ def _prepare_geometry(model, room_map, *, include_aperture_glazing=False):
             material_transmittance_rgb, dtype=np.float32
         ),
     }
+    material_fingerprint = sha256(
+        json.dumps(
+            material_info,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=True,
+        ).encode("utf-8")
+    ).hexdigest()
     info = {
         "vertex_count": len(vertices),
         "triangle_count": len(triangles),
@@ -316,6 +324,7 @@ def _prepare_geometry(model, room_map, *, include_aperture_glazing=False):
         ),
         "shade_mode": "opaque",
         "materials": material_info,
+        "material_fingerprint": material_fingerprint,
     }
     return arrays, info
 
@@ -380,6 +389,7 @@ def _modifier_specification(modifier):
             "modifier_type": "Plastic",
             "diffuse_rgb": diffuse,
             "transmittance_rgb": [0.0, 0.0, 0.0],
+            "solver_transmittance_rgb": [0.0, 0.0, 0.0],
         }
     if modifier_type == "glass":
         refraction_index = getattr(modifier, "refraction_index", None)
@@ -390,6 +400,11 @@ def _modifier_specification(modifier):
                 f"Radiance Glass modifier {modifier.identifier!r} uses "
                 f"refraction index {refraction_index}; Foton v1 supports 1.52"
             )
+        transmissivity = [
+            float(modifier.r_transmissivity),
+            float(modifier.g_transmissivity),
+            float(modifier.b_transmissivity),
+        ]
         transmittance = [
             float(modifier.r_transmittance),
             float(modifier.g_transmittance),
@@ -400,10 +415,33 @@ def _modifier_specification(modifier):
             "modifier_type": "Glass",
             "diffuse_rgb": [0.0, 0.0, 0.0],
             "transmittance_rgb": transmittance,
+            "radiance_transmissivity_rgb": transmissivity,
+            "solver_transmittance_rgb": [
+                _glass_normal_transmittance(value)
+                for value in transmissivity
+            ],
         }
     raise ValueError(
         f"Radiance modifier {modifier.identifier!r} of type "
         f"{modifier.__class__.__name__} is not supported by Foton v1"
+    )
+
+
+def _glass_normal_transmittance(transmissivity):
+    """Return Radiance glass.c transmission at normal incidence."""
+    if transmissivity <= 0:
+        return 0.0
+    normal_reflectance = ((1.0 - 1.52) / (1.0 + 1.52)) ** 2
+    return (
+        (1.0 - normal_reflectance) ** 2
+        * transmissivity
+        / (
+            1.0
+            - normal_reflectance
+            * normal_reflectance
+            * transmissivity
+            * transmissivity
+        )
     )
 
 
@@ -625,7 +663,7 @@ def _fingerprint_model(
         "grid_size": float(grid_size),
         "sensor_height": float(sensor_height),
         "include_aperture_glazing": bool(include_aperture_glazing),
-        "adapter_schema": 2,
+        "adapter_schema": 3,
     }
     canonical = json.dumps(
         payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True
