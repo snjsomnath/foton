@@ -152,10 +152,26 @@ fn annual_reduction_uses_schedule_and_area_weights() {
             ..Sensor::default()
         },
     ];
-    let result =
-        reduce_annual_metrics(&coefficients, &sky, &[1.0, 0.0], &sensors, 300.0, 0.5).unwrap();
+    let result = reduce_annual_metrics(
+        &coefficients,
+        &sky,
+        &[1.0, 0.0],
+        &sensors,
+        300.0,
+        100.0,
+        3000.0,
+        0.5,
+    )
+    .unwrap();
     assert_eq!(result.occupied_weight, 1.0);
     assert_eq!(result.rooms[0].static_sda_300_50, 100.0);
+    for sensor in result.sensors {
+        assert_eq!(sensor.daylight_autonomy, 1.0);
+        assert_eq!(sensor.continuous_daylight_autonomy, 1.0);
+        assert_eq!(sensor.useful_daylight_illuminance_lower, 0.0);
+        assert_eq!(sensor.useful_daylight_illuminance, 0.0);
+        assert_eq!(sensor.useful_daylight_illuminance_upper, 1.0);
+    }
 }
 
 #[test]
@@ -284,11 +300,15 @@ fn dropping_job_joins_cancelled_worker() {
         occupancy_weights: vec![1.0],
         quality: AnalysisQuality::Preview,
         threshold_lux: 300.0,
+        udi_lower_lux: 100.0,
+        udi_upper_lux: 3000.0,
         time_fraction: 0.5,
         maximum_samples: 0,
         maximum_bounces: 0,
         scene_seed: 0,
         export_coefficients: false,
+        export_illuminance: false,
+        coefficient_override: None,
     };
     let job = AnalysisJob::spawn(backend, scene, request);
     for _ in 0..100 {

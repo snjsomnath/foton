@@ -7,8 +7,9 @@ use std::{
 };
 
 use daylight_core::{
-    AnalysisJob, AnalysisQuality, AnalysisRequest, Backend, DaylightError, Instance,
-    InstanceUpdate, Material, MeshRange, SceneData, SceneHandle, Sensor, SkyBasis, SkyMatrix, Vec3,
+    AnalysisJob, AnalysisQuality, AnalysisRequest, Backend, CoefficientMatrix, DaylightError,
+    Instance, InstanceUpdate, Material, MeshRange, SceneData, SceneHandle, Sensor, SkyBasis,
+    SkyMatrix, Vec3,
 };
 #[cfg(target_os = "macos")]
 use daylight_metal::MetalBackend;
@@ -308,11 +309,15 @@ impl PyScene {
         quality="preview",
         metrics=None,
         threshold_lux=300.0,
+        udi_lower_lux=100.0,
+        udi_upper_lux=3000.0,
         time_fraction=0.5,
         maximum_samples=64,
         maximum_bounces=1,
         scene_seed=0,
         export_coefficients=false,
+        export_illuminance=false,
+        coefficient_override=None,
         supersede=true
     ))]
     fn analyze(
@@ -322,11 +327,15 @@ impl PyScene {
         quality: &str,
         metrics: Option<Vec<String>>,
         threshold_lux: f32,
+        udi_lower_lux: f32,
+        udi_upper_lux: f32,
         time_fraction: f32,
         maximum_samples: u32,
         maximum_bounces: u32,
         scene_seed: u64,
         export_coefficients: bool,
+        export_illuminance: bool,
+        coefficient_override: Option<PyReadonlyArray3<'_, f32>>,
         supersede: bool,
     ) -> PyResult<PyAnalysisJob> {
         require_shape_3d(&sky, "sky", sky.shape()[1], 3)?;
@@ -370,6 +379,23 @@ impl PyScene {
                 "occupancy length must match the sky timestep dimension",
             ));
         }
+        let coefficient_override = coefficient_override
+            .as_ref()
+            .map(|values| {
+                require_shape_3d(values, "coefficient_override", basis.row_count(), 3)?;
+                let sensor_count = values.shape()[0];
+                if sensor_count != self.handle.snapshot().map_err(core_error)?.sensors.len() {
+                    return Err(PyValueError::new_err(
+                        "coefficient_override sensor count must match the scene",
+                    ));
+                }
+                let values = contiguous_3d(values, "coefficient_override")?
+                    .chunks_exact(3)
+                    .map(|rgb| [rgb[0], rgb[1], rgb[2]])
+                    .collect();
+                CoefficientMatrix::new(sensor_count, basis, values).map_err(core_error)
+            })
+            .transpose()?;
         if supersede {
             cancel_active_jobs(&self.active_jobs);
         }
@@ -378,11 +404,15 @@ impl PyScene {
             occupancy_weights: occupancy,
             quality,
             threshold_lux,
+            udi_lower_lux,
+            udi_upper_lux,
             time_fraction,
             maximum_samples,
             maximum_bounces,
             scene_seed,
             export_coefficients,
+            export_illuminance,
+            coefficient_override,
         };
         let job = AnalysisJob::spawn(Arc::clone(&self.backend), self.handle.clone(), request);
         self.active_jobs
@@ -464,6 +494,42 @@ impl PyAnalysisResult {
             .collect()
     }
 
+    fn continuous_daylight_autonomy(&self) -> Vec<f32> {
+        self.result
+            .annual
+            .sensors
+            .iter()
+            .map(|metric| metric.continuous_daylight_autonomy)
+            .collect()
+    }
+
+    fn useful_daylight_illuminance_lower(&self) -> Vec<f32> {
+        self.result
+            .annual
+            .sensors
+            .iter()
+            .map(|metric| metric.useful_daylight_illuminance_lower)
+            .collect()
+    }
+
+    fn useful_daylight_illuminance(&self) -> Vec<f32> {
+        self.result
+            .annual
+            .sensors
+            .iter()
+            .map(|metric| metric.useful_daylight_illuminance)
+            .collect()
+    }
+
+    fn useful_daylight_illuminance_upper(&self) -> Vec<f32> {
+        self.result
+            .annual
+            .sensors
+            .iter()
+            .map(|metric| metric.useful_daylight_illuminance_upper)
+            .collect()
+    }
+
     fn room_ids(&self) -> Vec<u32> {
         self.result
             .annual
@@ -505,6 +571,18 @@ impl PyAnalysisResult {
         let array = Array3::from_shape_vec(
             (coefficients.sensor_count, coefficients.basis.row_count(), 3),
             values,
+        )
+        .map_err(|error| PyRuntimeError::new_err(error.to_string()))?;
+        Ok(Some(PyArray::from_owned_array(py, array).unbind()))
+    }
+
+    fn annual_illuminance(&self, py: Python<'_>) -> PyResult<Option<Py<PyArray2<f32>>>> {
+        let Some(illuminance) = self.result.annual_illuminance.as_ref() else {
+            return Ok(None);
+        };
+        let array = Array2::from_shape_vec(
+            (illuminance.sensor_count, illuminance.timestep_count),
+            illuminance.values.clone(),
         )
         .map_err(|error| PyRuntimeError::new_err(error.to_string()))?;
         Ok(Some(PyArray::from_owned_array(py, array).unbind()))
@@ -580,12 +658,21 @@ fn cancel_active_jobs(active_jobs: &Mutex<Vec<Weak<AtomicBool>>>) {
 }
 
 fn validate_metrics(metrics: Option<&[String]>) -> PyResult<()> {
-    let supported = HashSet::from(["df", "da", "static_sda300_50"]);
+    let supported = HashSet::from([
+        "df",
+        "da",
+        "cda",
+        "udi",
+        "udi_lower",
+        "udi_upper",
+        "static_sda300_50",
+    ]);
     if let Some(metrics) = metrics {
         for metric in metrics {
             if !supported.contains(metric.as_str()) {
                 return Err(PyValueError::new_err(format!(
-                    "unsupported metric {metric:?}; expected df, da, or static_sda300_50"
+                    "unsupported metric {metric:?}; expected df, da, cda, udi, \
+                     udi_lower, udi_upper, or static_sda300_50"
                 )));
             }
         }

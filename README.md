@@ -1,12 +1,20 @@
+<div align="center">
+
 # Foton
 
-Hardware-adaptive, backend-neutral daylight analysis engine for progressive daylight
-coefficients, daylight factor, daylight autonomy, and static sDA.
+**Hardware-adaptive, backend-neutral daylight analysis engine for progressive daylight
+coefficients, daylight factor, daylight autonomy, and static sDA.**
+
+[![PyPI - Version](https://img.shields.io/pypi/v/foton-daylight?color=blue&style=flat-square)](https://pypi.org/project/foton-daylight/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey?style=flat-square)](https://github.com/snjsomnath/foton)
+
+</div>
+
 
 ## Install
 
-The product and import name is Foton. The PyPI distribution is `foton-daylight`
-because the shorter `foton` project name is owned by another publisher.
+The product and import name is Foton. The PyPI distribution is `foton-daylight`. You can install it using pip:
 
 ```bash
 python -m pip install foton-daylight

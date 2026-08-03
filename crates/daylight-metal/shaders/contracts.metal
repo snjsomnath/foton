@@ -47,6 +47,8 @@ struct AnnualReductionUniforms {
     uint timestep_count;
     uint sensor_offset;
     float threshold_lux;
+    float udi_lower_lux;
+    float udi_upper_lux;
 };
 
 static float3 transform_normal(

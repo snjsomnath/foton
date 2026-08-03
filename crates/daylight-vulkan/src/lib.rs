@@ -16,10 +16,10 @@ use std::{
 use ash::{Entry, vk};
 use bytemuck::{Pod, Zeroable};
 use daylight_core::{
-    AnalysisMetadata, AnalysisRequest, AnalysisResult, Backend, BackendCapabilities,
-    CoefficientMatrix, DaylightError, GpuTimings, InstanceUpdate, Result, SOLVER_VERSION,
-    SceneData, SceneHandle, Vec3, annual_metrics_from_weights, evaluate_daylight_factor,
-    patch_directions, patch_solid_angles, scene_fingerprint,
+    AnalysisMetadata, AnalysisRequest, AnalysisResult, AnnualIlluminance, Backend,
+    BackendCapabilities, CoefficientMatrix, DaylightError, GpuTimings, InstanceUpdate, Result,
+    SOLVER_VERSION, SceneData, SceneHandle, Vec3, annual_metrics_from_accumulators,
+    evaluate_daylight_factor, patch_directions, patch_solid_angles, scene_fingerprint,
 };
 
 mod runtime;
@@ -71,6 +71,8 @@ struct AnnualUniforms {
     timestep_count: u32,
     sensor_offset: u32,
     threshold_lux: f32,
+    udi_lower_lux: f32,
+    udi_upper_lux: f32,
 }
 
 #[repr(C)]
@@ -296,7 +298,9 @@ impl VulkanBackend {
         let annual = Pipeline::new(
             &context,
             include_bytes!(concat!(env!("OUT_DIR"), "/annual_reduce.spv")),
-            &[storage, storage, storage, storage, storage],
+            &[
+                storage, storage, storage, storage, storage, storage, storage, storage, storage,
+            ],
             size_of::<AnnualUniforms>() as u32,
         )?;
         Ok(Self {
@@ -373,40 +377,59 @@ impl VulkanBackend {
         let upload_started = Instant::now();
         let common = upload_scene(&self.context, &scene, request)?;
         let coefficient_count = scene.sensors.len() * request.sky.basis.row_count();
-        let coefficients = Buffer::zeroed(
-            &self.context,
-            coefficient_count * size_of::<Vec3>(),
-            vk::BufferUsageFlags::STORAGE_BUFFER,
-        )?;
+        let coefficients = if let Some(coefficients) = &request.coefficient_override {
+            coefficients.validate()?;
+            if coefficients.sensor_count != scene.sensors.len()
+                || coefficients.basis != request.sky.basis
+            {
+                return Err(DaylightError::InvalidShape {
+                    field: "coefficient_override",
+                    detail: "coefficient sensor count and basis must match the request".into(),
+                });
+            }
+            Buffer::from_data(
+                &self.context,
+                &coefficients.values,
+                vk::BufferUsageFlags::STORAGE_BUFFER,
+            )?
+        } else {
+            Buffer::zeroed(
+                &self.context,
+                coefficient_count * size_of::<Vec3>(),
+                vk::BufferUsageFlags::STORAGE_BUFFER,
+            )?
+        };
         let upload_ms = upload_started.elapsed().as_secs_f64() * 1_000.0;
         let tracing_started = Instant::now();
-        self.direct.dispatch(
-            &self.context,
-            &[
-                &common.sensors,
-                &common.directions,
-                &common.angles,
-                &common.metadata,
-                &common.triangle_materials,
-                &common.materials,
-                &common.triangle_normals,
-                &common.normal_transforms,
-                &coefficients,
-            ],
-            Some(acceleration.handle),
-            bytemuck::bytes_of(&DirectUniforms {
-                sensor_count: scene.sensors.len() as u32,
-                patch_count: request.sky.basis.row_count() as u32,
-                active_mask: u32::MAX,
-                max_transparent: MAX_TRANSPARENT,
-            }),
-            [
-                (request.sky.basis.row_count() as u32).div_ceil(8),
-                (scene.sensors.len() as u32).div_ceil(8),
-                1,
-            ],
-        )?;
-        if request.maximum_samples > 0 {
+        if request.coefficient_override.is_none() {
+            self.direct.dispatch(
+                &self.context,
+                &[
+                    &common.sensors,
+                    &common.directions,
+                    &common.angles,
+                    &common.metadata,
+                    &common.triangle_materials,
+                    &common.materials,
+                    &common.triangle_normals,
+                    &common.normal_transforms,
+                    &coefficients,
+                ],
+                Some(acceleration.handle),
+                bytemuck::bytes_of(&DirectUniforms {
+                    sensor_count: scene.sensors.len() as u32,
+                    patch_count: request.sky.basis.row_count() as u32,
+                    active_mask: u32::MAX,
+                    max_transparent: MAX_TRANSPARENT,
+                }),
+                [
+                    (request.sky.basis.row_count() as u32).div_ceil(8),
+                    (scene.sensors.len() as u32).div_ceil(8),
+                    1,
+                ],
+            )?;
+        }
+        if request.coefficient_override.is_none() && request.maximum_samples > 0 {
             let indirect = Buffer::zeroed(
                 &self.context,
                 coefficient_count * 3 * size_of::<u32>(),
@@ -471,6 +494,26 @@ impl VulkanBackend {
             scene.sensors.len() * size_of::<u32>(),
             vk::BufferUsageFlags::STORAGE_BUFFER,
         )?;
+        let continuous = Buffer::zeroed(
+            &self.context,
+            scene.sensors.len() * size_of::<u32>(),
+            vk::BufferUsageFlags::STORAGE_BUFFER,
+        )?;
+        let udi_lower = Buffer::zeroed(
+            &self.context,
+            scene.sensors.len() * size_of::<u32>(),
+            vk::BufferUsageFlags::STORAGE_BUFFER,
+        )?;
+        let udi = Buffer::zeroed(
+            &self.context,
+            scene.sensors.len() * size_of::<u32>(),
+            vk::BufferUsageFlags::STORAGE_BUFFER,
+        )?;
+        let udi_upper = Buffer::zeroed(
+            &self.context,
+            scene.sensors.len() * size_of::<u32>(),
+            vk::BufferUsageFlags::STORAGE_BUFFER,
+        )?;
         self.annual.dispatch(
             &self.context,
             &[
@@ -479,6 +522,10 @@ impl VulkanBackend {
                 &common.occupancy,
                 &occupied,
                 &threshold,
+                &continuous,
+                &udi_lower,
+                &udi,
+                &udi_upper,
             ],
             None,
             bytemuck::bytes_of(&AnnualUniforms {
@@ -487,6 +534,8 @@ impl VulkanBackend {
                 timestep_count: request.sky.timestep_count as u32,
                 sensor_offset: 0,
                 threshold_lux: request.threshold_lux,
+                udi_lower_lux: request.udi_lower_lux,
+                udi_upper_lux: request.udi_upper_lux,
             }),
             [
                 (request.sky.timestep_count as u32).div_ceil(8),
@@ -496,16 +545,33 @@ impl VulkanBackend {
         )?;
         let occupied_ticks = occupied.read::<u32>(scene.sensors.len())?;
         let threshold_ticks = threshold.read::<u32>(scene.sensors.len())?;
+        let continuous_ticks = continuous.read::<u32>(scene.sensors.len())?;
+        let udi_lower_ticks = udi_lower.read::<u32>(scene.sensors.len())?;
+        let udi_ticks = udi.read::<u32>(scene.sensors.len())?;
+        let udi_upper_ticks = udi_upper.read::<u32>(scene.sensors.len())?;
         let occupied_weight = occupied_ticks.first().copied().unwrap_or(0) as f32 / ANNUAL_SCALE;
-        let threshold_weights = threshold_ticks
-            .into_iter()
-            .map(|value| value as f32 / ANNUAL_SCALE)
-            .collect::<Vec<_>>();
-        let annual = annual_metrics_from_weights(
+        let to_weights = |values: Vec<u32>| {
+            values
+                .into_iter()
+                .map(|value| value as f32 / ANNUAL_SCALE)
+                .collect::<Vec<_>>()
+        };
+        let threshold_weights = to_weights(threshold_ticks);
+        let continuous_weights = to_weights(continuous_ticks);
+        let udi_lower_weights = to_weights(udi_lower_ticks);
+        let udi_weights = to_weights(udi_ticks);
+        let udi_upper_weights = to_weights(udi_upper_ticks);
+        let annual = annual_metrics_from_accumulators(
             &scene.sensors,
             occupied_weight,
             &threshold_weights,
+            &continuous_weights,
+            &udi_lower_weights,
+            &udi_weights,
+            &udi_upper_weights,
             request.threshold_lux,
+            request.udi_lower_lux,
+            request.udi_upper_lux,
             request.time_fraction,
         )?;
         let annual_reduction_ms = reduction_started.elapsed().as_secs_f64() * 1_000.0;
@@ -517,10 +583,14 @@ impl VulkanBackend {
         let coefficient_matrix =
             CoefficientMatrix::new(scene.sensors.len(), request.sky.basis, values)?;
         let daylight_factor = Some(compute_daylight_factor(&coefficient_matrix, &scene)?);
+        let annual_illuminance = request
+            .export_illuminance
+            .then(|| annual_illuminance(&coefficient_matrix, request));
         progress(1.0);
         Ok(AnalysisResult {
             solver_revision,
             coefficients: request.export_coefficients.then_some(coefficient_matrix),
+            annual_illuminance,
             annual,
             daylight_factor,
             sample_count: request.maximum_samples,
@@ -661,6 +731,10 @@ fn validate_request(request: &AnalysisRequest) -> Result<()> {
     let occupied: f32 = request.occupancy_weights.iter().sum();
     if !request.threshold_lux.is_finite()
         || request.threshold_lux <= 0.0
+        || !request.udi_lower_lux.is_finite()
+        || request.udi_lower_lux < 0.0
+        || !request.udi_upper_lux.is_finite()
+        || request.udi_upper_lux <= request.udi_lower_lux
         || !request.time_fraction.is_finite()
         || !(0.0..=1.0).contains(&request.time_fraction)
         || request
@@ -672,7 +746,7 @@ fn validate_request(request: &AnalysisRequest) -> Result<()> {
     {
         return Err(DaylightError::InvalidValue {
             field: "analysis request",
-            detail: "threshold, time fraction, or occupancy weights are invalid".into(),
+            detail: "metric thresholds, time fraction, or occupancy weights are invalid".into(),
         });
     }
     if (request.maximum_samples == 0) != (request.maximum_bounces == 0) {
@@ -749,6 +823,33 @@ fn normal_transform(matrix: [f32; 16]) -> Result<NormalTransform> {
             0.0,
         ],
     })
+}
+
+fn annual_illuminance(
+    coefficients: &CoefficientMatrix,
+    request: &AnalysisRequest,
+) -> AnnualIlluminance {
+    let timestep_count = request.sky.timestep_count;
+    let mut values = vec![0.0; coefficients.sensor_count * timestep_count];
+    for sensor in 0..coefficients.sensor_count {
+        for timestep in 0..timestep_count {
+            let mut response = [0.0; 3];
+            for patch in 0..coefficients.basis.row_count() {
+                let coefficient = coefficients.get(sensor, patch);
+                let sky = request.sky.get(patch, timestep);
+                for component in 0..3 {
+                    response[component] += coefficient[component] * sky[component];
+                }
+            }
+            values[sensor * timestep_count + timestep] =
+                response[0] * 47.435 + response[1] * 119.93 + response[2] * 11.635;
+        }
+    }
+    AnnualIlluminance {
+        sensor_count: coefficients.sensor_count,
+        timestep_count,
+        values,
+    }
 }
 
 fn compute_daylight_factor(

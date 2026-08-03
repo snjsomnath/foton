@@ -15,6 +15,10 @@ pub struct SensorAnnualMetric {
     pub sensor_id: u32,
     pub room_id: u32,
     pub daylight_autonomy: f32,
+    pub continuous_daylight_autonomy: f32,
+    pub useful_daylight_illuminance_lower: f32,
+    pub useful_daylight_illuminance: f32,
+    pub useful_daylight_illuminance_upper: f32,
     pub passes_sda: bool,
 }
 
@@ -28,6 +32,8 @@ pub struct RoomAnnualMetric {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct AnnualMetrics {
     pub threshold_lux: f32,
+    pub udi_lower_lux: f32,
+    pub udi_upper_lux: f32,
     pub time_fraction: f32,
     pub occupied_weight: f32,
     pub sensors: Vec<SensorAnnualMetric>,
@@ -48,6 +54,8 @@ pub fn reduce_annual_metrics(
     occupancy_weights: &[f32],
     sensors: &[Sensor],
     threshold_lux: f32,
+    udi_lower_lux: f32,
+    udi_upper_lux: f32,
     time_fraction: f32,
 ) -> Result<AnnualMetrics> {
     coefficients.validate()?;
@@ -72,6 +80,10 @@ pub fn reduce_annual_metrics(
     }
     if !threshold_lux.is_finite()
         || threshold_lux <= 0.0
+        || !udi_lower_lux.is_finite()
+        || udi_lower_lux < 0.0
+        || !udi_upper_lux.is_finite()
+        || udi_upper_lux <= udi_lower_lux
         || !time_fraction.is_finite()
         || !(0.0..=1.0).contains(&time_fraction)
         || occupancy_weights
@@ -93,8 +105,16 @@ pub fn reduce_annual_metrics(
 
     let patch_count = coefficients.basis.row_count();
     let mut above_threshold_weights = Vec::with_capacity(sensors.len());
+    let mut continuous_weights = Vec::with_capacity(sensors.len());
+    let mut udi_lower_weights = Vec::with_capacity(sensors.len());
+    let mut udi_weights = Vec::with_capacity(sensors.len());
+    let mut udi_upper_weights = Vec::with_capacity(sensors.len());
     for sensor_index in 0..sensors.len() {
         let mut above_threshold_weight = 0.0;
+        let mut continuous_weight = 0.0;
+        let mut udi_lower_weight = 0.0;
+        let mut udi_weight = 0.0;
+        let mut udi_upper_weight = 0.0;
         for (timestep_index, occupancy_weight) in occupancy_weights.iter().copied().enumerate() {
             if occupancy_weight == 0.0 {
                 continue;
@@ -115,14 +135,32 @@ pub fn reduce_annual_metrics(
             if illuminance >= threshold_lux {
                 above_threshold_weight += occupancy_weight;
             }
+            continuous_weight += occupancy_weight * (illuminance / threshold_lux).clamp(0.0, 1.0);
+            if illuminance < udi_lower_lux {
+                udi_lower_weight += occupancy_weight;
+            } else if illuminance <= udi_upper_lux {
+                udi_weight += occupancy_weight;
+            } else {
+                udi_upper_weight += occupancy_weight;
+            }
         }
         above_threshold_weights.push(above_threshold_weight);
+        continuous_weights.push(continuous_weight);
+        udi_lower_weights.push(udi_lower_weight);
+        udi_weights.push(udi_weight);
+        udi_upper_weights.push(udi_upper_weight);
     }
-    annual_metrics_from_weights(
+    annual_metrics_from_accumulators(
         sensors,
         occupied_weight,
         &above_threshold_weights,
+        &continuous_weights,
+        &udi_lower_weights,
+        &udi_weights,
+        &udi_upper_weights,
         threshold_lux,
+        udi_lower_lux,
+        udi_upper_lux,
         time_fraction,
     )
 }
@@ -134,17 +172,73 @@ pub fn annual_metrics_from_weights(
     threshold_lux: f32,
     time_fraction: f32,
 ) -> Result<AnnualMetrics> {
-    if sensors.is_empty() || sensors.len() != above_threshold_weights.len() {
+    let zeros = vec![0.0; sensors.len()];
+    annual_metrics_from_accumulators(
+        sensors,
+        occupied_weight,
+        above_threshold_weights,
+        &zeros,
+        &zeros,
+        &zeros,
+        &zeros,
+        threshold_lux,
+        100.0,
+        3000.0,
+        time_fraction,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+pub fn annual_metrics_from_accumulators(
+    sensors: &[Sensor],
+    occupied_weight: f32,
+    above_threshold_weights: &[f32],
+    continuous_weights: &[f32],
+    udi_lower_weights: &[f32],
+    udi_weights: &[f32],
+    udi_upper_weights: &[f32],
+    threshold_lux: f32,
+    udi_lower_lux: f32,
+    udi_upper_lux: f32,
+    time_fraction: f32,
+) -> Result<AnnualMetrics> {
+    let accumulator_lengths = [
+        above_threshold_weights.len(),
+        continuous_weights.len(),
+        udi_lower_weights.len(),
+        udi_weights.len(),
+        udi_upper_weights.len(),
+    ];
+    if sensors.is_empty()
+        || accumulator_lengths
+            .iter()
+            .any(|length| *length != sensors.len())
+    {
         return Err(DaylightError::InvalidShape {
-            field: "above_threshold_weights",
-            detail: "must contain one value per sensor".into(),
+            field: "annual_metric_accumulators",
+            detail: "every accumulator must contain one value per sensor".into(),
         });
     }
     if !occupied_weight.is_finite()
         || occupied_weight <= 0.0
-        || above_threshold_weights
-            .iter()
-            .any(|weight| !weight.is_finite() || *weight < 0.0 || *weight > occupied_weight)
+        || [
+            above_threshold_weights,
+            continuous_weights,
+            udi_lower_weights,
+            udi_weights,
+            udi_upper_weights,
+        ]
+        .into_iter()
+        .flatten()
+        .any(|weight| !weight.is_finite() || *weight < 0.0 || *weight > occupied_weight)
+        || !threshold_lux.is_finite()
+        || threshold_lux <= 0.0
+        || !udi_lower_lux.is_finite()
+        || udi_lower_lux < 0.0
+        || !udi_upper_lux.is_finite()
+        || udi_upper_lux <= udi_lower_lux
+        || !time_fraction.is_finite()
+        || !(0.0..=1.0).contains(&time_fraction)
     {
         return Err(DaylightError::InvalidValue {
             field: "annual weights",
@@ -154,15 +248,18 @@ pub fn annual_metrics_from_weights(
 
     let mut sensor_metrics = Vec::with_capacity(sensors.len());
     let mut room_areas: BTreeMap<u32, (f32, f32)> = BTreeMap::new();
-    for (sensor, above_threshold_weight) in
-        sensors.iter().zip(above_threshold_weights.iter().copied())
-    {
+    for (index, sensor) in sensors.iter().enumerate() {
+        let above_threshold_weight = above_threshold_weights[index];
         let daylight_autonomy = above_threshold_weight / occupied_weight;
         let passes_sda = daylight_autonomy >= time_fraction;
         sensor_metrics.push(SensorAnnualMetric {
             sensor_id: sensor.sensor_id,
             room_id: sensor.room_id,
             daylight_autonomy,
+            continuous_daylight_autonomy: continuous_weights[index] / occupied_weight,
+            useful_daylight_illuminance_lower: udi_lower_weights[index] / occupied_weight,
+            useful_daylight_illuminance: udi_weights[index] / occupied_weight,
+            useful_daylight_illuminance_upper: udi_upper_weights[index] / occupied_weight,
             passes_sda,
         });
         let room_area = room_areas.entry(sensor.room_id).or_default();
@@ -183,6 +280,8 @@ pub fn annual_metrics_from_weights(
         .collect();
     Ok(AnnualMetrics {
         threshold_lux,
+        udi_lower_lux,
+        udi_upper_lux,
         time_fraction,
         occupied_weight,
         sensors: sensor_metrics,

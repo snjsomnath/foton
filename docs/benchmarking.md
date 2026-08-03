@@ -42,3 +42,27 @@ quick and default rows when comparing hardware.
 
 The deterministic annual sky is intended for repeatable hardware comparisons, not as
 a climate-specific LM-83 claim.
+
+## Honeybee annual-daylight acceptance
+
+`test_models/test.hbjson` is the practitioner-facing acceptance model. Compare a
+Foton export and the standard Honeybee Radiance `annual-daylight` result with:
+
+```python
+from foton.honeybee import compare_annual_daylight
+
+report = compare_annual_daylight(
+    "simulation/foton-annual",
+    "simulation/radiance-annual",
+    model="test_models/test.hbjson",
+    foton_seconds=1.2,
+    radiance_seconds=23.0,
+    output_folder="simulation/comparison",
+)
+assert report["passed"], report
+```
+
+The report enforces grid IDs, counts, sun-up-hour ordering, per-grid NMBE and
+CV(RMSE), all five annual metric errors, area-weighted sDA, and the 10×
+end-to-end speed gate. It also records percentile and maximum sensor-hour
+errors in JSON and Markdown so aggregate passes cannot conceal outliers.

@@ -4,11 +4,11 @@ use std::{
 };
 
 use daylight_core::{
-    AnalysisMetadata, AnalysisRequest, AnalysisResult, Backend, BackendCapabilities,
-    CoefficientMatrix, DaylightError, GpuTimings, MaterialKind, Result, SOLVER_VERSION, SceneData,
-    Vec3, cosine_hemisphere, evaluate_daylight_factor, low_discrepancy_sample, patch_directions,
-    patch_solid_angles, radiance_patch_index, reduce_annual_metrics, scene_fingerprint,
-    thin_glass_transmittance_from_transmissivity,
+    AnalysisMetadata, AnalysisRequest, AnalysisResult, AnnualIlluminance, Backend,
+    BackendCapabilities, CoefficientMatrix, DaylightError, GpuTimings, MaterialKind, Result,
+    SOLVER_VERSION, SceneData, Vec3, cosine_hemisphere, evaluate_daylight_factor,
+    low_discrepancy_sample, patch_directions, patch_solid_angles, radiance_patch_index,
+    reduce_annual_metrics, scene_fingerprint, thin_glass_transmittance_from_transmissivity,
 };
 
 const RAY_EPSILON: f32 = 1.0e-4;
@@ -70,7 +70,21 @@ impl ReferenceBackend {
         }
 
         let tracing_started = Instant::now();
-        let coefficients = trace_coefficients(&scene, request, cancelled, progress)?;
+        let coefficients = if let Some(coefficients) = &request.coefficient_override {
+            coefficients.validate()?;
+            if coefficients.sensor_count != scene.sensors.len()
+                || coefficients.basis != request.sky.basis
+            {
+                return Err(DaylightError::InvalidShape {
+                    field: "coefficient_override",
+                    detail: "coefficient sensor count and basis must match the request".into(),
+                });
+            }
+            progress(0.75);
+            coefficients.clone()
+        } else {
+            trace_coefficients(&scene, request, cancelled, progress)?
+        };
         let tracing_ms = tracing_started.elapsed().as_secs_f64() * 1_000.0;
 
         let reduction_started = Instant::now();
@@ -80,15 +94,21 @@ impl ReferenceBackend {
             &request.occupancy_weights,
             &scene.sensors,
             request.threshold_lux,
+            request.udi_lower_lux,
+            request.udi_upper_lux,
             request.time_fraction,
         )?;
         let daylight_factor = Some(compute_daylight_factor(&coefficients, &scene)?);
+        let annual_illuminance = request
+            .export_illuminance
+            .then(|| annual_illuminance(&coefficients, request));
         let annual_reduction_ms = reduction_started.elapsed().as_secs_f64() * 1_000.0;
         progress(1.0);
 
         Ok(AnalysisResult {
             solver_revision,
             coefficients: Some(coefficients),
+            annual_illuminance,
             annual,
             daylight_factor,
             sample_count: request.maximum_samples,
@@ -111,6 +131,32 @@ impl ReferenceBackend {
                 used_reference_fallback: false,
             },
         })
+    }
+}
+
+fn annual_illuminance(
+    coefficients: &CoefficientMatrix,
+    request: &AnalysisRequest,
+) -> AnnualIlluminance {
+    let timestep_count = request.sky.timestep_count;
+    let mut values = vec![0.0; coefficients.sensor_count * timestep_count];
+    for sensor in 0..coefficients.sensor_count {
+        for timestep in 0..timestep_count {
+            let mut illuminance = 0.0;
+            for patch in 0..coefficients.basis.row_count() {
+                let coefficient = coefficients.get(sensor, patch);
+                let sky = request.sky.get(patch, timestep);
+                illuminance += (coefficient[0] * sky[0]) * 47.435
+                    + (coefficient[1] * sky[1]) * 119.93
+                    + (coefficient[2] * sky[2]) * 11.635;
+            }
+            values[sensor * timestep_count + timestep] = illuminance;
+        }
+    }
+    AnnualIlluminance {
+        sensor_count: coefficients.sensor_count,
+        timestep_count,
+        values,
     }
 }
 

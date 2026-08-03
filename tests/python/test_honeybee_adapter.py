@@ -102,8 +102,9 @@ class RecipeContractTests(unittest.TestCase):
         recipe.input_value_by_name("sky basis", "reinhart_mf2")
         self.assertEqual(recipe.name, "direct_visibility")
         self.assertEqual(recipe.inputs["sky_basis"], "reinhart-mf2")
-        with self.assertRaises(ValueError):
-            Recipe("annual_daylight")
+        annual = Recipe("annual_daylight")
+        self.assertEqual(annual.name, "annual_daylight")
+        self.assertTrue(annual.inputs["export_illuminance"])
 
     def test_recipe_settings_validate_workers(self):
         with self.assertRaises(ValueError):

@@ -17,11 +17,15 @@ fn request(samples: u32, bounces: u32) -> AnalysisRequest {
         occupancy_weights: vec![1.0],
         quality: AnalysisQuality::Preview,
         threshold_lux: 300.0,
+        udi_lower_lux: 100.0,
+        udi_upper_lux: 3000.0,
         time_fraction: 0.5,
         maximum_samples: samples,
         maximum_bounces: bounces,
         scene_seed: 7,
         export_coefficients: true,
+        export_illuminance: false,
+        coefficient_override: None,
     }
 }
 

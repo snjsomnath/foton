@@ -24,11 +24,22 @@ pub struct AnalysisRequest {
     pub occupancy_weights: Vec<f32>,
     pub quality: AnalysisQuality,
     pub threshold_lux: f32,
+    pub udi_lower_lux: f32,
+    pub udi_upper_lux: f32,
     pub time_fraction: f32,
     pub maximum_samples: u32,
     pub maximum_bounces: u32,
     pub scene_seed: u64,
     pub export_coefficients: bool,
+    pub export_illuminance: bool,
+    pub coefficient_override: Option<CoefficientMatrix>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct AnnualIlluminance {
+    pub sensor_count: usize,
+    pub timestep_count: usize,
+    pub values: Vec<f32>,
 }
 
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
@@ -44,6 +55,7 @@ pub struct GpuTimings {
 pub struct AnalysisResult {
     pub solver_revision: u64,
     pub coefficients: Option<CoefficientMatrix>,
+    pub annual_illuminance: Option<AnnualIlluminance>,
     pub annual: AnnualMetrics,
     pub daylight_factor: Option<DaylightFactorMetrics>,
     pub sample_count: u32,

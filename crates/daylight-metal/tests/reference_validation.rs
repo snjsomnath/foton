@@ -22,11 +22,15 @@ fn request() -> AnalysisRequest {
         occupancy_weights: vec![1.0, 0.0, 0.5, 1.0],
         quality: AnalysisQuality::Preview,
         threshold_lux: 300.0,
+        udi_lower_lux: 100.0,
+        udi_upper_lux: 3000.0,
         time_fraction: 0.5,
         maximum_samples: 16,
         maximum_bounces: 1,
         scene_seed: 42,
         export_coefficients: true,
+        export_illuminance: false,
+        coefficient_override: None,
     }
 }
 
@@ -42,11 +46,15 @@ fn direct_request() -> AnalysisRequest {
         occupancy_weights: vec![1.0],
         quality: AnalysisQuality::Preview,
         threshold_lux: 300.0,
+        udi_lower_lux: 100.0,
+        udi_upper_lux: 3000.0,
         time_fraction: 0.5,
         maximum_samples: 0,
         maximum_bounces: 0,
         scene_seed: 42,
         export_coefficients: true,
+        export_illuminance: false,
+        coefficient_override: None,
     }
 }
 
@@ -91,7 +99,32 @@ fn metal_diffuse_glass_transport_matches_cpu_reference_when_available() {
     let gpu = metal
         .analyze(&scene, &request, 1, &AtomicBool::new(false), &|_| {})
         .unwrap();
-    assert_eq!(cpu.annual.sensors, gpu.annual.sensors);
+    for (reference, candidate) in cpu.annual.sensors.iter().zip(&gpu.annual.sensors) {
+        assert_eq!(reference.sensor_id, candidate.sensor_id);
+        assert_eq!(reference.room_id, candidate.room_id);
+        assert_eq!(reference.passes_sda, candidate.passes_sda);
+        for (left, right) in [
+            (reference.daylight_autonomy, candidate.daylight_autonomy),
+            (
+                reference.continuous_daylight_autonomy,
+                candidate.continuous_daylight_autonomy,
+            ),
+            (
+                reference.useful_daylight_illuminance_lower,
+                candidate.useful_daylight_illuminance_lower,
+            ),
+            (
+                reference.useful_daylight_illuminance,
+                candidate.useful_daylight_illuminance,
+            ),
+            (
+                reference.useful_daylight_illuminance_upper,
+                candidate.useful_daylight_illuminance_upper,
+            ),
+        ] {
+            assert!((left - right).abs() < 1.0e-5);
+        }
+    }
     assert_eq!(cpu.annual.rooms, gpu.annual.rooms);
     assert_eq!(gpu.metadata.transport_backend, "metal");
     assert!(!gpu.metadata.used_reference_fallback);
@@ -209,4 +242,33 @@ fn committed_metal_scene_reuses_resident_acceleration_structures() {
     assert_eq!(updated.solver_revision, 2);
     assert_eq!(updated.timings.acceleration_structure_ms, 0.0);
     assert_eq!(first.coefficients, updated.coefficients);
+}
+
+#[cfg(target_os = "macos")]
+#[test]
+fn committed_metal_scene_reduces_cached_coefficients_without_retracing() {
+    let Ok(metal) = MetalBackend::new() else {
+        return;
+    };
+    let scene = shoebox_scene(ShoeboxOptions {
+        room_count: 1,
+        sensors_per_room: 4,
+        glazing_transmittance: Some([0.6; 3]),
+    })
+    .unwrap();
+    let handle = metal.commit_scene(scene).unwrap();
+    let first_request = request();
+    let first = metal
+        .analyze_committed(&handle, &first_request, &AtomicBool::new(false), &|_| {})
+        .unwrap();
+    let mut cached_request = first_request.clone();
+    cached_request.coefficient_override = first.coefficients.clone();
+    cached_request.export_coefficients = false;
+    cached_request.threshold_lux = 100.0;
+    let cached = metal
+        .analyze_committed(&handle, &cached_request, &AtomicBool::new(false), &|_| {})
+        .unwrap();
+    assert_eq!(cached.timings.tracing_ms, 0.0);
+    assert!(cached.coefficients.is_none());
+    assert_ne!(first.annual.sensors, cached.annual.sensors);
 }

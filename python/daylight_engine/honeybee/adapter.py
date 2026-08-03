@@ -23,6 +23,7 @@ class PreparedHoneybeeScene:
     grid_info: list[dict[str, Any]]
     room_map: dict[str, int]
     geometry_info: dict[str, Any]
+    validation_warnings: tuple[dict[str, Any], ...]
 
     def create_native_scene(self, engine):
         return engine.create_scene(
@@ -51,6 +52,7 @@ def prepare_honeybee_scene(
     grid_filter="*",
     grid_size=0.5,
     sensor_height=0.75,
+    include_aperture_glazing=False,
 ) -> PreparedHoneybeeScene:
     if not isinstance(grid_filter, str) or not grid_filter:
         raise ValueError("grid_filter must be a non-empty string")
@@ -59,15 +61,21 @@ def prepare_honeybee_scene(
     if not np.isfinite(sensor_height) or sensor_height <= 0:
         raise ValueError("sensor_height must be finite and positive")
 
-    model = _load_and_normalize_model(model_or_path)
-    _validate_supported_model(model)
+    model, validation_warnings = _load_and_normalize_model(model_or_path)
+    _validate_supported_model(
+        model, include_aperture_glazing=include_aperture_glazing
+    )
     room_map = {
         room.identifier: index + 1 for index, room in enumerate(model.rooms)
     }
     if not room_map:
         raise ValueError("Honeybee model must contain at least one Room")
 
-    geometry_arrays, geometry_info = _prepare_geometry(model, room_map)
+    geometry_arrays, geometry_info = _prepare_geometry(
+        model,
+        room_map,
+        include_aperture_glazing=include_aperture_glazing,
+    )
     sensor_arrays, grid_info = _prepare_sensors(
         model,
         room_map,
@@ -78,15 +86,14 @@ def prepare_honeybee_scene(
     arrays = {
         **geometry_arrays,
         **sensor_arrays,
-        "material_kinds": np.ascontiguousarray([0], dtype=np.uint32),
-        "material_diffuse_rgb": np.ascontiguousarray(
-            [[0.5, 0.5, 0.5]], dtype=np.float32
-        ),
-        "material_transmittance_rgb": np.ascontiguousarray(
-            [[0.0, 0.0, 0.0]], dtype=np.float32
-        ),
     }
-    fingerprint = _fingerprint_model(model, grid_filter, grid_size, sensor_height)
+    fingerprint = _fingerprint_model(
+        model,
+        grid_filter,
+        grid_size,
+        sensor_height,
+        include_aperture_glazing,
+    )
     return PreparedHoneybeeScene(
         model=model,
         model_fingerprint=fingerprint,
@@ -94,6 +101,7 @@ def prepare_honeybee_scene(
         grid_info=grid_info,
         room_map=room_map,
         geometry_info=geometry_info,
+        validation_warnings=tuple(validation_warnings),
     )
 
 
@@ -115,12 +123,30 @@ def _load_and_normalize_model(model_or_path):
 
     if model.units != "Meters":
         model.convert_to_units("Meters")
-    model.check_all(raise_exception=True, detailed=False, all_ext_checks=False)
-    return model
+    messages = model.check_all(
+        raise_exception=False,
+        detailed=True,
+        all_ext_checks=False,
+    )
+    messages = messages if isinstance(messages, list) else []
+    warnings = []
+    fatal = []
+    for message in messages:
+        if isinstance(message, dict) and str(message.get("code")) == "000108":
+            warnings.append(dict(message))
+        else:
+            fatal.append(message)
+    if fatal:
+        details = "; ".join(
+            item.get("message", str(item)) if isinstance(item, dict) else str(item)
+            for item in fatal
+        )
+        raise ValueError(f"Honeybee model validation failed: {details}")
+    return model, warnings
 
 
-def _validate_supported_model(model):
-    if model.doors:
+def _validate_supported_model(model, *, include_aperture_glazing=False):
+    if model.doors and not include_aperture_glazing:
         raise ValueError(
             "direct_visibility does not yet define door opening semantics; "
             "remove Doors or convert the intended opening to an Aperture"
@@ -152,25 +178,69 @@ def _validate_supported_model(model):
             )
 
 
-def _prepare_geometry(model, room_map):
-    groups: dict[int, list[Any]] = {
+def _prepare_geometry(model, room_map, *, include_aperture_glazing=False):
+    groups: dict[int, list[tuple[Any, int]]] = {
         room_id: [] for room_id in room_map.values()
     }
     groups[CONTEXT_ROOM_ID] = []
+    material_indices: dict[tuple[Any, ...], int] = {}
+    material_kinds: list[int] = []
+    material_diffuse_rgb: list[list[float]] = []
+    material_transmittance_rgb: list[list[float]] = []
+    material_info: list[dict[str, Any]] = []
+
+    def material_index(obj) -> int:
+        modifier = _resolved_modifier(obj)
+        specification = _modifier_specification(modifier)
+        key = (
+            specification["kind"],
+            *specification["diffuse_rgb"],
+            *specification["transmittance_rgb"],
+        )
+        if key in material_indices:
+            return material_indices[key]
+        index = len(material_kinds)
+        material_indices[key] = index
+        material_kinds.append(int(specification["kind"]))
+        material_diffuse_rgb.append(list(specification["diffuse_rgb"]))
+        material_transmittance_rgb.append(
+            list(specification["transmittance_rgb"])
+        )
+        material_info.append(
+            {
+                "index": index,
+                "identifier": getattr(modifier, "identifier", f"material_{index}"),
+                **specification,
+            }
+        )
+        return index
 
     for room in model.rooms:
         room_id = room_map[room.identifier]
         for face in room.faces:
-            groups[room_id].append(face.punched_geometry)
+            groups[room_id].append(
+                (face.punched_geometry, material_index(face))
+            )
+            if include_aperture_glazing:
+                for subface in (*face.apertures, *face.doors):
+                    groups[room_id].append(
+                        (subface.geometry, material_index(subface))
+                    )
     for face in model.orphaned_faces:
-        groups[CONTEXT_ROOM_ID].append(face.punched_geometry)
+        groups[CONTEXT_ROOM_ID].append(
+            (face.punched_geometry, material_index(face))
+        )
 
     for shade in model.shades:
         room = _owning_room(shade)
         room_id = room_map.get(getattr(room, "identifier", ""), CONTEXT_ROOM_ID)
-        groups[room_id].append(shade.geometry)
+        groups[room_id].append(
+            (shade.geometry, material_index(shade))
+        )
     for shade_mesh in model.shade_meshes:
-        groups[CONTEXT_ROOM_ID].append(shade_mesh.geometry)
+        groups[CONTEXT_ROOM_ID].append(
+            (shade_mesh.geometry, material_index(shade_mesh))
+        )
 
     vertices: list[list[float]] = []
     triangles: list[list[int]] = []
@@ -184,8 +254,14 @@ def _prepare_geometry(model, room_map):
         if not geometries:
             continue
         first_triangle = len(triangles)
-        for geometry in geometries:
-            _append_geometry(geometry, vertices, triangles, triangle_materials)
+        for geometry, geometry_material_index in geometries:
+            _append_geometry(
+                geometry,
+                vertices,
+                triangles,
+                triangle_materials,
+                geometry_material_index,
+            )
         triangle_count = len(triangles) - first_triangle
         if triangle_count == 0:
             continue
@@ -220,19 +296,37 @@ def _prepare_geometry(model, room_map):
         "instance_masks": np.full(
             instance_count, OPAQUE_EXTERIOR_ACTIVE_MASK, dtype=np.uint32
         ),
+        "material_kinds": np.ascontiguousarray(
+            material_kinds, dtype=np.uint32
+        ),
+        "material_diffuse_rgb": np.ascontiguousarray(
+            material_diffuse_rgb, dtype=np.float32
+        ),
+        "material_transmittance_rgb": np.ascontiguousarray(
+            material_transmittance_rgb, dtype=np.float32
+        ),
     }
     info = {
         "vertex_count": len(vertices),
         "triangle_count": len(triangles),
         "instance_count": instance_count,
         "triangle_counts": triangle_counts,
-        "aperture_mode": "geometric_opening",
+        "aperture_mode": (
+            "thin_glass" if include_aperture_glazing else "geometric_opening"
+        ),
         "shade_mode": "opaque",
+        "materials": material_info,
     }
     return arrays, info
 
 
-def _append_geometry(geometry, vertices, triangles, triangle_materials):
+def _append_geometry(
+    geometry,
+    vertices,
+    triangles,
+    triangle_materials,
+    material_index=0,
+):
     mesh = (
         geometry
         if geometry.__class__.__name__ == "Mesh3D"
@@ -246,7 +340,71 @@ def _append_geometry(geometry, vertices, triangles, triangle_materials):
             raise ValueError("Honeybee geometry contains a face with fewer than 3 vertices")
         for index in range(1, len(indices) - 1):
             triangles.append([indices[0], indices[index], indices[index + 1]])
-            triangle_materials.append(0)
+            triangle_materials.append(int(material_index))
+
+
+def _resolved_modifier(obj):
+    try:
+        modifier = obj.properties.radiance.modifier
+    except (AttributeError, ImportError) as exc:
+        raise ValueError(
+            f"Honeybee object {getattr(obj, 'identifier', '<unknown>')!r} "
+            "does not expose a resolved Radiance modifier"
+        ) from exc
+    if modifier is None:
+        raise ValueError(
+            f"Honeybee object {getattr(obj, 'identifier', '<unknown>')!r} "
+            "has no resolved Radiance modifier"
+        )
+    return modifier
+
+
+def _modifier_specification(modifier):
+    modifier_type = modifier.__class__.__name__.lower()
+    if modifier_type == "plastic":
+        specularity = float(getattr(modifier, "specularity", 0.0))
+        roughness = float(getattr(modifier, "roughness", 0.0))
+        if abs(specularity) > 1.0e-9 or abs(roughness) > 1.0e-9:
+            raise ValueError(
+                f"Radiance Plastic modifier {modifier.identifier!r} has "
+                "non-zero specularity or roughness; Foton v1 supports diffuse "
+                "Plastic only"
+            )
+        diffuse = [
+            float(modifier.r_reflectance),
+            float(modifier.g_reflectance),
+            float(modifier.b_reflectance),
+        ]
+        return {
+            "kind": 0,
+            "modifier_type": "Plastic",
+            "diffuse_rgb": diffuse,
+            "transmittance_rgb": [0.0, 0.0, 0.0],
+        }
+    if modifier_type == "glass":
+        refraction_index = getattr(modifier, "refraction_index", None)
+        if refraction_index is not None and not np.isclose(
+            float(refraction_index), 1.52, atol=1.0e-6
+        ):
+            raise ValueError(
+                f"Radiance Glass modifier {modifier.identifier!r} uses "
+                f"refraction index {refraction_index}; Foton v1 supports 1.52"
+            )
+        transmittance = [
+            float(modifier.r_transmittance),
+            float(modifier.g_transmittance),
+            float(modifier.b_transmittance),
+        ]
+        return {
+            "kind": 1,
+            "modifier_type": "Glass",
+            "diffuse_rgb": [0.0, 0.0, 0.0],
+            "transmittance_rgb": transmittance,
+        }
+    raise ValueError(
+        f"Radiance modifier {modifier.identifier!r} of type "
+        f"{modifier.__class__.__name__} is not supported by Foton v1"
+    )
 
 
 def _prepare_sensors(model, room_map, *, grid_filter, grid_size, sensor_height):
@@ -454,13 +612,20 @@ def _radiance_properties(model):
         return None
 
 
-def _fingerprint_model(model, grid_filter, grid_size, sensor_height):
+def _fingerprint_model(
+    model,
+    grid_filter,
+    grid_size,
+    sensor_height,
+    include_aperture_glazing,
+):
     payload = {
         "model": model.to_dict(),
         "grid_filter": grid_filter,
         "grid_size": float(grid_size),
         "sensor_height": float(sensor_height),
-        "adapter_schema": 1,
+        "include_aperture_glazing": bool(include_aperture_glazing),
+        "adapter_schema": 2,
     }
     canonical = json.dumps(
         payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True

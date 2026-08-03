@@ -11,10 +11,10 @@ use std::{
 
 use bytemuck::{Pod, Zeroable};
 use daylight_core::{
-    AnalysisMetadata, AnalysisRequest, AnalysisResult, Backend, BackendCapabilities,
-    CoefficientMatrix, DaylightError, GpuTimings, InstanceUpdate, Result, SOLVER_VERSION,
-    SceneData, SceneHandle, Vec3, annual_metrics_from_weights, patch_directions,
-    patch_solid_angles, scene_fingerprint,
+    AnalysisMetadata, AnalysisRequest, AnalysisResult, AnnualIlluminance, Backend,
+    BackendCapabilities, CoefficientMatrix, DaylightError, GpuTimings, InstanceUpdate, Result,
+    SOLVER_VERSION, SceneData, SceneHandle, Vec3, annual_metrics_from_accumulators,
+    patch_directions, patch_solid_angles, scene_fingerprint,
 };
 use objc2::{
     rc::{Retained, autoreleasepool},
@@ -46,6 +46,7 @@ pub struct MetalBackend {
     device: Retained<ProtocolObject<dyn MTLDevice>>,
     command_queue: Retained<ProtocolObject<dyn MTLCommandQueue>>,
     annual_pipeline: Retained<ProtocolObject<dyn MTLComputePipelineState>>,
+    annual_illuminance_pipeline: Retained<ProtocolObject<dyn MTLComputePipelineState>>,
     direct_pipeline: Retained<ProtocolObject<dyn MTLComputePipelineState>>,
     diffuse_pipeline: Retained<ProtocolObject<dyn MTLComputePipelineState>>,
     finalize_pipeline: Retained<ProtocolObject<dyn MTLComputePipelineState>>,
@@ -60,6 +61,8 @@ struct AnnualUniforms {
     timestep_count: u32,
     sensor_offset: u32,
     threshold_lux: f32,
+    udi_lower_lux: f32,
+    udi_upper_lux: f32,
 }
 
 #[repr(C)]
@@ -151,6 +154,8 @@ impl MetalBackend {
                 .replace("#include \"contracts.metal\"", "")
         );
         let annual_pipeline = compile_pipeline(&device, &annual_source, "annual_reduce")?;
+        let annual_illuminance_pipeline =
+            compile_pipeline(&device, &annual_source, "annual_illuminance")?;
         let direct_source = format!(
             "{}\n{}",
             include_str!("../shaders/contracts.metal"),
@@ -170,6 +175,7 @@ impl MetalBackend {
             device,
             command_queue,
             annual_pipeline,
+            annual_illuminance_pipeline,
             direct_pipeline,
             diffuse_pipeline,
             finalize_pipeline,
@@ -216,17 +222,57 @@ impl MetalBackend {
             .ok_or_else(|| DaylightError::Backend {
                 detail: "failed to allocate threshold-weight buffer".into(),
             })?;
+        let continuous_buffer = self
+            .device
+            .newBufferWithLength_options(
+                scene.sensors.len() * size_of::<u32>(),
+                MTLResourceOptions::StorageModeShared,
+            )
+            .ok_or_else(|| DaylightError::Backend {
+                detail: "failed to allocate continuous-autonomy buffer".into(),
+            })?;
+        let udi_lower_buffer = self
+            .device
+            .newBufferWithLength_options(
+                scene.sensors.len() * size_of::<u32>(),
+                MTLResourceOptions::StorageModeShared,
+            )
+            .ok_or_else(|| DaylightError::Backend {
+                detail: "failed to allocate lower-UDI buffer".into(),
+            })?;
+        let udi_buffer = self
+            .device
+            .newBufferWithLength_options(
+                scene.sensors.len() * size_of::<u32>(),
+                MTLResourceOptions::StorageModeShared,
+            )
+            .ok_or_else(|| DaylightError::Backend {
+                detail: "failed to allocate UDI buffer".into(),
+            })?;
+        let udi_upper_buffer = self
+            .device
+            .newBufferWithLength_options(
+                scene.sensors.len() * size_of::<u32>(),
+                MTLResourceOptions::StorageModeShared,
+            )
+            .ok_or_else(|| DaylightError::Backend {
+                detail: "failed to allocate upper-UDI buffer".into(),
+            })?;
         unsafe {
-            std::ptr::write_bytes(
-                occupied_buffer.contents().as_ptr(),
-                0,
-                scene.sensors.len() * size_of::<u32>(),
-            );
-            std::ptr::write_bytes(
-                threshold_buffer.contents().as_ptr(),
-                0,
-                scene.sensors.len() * size_of::<u32>(),
-            );
+            for buffer in [
+                &occupied_buffer,
+                &threshold_buffer,
+                &continuous_buffer,
+                &udi_lower_buffer,
+                &udi_buffer,
+                &udi_upper_buffer,
+            ] {
+                std::ptr::write_bytes(
+                    buffer.contents().as_ptr(),
+                    0,
+                    scene.sensors.len() * size_of::<u32>(),
+                );
+            }
         }
 
         let mut gpu_ms = 0.0;
@@ -240,6 +286,8 @@ impl MetalBackend {
                 timestep_count: request.sky.timestep_count as u32,
                 sensor_offset: sensor_offset as u32,
                 threshold_lux: request.threshold_lux,
+                udi_lower_lux: request.udi_lower_lux,
+                udi_upper_lux: request.udi_upper_lux,
             };
             let command_buffer = self.command_buffer("annual reduction")?;
             let encoder =
@@ -260,6 +308,10 @@ impl MetalBackend {
                 encoder.setBuffer_offset_atIndex(Some(&occupancy_buffer), 0, 3);
                 encoder.setBuffer_offset_atIndex(Some(&occupied_buffer), 0, 4);
                 encoder.setBuffer_offset_atIndex(Some(&threshold_buffer), 0, 5);
+                encoder.setBuffer_offset_atIndex(Some(&continuous_buffer), 0, 6);
+                encoder.setBuffer_offset_atIndex(Some(&udi_lower_buffer), 0, 7);
+                encoder.setBuffer_offset_atIndex(Some(&udi_buffer), 0, 8);
+                encoder.setBuffer_offset_atIndex(Some(&udi_upper_buffer), 0, 9);
             }
             encoder.dispatchThreads_threadsPerThreadgroup(
                 MTLSize {
@@ -289,20 +341,133 @@ impl MetalBackend {
                 scene.sensors.len(),
             )
         };
+        let continuous_accumulators = unsafe {
+            std::slice::from_raw_parts(
+                continuous_buffer.contents().as_ptr().cast::<u32>(),
+                scene.sensors.len(),
+            )
+        };
+        let udi_lower_accumulators = unsafe {
+            std::slice::from_raw_parts(
+                udi_lower_buffer.contents().as_ptr().cast::<u32>(),
+                scene.sensors.len(),
+            )
+        };
+        let udi_accumulators = unsafe {
+            std::slice::from_raw_parts(
+                udi_buffer.contents().as_ptr().cast::<u32>(),
+                scene.sensors.len(),
+            )
+        };
+        let udi_upper_accumulators = unsafe {
+            std::slice::from_raw_parts(
+                udi_upper_buffer.contents().as_ptr().cast::<u32>(),
+                scene.sensors.len(),
+            )
+        };
         let occupied_weight =
             occupied_accumulators.first().copied().unwrap_or(0) as f32 / ANNUAL_ACCUMULATOR_SCALE;
         let threshold_weights = threshold_accumulators
             .iter()
             .map(|value| *value as f32 / ANNUAL_ACCUMULATOR_SCALE)
             .collect::<Vec<_>>();
-        let metrics = annual_metrics_from_weights(
+        let to_weights = |values: &[u32]| {
+            values
+                .iter()
+                .map(|value| *value as f32 / ANNUAL_ACCUMULATOR_SCALE)
+                .collect::<Vec<_>>()
+        };
+        let continuous_weights = to_weights(continuous_accumulators);
+        let udi_lower_weights = to_weights(udi_lower_accumulators);
+        let udi_weights = to_weights(udi_accumulators);
+        let udi_upper_weights = to_weights(udi_upper_accumulators);
+        let metrics = annual_metrics_from_accumulators(
             &scene.sensors,
             occupied_weight,
             &threshold_weights,
+            &continuous_weights,
+            &udi_lower_weights,
+            &udi_weights,
+            &udi_upper_weights,
             request.threshold_lux,
+            request.udi_lower_lux,
+            request.udi_upper_lux,
             request.time_fraction,
         )?;
         Ok((metrics, gpu_ms))
+    }
+
+    fn annual_illuminance_on_gpu(
+        &self,
+        request: &AnalysisRequest,
+        sensor_count: usize,
+        coefficient_buffer: &ProtocolObject<dyn MTLBuffer>,
+    ) -> Result<AnnualIlluminance> {
+        let sky_buffer = self.buffer_with_data(&request.sky.values)?;
+        let value_count = sensor_count * request.sky.timestep_count;
+        let output = self
+            .device
+            .newBufferWithLength_options(
+                value_count * size_of::<f32>(),
+                MTLResourceOptions::StorageModeShared,
+            )
+            .ok_or_else(|| DaylightError::Backend {
+                detail: "failed to allocate annual illuminance buffer".into(),
+            })?;
+        let uniforms = AnnualUniforms {
+            sensor_count: sensor_count as u32,
+            patch_count: request.sky.basis.row_count() as u32,
+            timestep_count: request.sky.timestep_count as u32,
+            sensor_offset: 0,
+            threshold_lux: request.threshold_lux,
+            udi_lower_lux: request.udi_lower_lux,
+            udi_upper_lux: request.udi_upper_lux,
+        };
+        let command_buffer = self.command_buffer("annual illuminance")?;
+        let encoder =
+            command_buffer
+                .computeCommandEncoder()
+                .ok_or_else(|| DaylightError::Backend {
+                    detail: "failed to create annual illuminance encoder".into(),
+                })?;
+        encoder.setComputePipelineState(&self.annual_illuminance_pipeline);
+        unsafe {
+            encoder.setBytes_length_atIndex(
+                NonNull::from(&uniforms).cast::<c_void>(),
+                size_of::<AnnualUniforms>(),
+                0,
+            );
+            encoder.setBuffer_offset_atIndex(Some(coefficient_buffer), 0, 1);
+            encoder.setBuffer_offset_atIndex(Some(&sky_buffer), 0, 2);
+            encoder.setBuffer_offset_atIndex(Some(&output), 0, 3);
+        }
+        encoder.dispatchThreads_threadsPerThreadgroup(
+            MTLSize {
+                width: request.sky.timestep_count,
+                height: sensor_count,
+                depth: 1,
+            },
+            MTLSize {
+                width: self
+                    .annual_illuminance_pipeline
+                    .threadExecutionWidth()
+                    .max(1)
+                    .min(request.sky.timestep_count),
+                height: 1,
+                depth: 1,
+            },
+        );
+        encoder.endEncoding();
+        complete(command_buffer, "annual illuminance")?;
+        let values = unsafe {
+            std::slice::from_raw_parts(output.contents().as_ptr().cast::<f32>(), value_count)
+        }
+        .to_vec();
+        Ok(AnnualIlluminance {
+            sensor_count,
+            timestep_count: request.sky.timestep_count,
+            values,
+        })
     }
 
     fn trace_coefficients_on_gpu(
@@ -733,11 +898,40 @@ impl MetalBackend {
         scene.validate()?;
         request.sky.validate()?;
         validate_request(request)?;
-        let gpu_coefficients = self.trace_coefficients_on_gpu(&scene, request, resident)?;
+        let gpu_coefficients = if let Some(coefficients) = &request.coefficient_override {
+            coefficients.validate()?;
+            if coefficients.sensor_count != scene.sensors.len()
+                || coefficients.basis != request.sky.basis
+            {
+                return Err(DaylightError::InvalidShape {
+                    field: "coefficient_override",
+                    detail: "coefficient sensor count and basis must match the request".into(),
+                });
+            }
+            let upload_started = Instant::now();
+            let buffer = self.buffer_with_data(&coefficients.values)?;
+            GpuCoefficientOutput {
+                buffer,
+                upload_ms: upload_started.elapsed().as_secs_f64() * 1_000.0,
+                acceleration_structure_ms: 0.0,
+                tracing_ms: 0.0,
+            }
+        } else {
+            self.trace_coefficients_on_gpu(&scene, request, resident)?
+        };
         progress(0.75);
         check_cancelled(cancelled)?;
         let (annual, annual_reduction_ms) =
             self.reduce_annual_on_gpu(&scene, request, &gpu_coefficients.buffer, cancelled)?;
+        let annual_illuminance = if request.export_illuminance {
+            Some(self.annual_illuminance_on_gpu(
+                request,
+                scene.sensors.len(),
+                &gpu_coefficients.buffer,
+            )?)
+        } else {
+            None
+        };
         check_cancelled(cancelled)?;
         let coefficients = coefficient_matrix_from_buffer(
             &gpu_coefficients.buffer,
@@ -749,6 +943,7 @@ impl MetalBackend {
         Ok(AnalysisResult {
             solver_revision,
             coefficients: request.export_coefficients.then_some(coefficients),
+            annual_illuminance,
             annual,
             daylight_factor,
             sample_count: request.maximum_samples,
@@ -785,6 +980,10 @@ fn validate_request(request: &AnalysisRequest) -> Result<()> {
     }
     if !request.threshold_lux.is_finite()
         || request.threshold_lux <= 0.0
+        || !request.udi_lower_lux.is_finite()
+        || request.udi_lower_lux < 0.0
+        || !request.udi_upper_lux.is_finite()
+        || request.udi_upper_lux <= request.udi_lower_lux
         || !request.time_fraction.is_finite()
         || !(0.0..=1.0).contains(&request.time_fraction)
         || request
@@ -795,7 +994,7 @@ fn validate_request(request: &AnalysisRequest) -> Result<()> {
     {
         return Err(DaylightError::InvalidValue {
             field: "analysis request",
-            detail: "threshold, time fraction, and occupancy weights are invalid".into(),
+            detail: "metric thresholds, time fraction, and occupancy weights are invalid".into(),
         });
     }
     if request.occupancy_weights.iter().sum::<f32>() > (u32::MAX as f32 / ANNUAL_ACCUMULATOR_SCALE)
