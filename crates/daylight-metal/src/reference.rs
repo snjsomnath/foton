@@ -284,7 +284,7 @@ fn accumulate_indirect(
                     sensor_id: sensor.sensor_id,
                     sample_index,
                     bounce_depth: diffuse_bounces,
-                    dimension: 2 + transparent_intersections,
+                    dimension: 12 + transparent_intersections,
                     scene_seed: request.scene_seed,
                 });
                 if branch_sample < reflection_probability {
@@ -345,16 +345,17 @@ fn sample_direction(
     bounce_depth: u32,
     scene_seed: u64,
 ) -> Vec3 {
+    let base_dimension = bounce_depth.saturating_mul(2);
     let key = daylight_core::SampleKey {
         sensor_id,
         sample_index,
         bounce_depth,
-        dimension: 0,
+        dimension: base_dimension,
         scene_seed,
     };
     let first = low_discrepancy_sample(key);
     let second = low_discrepancy_sample(daylight_core::SampleKey {
-        dimension: 1,
+        dimension: base_dimension + 1,
         ..key
     });
     let local = cosine_hemisphere(first, second);

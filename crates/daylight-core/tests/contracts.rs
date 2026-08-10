@@ -205,6 +205,13 @@ fn samples_depend_on_stable_key_not_dispatch_order() {
             ..key
         })
     );
+    assert_ne!(
+        low_discrepancy_sample(key),
+        low_discrepancy_sample(SampleKey {
+            dimension: key.dimension + 2,
+            ..key
+        })
+    );
 }
 
 #[test]

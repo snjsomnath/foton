@@ -127,13 +127,31 @@ CLI:
 
 ```bash
 python -m foton.honeybee annual-daylight \
+  --jsonl \
   --model test_models/test.hbjson \
   --wea epw/gothenburg.epw \
   --output simulation/foton-annual
 ```
 
-The CLI writes one JSON manifest to stdout. This is the stable integration
-surface for Grasshopper launchers; no generated Python runner is required.
+With `--jsonl`, the CLI streams versioned `started`, `progress`, and `complete`
+events. The final event embeds the same manifest written to
+`run_manifest.json`, including grid-grouped metric paths, timings, warnings,
+cache status, versions, and an input-content fingerprint. Without `--jsonl`,
+the CLI prints only the final manifest for backwards compatibility.
+
+Use `foton-honeybee capabilities` for the protocol/engine handshake. The
+`honeybee_foton` package supplies a cancelable subprocess client plus controllers
+for the initial Foton Settings, Annual Daylight, and Annual Results components.
+It discovers `foton-honeybee` from `PATH` or an explicit user setting and never
+generates runner source or embeds a Python executable path. Metric results are
+returned as one already ordered branch per SensorGrid.
+
+Copy-ready IronPython component sources are available in
+[`grasshopper_foton`](../grasshopper_foton). They provide Foton Settings, Foton
+Annual Daylight, and Foton Annual Results scripts with documented GhPython node
+names. Their `results` output is a one-item Honeybee-compatible result-folder
+list, and each metric output is already grouped into one DataTree branch per
+SensorGrid for Ladybug spatial visualization components.
 
 ## Honeybee direct-visibility recipe
 

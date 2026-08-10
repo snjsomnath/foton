@@ -18,6 +18,7 @@ from foton.honeybee.adapter import (
     prepare_honeybee_scene,
 )
 from foton.honeybee.radiance import (
+    _glow_modifiers,
     _parse_rcontrib_visibility,
     _radiance_subprocess_environment,
     _write_honeybee_radiance_scene,
@@ -29,9 +30,22 @@ from foton.honeybee.recipe import (
 )
 from foton.honeybee.settings import RecipeSettings
 from foton.honeybee.validation import compare_coefficient_repeatability
+from foton.honeybee.validation import compare_coefficient_convergence
+from scripts.validate_honeybee_coefficients import _ray_is_on_triangle_edge
 
 
 class HoneybeeAdapterTests(unittest.TestCase):
+    def test_overlapping_rooms_remain_a_recorded_warning(self):
+        model = Model(
+            "Overlap",
+            [Room.from_box("RoomA", 2, 2, 2), Room.from_box("RoomB", 2, 2, 2)],
+        )
+        prepared = prepare_honeybee_scene(model)
+        self.assertEqual(
+            {str(item.get("code")) for item in prepared.validation_warnings},
+            {"000108"},
+        )
+
     def test_conversion_does_not_mutate_model_units(self):
         room = Room.from_box("Room", 20, 30, 10)
         model = Model("Imperial", [room], units="Feet")
@@ -98,6 +112,57 @@ class HoneybeeAdapterTests(unittest.TestCase):
 
 
 class RecipeContractTests(unittest.TestCase):
+    def test_converged_oracle_compares_replicate_half_means(self):
+        prepared = SimpleNamespace(
+            grid_info=[
+                {
+                    "identifier": "grid",
+                    "start_sensor_index": 0,
+                    "sensor_count": 1,
+                }
+            ]
+        )
+        direct = np.ones((1, 2, 3), dtype=np.float32)
+        full = direct * 1.5
+        stable = compare_coefficient_convergence(
+            prepared,
+            radiance_direct_runs=[direct.copy() for _ in range(4)],
+            radiance_full_runs=[full.copy() for _ in range(4)],
+        )
+        self.assertTrue(stable["oracle_stable"])
+        unstable = compare_coefficient_convergence(
+            prepared,
+            radiance_direct_runs=[direct, direct, direct * 1.2, direct * 1.2],
+            radiance_full_runs=[full, full, full * 1.2, full * 1.2],
+        )
+        self.assertFalse(unstable["oracle_stable"])
+
+    def test_sky_dome_glow_modifiers_are_discovered(self):
+        with TemporaryDirectory() as folder:
+            path = Path(folder, "sky.dome")
+            path.write_text(
+                "void glow sky_glow\n0\n0\n4 1 1 1 0\n\n"
+                "sky_glow source sky\n0\n0\n4 0 0 1 180\n",
+                encoding="ascii",
+            )
+            self.assertEqual(_glow_modifiers(path), ["sky_glow"])
+
+    def test_exact_edge_ray_classification(self):
+        vertices = np.asarray(
+            [[0, 0, 1], [1, 0, 1], [0, 1, 1]], dtype=np.float64
+        )
+        triangles = np.asarray([[0, 1, 2]], dtype=np.uint32)
+        self.assertTrue(
+            _ray_is_on_triangle_edge(
+                [0.5, 0, 0], [0, 0, 1], vertices, triangles
+            )
+        )
+        self.assertFalse(
+            _ray_is_on_triangle_edge(
+                [0.25, 0.25, 0], [0, 0, 1], vertices, triangles
+            )
+        )
+
     def test_radiance_repeatability_detects_stable_and_unstable_oracles(self):
         prepared = SimpleNamespace(
             grid_info=[

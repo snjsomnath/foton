@@ -160,6 +160,8 @@ def _validate_supported_model(model, *, include_aperture_glazing=False):
                 f"AirBoundary face {face.identifier!r} is not supported"
             )
 
+    _validate_surface_aperture_pairs(model)
+
     radiance = _radiance_properties(model)
     if radiance is None:
         return
@@ -215,17 +217,43 @@ def _prepare_geometry(model, room_map, *, include_aperture_glazing=False):
         )
         return index
 
+    exported_aperture_identifiers: list[str] = []
+    shifted_surface_faces: list[str] = []
+    interior_faces: set[str] = set()
+    surface_offset = float(model.tolerance) * -2.0
     for room in model.rooms:
         room_id = room_map[room.identifier]
         for face in room.faces:
+            exported_face = face
+            exclude_subfaces = False
+            if face.boundary_condition.__class__.__name__ == "Surface":
+                if face.identifier in interior_faces:
+                    exported_face = face.duplicate()
+                    exported_face.move(exported_face.normal * surface_offset)
+                    exclude_subfaces = True
+                    shifted_surface_faces.append(face.identifier)
+                else:
+                    objects = tuple(
+                        getattr(
+                            face.boundary_condition,
+                            "boundary_condition_objects",
+                            (),
+                        )
+                    )
+                    if not objects:
+                        raise ValueError(
+                            f"Surface Face {face.identifier!r} has no adjacent Face"
+                        )
+                    interior_faces.add(str(objects[0]))
             groups[room_id].append(
-                (face.punched_geometry, material_index(face))
+                (exported_face.punched_geometry, material_index(face))
             )
-            if include_aperture_glazing:
-                for subface in (*face.apertures, *face.doors):
+            if include_aperture_glazing and not exclude_subfaces:
+                for subface in (*exported_face.apertures, *exported_face.doors):
                     groups[room_id].append(
                         (subface.geometry, material_index(subface))
                     )
+                    exported_aperture_identifiers.append(subface.identifier)
     for face in model.orphaned_faces:
         groups[CONTEXT_ROOM_ID].append(
             (face.punched_geometry, material_index(face))
@@ -325,8 +353,152 @@ def _prepare_geometry(model, room_map, *, include_aperture_glazing=False):
         "shade_mode": "opaque",
         "materials": material_info,
         "material_fingerprint": material_fingerprint,
+        "apertures": _aperture_metadata(model, room_map),
+        "surface_aperture_pairs": _surface_aperture_pairs(
+            model, exported_aperture_identifiers
+        ),
+        "exported_aperture_identifiers": exported_aperture_identifiers,
+        "shifted_surface_face_identifiers": shifted_surface_faces,
+        "surface_face_offset_m": surface_offset,
     }
     return arrays, info
+
+
+def _validate_surface_aperture_pairs(model):
+    """Reject incomplete or geometrically ambiguous interior aperture pairs."""
+    apertures = {aperture.identifier: aperture for aperture in model.apertures}
+    for aperture in model.apertures:
+        boundary = aperture.boundary_condition
+        if boundary.__class__.__name__ != "Surface":
+            continue
+        objects = tuple(getattr(boundary, "boundary_condition_objects", ()))
+        if not objects:
+            raise ValueError(
+                f"Surface Aperture {aperture.identifier!r} has no adjacent Aperture"
+            )
+        adjacent_identifier = str(objects[0])
+        adjacent = apertures.get(adjacent_identifier)
+        if adjacent is None:
+            raise ValueError(
+                f"Surface Aperture {aperture.identifier!r} references unknown "
+                f"Aperture {adjacent_identifier!r}"
+            )
+        adjacent_boundary = adjacent.boundary_condition
+        adjacent_objects = tuple(
+            getattr(adjacent_boundary, "boundary_condition_objects", ())
+        )
+        if (
+            adjacent_boundary.__class__.__name__ != "Surface"
+            or not adjacent_objects
+            or str(adjacent_objects[0]) != aperture.identifier
+        ):
+            raise ValueError(
+                f"Surface Aperture pair {aperture.identifier!r} / "
+                f"{adjacent_identifier!r} is not reciprocal"
+            )
+        first = np.asarray(
+            [_xyz(vertex) for vertex in aperture.geometry.vertices],
+            dtype=np.float64,
+        )
+        second = np.asarray(
+            [_xyz(vertex) for vertex in adjacent.geometry.vertices],
+            dtype=np.float64,
+        )
+        if _boundary_error(first, second, allow_reversed=True) > 1.0e-6:
+            raise ValueError(
+                f"Surface Aperture pair {aperture.identifier!r} / "
+                f"{adjacent_identifier!r} does not have coincident geometry"
+            )
+        first_normal = np.asarray(_xyz(aperture.normal), dtype=np.float64)
+        second_normal = np.asarray(_xyz(adjacent.normal), dtype=np.float64)
+        if not np.allclose(first_normal, -second_normal, atol=1.0e-6, rtol=0):
+            raise ValueError(
+                f"Surface Aperture pair {aperture.identifier!r} / "
+                f"{adjacent_identifier!r} does not have opposing normals"
+            )
+
+
+def _boundary_error(first, second, *, allow_reversed=False):
+    if first.shape != second.shape:
+        return float("inf")
+    candidates = [second]
+    if allow_reversed:
+        candidates.append(second[::-1])
+    return min(
+        float(
+            np.max(
+                np.abs(first - np.roll(candidate, shift, axis=0)),
+                initial=0,
+            )
+        )
+        for candidate in candidates
+        for shift in range(first.shape[0])
+    )
+
+
+def _surface_aperture_pairs(model, exported_aperture_identifiers=()):
+    pairs = []
+    visited = set()
+    apertures = {aperture.identifier: aperture for aperture in model.apertures}
+    for aperture in model.apertures:
+        if aperture.boundary_condition.__class__.__name__ != "Surface":
+            continue
+        adjacent_identifier = str(
+            aperture.boundary_condition.boundary_condition_objects[0]
+        )
+        key = tuple(sorted((aperture.identifier, adjacent_identifier)))
+        if key in visited:
+            continue
+        visited.add(key)
+        adjacent = apertures[adjacent_identifier]
+        pairs.append(
+            {
+                "aperture_identifiers": list(key),
+                "area_m2": float(aperture.geometry.area),
+                "coincident": True,
+                "opposing_normals": True,
+                "modifiers": [
+                    _resolved_modifier(aperture).identifier,
+                    _resolved_modifier(adjacent).identifier,
+                ],
+                "exported_aperture_identifier": next(
+                    (
+                        identifier
+                        for identifier in key
+                        if identifier in exported_aperture_identifiers
+                    ),
+                    None,
+                ),
+            }
+        )
+    return pairs
+
+
+def _aperture_metadata(model, room_map):
+    metadata = []
+    for room in model.rooms:
+        for face in room.faces:
+            for aperture in face.apertures:
+                boundary = aperture.boundary_condition
+                objects = tuple(
+                    getattr(boundary, "boundary_condition_objects", ())
+                )
+                metadata.append(
+                    {
+                        "identifier": aperture.identifier,
+                        "parent_face_identifier": face.identifier,
+                        "room_identifier": room.identifier,
+                        "room_id": int(room_map[room.identifier]),
+                        "boundary_condition": boundary.__class__.__name__,
+                        "adjacent_aperture_identifier": (
+                            str(objects[0]) if objects else None
+                        ),
+                        "modifier": _resolved_modifier(aperture).identifier,
+                        "area_m2": float(aperture.geometry.area),
+                        "normal": list(_xyz(aperture.normal)),
+                    }
+                )
+    return metadata
 
 
 def _append_geometry(

@@ -14,6 +14,7 @@ from .adapter import prepare_honeybee_scene
 
 
 METRICS = ("da", "cda", "udi_lower", "udi", "udi_upper")
+PHOTOPIC_WEIGHTS = np.asarray([47.435, 119.93, 11.635], dtype=np.float64)
 
 
 def verify_official_annual_daylight_loader(
@@ -159,6 +160,95 @@ def compare_coefficient_repeatability(
     return report
 
 
+def compare_coefficient_convergence(
+    prepared,
+    *,
+    radiance_direct_runs,
+    radiance_full_runs,
+    rms_gate_percent=5.0,
+    energy_gate_percent=1.0,
+    output_folder: str | Path | None = None,
+) -> dict[str, Any]:
+    """Check a Radiance oracle by comparing means of two replicate halves."""
+    direct_runs = [
+        np.asarray(value, dtype=np.float64) for value in radiance_direct_runs
+    ]
+    full_runs = [
+        np.asarray(value, dtype=np.float64) for value in radiance_full_runs
+    ]
+    if len(direct_runs) < 4 or len(direct_runs) % 2:
+        raise ValueError("convergence requires an even number of at least four runs")
+    if len(full_runs) != len(direct_runs):
+        raise ValueError("direct and full convergence run counts must match")
+    shapes = {value.shape for value in (*direct_runs, *full_runs)}
+    if len(shapes) != 1:
+        raise ValueError(f"convergence coefficient shapes differ: {shapes}")
+    midpoint = len(direct_runs) // 2
+    first_direct = np.mean(np.stack(direct_runs[:midpoint]), axis=0)
+    second_direct = np.mean(np.stack(direct_runs[midpoint:]), axis=0)
+    indirect_runs = [
+        full - direct for full, direct in zip(full_runs, direct_runs, strict=True)
+    ]
+    first_indirect = np.mean(np.stack(indirect_runs[:midpoint]), axis=0)
+    second_indirect = np.mean(np.stack(indirect_runs[midpoint:]), axis=0)
+    grids = []
+    for info in prepared.grid_info:
+        start = int(info["start_sensor_index"])
+        end = start + int(info["sensor_count"])
+        stages = {}
+        for name, reference, candidate in (
+            ("direct", first_direct, second_direct),
+            ("indirect", first_indirect, second_indirect),
+        ):
+            values = _coefficient_statistics(
+                reference[start:end],
+                candidate[start:end],
+                global_sensor_offset=start,
+                nmbe_gate=energy_gate_percent,
+                cvrmse_gate=rms_gate_percent,
+            )
+            values["passed"] = bool(
+                abs(values["nmbe_percent"]) < energy_gate_percent
+                and values["rms_normalized_rmse_percent"] < rms_gate_percent
+            )
+            stages[name] = values
+        grids.append(
+            {
+                "identifier": info["identifier"],
+                "start_sensor_index": start,
+                "sensor_count": int(info["sensor_count"]),
+                "stages": stages,
+            }
+        )
+    stable = all(
+        stage["passed"]
+        for grid in grids
+        for stage in grid["stages"].values()
+    )
+    report = {
+        "schema_version": 1,
+        "run_count": len(direct_runs),
+        "half_run_count": midpoint,
+        "oracle_stable": bool(stable),
+        "gates": {
+            "rms_normalized_rmse_percent": float(rms_gate_percent),
+            "absolute_energy_bias_percent": float(energy_gate_percent),
+        },
+        "grids": grids,
+    }
+    if output_folder is not None:
+        output = Path(output_folder).expanduser().resolve()
+        output.mkdir(parents=True, exist_ok=True)
+        (output / "radiance_convergence.json").write_text(
+            json.dumps(report, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        (output / "radiance_convergence.md").write_text(
+            _convergence_markdown(report), encoding="utf-8"
+        )
+    return report
+
+
 def compare_coefficient_stages(
     prepared,
     *,
@@ -228,8 +318,14 @@ def compare_coefficient_stages(
         "passed": bool(passed),
         "matrix_shape": list(shape),
         "gates": {
-            "direct": {"absolute_nmbe_percent": 2.0, "cvrmse_percent": 5.0},
-            "indirect": {"absolute_nmbe_percent": 3.0, "cvrmse_percent": 10.0},
+            "direct": {
+                "absolute_nmbe_percent": 2.0,
+                "rms_normalized_rmse_percent": 5.0,
+            },
+            "indirect": {
+                "absolute_nmbe_percent": 3.0,
+                "rms_normalized_rmse_percent": 10.0,
+            },
         },
         "grids": grids,
     }
@@ -246,6 +342,175 @@ def compare_coefficient_stages(
     return report
 
 
+def compare_converged_annual(
+    prepared,
+    *,
+    foton_folder,
+    radiance_coefficients,
+    sky_matrix,
+    sun_up_hours,
+    schedule,
+    output_folder: str | Path | None = None,
+) -> dict[str, Any]:
+    """Gate Foton annual results against a converged coefficient mean."""
+    coefficients = np.asarray(radiance_coefficients, dtype=np.float64)
+    sky = np.asarray(sky_matrix, dtype=np.float64)
+    hours = np.asarray(sun_up_hours, dtype=np.float64)
+    occupancy = np.ravel(np.asarray(schedule, dtype=np.float64))
+    sensor_count = int(prepared.arrays["sensor_positions"].shape[0])
+    if coefficients.shape != (sensor_count, sky.shape[0], 3):
+        raise ValueError("radiance coefficients and sky matrix are incompatible")
+    if sky.ndim != 3 or sky.shape[1:] != (hours.size, 3):
+        raise ValueError("sky matrix must have shape [patch, sun_up_hour, 3]")
+    if occupancy.shape != (8760,):
+        raise ValueError("schedule must contain 8760 values")
+    hour_indices = np.floor(hours).astype(np.int64)
+    if np.any(hour_indices < 0) or np.any(hour_indices >= 8760):
+        raise ValueError("sun-up hours fall outside the annual schedule")
+    occupied_sunup = occupancy[hour_indices] >= 0.1
+    occupied_total = int(np.count_nonzero(occupancy >= 0.1))
+    if occupied_total == 0:
+        raise ValueError("schedule contains no occupied hours")
+
+    reference_raw = np.empty((sensor_count, hours.size), dtype=np.float32)
+    for start in range(0, sensor_count, 64):
+        end = min(start + 64, sensor_count)
+        reference_raw[start:end] = np.einsum(
+            "spr,ptr,r->st",
+            coefficients[start:end],
+            sky,
+            PHOTOPIC_WEIGHTS,
+            optimize=True,
+        )
+    root = Path(foton_folder).expanduser().resolve()
+    results = _results_folder(root)
+    foton_hours = np.atleast_1d(np.loadtxt(results / "sun-up-hours.txt"))
+    foton_info = _json(results / "grids_info.json")
+    foton_ids = [item["full_id"] for item in foton_info]
+    foton_counts = [int(item["count"]) for item in foton_info]
+    expected_ids = [item["full_identifier"] for item in prepared.grid_info]
+    expected_counts = [int(item["sensor_count"]) for item in prepared.grid_info]
+    structural = {
+        "sun_up_hours_match": bool(np.array_equal(foton_hours, hours)),
+        "grid_ids_match": foton_ids == expected_ids,
+        "grid_counts_match": foton_counts == expected_counts,
+    }
+    grids = []
+    for grid_index, info in enumerate(prepared.grid_info):
+        start = int(info["start_sensor_index"])
+        count = int(info["sensor_count"])
+        end = start + count
+        identifier = info["full_identifier"]
+        candidate = np.load(
+            results
+            / "__static_apertures__"
+            / "default"
+            / "total"
+            / f"{identifier}.npy",
+            allow_pickle=False,
+        ).astype(np.float64)
+        reference = reference_raw[start:end].astype(np.float64)
+        if candidate.shape != reference.shape:
+            raise ValueError(
+                f"grid {identifier!r} annual shapes differ: "
+                f"{candidate.shape}, {reference.shape}"
+            )
+        difference = candidate - reference
+        reference_mean = float(np.mean(reference))
+        if abs(reference_mean) <= 1.0e-20:
+            maximum = float(np.max(np.abs(difference), initial=0))
+            nmbe = cvrmse = 0.0 if maximum <= 1.0e-6 else float("inf")
+        else:
+            nmbe = 100.0 * float(np.mean(difference)) / reference_mean
+            cvrmse = (
+                100.0
+                * float(np.sqrt(np.mean(np.square(difference))))
+                / abs(reference_mean)
+            )
+        reference_metrics = _metrics_from_sunup(
+            reference,
+            occupied_sunup,
+            occupied_total,
+        )
+        metric_results = {}
+        for metric in METRICS:
+            candidate_values = _metric_values(root, metric, identifier)
+            error = np.abs(candidate_values - reference_metrics[metric])
+            metric_results[metric] = {
+                "mean_absolute_error_percentage_points": float(np.mean(error)),
+                "maximum_error_percentage_points": float(
+                    np.max(error, initial=0)
+                ),
+                "passed": bool(float(np.mean(error)) < 2.0),
+            }
+        weights = _grid_area_weights(prepared, grid_index)
+        candidate_sda = _sda(_metric_values(root, "da", identifier), weights)
+        reference_sda = _sda(reference_metrics["da"], weights)
+        grids.append(
+            {
+                "identifier": identifier,
+                "sensor_count": count,
+                "illuminance": {
+                    "nmbe_percent": nmbe,
+                    "cvrmse_percent": cvrmse,
+                    "passed": bool(abs(nmbe) < 5.0 and cvrmse < 10.0),
+                },
+                "metrics": metric_results,
+                "sda": {
+                    "foton_percent": candidate_sda,
+                    "radiance_percent": reference_sda,
+                    "difference_percentage_points": abs(
+                        candidate_sda - reference_sda
+                    ),
+                    "passed": bool(abs(candidate_sda - reference_sda) < 2.0),
+                },
+            }
+        )
+    passed = all(structural.values()) and all(
+        grid["illuminance"]["passed"]
+        and grid["sda"]["passed"]
+        and all(metric["passed"] for metric in grid["metrics"].values())
+        for grid in grids
+    )
+    report = {
+        "schema_version": 1,
+        "oracle": "converged-coefficients",
+        "passed": bool(passed),
+        "occupied_hours": occupied_total,
+        "structural": structural,
+        "grids": grids,
+    }
+    if output_folder is not None:
+        output = Path(output_folder).expanduser().resolve()
+        output.mkdir(parents=True, exist_ok=True)
+        (output / "converged_annual.json").write_text(
+            json.dumps(report, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+    return report
+
+
+def _metrics_from_sunup(values, occupied_sunup, occupied_total):
+    occupied = values[:, occupied_sunup]
+    unlit_occupied_hours = occupied_total - int(np.count_nonzero(occupied_sunup))
+    denominator = float(occupied_total)
+    return {
+        "da": 100.0 * np.sum(occupied >= 300.0, axis=1) / denominator,
+        "cda": 100.0
+        * np.sum(np.minimum(occupied / 300.0, 1.0), axis=1)
+        / denominator,
+        "udi_lower": 100.0
+        * (np.sum(occupied < 100.0, axis=1) + unlit_occupied_hours)
+        / denominator,
+        "udi": 100.0
+        * np.sum((occupied >= 100.0) & (occupied <= 3000.0), axis=1)
+        / denominator,
+        "udi_upper": 100.0
+        * np.sum(occupied > 3000.0, axis=1)
+        / denominator,
+    }
+
+
 def _coefficient_statistics(
     reference,
     candidate,
@@ -260,15 +525,29 @@ def _coefficient_statistics(
     candidate_maximum = float(np.max(np.abs(candidate), initial=0))
     physically_near_zero = max(reference_maximum, candidate_maximum) <= 1.0e-3
     if physically_near_zero:
-        nmbe = cvrmse = 0.0
+        nmbe = cvrmse = rms_normalized_rmse = 0.0
     elif abs(reference_mean) <= 1.0e-20:
         maximum = float(np.max(np.abs(difference), initial=0))
         nmbe = cvrmse = 0.0 if maximum <= 1.0e-8 else float("inf")
+        reference_rms = float(np.sqrt(np.mean(np.square(reference))))
+        rms_normalized_rmse = (
+            0.0
+            if maximum <= 1.0e-8
+            else 100.0
+            * float(np.sqrt(np.mean(np.square(difference))))
+            / max(reference_rms, 1.0e-20)
+        )
     else:
         nmbe = 100.0 * float(np.mean(difference)) / reference_mean
         cvrmse = (
             100.0 * float(np.sqrt(np.mean(np.square(difference))))
             / abs(reference_mean)
+        )
+        reference_rms = float(np.sqrt(np.mean(np.square(reference))))
+        rms_normalized_rmse = (
+            100.0
+            * float(np.sqrt(np.mean(np.square(difference))))
+            / max(reference_rms, 1.0e-20)
         )
     absolute = np.abs(difference)
     flat_index = int(np.argmax(absolute)) if absolute.size else 0
@@ -278,6 +557,7 @@ def _coefficient_statistics(
     return {
         "nmbe_percent": nmbe,
         "cvrmse_percent": cvrmse,
+        "rms_normalized_rmse_percent": rms_normalized_rmse,
         "reference_energy": reference_energy,
         "candidate_energy": candidate_energy,
         "relative_energy_error_percent": (
@@ -303,7 +583,10 @@ def _coefficient_statistics(
             "reference": float(reference[local_sensor, patch, channel]),
             "candidate": float(candidate[local_sensor, patch, channel]),
         },
-        "passed": bool(abs(nmbe) < nmbe_gate and cvrmse < cvrmse_gate),
+        "passed": bool(
+            abs(nmbe) < nmbe_gate
+            and rms_normalized_rmse < cvrmse_gate
+        ),
     }
 
 
@@ -313,7 +596,7 @@ def _coefficient_markdown(report):
         "",
         f"Overall: **{'PASS' if report['passed'] else 'FAIL'}**",
         "",
-        "| Grid | Stage | NMBE | CV(RMSE) | Energy error | Gate |",
+        "| Grid | Stage | NMBE | RMS-normalized RMSE | Energy error | Gate |",
         "|---|---|---:|---:|---:|:---:|",
     ]
     for grid in report["grids"]:
@@ -322,7 +605,7 @@ def _coefficient_markdown(report):
             lines.append(
                 f"| {grid['identifier']} | {stage} | "
                 f"{values['nmbe_percent']:.3f}% | "
-                f"{values['cvrmse_percent']:.3f}% | "
+                f"{values['rms_normalized_rmse_percent']:.3f}% | "
                 f"{values['relative_energy_error_percent']:.3f}% | "
                 f"{'PASS' if values['passed'] else 'FAIL'} |"
             )
@@ -353,6 +636,26 @@ def _repeatability_markdown(report):
     return "\n".join(lines) + "\n"
 
 
+def _convergence_markdown(report):
+    lines = [
+        "# Radiance converged-oracle stability",
+        "",
+        f"Oracle: **{'STABLE' if report['oracle_stable'] else 'UNSTABLE'}**",
+        "",
+        "| Grid | Stage | Energy bias | RMS-normalized RMSE | Gate |",
+        "|---|---|---:|---:|:---:|",
+    ]
+    for grid in report["grids"]:
+        for name, values in grid["stages"].items():
+            lines.append(
+                f"| {grid['identifier']} | {name} | "
+                f"{values['nmbe_percent']:.3f}% | "
+                f"{values['rms_normalized_rmse_percent']:.3f}% | "
+                f"{'PASS' if values['passed'] else 'FAIL'} |"
+            )
+    return "\n".join(lines) + "\n"
+
+
 def compare_annual_daylight(
     foton_folder,
     radiance_folder,
@@ -361,8 +664,11 @@ def compare_annual_daylight(
     foton_seconds: float | None = None,
     radiance_seconds: float | None = None,
     output_folder: str | Path | None = None,
+    oracle: str = "stock",
 ) -> dict[str, Any]:
-    """Compare compatible Foton and Honeybee Radiance result trees."""
+    """Compare Foton with a stock-compatible or converged Radiance result tree."""
+    if oracle not in {"stock", "converged"}:
+        raise ValueError("oracle must be 'stock' or 'converged'")
     foton_root = Path(foton_folder).expanduser().resolve()
     radiance_root = Path(radiance_folder).expanduser().resolve()
     foton_results = _results_folder(foton_root)
@@ -505,7 +811,14 @@ def compare_annual_daylight(
                             radiance_raw[worst_sensor, worst_hour]
                         ),
                     },
-                    "passed": bool(abs(nmbe) < 5.0 and cvrmse < 10.0),
+                    "compatibility_passed": bool(abs(nmbe) < 5.0),
+                    "strict_passed": bool(
+                        abs(nmbe) < 5.0 and cvrmse < 10.0
+                    ),
+                    "passed": bool(
+                        abs(nmbe) < 5.0
+                        and (oracle == "stock" or cvrmse < 10.0)
+                    ),
                 },
                 "metrics": metric_results,
                 "sda": {
@@ -531,18 +844,22 @@ def compare_annual_daylight(
     passed = (
         all(structural.values())
         and official_loader["passed"]
-        and all(
-            grid["illuminance"]["passed"]
-            and grid["sda"]["passed"]
-            and all(
-                result["passed"] for result in grid["metrics"].values()
+        and all(grid["illuminance"]["passed"] for grid in grids)
+        and (
+            oracle == "stock"
+            or all(
+                grid["sda"]["passed"]
+                and all(
+                    result["passed"] for result in grid["metrics"].values()
+                )
+                for grid in grids
             )
-            for grid in grids
         )
         and performance["passed"] is not False
     )
     report = {
         "schema_version": 1,
+        "oracle": oracle,
         "passed": bool(passed),
         "structural": structural,
         "official_loader": official_loader,
@@ -601,6 +918,7 @@ def _markdown_report(report):
         "# Foton / Honeybee Radiance annual-daylight comparison",
         "",
         f"Overall: **{'PASS' if report['passed'] else 'FAIL'}**",
+        f"Oracle mode: **{report['oracle']}**",
         "",
         "| Grid | NMBE | CV(RMSE) | sDA Δ | Raw gate | Metric gates |",
         "|---|---:|---:|---:|:---:|:---:|",

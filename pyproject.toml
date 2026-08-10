@@ -65,7 +65,7 @@ foton-honeybee = "foton.honeybee.__main__:main"
 [tool.maturin]
 manifest-path = "crates/daylight-python/Cargo.toml"
 python-source = "python"
-python-packages = ["foton", "daylight_engine"]
+python-packages = ["foton", "daylight_engine", "honeybee_foton"]
 module-name = "daylight_engine._native"
 features = ["extension-module"]
 include = [

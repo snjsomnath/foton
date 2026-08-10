@@ -7,7 +7,7 @@ from dataclasses import dataclass
 import json
 from pathlib import Path
 import time
-from typing import Any, Iterable
+from typing import Any, Callable, Iterable
 
 import numpy as np
 
@@ -21,7 +21,7 @@ DEFAULT_THRESHOLD_LUX = 300.0
 DEFAULT_UDI_LOWER_LUX = 100.0
 DEFAULT_UDI_UPPER_LUX = 3000.0
 DEFAULT_TIME_FRACTION = 0.5
-SOLVER_REVISION = "radiance-glass-reflection-v3"
+SOLVER_REVISION = "honeybee-distinct-bounce-dimensions-v5"
 QUALITY_PRESETS = {
     "preview": {"direct_samples": 1, "maximum_samples": 64},
     "final": {"direct_samples": 64, "maximum_samples": 4096},
@@ -127,9 +127,11 @@ class HoneybeeStudy:
         output_folder: str | Path | None = None,
         export_illuminance: bool = False,
         binary_schedule: bool = True,
+        progress: Callable[[dict[str, Any]], None] | None = None,
     ) -> AnnualDaylightRun:
         """Run or re-reduce an annual study using Honeybee metric semantics."""
         run_started = time.perf_counter()
+        _report_progress(progress, "schedule", 0.05, "Preparing occupancy schedule")
         threshold, udi_lower, udi_upper, time_fraction = _metric_parameters(
             threshold, udi_lower, udi_upper, target_time
         )
@@ -148,6 +150,7 @@ class HoneybeeStudy:
         occupancy = honeybee_schedule(schedule, binary=binary_schedule)
 
         weather_started = time.perf_counter()
+        _report_progress(progress, "weather", 0.1, "Preparing annual sky matrix")
         weather = prepare_annual_weather(
             wea,
             north=north,
@@ -156,6 +159,7 @@ class HoneybeeStudy:
             cache_directory=self.weather_cache,
         )
         weather_seconds = time.perf_counter() - weather_started
+        _report_progress(progress, "weather", 0.25, "Annual sky matrix ready")
 
         cache_key = (
             self.prepared.model_fingerprint,
@@ -172,6 +176,12 @@ class HoneybeeStudy:
         engine_timings: dict[str, float] = {}
         reduction_started = time.perf_counter()
         if coefficients is None:
+            _report_progress(
+                progress,
+                "transport",
+                0.3,
+                "Tracing direct and diffuse daylight coefficients",
+            )
             job = self.scene.analyze(
                 weather.sky,
                 occupancy,
@@ -209,6 +219,12 @@ class HoneybeeStudy:
             )
             coefficient_cache_hit = False
         else:
+            _report_progress(
+                progress,
+                "transport",
+                0.3,
+                "Reusing compatible daylight coefficients",
+            )
             native = self.scene.analyze(
                 weather.sky,
                 occupancy,
@@ -242,6 +258,7 @@ class HoneybeeStudy:
             )
             coefficient_cache_hit = True
         reduction_seconds = time.perf_counter() - reduction_started
+        _report_progress(progress, "metrics", 0.82, "Annual metrics reduced")
 
         grids = _group_grid_metrics(
             self.prepared,
@@ -252,6 +269,7 @@ class HoneybeeStudy:
         write_timings = {"raw_export_seconds": 0.0}
         results_folder = None
         if output_folder is not None:
+            _report_progress(progress, "output", 0.88, "Writing result files")
             output = Path(output_folder).expanduser().resolve()
             results_folder = output / "results"
             write_timings = _write_run(
@@ -288,6 +306,11 @@ class HoneybeeStudy:
             ),
             **write_timings,
             **engine_timings,
+            "coefficient_trace_seconds": (
+                0.0
+                if coefficient_cache_hit
+                else engine_timings.get("engine_tracing_seconds", 0.0)
+            ),
         }
         metadata = _run_metadata(
             self.prepared,
@@ -320,11 +343,23 @@ class HoneybeeStudy:
                 json.dumps(metadata, indent=2, sort_keys=True), encoding="utf-8"
             )
         self._run_count += 1
+        _report_progress(progress, "output", 0.98, "Result manifest ready")
         return AnnualDaylightRun(
             grids=grids,
             timings=timings,
             results_folder=results_folder,
             metadata=metadata,
+        )
+
+
+def _report_progress(callback, stage, value, message):
+    if callback is not None:
+        callback(
+            {
+                "stage": stage,
+                "progress": float(value),
+                "message": message,
+            }
         )
 
 

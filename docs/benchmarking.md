@@ -48,6 +48,13 @@ a climate-specific LM-83 claim.
 `test_models/test.hbjson` is the practitioner-facing acceptance model. Compare a
 Foton export and the standard Honeybee Radiance `annual-daylight` result with:
 
+- 3 cleanly separated Rooms and 4 Apertures;
+- 3 SensorGrids and 2,020 sensors in immutable HBJSON order;
+- `classroom_01` at indices 0–174, `office_02` at 175–1134, and
+  `office_01` at 1135–2019;
+- one paired 0.88-transmittance interior aperture between the offices; and
+- a sealed classroom that must remain physically dark.
+
 ```python
 from foton.honeybee import compare_annual_daylight
 
@@ -58,14 +65,18 @@ report = compare_annual_daylight(
     foton_seconds=1.2,
     radiance_seconds=23.0,
     output_folder="simulation/comparison",
+    oracle="stock",
 )
 assert report["passed"], report
 ```
 
-The report enforces grid IDs, counts, sun-up-hour ordering, per-grid NMBE and
-CV(RMSE), all five annual metric errors, area-weighted sDA, and the 10×
-end-to-end speed gate. It also records percentile and maximum sensor-hour
-errors in JSON and Markdown so aggregate passes cannot conceal outliers.
+The stock-oracle report gates grid IDs, counts, sun-up-hour ordering, per-grid
+absolute NMBE below 5%, and the 10× end-to-end speed target. Sensor CV(RMSE),
+all five annual metric errors, and area-weighted sDA remain published
+diagnostics because a single stock Radiance run is stochastic. Pass
+`oracle="converged"` for the strict CV(RMSE), metric, and sDA gates after the
+coefficient oracle has converged. Both modes record percentile and maximum
+sensor-hour errors so aggregate passes cannot conceal outliers.
 It additionally loads Foton output through the official
 `AnnualDaylight` result API and requires recomputed DA/cDA/UDI values to agree
 within 0.05 percentage points.
@@ -78,11 +89,15 @@ python scripts/validate_honeybee_coefficients.py \
   --model test_models/test.hbjson \
   --honeybee-project simulation/radiance-annual \
   --output simulation/coefficient-parity \
-  --radiance-replicates 2
+  --radiance-replicates 4 \
+  --maximum-radiance-replicates 8 \
+  --radiance-ambient-divisions 20000 \
+  --direct-oracle-samples 256
 ```
 
-The harness compares center-ray visibility, integrated direct coefficients,
-and the isolated one-bounce delta. Independent Radiance replicates are required
-because stock `-ad 5000` coefficients are stochastic; the manifest fails with
-`oracle_stable_at_release_gates=false` when Radiance does not agree with itself
-closely enough to adjudicate the requested CV(RMSE) threshold.
+The harness compares center-ray visibility, an independently ray-integrated
+direct coefficient oracle, and the isolated one-bounce delta. It starts with
+four `-ad 20000` Radiance runs and automatically expands to eight when the two
+replicate-half means exceed 5% RMS-normalized RMSE or 1% energy bias. An
+unstable oracle is reported as such instead of being treated as a Foton failure.
+The stock `-ad 5000` recipe remains a separate compatibility comparison.

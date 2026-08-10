@@ -2,14 +2,20 @@ from __future__ import annotations
 
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 
 import numpy as np
+from honeybee.model import Model
+from honeybee.room import Room
 
 from foton.honeybee import honeybee_schedule
+from foton.honeybee import HoneybeeStudy
 from foton import Engine
 from foton.honeybee.adapter import prepare_honeybee_scene
 from foton.honeybee.annual import _reduce_coefficients
 from foton.honeybee.weather import parse_radiance_binary_matrix
+from foton.honeybee.weather import AnnualWeather
+from foton.honeybee.validation import _metrics_from_sunup
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -17,6 +23,39 @@ ACCEPTANCE_MODEL = ROOT / "test_models" / "test.hbjson"
 
 
 class HoneybeeScheduleTests(unittest.TestCase):
+    @patch("foton.honeybee.annual.prepare_annual_weather")
+    def test_threshold_only_rerun_reuses_coefficients(self, prepare_weather):
+        prepare_weather.return_value = AnnualWeather(
+            sky=np.zeros((146, 8760, 3), dtype=np.float32),
+            sun_up_hours=(),
+            weather_id="test-weather",
+            source="test.epw",
+            location={},
+            north=0.0,
+            sky_density=1,
+            basis="tregenza",
+            cache_hit=True,
+            gendaymtx="gendaymtx",
+            gendaymtx_version="test",
+        )
+        study = HoneybeeStudy(
+            Model("Cache", [Room.from_box("Room", 2, 2, 3)]),
+            backend="reference",
+            grid_size=5,
+        )
+        first = study.annual_daylight(
+            "test.epw", maximum_samples=0, maximum_bounces=0
+        )
+        second = study.annual_daylight(
+            "test.epw",
+            threshold=400,
+            maximum_samples=0,
+            maximum_bounces=0,
+        )
+        self.assertFalse(first.metadata["solver"]["coefficient_cache_hit"])
+        self.assertTrue(second.metadata["solver"]["coefficient_cache_hit"])
+        self.assertEqual(second.timings["coefficient_trace_seconds"], 0.0)
+
     def test_binary_gendaymtx_parser_preserves_order(self):
         values = np.arange(12, dtype=np.float32)
         content = (
@@ -66,6 +105,18 @@ class HoneybeeScheduleTests(unittest.TestCase):
             float(metrics["udi_upper"][0]), 1 / 7 * 100, places=4
         )
 
+    def test_converged_annual_metrics_account_for_occupied_night_hours(self):
+        metrics = _metrics_from_sunup(
+            np.asarray([[0, 100, 300, 3001]], dtype=np.float64),
+            np.ones(4, dtype=bool),
+            occupied_total=6,
+        )
+        self.assertAlmostEqual(float(metrics["da"][0]), 2 / 6 * 100)
+        self.assertAlmostEqual(float(metrics["cda"][0]), (1 / 3 + 2) / 6 * 100)
+        self.assertAlmostEqual(float(metrics["udi_lower"][0]), 3 / 6 * 100)
+        self.assertAlmostEqual(float(metrics["udi"][0]), 2 / 6 * 100)
+        self.assertAlmostEqual(float(metrics["udi_upper"][0]), 1 / 6 * 100)
+
 
 class AcceptanceFixtureTests(unittest.TestCase):
     @classmethod
@@ -76,12 +127,12 @@ class AcceptanceFixtureTests(unittest.TestCase):
 
     def test_exact_grid_order_and_ranges(self):
         facts = [
-            ("office_02", 0, 490),
-            ("office_01", 490, 885),
-            ("classroom_01", 1375, 175),
+            ("classroom_01", 0, 175),
+            ("office_02", 175, 960),
+            ("office_01", 1135, 885),
         ]
         self.assertEqual(
-            int(self.prepared.arrays["sensor_positions"].shape[0]), 1550
+            int(self.prepared.arrays["sensor_positions"].shape[0]), 2020
         )
         self.assertEqual(len(self.prepared.grid_info), 3)
         for info, (identifier, start, count) in zip(
@@ -112,11 +163,8 @@ class AcceptanceFixtureTests(unittest.TestCase):
             )
             self.assertTrue(np.all(areas[start:end] > 0))
 
-    def test_collision_is_warning_and_materials_are_resolved(self):
-        warning_codes = {
-            str(item.get("code")) for item in self.prepared.validation_warnings
-        }
-        self.assertIn("000108", warning_codes)
+    def test_clean_model_and_materials_are_resolved(self):
+        self.assertEqual(self.prepared.validation_warnings, ())
         materials = self.prepared.geometry_info["materials"]
         diffuse = {
             round(float(item["diffuse_rgb"][0]), 6)
@@ -127,35 +175,58 @@ class AcceptanceFixtureTests(unittest.TestCase):
         glass = [
             item for item in materials if item["modifier_type"] == "Glass"
         ]
-        self.assertTrue(glass)
-        for material in glass:
-            np.testing.assert_allclose(
-                material["transmittance_rgb"],
-                [0.640804765] * 3,
-                atol=1e-6,
-                rtol=0,
-            )
-            np.testing.assert_allclose(
-                material["radiance_transmissivity_rgb"],
-                [0.697576182] * 3,
-                atol=1e-6,
-                rtol=0,
-            )
-            np.testing.assert_allclose(
-                material["solver_transmittance_rgb"],
-                [0.64] * 3,
-                atol=1e-6,
-                rtol=0,
-            )
+        self.assertEqual(len(glass), 2)
+        by_identifier = {item["identifier"]: item for item in glass}
+        exterior = by_identifier["generic_exterior_window_vis_0.64"]
+        interior = by_identifier["generic_interior_window_vis_0.88"]
+        np.testing.assert_allclose(
+            exterior["radiance_transmissivity_rgb"],
+            [0.697576182] * 3,
+            atol=1e-6,
+            rtol=0,
+        )
+        np.testing.assert_allclose(
+            exterior["solver_transmittance_rgb"], [0.64] * 3, atol=1e-6, rtol=0
+        )
+        np.testing.assert_allclose(
+            interior["solver_transmittance_rgb"], [0.88] * 3, atol=1e-6, rtol=0
+        )
         self.assertEqual(
             len(self.prepared.geometry_info["material_fingerprint"]), 64
         )
         self.assertEqual(
             self.prepared.geometry_info["aperture_mode"], "thin_glass"
         )
+        pairs = self.prepared.geometry_info["surface_aperture_pairs"]
+        self.assertEqual(len(pairs), 1)
+        self.assertEqual(
+            set(pairs[0]["aperture_identifiers"]),
+            {"Ajd_Aperture_0abbf8bb", "Aperture_0abbf8bb"},
+        )
+        self.assertEqual(
+            pairs[0]["modifiers"], ["generic_interior_window_vis_0.88"] * 2
+        )
+        self.assertEqual(
+            pairs[0]["exported_aperture_identifier"],
+            "Ajd_Aperture_0abbf8bb",
+        )
+        self.assertEqual(
+            self.prepared.geometry_info["shifted_surface_face_identifiers"],
+            [
+                "office_02_19089ea1..Face4",
+                "office_02_19089ea1..Face6",
+            ],
+        )
+        self.assertAlmostEqual(
+            self.prepared.geometry_info["surface_face_offset_m"], -0.02
+        )
 
     def test_classroom_grid_belongs_only_to_sealed_room(self):
-        classroom = self.prepared.grid_info[2]
+        classroom = next(
+            info
+            for info in self.prepared.grid_info
+            if info["identifier"] == "classroom_01"
+        )
         classroom_identifier = next(
             room.identifier
             for room in self.prepared.model.rooms
@@ -177,7 +248,12 @@ class AcceptanceFixtureTests(unittest.TestCase):
 
     def test_near_corner_secondary_ray_does_not_escape_classroom(self):
         arrays = self.prepared.arrays
-        sensor_index = 1426
+        classroom = next(
+            info
+            for info in self.prepared.grid_info
+            if info["identifier"] == "classroom_01"
+        )
+        sensor_index = int(classroom["start_sensor_index"])
         engine = Engine({"backend": "reference"})
         scene = engine.create_scene(
             arrays["vertices"],

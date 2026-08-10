@@ -1,0 +1,79 @@
+name: Annual Daylight Parity
+
+on:
+  schedule:
+    - cron: "17 3 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  metal-radiance:
+    name: Metal / stock and converged Radiance
+    runs-on: macos-14
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.85"
+      - uses: Swatinem/rust-cache@v2
+      - name: Install Radiance
+        run: brew install radiance
+      - name: Install Foton and oracle dependencies
+        run: >-
+          python -m pip install --upgrade pip maturin setuptools
+          '.[honeybee,test]' 'lbt-recipes==0.28.8'
+      - name: Build native extension
+        run: maturin develop --release
+      - name: Run stock Honeybee annual daylight
+        run: >-
+          python scripts/run_honeybee_annual_reference.py
+          --model test_models/test.hbjson
+          --wea epw/gothenburg.epw
+          --output artifacts/radiance
+          --workers 8
+      - name: Run Foton annual daylight
+        run: >-
+          foton-honeybee annual-daylight
+          --model test_models/test.hbjson
+          --wea epw/gothenburg.epw
+          --output artifacts/foton
+          --backend metal
+          --export-illuminance
+      - name: Gate stock compatibility
+        run: >-
+          python scripts/compare_honeybee_annual.py
+          --foton artifacts/foton
+          --radiance artifacts/radiance/annual_daylight
+          --radiance-manifest artifacts/radiance/reference_manifest.json
+          --model test_models/test.hbjson
+          --output artifacts/stock-comparison
+          --oracle stock
+          --fail-on-threshold
+      - name: Gate converged coefficient transport
+        run: >-
+          python scripts/validate_honeybee_coefficients.py
+          --model test_models/test.hbjson
+          --honeybee-project artifacts/radiance/annual_daylight
+          --foton-annual artifacts/foton
+          --output artifacts/coefficient-parity
+          --backend metal
+          --direct-oracle-samples 256
+          --radiance-replicates 4
+          --maximum-radiance-replicates 8
+          --radiance-ambient-divisions 20000
+          --fail-on-threshold
+      - name: Upload parity artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: annual-daylight-parity-${{ github.run_id }}
+          path: artifacts
+          if-no-files-found: error
+          retention-days: 30
