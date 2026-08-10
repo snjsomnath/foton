@@ -40,6 +40,25 @@ class FotonCancelled(FotonError):
     pass
 
 
+def _subprocess_environment(executable):
+    """Build a clean env so external CPython ignores IronPython runtime vars."""
+    env = os.environ.copy()
+    for key in (
+        "PYTHONHOME",
+        "PYTHONPATH",
+        "PYTHONEXECUTABLE",
+        "__PYVENV_LAUNCHER__",
+    ):
+        env.pop(key, None)
+    executable_dir = os.path.dirname(os.path.abspath(executable))
+    if executable_dir:
+        path = env.get("PATH", "")
+        env["PATH"] = (
+            executable_dir if not path else executable_dir + os.pathsep + path
+        )
+    return env
+
+
 def _text(value):
     if isinstance(value, bytes):
         return value.decode("utf-8", "replace")
@@ -160,11 +179,12 @@ def _parse_protocol_line(line):
 
 def capabilities(executable=None, backend="auto"):
     executable = discover_executable(executable)
+    env = _subprocess_environment(executable)
     process = subprocess.Popen(
         [executable, "capabilities", "--backend", str(backend)],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        universal_newlines=True,
+        env=env,
     )
     stdout, stderr = process.communicate()
     if process.returncode != 0:
@@ -419,12 +439,13 @@ def load_result_bundle(value):
 
 
 def _run_process(command, progress=None, cancel=None):
+    env = _subprocess_environment(command[0])
     process = subprocess.Popen(
         command,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        universal_newlines=True,
         bufsize=1,
+        env=env,
     )
     messages = queue.Queue()
     errors = []

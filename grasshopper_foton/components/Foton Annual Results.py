@@ -17,7 +17,25 @@ Honeybee annual result components and LB Spatial Heatmap.
 
 from __future__ import print_function
 
-from grasshopper_foton.foton_gh import FotonError, load_result_bundle
+import os
+import sys
+
+try:
+    from grasshopper_foton.foton_gh import FotonError, load_result_bundle
+except ImportError:
+    parent = os.environ.get("FOTON_GH_PARENT")
+    if parent:
+        parent = os.path.abspath(os.path.expanduser(parent))
+        if parent not in sys.path:
+            sys.path.insert(0, parent)
+    try:
+        from grasshopper_foton.foton_gh import FotonError, load_result_bundle
+    except ImportError:
+        raise RuntimeError(
+            "Cannot import grasshopper_foton. Add the repository parent directory "
+            "to Rhino search paths (for example /Users/ssanjay/GitHub/foton), "
+            "or set FOTON_GH_PARENT to that directory."
+        )
 
 
 ghenv.Component.Name = "Foton Annual Results"
@@ -25,7 +43,8 @@ ghenv.Component.NickName = "FotonResults"
 ghenv.Component.Message = "Protocol 1"
 ghenv.Component.Category = "HB-Foton"
 ghenv.Component.SubCategory = "4 :: Results"
-ghenv.Component.AdditionalHelpFromDocStrings = "1"
+if hasattr(ghenv.Component, "AdditionalHelpFromDocStrings"):
+    ghenv.Component.AdditionalHelpFromDocStrings = "1"
 
 
 report = None
