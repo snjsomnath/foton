@@ -384,6 +384,30 @@ def _metric_values(path, count):
     return values
 
 
+def _coerce_numeric(value):
+    """Convert numeric-looking strings to native numbers for GhPython outputs."""
+    if isinstance(value, dict):
+        return dict((key, _coerce_numeric(item)) for key, item in value.items())
+    if isinstance(value, list):
+        return [_coerce_numeric(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_coerce_numeric(item) for item in value)
+    if isinstance(value, string_types):
+        text = str(value).strip()
+        if not text:
+            return value
+        if text.isdigit() or (text.startswith("-") and text[1:].isdigit()):
+            try:
+                return int(text)
+            except Exception:
+                return value
+        try:
+            return float(text)
+        except Exception:
+            return value
+    return value
+
+
 def list_to_data_tree(branches):
     """Return a Grasshopper DataTree when Ladybug Rhino is available."""
     try:
@@ -433,7 +457,7 @@ def load_result_bundle(value):
         "udi_low": list_to_data_tree(metric_branches["udi_lower"]),
         "udi_up": list_to_data_tree(metric_branches["udi_upper"]),
         "sda": sda,
-        "timings": manifest.get("timings", {}),
+        "timings": _coerce_numeric(manifest.get("timings", {})),
         "warnings": manifest.get("warnings", []),
     }
 

@@ -33,6 +33,7 @@ sDA                  One area-weighted percentage per SensorGrid
 grid_ids, room_ids   Lists in the same order as the DataTree branches
 manifest             Path to ``run_manifest.json``
 timings              Timing dictionary
+timings_text         Timing lines for direct Panel display
 warnings             Validation warnings
 folder               Foton output folder
 
@@ -87,6 +88,7 @@ grid_ids = None
 room_ids = None
 manifest = None
 timings = None
+timings_text = None
 warnings = None
 folder = None
 
@@ -182,6 +184,9 @@ if globals().get("_run", False):
         grid_ids, room_ids = bundle["grid_ids"], bundle["room_ids"]
         manifest = bundle["manifest_path"]
         timings = bundle["timings"]
+        timings_text = "\n".join(
+            "{0}: {1}".format(key, timings[key]) for key in sorted(timings.keys())
+        )
         warnings = bundle["warnings"]
         folder = bundle["folder"]
         for warning in warnings:

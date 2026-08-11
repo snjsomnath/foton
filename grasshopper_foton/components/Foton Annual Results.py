@@ -9,7 +9,7 @@ _load       Item, Boolean load toggle
 GhPython outputs
 ----------------
 report, results, DA, cDA, UDI, UDI_low, UDI_up, sDA, grid_ids, room_ids,
-manifest, timings, warnings, folder
+manifest, timings, timings_text, warnings, folder
 
 ``results`` and the metric DataTrees follow the same branch ordering used by
 Honeybee annual result components and LB Spatial Heatmap.
@@ -59,6 +59,7 @@ grid_ids = None
 room_ids = None
 manifest = None
 timings = None
+timings_text = None
 warnings = None
 folder = None
 
@@ -79,6 +80,9 @@ if globals().get("_load", False):
         grid_ids, room_ids = bundle["grid_ids"], bundle["room_ids"]
         manifest = bundle["manifest_path"]
         timings = bundle["timings"]
+        timings_text = "\n".join(
+            "{0}: {1}".format(key, timings[key]) for key in sorted(timings.keys())
+        )
         warnings = bundle["warnings"]
         folder = bundle["folder"]
         report = "Loaded {0} SensorGrid result branches.".format(len(grid_ids))
