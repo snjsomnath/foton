@@ -1,0 +1,4 @@
+interface:
+  display_name: "Foton Bump & Release"
+  short_description: "Bump, validate, and publish Foton releases"
+  default_prompt: "Use $foton-bump-release to prepare and publish the next Foton release safely."
