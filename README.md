@@ -1,153 +1,127 @@
-<div align="center">
-
 # Foton
 
-**Hardware-adaptive, backend-neutral daylight analysis engine for progressive daylight
-coefficients, daylight factor, daylight autonomy, and static sDA.**
+**GPU-accelerated daylight transport for architectural analysis.**
 
-[![PyPI - Version](https://img.shields.io/pypi/v/foton-daylight?color=blue&style=flat-square)](https://pypi.org/project/foton-daylight/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey?style=flat-square)](https://github.com/snjsomnath/foton)
+[![PyPI](https://img.shields.io/pypi/v/foton-daylight?style=flat-square)](https://pypi.org/project/foton-daylight/)
+[![Radiance benchmark](https://img.shields.io/badge/Radiance-benchmarked-blue?style=flat-square)](https://www.radiance-online.org/)
+[![Honeybee](https://img.shields.io/badge/Honeybee-1.x-orange?style=flat-square)](https://www.ladybug.tools/honeybee/)
+[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
 
-</div>
+Foton is an experimental GPU-based daylight transport engine for architectural
+analysis.
 
+It is not a replacement for Radiance or Honeybee. Instead, it explores whether
+the expensive ray-traced transport step in a Radiance-style daylight workflow
+can be moved to the GPU and made fast enough for interactive use.
 
-## Install
+## Where Foton fits
 
-The product and import name is Foton. The PyPI distribution is `foton-daylight`. You can install it using pip:
+A simplified Radiance matrix workflow looks like:
 
-```bash
-python -m pip install foton-daylight
-```
+    Sky
+     |
+     v
+    rfluxmtx / rcontrib
+     |
+     v
+    Sky -> sensor transport
+     |
+     v
+    Illuminance / annual metrics
 
-```python
-from foton import Engine
+Foton focuses on the transport step:
 
-engine = Engine()
-print(engine.capabilities())
-```
+    Sky
+     |
+     v
+    +-----------+
+    |   Foton   |  GPU ray tracing
+    +-----------+
+     |
+     v
+    Sky -> sensor transport
+     |
+     v
+    Illuminance / annual metrics
 
-See [installation](docs/installation.md), [backend requirements](docs/backends.md),
-[Python API](docs/python-api.md), and [benchmarking](docs/benchmarking.md).
+Foton uses Honeybee-generated models and Radiance as a reference for
+benchmarking.
 
-## Implemented
+## What it does
 
-- Typed Rust scene contracts for instanced triangle meshes, materials, and sensors.
-- Canonical Tregenza 146 and Reinhart MF:2 578 sky mapping including ground.
-- Exact MF:2-to-Tregenza parent aggregation and deterministic sample keys.
-- Lambertian transport and Radiance-compatible visible-transmittance conversion with
-  angular thin-glass interface effects.
-- Streamed annual metrics with explicit weighted occupancy schedules.
-- Native Metal BLAS/TLAS construction, direct ray-query visibility, and tiled GPU
-  annual reduction through runtime-compiled MSL.
-- Vulkan 1.3 BLAS/TLAS construction and SPIR-V ray-query compute pipelines for
-  NVIDIA, AMD, and Intel GPUs on Linux and Windows.
-- Resident scene handles that reuse acceleration structures across analyses and
-  revisioned instance updates.
-- Async PyO3 jobs with cancellation, supersession, copied NumPy ownership, snapshots,
-  GIL release while waiting, and opt-in coefficient export.
-- Canonical shoebox and generated 1,000-room/25,000-sensor fixtures.
+- GPU ray-traced direct visibility
+- Diffuse multi-bounce transport
+- Thin-glass transport
+- Tregenza (146) and Reinhart MF:2 (578) sky subdivisions
+- Daylight transport coefficients
+- Illuminance and annual daylight calculations
+- DA and sDA
+- Metal and Vulkan GPU backends
+- Deterministic CPU reference backend
+- Python API and Honeybee integration
 
-Direct visibility, multi-bounce diffuse and thin-glass transport, and annual metric
-reduction execute on Metal or Vulkan. The deterministic CPU backend and Radiance
-remain validation oracles.
+The current implementation is aimed primarily at conventional architectural
+daylighting: diffuse surfaces, ordinary glazing, shading devices, and
+building-scale sensor grids.
 
-## Development
+## What it does not do
 
-```bash
-cargo test -p daylight-core -p daylight-metal -p daylight-vulkan -p daylight-cli
-cargo check -p daylight-python --features extension-module
-cargo run -p daylight-cli -- hardware
-cargo run -p daylight-cli -- fixture --output tests/fixtures/shoebox.json
-python -m unittest discover -s validation
-```
+Foton does not currently reproduce the full Radiance material and transport
+model.
 
-Build the Python extension from source:
+In particular, it should not yet be assumed equivalent to Radiance for:
 
-```bash
-python -m pip install -e .
-```
+- complex BSDF materials
+- advanced daylight-redirecting systems
+- highly specular environments
+- arbitrary Radiance material types
+- certification or compliance calculations
 
-Compare a Honeybee shaded shoebox against native Radiance direct visibility:
+Radiance remains the reference for those applications.
 
-```bash
-python scripts/compare_honeybee_shoebox.py --auto-grid
-```
+## How does it compare with Radiance?
 
-## Hardware Benchmarks
+The repository contains automated comparisons against Radiance using
+Honeybee-generated test scenes.
 
-Run the reproducible Honeybee/Radiance benchmark after installing the Honeybee
-extra and making Radiance `oconv` and `rcontrib` available on `PATH` (or set
-`RADIANCE_BIN`). Bundled OpenStudio installations under `/Applications` are
-detected automatically:
+In the current benchmark:
 
-```bash
-python -m pip install -e '.[honeybee]'
-python scripts/benchmark_hardware.py --backend auto --append-readme
-```
+- Direct visibility: 13 mismatches out of 31,536 sensor/sky-patch tests
+- Full diffuse + thin-glass transport: 5.3% NMBE
+- Annual illuminance: 5.2% NMBE
+- sDA difference: 0.0 percentage points (!but the geometry that this has been tested on is fairly simple)
 
-Each run writes a self-contained folder under `benchmarks/results/` with command
-logs, `benchmark.json`, and `benchmark.md`. It executes four versioned stages:
+These results are from a specific test scene and configuration. They are not a
+claim that Foton will match Radiance to a fixed accuracy for arbitrary models.
 
-| Stage | Fixture | Validation |
-| --- | --- | --- |
-| Direct visibility | Honeybee shaded shoebox, aperture, overhang, fins, 216 sensors | Binary patch-center ray mismatches and weighted visible energy against Radiance |
-| Full transport | Same room with 0.6 visible-transmittance glass and diffuse bounces | Coefficient NMBE and CV(RMSE) against `rcontrib` |
-| Annual metrics | Both coefficient matrices multiplied by the same deterministic 8,760-hour Tregenza sky and 08:00–18:00 schedule | Occupied illuminance NMBE/CV(RMSE), DA, area-weighted sDA, and GPU/CPU reduction agreement |
-| Large scene | One resident shoebox mesh instanced into 1,000 rooms with 25,000 sensors | Cold and cached scene, tracing, annual-reduction, and wall-clock timings |
+The benchmark results and methodology are included in the repository so that
+the comparison can be reproduced and improved over time.
 
-Use `--quick` for a 256-sample, one-bounce smoke benchmark. Use an explicit
-`--backend metal` or `--backend vulkan` to require that device; the run fails
-rather than silently benchmarking the CPU reference. `--append-readme` adds one
-hardware row and five fixture rows below, while the JSON report remains the
-detailed artifact.
+## Performance
 
-### Hardware
+On the current benchmark machine (Apple M4 Pro), the 216-sensor / 146-patch
+full transport calculation took:
 
-<!-- BENCHMARK_HARDWARE:START -->
-| Run | Date (UTC) | Host | OS | Model | CPU | Cores | RAM | GPU | Backend | Engine |
-| --- | --- | --- | --- | --- | --- | ---: | ---: | --- | --- | --- |
-| 20260731T054146Z-CM-GHHXPN239T | 2026-07-31 05:42:00Z | CM-GHHXPN239T | macOS 26.5.2 | MacBook Pro | Apple M4 Pro | 14 | 24 GB | Apple M4 Pro | metal | 0.1.0 |
-<!-- BENCHMARK_HARDWARE:END -->
+    Foton:      5.79 ms
+    rcontrib:   3574 ms
 
-### Results
+This is a single benchmark configuration, not a general speedup claim.
 
-<!-- BENCHMARK_RESULTS:START -->
-| Run | Fixture | Scale | Samples / bounces | Accuracy vs Radiance | Scene / AS | Trace | Annual | Wall | Radiance |
-| --- | --- | --- | ---: | --- | ---: | ---: | ---: | ---: | ---: |
-| 20260731T054146Z-CM-GHHXPN239T | Honeybee direct visibility | 216 sensors × 146 patches | 0 / 0 | 13 mismatches; 2.477% energy | 0.00 ms | 0.17 ms | 0.06 ms | n/a | 66.27 ms |
-| 20260731T054146Z-CM-GHHXPN239T | Diffuse + thin glass coefficients | 216 sensors × 146 patches | 4096 / 2 | NMBE 5.295%; CV(RMSE) 344.379% | 0.00 ms | 5.79 ms | 7.81 ms | 30.95 ms | 3574.31 ms |
-| 20260731T054146Z-CM-GHHXPN239T | Annual illuminance + DA/sDA | 216 sensors × 8760 hours | 4096 / 2 | NMBE 5.193%; CV(RMSE) 26.955%; sDA Δ 0.00 pp | 0.00 ms | 5.79 ms | 7.81 ms | 30.95 ms | 3583.38 ms |
-| 20260731T054146Z-CM-GHHXPN239T | 1,000-room resident scene | 1000 rooms / 25000 sensors | 64 / 1 | performance fixture | 5.00 ms | 18.28 ms | 2.10 ms | 63.86 ms | 4621.42 ms |
-| 20260731T054146Z-CM-GHHXPN239T | 1,000-room resident scene (cached) | 1000 rooms / 25000 sensors | 64 / 1 | resident BLAS/TLAS reuse | 0.00 ms | 4.24 ms | 2.10 ms | 39.17 ms | 4431.31 ms |
-<!-- BENCHMARK_RESULTS:END -->
+The purpose of the comparison is to show the potential of GPU transport for
+interactive daylight analysis. (I also don't have access to other GPUs at the moment to test out foton using vullkan)
 
-## Local Three.js viewer
+## Installation
 
-Install the native extension and local viewer dependencies:
+    pip install foton-daylight
 
-```bash
-python -m pip install -e '.[viewer]'
-cd viewer && npm install
-```
+For Honeybee support:
 
-Run the Python service and Vite frontend together:
+    pip install "foton-daylight[honeybee]"
 
-```bash
-cd viewer && npm run dev
-```
+## Status
 
-Open `http://127.0.0.1:5173`, upload an hourly EPW, and edit the parametric
-shoebox. The viewer runs a 64-sample Tregenza preview during interaction and a
-4,096-sample Reinhart MF:2 refinement after the controls are idle. Radiance
-`gendaymtx` must be on `PATH` or under `RADIANCE_BIN`; daylight transport remains
-native Metal or Vulkan, selected from the GPU vendor.
+Foton is experimental and under active development.
 
-For a single-process local build:
-
-```bash
-cd viewer && npm run build
-foton-viewer
-```
-
-Release maintainers should also read [the release process](docs/releasing.md).
+The goal is not to replace Radiance. The goal is to make a focused part of
+Radiance-style daylight transport fast enough to use interactively in
+architectural design and research.
