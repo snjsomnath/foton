@@ -27,6 +27,11 @@ def parse_args():
     parser.add_argument("--workers", type=int, default=2)
     parser.add_argument("--radiance-bin")
     parser.add_argument("--north", type=float, default=0.0)
+    parser.add_argument(
+        "--radiance-parameters",
+        default="-ab 2 -ad 5000 -lw 2e-05 -dr 0",
+        help="rtrace/rfluxmtx parameters for the recipe (default: the stock recipe's own)",
+    )
     return parser.parse_args()
 
 
@@ -60,7 +65,7 @@ def main():
         "schedule": str(schedule),
         "north": float(args.north),
         "grid-filter": "*",
-        "radiance-parameters": "-ab 2 -ad 5000 -lw 2e-05 -dr 0",
+        "radiance-parameters": args.radiance_parameters,
         "thresholds": "-t 300 -lt 100 -ut 3000",
     }
     inputs_path = output / "inputs.json"

@@ -182,6 +182,17 @@ do". A direct-sun pass (sun-position coefficients, as in the 2-phase DDS or
 Honeybee's enhanced 2-phase) is the first feature after parity, not a blocker
 for it; the teaching use is mostly overcast-sky and relative comparisons.
 
+**Quantified 2 November 2026** in
+[`validation/results/2026-11-02-teaching-sun-vs-stock/`](../validation/results/2026-11-02-teaching-sun-vs-stock/README.md):
+two teaching rooms under Gothenburg, Phoenix and Seattle weather against the
+stock `annual-daylight` recipe (traced sun) at converged ambient settings.
+Foton reads 0.6–0.7 % high with 2.8–3.7 % hourly CV(RMSE) in every climate,
+DA mean error at or under 1.3 pp, UDI under 1 pp; Phoenix shows only in the
+worst single sensor (5.5 pp DA) and one sensor of sDA on the deep room. The
+patch sun is a 1 pp effect on these rooms. The recipe at its default
+`-ab 2 -ad 5000` is the large discrepancy: 15–17 % low in every climate,
+moving DA by 15–28 pp and sDA by 20–47 pp.
+
 ### 5. Teaching fixtures
 
 **Done 2 November 2026 (suite version 4).** The 90 earlier scenes test physical
@@ -193,9 +204,17 @@ obstruction 30/60°, and a classroom, an open-plan office and a living room.
 They run under the same gates with `--category teaching`. The window-shape
 matrix is kept for continuity with the 2026-11-02 campaign.
 
-Still to do: climates. The suite runs one EPW (Gothenburg). Add one sunny and
-one overcast EPW and run the teaching category under each; this is the only
-place the direct-sun decision (step 4) is quantified.
+**Climates done 2 November 2026.** `epw/phoenix.epw` (sunny) and
+`epw/seattle.epw` (overcast) join Gothenburg, with provenance in
+[`epw/README.md`](../epw/README.md), and `--weather` selects them. The
+teaching category passed 32 of 32 under each
+([Phoenix](../validation/results/2026-11-02-teaching-climate-phoenix/README.md),
+[Seattle](../validation/results/2026-11-02-teaching-climate-seattle/README.md)):
+energy bias within 0.7 %, hourly CV(RMSE) median 1.4–1.6 % and worst 3.1–4.0 %,
+metric mean error at most 0.9 pp (Phoenix) in every climate. Because the
+suite's reference smears the sun into patches as Foton does, these runs test
+parity under peaky and flat sky matrices; the direct-sun question itself is
+answered against a traced sun under step 4.
 
 ### 6. Vulkan and Linux
 
@@ -237,10 +256,13 @@ Not blocking; fix opportunistically.
   5.4–5.6% under the 12-bounce mean on the indirect stage (4.0% on the full
   coefficients; its annual illuminance passes at −2.8%), so the gap is
   mostly that 8 bounces is not converged at reflectance 0.8 over 12 m.
-- The stock Honeybee annual recipe at its default ambient settings reads about
-  16% below converged `rfluxmtx` (and Foton) on the acceptance offices. That
+- The stock Honeybee annual recipe at its default ambient settings
+  (`-ab 2 -ad 5000`) reads 15–17% below converged `rfluxmtx` (and Foton) on
+  the acceptance offices and on the teaching rooms in all three climates; the
+  same recipe at `-ab 6 -ad 25000` agrees with Foton within 1% (step 4). That
   comparison is informational; anyone validating Foton against a stock
-  Honeybee run should expect Foton to come out higher.
+  Honeybee run should expect Foton to come out about 15% higher unless they
+  raise the recipe's ambient parameters.
 - The resident-scene cache can store old geometry under a new revision if an
   update races an analysis, and entries are never evicted.
 - Transport logic is written three times (MSL, GLSL, Rust). Every fix above has

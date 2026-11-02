@@ -28,8 +28,12 @@ thing against `teaching_depth6` (0.5 reflectance, 3 × 1.5 m south window, sill
 0.8 m). Obstruction angles are measured from the window centre to the top of a
 facade 10 m away. Run only this category with
 `python scripts/validate_release_suite.py --category teaching ...`. Climate
-variation is a weather input, not a scene: the suite runs one EPW
-(`epw/gothenburg.epw`); sunny and overcast climates are still to be added.
+variation is a weather input, not a scene: the suite runs
+`epw/gothenburg.epw` (mixed, mostly overcast) by default, and
+`--weather epw/phoenix.epw` (sunny) or `--weather epw/seattle.epw` (overcast)
+select the other two climates described in [`epw/README.md`](../epw/README.md).
+The teaching category has been run under all three; see the campaign READMEs
+under `validation/results/2026-11-02-teaching-climate-*/`.
 
 The generated sample [catalogue](../test_models/architectural/README.md) lists the question for
 each individual model. `python -m validation.scenes --list` reads the source catalogue

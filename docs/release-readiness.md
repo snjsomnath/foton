@@ -49,7 +49,9 @@ Honeybee material.
 
 Each scene runs in both sky bases (180 required cases), under uniform, overcast,
 horizon-weighted and four cardinal-direction controlled skies, then Gothenburg
-annual weather. Four Radiance replicates are
+annual weather (`--weather epw/phoenix.epw` or `epw/seattle.epw` substitutes
+a sunny or an overcast climate; the teaching category has been run under
+both). Four Radiance replicates are
 evaluated at each of `(ad=20000,bounces=1)`, `(40000,8)`, `(40000,12)`, `(80000,12)`,
 with four more replicates added (up to twelve) while a level's replicate halves
 disagree; the 12-bounce mean is the reference. Direct integration doubles its

@@ -76,8 +76,12 @@ In particular, it should not yet be assumed equivalent to Radiance for:
 
 - a separate direct-sun pass: Foton is a two-phase method, so the sun is
   carried inside its sky patch (as `rfluxmtx` does), not traced as a disc.
-  DF and sky-coefficient parity are exact; DA, UDI and sDA in sunny climates
-  will differ from Honeybee's default recipe, which adds a sun pass
+  DF and sky-coefficient parity are exact. Against Honeybee's annual recipe
+  with its traced sun, run at converged ambient settings, this cost about
+  1 pp of DA and 1 % of energy on south-facing teaching rooms in Phoenix,
+  Seattle and Gothenburg ([measured](validation/results/2026-11-02-teaching-sun-vs-stock/README.md));
+  the recipe's default two-bounce ambient setting is a far larger difference,
+  reading about 15 % below both Foton and converged Radiance
 - complex BSDF materials
 - advanced daylight-redirecting systems
 - highly specular environments
@@ -88,21 +92,27 @@ Radiance remains the reference for those applications.
 
 ## How does it compare with Radiance?
 
-The repository contains automated comparisons against Radiance using
-Honeybee-generated test scenes.
+The repository contains automated comparisons against Radiance on 106
+Honeybee-generated scenes, each at two sky densities, with converged
+`rfluxmtx` references (up to twelve replicates at 80,000 ambient divisions and
+12 bounces). The archived campaign of 2 November 2026 on the shipped `final`
+preset gave, on the 204 of 212 cases inside the gates:
 
-In the current benchmark:
+- Full diffuse + thin-glass sky coefficients: energy bias within 5 %, RMS
+  error within 10 % of the coefficient scale, typically 1–3 %
+- Annual illuminance: bias within 5 % and hourly CV(RMSE) within 10 %,
+  typically 1–3 % on directly lit rooms
+- DA, cDA, UDI and sDA: mean absolute error within 2 percentage points on
+  every grid
+- Against Honeybee's own annual recipe with a traced sun, run at converged
+  ambient settings: about 1 pp of DA and 1 % of energy in Phoenix, Seattle and
+  Gothenburg
 
-- Direct visibility: 13 mismatches out of 31,536 sensor/sky-patch tests
-- Full diffuse + thin-glass transport: 5.3% NMBE
-- Annual illuminance: 5.2% NMBE
-- sDA difference: 0.0 percentage points (!but the geometry that this has been tested on is fairly simple)
-
-These results are from a specific test scene and configuration. They are not a
-claim that Foton will match Radiance to a fixed accuracy for arbitrary models.
-
-The benchmark results and methodology are included in the repository so that
-the comparison can be reproduced and improved over time.
+The eight cases outside the gates, the gate definitions and the open questions
+are in [purpose and plan](docs/purpose-and-plan.md) and the campaign READMEs
+under `validation/results/`. These results are for static diffuse materials
+and thin glass; they are not a claim that Foton matches Radiance to a fixed
+accuracy for arbitrary models.
 
 ## Performance
 
