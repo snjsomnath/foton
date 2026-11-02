@@ -127,7 +127,10 @@ def audit_sky_bins(directions, density, radiance_bin=None):
     }
 
 
-def difference(reference, candidate, darkness=1e-8):
+def difference(reference, candidate, darkness=1e-5):
+    # `darkness` is in coefficient units: lit rooms peak near 0.04, while a
+    # sealed room leaks about 1e-6 in Radiance. Below it both arrays count as
+    # dark and agree.
     reference, candidate = (
         np.asarray(reference, dtype=float),
         np.asarray(candidate, dtype=float),

@@ -53,7 +53,8 @@ annual weather. Four Radiance replicates are
 evaluated at each of `(ad=20000,bounces=1)`, `(40000,8)`, `(40000,12)`, `(80000,12)`;
 the 12-bounce mean is the reference. Depth stability compares 8 with 12 bounces
 and sampling stability 40,000 with 80,000 ambient divisions;
-each level also checks replicate-half stability. Direct integration uses independent
+each reference level also checks replicate-half stability (the one-bounce level
+is a diagnostic only). Direct integration uses independent
 stratified sky samples at 256 and 1,024 samples per patch, not the native sampler.
 Failure to establish stability is inconclusive, never evidence that Foton passed.
 Use `--category shading` or repeated `--scene` arguments to diagnose an interaction.
