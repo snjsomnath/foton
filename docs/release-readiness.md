@@ -91,8 +91,9 @@ The suite runs the `final` quality preset as users get it: 256 direct samples
 per patch, 65,536 indirect samples at MF:1 and 262,144 at MF:2 (the budget
 scales with the patch count so per-patch noise, and with it hourly
 illuminance error, is the same at both densities), eight bounces. The preset
-must pass these gates before it can be advertised as validated. The first
-archived campaign is summarised in [purpose and plan](purpose-and-plan.md).
+must pass these gates before it can be advertised as validated. The two
+archived Metal campaigns (176 and then 204 of 212 cases) are summarised in
+[purpose and plan](purpose-and-plan.md); the eight open cases are named there.
 
 ## Grasshopper artifact build
 

@@ -36,14 +36,16 @@ Speed is already sufficient. On an M4 Pro a 216-sensor room traces in about 6 ms
 at 4,096 samples and 2 bounces, against about 3.5 s for Radiance. Raising the
 bounce count to what accuracy needs stays well under 100 ms.
 
-Accuracy is established on the teaching scenes and on most of the corpus. The
-first archived campaign (2 November 2026, step 3) passed 176 of 212 cases,
-all 32 teaching cases among them, with DA, UDI and sDA within 1 percentage
-point of converged Radiance almost everywhere. The failures were diagnosed:
-most were Foton's own per-patch sample noise in hourly illuminance (the
-`final` budget has since been quadrupled), a few were suite gates firing on
-negligible or leaked light, and the rest are two real open items, rooms lit
-only through internal glazing and a bright 12 m room neither engine converges.
+Accuracy is established on the teaching scenes and on the corpus, with two
+named exceptions. Two archived campaigns on 2 November 2026 (step 3) took the
+suite from 176 to 204 of 212 cases: the first diagnosed its 36 failures, the
+second, on the quadrupled `final` budget and two corrected gates, passed every
+case but eight. All 32 teaching cases, all 94 room-form cases and every
+shading, context, opening and orientation case pass; DA, cDA, UDI and sDA
+agree with converged Radiance within the 2 pp gate on every grid. What
+remains outside the gates is rooms lit only through internal glazing (six
+cases, one of them a real +5 % excess) and a bright 12 m room where Radiance
+itself moves 3.6 % between 8 and 12 bounces.
 Until 2 November 2026 the default had been **one diffuse bounce** against an
 eight-bounce reference, which is why the September comparison read 17.6% low.
 
@@ -130,9 +132,19 @@ grid but three (2.0–2.5 pp). Of the 36 non-passing cases:
 
 The acceptance model also carries an informational comparison with the stock
 Honeybee recipe, which reads 16 % below both Foton and converged `rfluxmtx`;
-it is not gated. A second campaign with the new budget and gates is the next
-run; the expectation from the single-case reruns is that only the borrowed-light
-rooms and `deep_reflective` remain outside the gates.
+it is not gated.
+
+**Second campaign, same day**, commit `7920c96`, results in
+[`validation/results/2026-11-02-architectural-v4-metal-run2/`](../validation/results/2026-11-02-architectural-v4-metal-run2/README.md):
+6.2 h, **204 passed, 4 accuracy failures, 4 unstable references, no errors**.
+All 28 cases lost to the first three causes above now pass, nothing regressed,
+and every metric gate passes on every grid. The eight left are exactly the two
+open items: `interior_glazing`, `three_room_chain` and `glazed_corridor`
+(hourly CV(RMSE) 15–35 % in the rooms two panes from the sky, halved again by
+the larger budget; `three_room_chain`'s third room also carries a real +5 %
+energy excess) and `deep_reflective` (Radiance 8 vs 12 bounces differ 3.6 %,
+so its 3 % indirect gate is out of reach for any 8-bounce engine). The
+campaign README has the per-case numbers against the first run.
 
 Three partial runs before the campaign taught the suite what it was actually
 measuring:
@@ -201,13 +213,17 @@ Not blocking; fix opportunistically.
   no metric moves, but it is systematic and the glass–shade inter-reflection
   is the likely path.
 - Rooms lit only through internal glazing disagree with Radiance beyond the
-  gates: `interior_glazing` adjacent room −2.4/−3.3% energy (MF:1/MF:2),
-  `three_room_chain` third room +4 to +6% with 21–27% RMS, `glazed_corridor`
-  meeting room 21% RMS over a 1–2% bias. Directly lit rooms in the same
-  models agree within 0.5%. Signs differ between scenes, and the Radiance
-  reference itself fails its 8-versus-12-bounce stability check on two of
-  them, so this needs a dedicated two-pane study rather than a gate change.
-  Recorded as accuracy failures, not waived.
+  gates (six cases in the second campaign). Their hourly CV(RMSE) is 15–35%
+  and halved when Foton's budget was quadrupled, so much of it is per-patch
+  noise: a room behind one internal pane receives each sky patch through very
+  few paths. The energy bias on `interior_glazing` shrank from −2 to −0.8%
+  with the same change, but `three_room_chain`'s third room keeps a real
+  +5.0% (MF:1) / +3.6% (MF:2) excess on the full coefficients with both
+  engines' halves agreeing. Directly lit rooms in the same models agree within
+  0.5%. The Radiance reference itself fails 8-versus-12-bounce stability on
+  two of the six. Needs a dedicated two-pane study, and possibly a budget that
+  scales with the indirect fraction, rather than a gate change. Recorded as
+  accuracy failures, not waived.
 - `convergence` in result metadata is hard-coded to 1.0 and nothing measures it.
 - The README calls MF:2-to-Tregenza aggregation "exact"; about 32% of the solid
   angle lands outside the mapped parent. Only tests use the aggregation.
@@ -215,11 +231,12 @@ Not blocking; fix opportunistically.
 - Only 16 Sobol dimensions exist, so paths beyond bounce 7 reuse dimensions.
   With the default now at 8 bounces this is live; the sweep shows no visible
   bias from it at 8, but 12 bounces diverge from Radiance by +7% in the bright
-  deep room, and dimension reuse is the first suspect. In the campaign the
+  deep room, and dimension reuse is the first suspect. In both campaigns the
   same room (`deep_reflective`) is `unstable_reference` at both densities:
-  Radiance 8 and 12 bounces differ by 3.7%, and Foton at 8 bounces reads
-  5.7% under the 12-bounce mean, so part of the gap is simply that 8 bounces
-  is not converged at reflectance 0.8 over 12 m.
+  Radiance 8 and 12 bounces differ by 3.6%, and Foton at 8 bounces reads
+  5.4–5.6% under the 12-bounce mean on the indirect stage (4.0% on the full
+  coefficients; its annual illuminance passes at −2.8%), so the gap is
+  mostly that 8 bounces is not converged at reflectance 0.8 over 12 m.
 - The stock Honeybee annual recipe at its default ambient settings reads about
   16% below converged `rfluxmtx` (and Foton) on the acceptance offices. That
   comparison is informational; anyone validating Foton against a stock

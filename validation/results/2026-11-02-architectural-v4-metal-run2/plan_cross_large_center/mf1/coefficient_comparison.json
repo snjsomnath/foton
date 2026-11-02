@@ -1,0 +1,112 @@
+{
+  "gates": {
+    "direct": {
+      "absolute_nmbe_percent": 2.0,
+      "rms_normalized_rmse_percent": 5.0
+    },
+    "full": {
+      "absolute_nmbe_percent": 5.0,
+      "rms_normalized_rmse_percent": 10.0
+    },
+    "indirect": {
+      "absolute_nmbe_percent": 3.0,
+      "rms_normalized_rmse_percent": 10.0
+    }
+  },
+  "grids": [
+    {
+      "full_identifier": "plan_cross_large_center_grid",
+      "identifier": "plan_cross_large_center_grid",
+      "sensor_count": 44,
+      "stages": {
+        "direct": {
+          "absolute_error": {
+            "maximum": 0.00016866414807736874,
+            "p50": 0.0,
+            "p90": 0.0,
+            "p95": 0.0,
+            "p99": 2.606865018606186e-05
+          },
+          "candidate_energy": 5.207200185148395,
+          "cvrmse_percent": 2.649940122273391,
+          "nmbe_percent": 0.04353423738418539,
+          "passed": true,
+          "physically_near_zero": false,
+          "reference_energy": 5.204934256713386,
+          "relative_energy_error_percent": 0.04353423738418539,
+          "rms_normalized_rmse_percent": 0.42615771352436826,
+          "rms_normalized_to": "stage",
+          "worst": {
+            "candidate": 0.0039050369523465633,
+            "global_sensor_index": 32,
+            "local_sensor_index": 32,
+            "reference": 0.0037363728042691946,
+            "rgb_channel": 0,
+            "sky_patch_index": 100
+          }
+        },
+        "full": {
+          "absolute_error": {
+            "maximum": 0.0023802295327186584,
+            "p50": 1.542500527307311e-07,
+            "p90": 2.4446351744700223e-05,
+            "p95": 4.278157575754449e-05,
+            "p99": 0.00012012943625450134
+          },
+          "candidate_energy": 8.676411152960604,
+          "cvrmse_percent": 14.980637432310568,
+          "nmbe_percent": -0.7317918063296938,
+          "passed": true,
+          "physically_near_zero": false,
+          "reference_energy": 8.740372482631194,
+          "relative_energy_error_percent": 0.7317918063296938,
+          "rms_normalized_rmse_percent": 2.2836588124207093,
+          "rms_normalized_to": "stage",
+          "worst": {
+            "candidate": 0.07363233715295792,
+            "global_sensor_index": 20,
+            "local_sensor_index": 20,
+            "reference": 0.07601256668567657,
+            "rgb_channel": 0,
+            "sky_patch_index": 0
+          }
+        },
+        "indirect": {
+          "absolute_error": {
+            "maximum": 0.0023802295327186584,
+            "p50": 1.542500527307311e-07,
+            "p90": 2.4488705093972385e-05,
+            "p95": 4.289671778678894e-05,
+            "p99": 0.00012071221135556698
+          },
+          "candidate_energy": 3.4692109678122094,
+          "cvrmse_percent": 37.09381139508375,
+          "negligible_relative_to_direct": false,
+          "nmbe_percent": -1.8732404266066889,
+          "passed": true,
+          "physically_near_zero": false,
+          "reference_energy": 3.535438225917808,
+          "relative_energy_error_percent": 1.873240426606689,
+          "rms_normalized_rmse_percent": 2.2872608563966,
+          "rms_normalized_to": "full",
+          "worst": {
+            "candidate": 0.07363233715295792,
+            "global_sensor_index": 20,
+            "local_sensor_index": 20,
+            "reference": 0.07601256668567657,
+            "rgb_channel": 0,
+            "sky_patch_index": 0
+          }
+        }
+      },
+      "start_sensor_index": 0
+    }
+  ],
+  "matrix_shape": [
+    44,
+    146,
+    3
+  ],
+  "passed": true,
+  "schema_version": 1
+}

@@ -133,15 +133,17 @@ The goal is not to replace Radiance. The goal is to make a focused part of
 Radiance-style daylight transport fast enough to use interactively in
 architectural design and research.
 
-**Accuracy against Radiance is established on the teaching scenes and most of
-the corpus, not yet on all of it.** The first archived campaign (2 November
-2026, 106 scenes at two sky densities against converged Radiance 5.4a
-references) passed 176 of 212 cases, including all 32 teaching cases; DA, UDI
-and sDA agreed within 1 percentage point almost everywhere. The remaining
-failures were hourly-illuminance scatter from Foton's own sample budget (since
-quadrupled), rooms lit only through internal glazing, and one bright 12 m room
-that neither engine converges. Details, the diagnosis and what is still open are
-in [purpose and plan](docs/purpose-and-plan.md). Static diffuse materials and
+**Accuracy against Radiance is established on the teaching scenes and on the
+corpus, with two named exceptions.** The archived campaign of 2 November 2026
+(106 scenes at two sky densities against converged Radiance 5.4a references,
+on the `final` preset as shipped) passed 204 of 212 cases, including all 32
+teaching cases and every room-form, shading, context and opening case; DA,
+cDA, UDI and sDA agreed within 2 percentage points on every grid. The eight
+cases outside the gates are rooms lit only through internal glazing, where
+hourly illuminance scatters 15 to 35 percent and one room reads 5 percent
+high, and one bright 12 m room where Radiance itself moves 3.6 percent between
+8 and 12 bounces. Details, the diagnosis and what is still open are in
+[purpose and plan](docs/purpose-and-plan.md). Static diffuse materials and
 thin glass are supported; nothing here claims compliance, ASE, glare, dynamic
 shading or BSDF support.
 
