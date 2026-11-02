@@ -177,7 +177,8 @@ void main() {
     uint maximum=uniforms.maximum_bounces+uniforms.max_transparent+1;
     for (uint path=0; path<maximum; ++path) {
         rayQueryEXT query;
-        rayQueryInitializeEXT(query,scene_as,gl_RayFlagsOpaqueEXT,uniforms.active_mask,origin,1e-6,direction,1e30);
+        // Origins are offset 1e-4 along the normal; tMin 0 keeps corner hits (see Metal shader).
+        rayQueryInitializeEXT(query,scene_as,gl_RayFlagsOpaqueEXT,uniforms.active_mask,origin,0.0,direction,1e30);
         while(rayQueryProceedEXT(query)) {}
         if(rayQueryGetIntersectionTypeEXT(query,true)==gl_RayQueryCommittedIntersectionNoneEXT) {
             if(diffuse_bounces>0) {
@@ -207,7 +208,7 @@ void main() {
                 sensor.sensor_id,sample_index,diffuse_bounces,12u+transparent);
             if(branch_sample<reflection_probability) {
                 throughput*=reflection/reflection_probability;
-                origin+=direction*distance+normal*1e-4;
+                origin+=direction*(distance-1e-4)+normal*1e-4; // step back off concave corners too
                 direction=reflect(direction,normal);
             } else {
                 float transmission_probability=1.0-reflection_probability;
@@ -221,7 +222,7 @@ void main() {
         if(diffuse_bounces>=uniforms.maximum_bounces) break;
         throughput*=material.diffuse_rgb;
         if(all(lessThanEqual(throughput,vec3(1e-6)))) break;
-        origin+=direction*distance+normal*1e-4;
+        origin+=direction*(distance-1e-4)+normal*1e-4;
         ++diffuse_bounces;
         direction=cosine_direction(normal,sensor.sensor_id,sample_index,diffuse_bounces);
     }

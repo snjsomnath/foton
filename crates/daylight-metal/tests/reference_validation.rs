@@ -463,3 +463,34 @@ fn metal_sample_tiling_is_exact_when_available() {
         }
     }
 }
+
+#[test]
+fn sealed_room_stays_dark_under_deep_diffuse_sampling() {
+    // One escaping path in ~5 million is enough to fail the sealed-room gate.
+    // Before bounce origins stepped back along the incoming ray, hits within
+    // float error of a concave corner landed outside the adjacent wall.
+    let sealed = shoebox_scene(ShoeboxOptions {
+        room_count: 1,
+        sensors_per_room: 36,
+        glazing_transmittance: Some([0.0; 3]),
+    })
+    .unwrap();
+    let mut request = request();
+    request.direct_samples = 256;
+    request.maximum_samples = 16384;
+    request.maximum_bounces = 8;
+    for seed in 0..4u64 {
+        request.scene_seed = seed;
+        let cpu = ReferenceBackend
+            .analyze(&sealed, &request, 1, &AtomicBool::new(false), &|_| {})
+            .unwrap();
+        assert_eq!(coefficient_energy(&cpu), 0.0, "reference leaked at seed {seed}");
+        #[cfg(target_os = "macos")]
+        if let Some(metal) = enabled_metal() {
+            let gpu = metal
+                .analyze(&sealed, &request, 1, &AtomicBool::new(false), &|_| {})
+                .unwrap();
+            assert_eq!(coefficient_energy(&gpu), 0.0, "metal leaked at seed {seed}");
+        }
+    }
+}

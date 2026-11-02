@@ -302,7 +302,10 @@ kernel void diffuse_transport(
         ray path_ray;
         path_ray.origin = origin;
         path_ray.direction = direction;
-        path_ray.min_distance = 1.0e-6f;
+        // Origins are already offset 1e-4 along the surface normal, so no
+        // minimum distance is needed; a positive one culls the next wall when a
+        // bounce lands within it of a concave corner and the path leaks out.
+        path_ray.min_distance = 0.0f;
         path_ray.max_distance = INFINITY;
         const auto intersection = path_intersector.intersect(
             path_ray,
@@ -362,7 +365,10 @@ kernel void diffuse_transport(
                 uniforms.scene_seed_high);
             if (branch_sample < reflection_probability) {
                 throughput *= reflection / reflection_probability;
-                origin += direction * intersection.distance + normal * 1.0e-4f;
+                // Step back along the incoming ray as well as off the surface: a
+                // hit within float error of a concave corner can land outside the
+                // adjacent wall, and the next ray would leave the room.
+                origin += direction * (intersection.distance - 1.0e-4f) + normal * 1.0e-4f;
                 direction = reflect(direction, normal);
             } else {
                 const float transmission_probability =
@@ -387,7 +393,7 @@ kernel void diffuse_transport(
         if (all(throughput <= 1.0e-6f)) {
             break;
         }
-        origin += direction * intersection.distance + normal * 1.0e-4f;
+        origin += direction * (intersection.distance - 1.0e-4f) + normal * 1.0e-4f;
         ++diffuse_bounces;
         direction = cosine_direction(
             normal,

@@ -13,7 +13,9 @@ use daylight_core::{
 };
 
 const RAY_EPSILON: f32 = 1.0e-4;
-const RAY_MIN_DISTANCE: f32 = 1.0e-6;
+// Origins are offset RAY_EPSILON along the normal, so hits at any positive
+// distance are real; a positive minimum culled the adjacent wall at corners.
+const RAY_MIN_DISTANCE: f32 = 0.0;
 
 #[derive(Clone, Debug, Default)]
 pub struct ReferenceBackend;
@@ -291,8 +293,10 @@ fn accumulate_indirect(
                     for component in 0..3 {
                         throughput[component] *= reflection[component] / reflection_probability;
                     }
+                    // Step back along the ray too, so a hit within float error
+                    // of a concave corner stays inside the adjacent wall.
                     origin = origin
-                        .add(direction.scale(hit.distance))
+                        .add(direction.scale(hit.distance - RAY_EPSILON))
                         .add(hit.normal.scale(RAY_EPSILON));
                     direction =
                         direction.subtract(hit.normal.scale(2.0 * direction.dot(hit.normal)));
@@ -319,7 +323,7 @@ fn accumulate_indirect(
                 break;
             }
             origin = origin
-                .add(direction.scale(hit.distance))
+                .add(direction.scale(hit.distance - RAY_EPSILON))
                 .add(hit.normal.scale(RAY_EPSILON));
             diffuse_bounces += 1;
             direction = sample_direction(
