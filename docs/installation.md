@@ -37,7 +37,10 @@ is available, `Engine()` chooses the deterministic reference backend.
 
 ## Radiance
 
-Radiance is not bundled in the wheel. Honeybee comparisons and benchmark references
+Radiance is not bundled in the wheel. Use Radiance 6 for annual daylight; older
+OpenStudio copies may not support the required sun-path export. Run
+`foton-honeybee capabilities` to inspect functional prerequisites.
+Honeybee comparisons and benchmark references
 require `oconv`, `rcontrib`, and the Radiance function library:
 
 ```bash
@@ -53,7 +56,7 @@ Source builds require Python 3.10 or newer, Rust 1.85 or newer, and a C/C++ buil
 toolchain usable by `shaderc`.
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/snjsomnath/foton.git
 cd foton
 python -m venv .venv
 source .venv/bin/activate

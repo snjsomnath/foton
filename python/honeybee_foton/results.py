@@ -10,6 +10,7 @@ from typing import Any
 import numpy as np
 
 from foton.honeybee.protocol import PROTOCOL_NAME, PROTOCOL_VERSION
+from foton_bridge import resolve_manifest
 
 
 @dataclass(frozen=True)
@@ -26,6 +27,8 @@ class GridResultBranches:
 
 def load_manifest(path) -> dict[str, Any]:
     manifest_path = Path(path).expanduser().resolve()
+    if manifest_path.is_dir():
+        manifest_path = manifest_path / "run_manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if manifest.get("protocol") != PROTOCOL_NAME:
         raise ValueError("result manifest is not a Foton Honeybee manifest")
@@ -37,7 +40,7 @@ def load_manifest(path) -> dict[str, Any]:
         raise ValueError("Foton result manifest is not complete")
     if not isinstance(manifest.get("grids"), list):
         raise ValueError("Foton result manifest has no grid list")
-    return manifest
+    return resolve_manifest(manifest, str(manifest_path))
 
 
 def _metric(grid, name):

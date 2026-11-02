@@ -1,5 +1,9 @@
 # Benchmarking and Validation
 
+The public-beta release gate is the [90-scene architectural validation suite](release-readiness.md).
+Historical README results are 0.1.0 measurements and exceed the annual accuracy
+thresholds. Re-run current code before making accuracy or performance claims.
+
 The benchmark suite keeps unlike transport stages separate. Direct visibility is
 binary; diffuse coefficients and annual illuminance use NMBE and CV(RMSE).
 
@@ -70,8 +74,9 @@ report = compare_annual_daylight(
 assert report["passed"], report
 ```
 
-The stock-oracle report gates grid IDs, counts, sun-up-hour ordering, per-grid
-absolute NMBE below 5%, and the 10× end-to-end speed target. Sensor CV(RMSE),
+The stock-oracle report gates grid IDs, counts, sun-up-hour ordering, and per-grid
+absolute NMBE below 5%. The 10× end-to-end speed target is reported separately
+and does not affect numerical correctness. Sensor CV(RMSE),
 all five annual metric errors, and area-weighted sDA remain published
 diagnostics because a single stock Radiance run is stochastic. Pass
 `oracle="converged"` for the strict CV(RMSE), metric, and sDA gates after the

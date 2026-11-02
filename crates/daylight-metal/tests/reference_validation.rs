@@ -10,6 +10,20 @@ use daylight_core::{
 use daylight_metal::MetalBackend;
 use daylight_metal::ReferenceBackend;
 
+#[cfg(target_os = "macos")]
+fn enabled_metal() -> Option<MetalBackend> {
+    match MetalBackend::new() {
+        Ok(backend) => Some(backend),
+        Err(error) => {
+            assert!(
+                std::env::var_os("DAYLIGHT_ENGINE_METAL_TEST").is_none(),
+                "Metal validation was requested but the GPU is unavailable: {error}"
+            );
+            None
+        }
+    }
+}
+
 fn request() -> AnalysisRequest {
     let timestep_count = 4;
     let mut values = vec![[0.0; 3]; SkyBasis::Tregenza.row_count() * timestep_count];
@@ -178,7 +192,7 @@ fn repeated_runs_preserve_deterministic_coefficients() {
 #[cfg(target_os = "macos")]
 #[test]
 fn metal_diffuse_glass_transport_matches_cpu_reference_when_available() {
-    let Ok(metal) = MetalBackend::new() else {
+    let Some(metal) = enabled_metal() else {
         return;
     };
     let scene = shoebox_scene(ShoeboxOptions {
@@ -240,7 +254,7 @@ fn metal_diffuse_glass_transport_matches_cpu_reference_when_available() {
 #[cfg(target_os = "macos")]
 #[test]
 fn metal_direct_visibility_matches_cpu_reference_when_available() {
-    let Ok(metal) = MetalBackend::new() else {
+    let Some(metal) = enabled_metal() else {
         return;
     };
     let scene = shoebox_scene(ShoeboxOptions {
@@ -295,7 +309,7 @@ fn metal_direct_visibility_matches_cpu_reference_when_available() {
 #[cfg(target_os = "macos")]
 #[test]
 fn metal_integrated_direct_coefficients_match_cpu_reference_when_available() {
-    let Ok(metal) = MetalBackend::new() else {
+    let Some(metal) = enabled_metal() else {
         return;
     };
     let scene = shoebox_scene(ShoeboxOptions {
@@ -335,7 +349,7 @@ fn metal_integrated_direct_coefficients_match_cpu_reference_when_available() {
 #[cfg(target_os = "macos")]
 #[test]
 fn committed_metal_scene_reuses_resident_acceleration_structures() {
-    let Ok(metal) = MetalBackend::new() else {
+    let Some(metal) = enabled_metal() else {
         return;
     };
     let scene = shoebox_scene(ShoeboxOptions {
@@ -382,7 +396,7 @@ fn committed_metal_scene_reuses_resident_acceleration_structures() {
 #[cfg(target_os = "macos")]
 #[test]
 fn committed_metal_scene_reduces_cached_coefficients_without_retracing() {
-    let Ok(metal) = MetalBackend::new() else {
+    let Some(metal) = enabled_metal() else {
         return;
     };
     let scene = shoebox_scene(ShoeboxOptions {

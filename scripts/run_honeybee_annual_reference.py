@@ -34,7 +34,10 @@ def main():
     args = parse_args()
     if args.workers <= 0:
         raise ValueError("--workers must be positive")
-    sibling_executable = Path(sys.prefix) / "bin" / "lbt-recipes"
+    scripts_dir = Path(sys.prefix) / ("Scripts" if os.name == "nt" else "bin")
+    sibling_executable = scripts_dir / (
+        "lbt-recipes.exe" if os.name == "nt" else "lbt-recipes"
+    )
     executable = (
         str(sibling_executable)
         if sibling_executable.is_file()
@@ -48,10 +51,7 @@ def main():
     output.mkdir(parents=True, exist_ok=True)
     schedule = output / "schedule.csv"
     schedule.write_text(
-        "\n".join(
-            "1" if 8 <= hour % 24 < 18 else "0" for hour in range(8760)
-        )
-        + "\n",
+        "\n".join("1" if 8 <= hour % 24 < 18 else "0" for hour in range(8760)) + "\n",
         encoding="ascii",
     )
     inputs = {
@@ -79,7 +79,7 @@ def main():
     ]
     environment = os.environ.copy()
     environment["PATH"] = os.pathsep.join(
-        [str(Path(sys.prefix) / "bin"), environment.get("PATH", "")]
+        [str(scripts_dir), environment.get("PATH", "")]
     )
     if args.radiance_bin:
         environment["RADIANCE_BIN"] = str(
@@ -108,8 +108,7 @@ def main():
     projects = [
         path
         for path in output.iterdir()
-        if path.is_dir()
-        and (path / "results" / "grids_info.json").is_file()
+        if path.is_dir() and (path / "results" / "grids_info.json").is_file()
     ]
     if len(projects) != 1:
         raise RuntimeError(

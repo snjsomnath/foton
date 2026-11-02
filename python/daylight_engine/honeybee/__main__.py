@@ -16,6 +16,8 @@ from .protocol import (
     annual_request,
 )
 from .weather import _default_cache_directory
+from .preflight import inspect_installation
+from foton_bridge import portable_manifest, reuse_identity, backend_identifier
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -30,6 +32,8 @@ def _parser() -> argparse.ArgumentParser:
         default="auto",
     )
     capabilities.add_argument("--jsonl", action="store_true")
+    capabilities.add_argument("--output")
+    capabilities.add_argument("--radiance-bin")
     annual = commands.add_parser(
         "annual-daylight", help="run annual daylight from HBJSON and EPW/WEA"
     )
@@ -64,15 +68,12 @@ def _parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _capabilities(backend):
-    from foton import Engine, __version__
-
-    engine = Engine({"backend": backend})
+def _capabilities(backend, output=None, radiance_bin=None):
+    inspected = inspect_installation(backend, output, radiance_bin)
     return {
+        **inspected,
         "protocol": PROTOCOL_NAME,
         "protocol_version": PROTOCOL_VERSION,
-        "engine_version": __version__,
-        "engine": dict(engine.capabilities()),
         "recipes": ["annual_daylight", "direct_visibility"],
         "sky_densities": [1, 2],
         "quality_presets": ["preview", "final"],
@@ -90,7 +91,7 @@ def main(argv=None) -> int:
     writer = ProtocolWriter(sys.stdout)
     try:
         if args.command == "capabilities":
-            payload = _capabilities(args.backend)
+            payload = _capabilities(args.backend, args.output, args.radiance_bin)
             if args.jsonl:
                 writer.emit("capabilities", capabilities=payload)
             else:
@@ -159,12 +160,30 @@ def main(argv=None) -> int:
         )
         manifest = annual_manifest(run, args.output)
         manifest["request"] = request
+        from .annual import QUALITY_PRESETS
+        from foton import __version__
+        solver = run.metadata.get("solver", {})
+        manifest["reuse_identity"] = reuse_identity(request, {
+            "quality_settings": QUALITY_PRESETS,
+            "provenance": {
+                "engine_version": __version__,
+                "solver_revision": solver.get("solver_revision"),
+                "selected_backend": backend_identifier(solver.get("backend")),
+                "weather_version": run.metadata.get("weather", {}).get("gendaymtx_version"),
+            },
+        })
+        if args.quality == "preview":
+            manifest["warnings"].append("Preview quality: use final quality for reported results.")
+        if backend_identifier(solver.get("backend")) == "reference":
+            manifest["warnings"].append("CPU reference fallback selected; GPU performance is unavailable.")
         manifest_path = Path(args.output).expanduser().resolve() / "run_manifest.json"
         manifest["manifest"] = str(manifest_path)
-        manifest_path.write_text(
-            json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+        temporary_manifest = manifest_path.with_suffix(".tmp")
+        temporary_manifest.write_text(
+            json.dumps(portable_manifest(manifest, str(manifest_path.parent)), indent=2, sort_keys=True) + "\n",
             encoding="utf-8",
         )
+        temporary_manifest.replace(manifest_path)
         if args.jsonl:
             writer.emit(
                 "complete",

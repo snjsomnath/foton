@@ -8,6 +8,7 @@ version = "0.2.0"
 description = "Hardware-accelerated daylight coefficients and annual metrics with Metal, Vulkan, and deterministic CPU backends"
 readme = "README.md"
 requires-python = ">=3.10"
+license = { file = "LICENSE" }
 dependencies = ["numpy>=1.23"]
 keywords = [
     "daylight",
@@ -65,10 +66,18 @@ foton-honeybee = "foton.honeybee.__main__:main"
 [tool.maturin]
 manifest-path = "crates/daylight-python/Cargo.toml"
 python-source = "python"
-python-packages = ["foton", "daylight_engine", "honeybee_foton"]
+python-packages = ["foton", "daylight_engine", "honeybee_foton", "foton_bridge"]
 module-name = "daylight_engine._native"
+exclude = ["**/__pycache__/**", "**/*.pyc", "**/build_error.log"]
 features = ["extension-module"]
 include = [
+    { path = "LICENSE", format = "sdist" },
+    { path = "grasshopper_foton/**/*", format = "sdist" },
+    { path = "validation/**/*", format = "sdist" },
+    { path = "scripts/**/*", format = "sdist" },
+    { path = "test_models/*.hbjson", format = "sdist" },
+    { path = "test_models/architectural/**/*", format = "sdist" },
+    { path = "epw/*.epw", format = "sdist" },
     { path = "CHANGELOG.md", format = "sdist" },
     { path = "CONTRIBUTING.md", format = "sdist" },
     { path = "docs/**/*", format = "sdist" },

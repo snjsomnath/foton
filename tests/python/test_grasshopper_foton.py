@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 from foton.honeybee.protocol import annual_request
 from grasshopper_foton import foton_gh
+from foton_bridge import reuse_identity
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -105,8 +106,20 @@ class GrasshopperFotonTests(unittest.TestCase):
             executable.write_text("executable", encoding="utf-8")
             request = foton_gh.request_data(str(model), str(weather))
             output = root / "output"
-            write_metric_manifest(output, request=request)
-            with patch("grasshopper_foton.foton_gh._run_process") as process:
+            manifest = write_metric_manifest(output, request=request)
+            current = {"quality_settings": {"final": {"direct_samples": 64, "maximum_samples": 4096}},
+                       "provenance": {"engine_version": "test", "solver_revision": "test", "selected_backend": "reference", "weather_version": "test"}}
+            manifest["reuse_identity"] = reuse_identity(request, current)
+            for key in ("metadata", "grid_summary"):
+                path = output / key
+                path.write_text("test")
+                manifest[key] = str(path)
+            for grid in manifest["grids"]:
+                raw = output / (grid["identifier"] + ".npy")
+                raw.write_bytes(b"test")
+                grid["raw_illuminance"] = str(raw)
+            (output / "run_manifest.json").write_text(json.dumps(manifest))
+            with patch("grasshopper_foton.foton_gh._run_process") as process, patch("grasshopper_foton.foton_gh.capabilities", return_value=current):
                 bundle = foton_gh.run_annual_daylight(
                     str(model),
                     str(weather),

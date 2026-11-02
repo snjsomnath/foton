@@ -314,19 +314,35 @@ def resolve_gendaymtx(configured: str | None = None) -> Path:
 
 def executable_version(executable: Path) -> str:
     """Return a stable Radiance version string for cache invalidation."""
-    rtrace = executable.parent / "rtrace"
-    version_executable = rtrace if rtrace.is_file() else executable
+    rtrace = shutil.which(str(executable.parent / "rtrace"))
+    version_executable = rtrace or executable
     completed = subprocess.run(
         [str(version_executable), "-version"],
         text=True,
         capture_output=True,
         check=False,
+        env=_radiance_environment(executable),
+        timeout=10,
     )
     output = completed.stdout.strip() or completed.stderr.strip()
     if output:
         return output.splitlines()[0]
     stat = executable.stat()
     return f"gendaymtx-{stat.st_size}-{stat.st_mtime_ns}"
+
+
+def probe_gendaymtx(executable: Path):
+    """Reject older Radiance builds without the annual sun-path export flags."""
+    with tempfile.TemporaryDirectory(prefix="foton-preflight-") as folder:
+        root = Path(folder)
+        wea = root / "probe.wea"
+        wea.write_text("place probe\nlatitude 0\nlongitude 0\ntime_zone 0\nsite_elevation 0\nweather_data_file_units 1\n3 21 12.5 500 100\n", encoding="ascii")
+        completed = subprocess.run(
+            [str(executable), "-n", "-D", str(root / "sun.mtx"), "-M", str(root / "suns.mod"), str(wea)],
+            capture_output=True, text=True, timeout=10, env=_radiance_environment(executable),
+        )
+        if completed.returncode or not (root / "suns.mod").is_file():
+            raise RuntimeError("This gendaymtx cannot export annual sun paths (-n/-D/-M). Install Radiance 6 and set RADIANCE_BIN. " + completed.stderr.strip())
 
 
 def _coerce_wea(value, epw_type, wea_type):

@@ -311,6 +311,7 @@ def compare_coefficient_stages(
     passed = all(
         grid["stages"]["direct"]["passed"]
         and grid["stages"]["indirect"]["passed"]
+        and grid["stages"]["full"]["passed"]
         for grid in grids
     )
     report = {
@@ -324,6 +325,10 @@ def compare_coefficient_stages(
             },
             "indirect": {
                 "absolute_nmbe_percent": 3.0,
+                "rms_normalized_rmse_percent": 10.0,
+            },
+            "full": {
+                "absolute_nmbe_percent": 5.0,
                 "rms_normalized_rmse_percent": 10.0,
             },
         },
@@ -416,6 +421,10 @@ def compare_converged_annual(
                 f"{candidate.shape}, {reference.shape}"
             )
         difference = candidate - reference
+        absolute_error = np.abs(difference)
+        worst_sensor, worst_hour = np.unravel_index(
+            int(np.argmax(absolute_error)), absolute_error.shape
+        )
         reference_mean = float(np.mean(reference))
         if abs(reference_mean) <= 1.0e-20:
             maximum = float(np.max(np.abs(difference), initial=0))
@@ -453,6 +462,18 @@ def compare_converged_annual(
                 "illuminance": {
                     "nmbe_percent": nmbe,
                     "cvrmse_percent": cvrmse,
+                    "absolute_error_percentiles_lux": {
+                        "p%d" % percentile: float(np.percentile(absolute_error, percentile))
+                        for percentile in (50, 90, 95, 99)
+                    },
+                    "maximum_absolute_error_lux": float(np.max(absolute_error)),
+                    "worst": {
+                        "sensor_index": int(worst_sensor),
+                        "position": prepared.arrays["sensor_positions"][start + worst_sensor].tolist(),
+                        "hour_of_year": float(hours[worst_hour]),
+                        "foton_lux": float(candidate[worst_sensor, worst_hour]),
+                        "radiance_lux": float(reference[worst_sensor, worst_hour]),
+                    },
                     "passed": bool(abs(nmbe) < 5.0 and cvrmse < 10.0),
                 },
                 "metrics": metric_results,
@@ -523,7 +544,9 @@ def _coefficient_statistics(
     reference_mean = float(np.mean(reference))
     reference_maximum = float(np.max(np.abs(reference), initial=0))
     candidate_maximum = float(np.max(np.abs(candidate), initial=0))
-    physically_near_zero = max(reference_maximum, candidate_maximum) <= 1.0e-3
+    # A coefficient of 1e-3 can become appreciable lux under a bright sky.
+    # Do not erase leaks or low-light errors with a relative-metric shortcut.
+    physically_near_zero = max(reference_maximum, candidate_maximum) <= 1.0e-8
     if physically_near_zero:
         nmbe = cvrmse = rms_normalized_rmse = 0.0
     elif abs(reference_mean) <= 1.0e-20:
@@ -855,7 +878,6 @@ def compare_annual_daylight(
                 for grid in grids
             )
         )
-        and performance["passed"] is not False
     )
     report = {
         "schema_version": 1,

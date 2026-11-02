@@ -15,6 +15,7 @@ from typing import Callable
 from foton.honeybee.protocol import annual_request, parse_message
 
 from .results import load_manifest
+from foton_bridge import reusable, reuse_identity
 
 
 class FotonProcessError(RuntimeError):
@@ -158,10 +159,15 @@ class FotonClient:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             check=False,
+            timeout=30,
         )
         if completed.returncode:
             raise FotonProcessError(completed.stderr.strip())
-        return json.loads(completed.stdout)
+        result = json.loads(completed.stdout)
+        from foton.honeybee.protocol import PROTOCOL_NAME, PROTOCOL_VERSION
+        if result.get("protocol") != PROTOCOL_NAME or result.get("protocol_version") != PROTOCOL_VERSION:
+            raise FotonProcessError("Unsupported Foton capability protocol")
+        return result
 
     def run_annual_daylight(
         self,
@@ -173,16 +179,16 @@ class FotonClient:
     ):
         requested_output = Path(request.output_folder).expanduser().resolve()
         if output_policy == "reuse" and requested_output.exists():
-            manifest = load_manifest(requested_output / "run_manifest.json")
-            fingerprint = request.protocol_request()["fingerprint"]
-            if manifest.get("request", {}).get("fingerprint") != fingerprint:
-                raise FotonProcessError(
-                    "existing output is incompatible with this request"
-                )
-            if progress:
-                progress({"event": "reused", "manifest": manifest})
-            return manifest
-        allocation_policy = "error" if output_policy == "reuse" else output_policy
+            identity = reuse_identity(request.protocol_request(), self.capabilities(request.backend))
+            try:
+                manifest = load_manifest(requested_output / "run_manifest.json")
+            except (OSError, ValueError, TypeError):
+                manifest = {}
+            if reusable(manifest, identity):
+                if progress:
+                    progress({"event": "reused", "manifest": manifest})
+                return manifest
+        allocation_policy = "unique" if output_policy == "reuse" else output_policy
         output = _resolve_output(request, allocation_policy, reserve=True)
         command = request.command(self.executable, output)
         process = subprocess.Popen(
@@ -212,28 +218,35 @@ class FotonClient:
         stderr_thread.start()
         manifest = None
         stdout_done = False
-        while process.poll() is None or not stdout_done:
-            if cancel_event is not None and cancel_event.is_set():
+        try:
+            while process.poll() is None or not stdout_done:
+                if cancel_event is not None and cancel_event.is_set():
+                    raise FotonProcessCancelled(
+                        "Foton annual daylight run was cancelled"
+                    )
+                try:
+                    kind, value = messages.get(timeout=0.1)
+                except queue.Empty:
+                    continue
+                if kind == "stdout_done":
+                    stdout_done = True
+                    continue
+                message = parse_message(value)
+                if progress:
+                    progress(message)
+                if message["event"] == "complete":
+                    manifest = message["manifest"]
+        except BaseException:
+            if process.poll() is None:
                 process.terminate()
                 try:
                     process.wait(timeout=2)
                 except subprocess.TimeoutExpired:
                     process.kill()
-                raise FotonProcessCancelled(
-                    "Foton annual daylight run was cancelled"
-                )
-            try:
-                kind, value = messages.get(timeout=0.1)
-            except queue.Empty:
-                continue
-            if kind == "stdout_done":
-                stdout_done = True
-                continue
-            message = parse_message(value)
-            if progress:
-                progress(message)
-            if message["event"] == "complete":
-                manifest = message["manifest"]
+                    process.wait()
+            stdout_thread.join(timeout=1)
+            stderr_thread.join(timeout=1)
+            raise
         return_code = process.wait()
         stdout_thread.join(timeout=1)
         stderr_thread.join(timeout=1)

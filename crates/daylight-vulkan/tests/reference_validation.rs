@@ -32,7 +32,10 @@ fn request(samples: u32, bounces: u32) -> AnalysisRequest {
 
 fn enabled_backend() -> Option<VulkanBackend> {
     std::env::var_os("DAYLIGHT_ENGINE_VULKAN_TEST")?;
-    VulkanBackend::new().ok()
+    Some(
+        VulkanBackend::new()
+            .expect("Vulkan validation was requested but no compatible GPU is available"),
+    )
 }
 
 #[test]

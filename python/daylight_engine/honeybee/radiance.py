@@ -43,9 +43,7 @@ class RadianceIntegratedDirect:
     invocation_count: int
 
 
-def resolve_radiance_executables(
-    radiance_bin=None, *, required=("oconv", "rcontrib")
-):
+def resolve_radiance_executables(radiance_bin=None, *, required=("oconv", "rcontrib")):
     searched: list[str] = []
     candidate_directories: list[Path] = []
     if radiance_bin:
@@ -67,9 +65,9 @@ def resolve_radiance_executables(
         searched.append(str(directory))
         if not directory.is_dir():
             continue
-        found = {name: directory / name for name in required}
-        if all(path.is_file() and os.access(path, os.X_OK) for path in found.values()):
-            return {name: str(path.resolve()) for name, path in found.items()}
+        found = {name: shutil.which(str(directory / name)) for name in required}
+        if all(found.values()):
+            return {name: str(Path(path).resolve()) for name, path in found.items()}
 
     found = {name: shutil.which(name) for name in required}
     if all(found.values()):
@@ -197,8 +195,11 @@ def run_radiance_coefficient_stages(
     workers=None,
     radiance_bin=None,
     radiance_parameters=("-ad", "5000", "-lw", "2e-05", "-dr", "0"),
+    material_bounces=1,
 ) -> RadianceCoefficientStages:
-    """Run matching Radiance direct and one-material-bounce coefficients."""
+    """Run direct and full coefficients with explicit material bounce depth."""
+    if isinstance(material_bounces, bool) or int(material_bounces) < 1:
+        raise ValueError("material_bounces must be a positive integer")
     if sky_density not in {1, 2}:
         raise ValueError("sky_density must be 1 or 2")
     rows = 146 if sky_density == 1 else 578
@@ -221,9 +222,10 @@ def run_radiance_coefficient_stages(
     if normals.shape != positions.shape:
         raise ValueError("sensor_normals must match sensor_positions")
     sensor_rows = np.concatenate((positions, normals), axis=1)
-    sensor_text = "\n".join(
-        " ".join(f"{value:.12g}" for value in row) for row in sensor_rows
-    ) + "\n"
+    sensor_text = (
+        "\n".join(" ".join(f"{value:.12g}" for value in row) for row in sensor_rows)
+        + "\n"
+    )
     sensors_path = work_directory / "sensors.pts"
     sensors_path.write_text(sensor_text, encoding="ascii")
 
@@ -231,7 +233,7 @@ def run_radiance_coefficient_stages(
     timings = {}
     matrices = {}
     parameters = [str(value) for value in radiance_parameters]
-    for name, ambient_bounces in (("direct", 1), ("full", 2)):
+    for name, ambient_bounces in (("direct", 1), ("full", int(material_bounces) + 1)):
         command = [
             executables["rfluxmtx"],
             "-I+",
@@ -278,8 +280,7 @@ def run_radiance_coefficient_stages(
         np.save(work_directory / f"radiance_{name}.npy", matrix)
 
     indirect = np.ascontiguousarray(
-        matrices["full"].astype(np.float64)
-        - matrices["direct"].astype(np.float64),
+        matrices["full"].astype(np.float64) - matrices["direct"].astype(np.float64),
         dtype=np.float32,
     )
     np.save(work_directory / "radiance_indirect.npy", indirect)
@@ -316,6 +317,7 @@ def run_radiance_integrated_direct(
     workers=None,
     radiance_bin=None,
     sensor_chunk=16,
+    binary_io=False,
 ) -> RadianceIntegratedDirect:
     """Integrate deterministic directional Radiance rays within every sky patch."""
     if isinstance(sensor_chunk, bool) or int(sensor_chunk) <= 0:
@@ -329,15 +331,10 @@ def run_radiance_integrated_direct(
     if normals.shape != positions.shape:
         raise ValueError("sensor_normals must match sensor_positions")
     if directions.ndim != 3 or directions.shape[2] != 3:
-        raise ValueError(
-            "patch_sample_directions must have shape [patch, sample, 3]"
-        )
+        raise ValueError("patch_sample_directions must have shape [patch, sample, 3]")
     if solid_angles.shape != (directions.shape[0],):
         raise ValueError("patch_solid_angles must match the patch dimension")
-    if not all(
-        np.isfinite(value).all()
-        for value in (positions, normals, directions)
-    ):
+    if not all(np.isfinite(value).all() for value in (positions, normals, directions)):
         raise ValueError("integrated-direct inputs must be finite")
 
     octree = Path(octree).expanduser().resolve()
@@ -354,7 +351,7 @@ def run_radiance_integrated_direct(
     work_directory.mkdir(parents=True, exist_ok=True)
     combined_octree = work_directory / "direct_scene.oct"
     modifiers_path = work_directory / "sky_modifiers.txt"
-    rays_path = work_directory / "direct_rays.pts"
+    rays_path = work_directory / ("direct_rays.bin" if binary_io else "direct_rays.pts")
     coefficients_path = work_directory / "radiance_integrated_direct.npy"
     modifier_names = _glow_modifiers(sky_dome)
     if not modifier_names:
@@ -395,47 +392,61 @@ def run_radiance_integrated_direct(
         str(modifiers_path),
     ]
     if workers:
-        command.extend(["-n", str(workers)])
+        command.extend(["-n", "1" if binary_io else str(workers)])
+    if binary_io:
+        # Radiance native-endian doubles preserve directions/origins without the
+        # expensive per-ray ASCII formatting and stdout parsing of large suites.
+        command.append("-fdd")
     command.append(str(combined_octree))
     commands.append(command)
 
     patch_count, sample_count, _ = directions.shape
-    coefficients = np.zeros(
-        (positions.shape[0], patch_count, 3), dtype=np.float64
-    )
-    invocation_count = 0
-    for start in range(0, positions.shape[0], int(sensor_chunk)):
-        end = min(start + int(sensor_chunk), positions.shape[0])
-        origins = positions[start:end, None, None, :] + normals[
-            start:end, None, None, :
-        ] * 1.0e-4
-        origins = np.broadcast_to(
-            origins, (end - start, patch_count, sample_count, 3)
+    coefficients = np.zeros((positions.shape[0], patch_count, 3), dtype=np.float64)
+    chunks = [
+        (start, min(start + int(sensor_chunk), positions.shape[0]))
+        for start in range(0, positions.shape[0], int(sensor_chunk))
+    ]
+
+    def integrate_chunk(bounds):
+        start, end = bounds
+        origins = (
+            positions[start:end, None, None, :]
+            + normals[start:end, None, None, :] * 1.0e-4
         )
-        ray_directions = np.broadcast_to(
-            directions[None, :, :, :], origins.shape
-        )
+        origins = np.broadcast_to(origins, (end - start, patch_count, sample_count, 3))
+        ray_directions = np.broadcast_to(directions[None, :, :, :], origins.shape)
         rays = np.concatenate((origins, ray_directions), axis=3).reshape(-1, 6)
-        ray_text = "\n".join(
-            " ".join(f"{value:.9g}" for value in ray) for ray in rays
-        ) + "\n"
-        rays_path.write_text(ray_text, encoding="ascii")
+        if binary_io:
+            ray_input = np.ascontiguousarray(rays, dtype=np.float64).tobytes()
+            # Preserve the same final-chunk artifact without racing parallel
+            # writers or repeatedly writing gigabytes of regenerable ray input.
+            if end == positions.shape[0]:
+                rays_path.write_bytes(ray_input)
+        else:
+            ray_input = (
+                "\n".join(" ".join(f"{value:.9g}" for value in ray) for ray in rays)
+                + "\n"
+            )
+            rays_path.write_text(ray_input, encoding="ascii")
         completed = subprocess.run(
             command,
-            input=ray_text,
-            text=True,
+            input=ray_input,
+            text=not binary_io,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             env=environment,
             check=False,
         )
-        invocation_count += 1
         if completed.returncode != 0:
             raise RuntimeError(
                 "rcontrib integrated-direct stage failed with exit code "
-                f"{completed.returncode}: {completed.stderr.strip()}"
+                f"{completed.returncode}: {completed.stderr.decode(errors='replace').strip() if binary_io else completed.stderr.strip()}"
             )
-        values = np.fromstring(completed.stdout, sep=" ", dtype=np.float64)
+        values = (
+            np.frombuffer(completed.stdout, dtype=np.float64)
+            if binary_io
+            else np.fromstring(completed.stdout, sep=" ", dtype=np.float64)
+        )
         expected = rays.shape[0] * len(modifier_names) * 3
         if values.size != expected:
             raise RuntimeError(
@@ -450,14 +461,29 @@ def run_radiance_integrated_direct(
             3,
         ).sum(axis=3)
         cosines = np.maximum(
-            np.einsum(
-                "si,pki->spk", normals[start:end], directions, optimize=True
-            ),
+            np.einsum("si,pki->spk", normals[start:end], directions, optimize=True),
             0.0,
         )
-        coefficients[start:end] = np.sum(
-            throughput * cosines[:, :, :, None], axis=2
-        ) * (solid_angles[None, :, None] / sample_count)
+        integrated = np.sum(throughput * cosines[:, :, :, None], axis=2) * (
+            solid_angles[None, :, None] / sample_count
+        )
+        return start, end, integrated
+
+    if binary_io and workers and int(workers) > 1:
+        from concurrent.futures import ThreadPoolExecutor
+
+        # rcontrib -n N communicates per ray; for millions of direct rays this
+        # IPC dominates tracing. N independent single-process workers preserve
+        # the same per-ray results and total worker budget, without that IPC.
+        executor = ThreadPoolExecutor(max_workers=int(workers))
+        try:
+            for start, end, integrated in executor.map(integrate_chunk, chunks):
+                coefficients[start:end] = integrated
+        finally:
+            executor.shutdown(wait=True, cancel_futures=True)
+    else:
+        for start, end, integrated in map(integrate_chunk, chunks):
+            coefficients[start:end] = integrated
 
     result = np.ascontiguousarray(coefficients, dtype=np.float32)
     if not np.isfinite(result).all():
@@ -480,7 +506,7 @@ def run_radiance_integrated_direct(
             "coefficients": str(coefficients_path),
         },
         sample_count=sample_count,
-        invocation_count=invocation_count,
+        invocation_count=len(chunks),
     )
 
 
@@ -543,9 +569,7 @@ def _write_honeybee_radiance_scene(model, path):
                 )
                 if objects:
                     interior_faces.add(str(objects[0]))
-        chunks.append(
-            face_to_rad(exported_face, blk=True, exclude_sub_faces=True)
-        )
+        chunks.append(face_to_rad(exported_face, blk=True, exclude_sub_faces=True))
         face_shades.update(shade.identifier for shade in face.shades)
     for shade in model.shades:
         if shade.identifier not in face_shades:
@@ -621,9 +645,7 @@ def _radiance_subprocess_environment(executables):
         library_directories.append(Path(executable).resolve().parent.parent / "lib")
 
     ray_paths = [
-        path
-        for path in environment.get("RAYPATH", ".").split(os.pathsep)
-        if path
+        path for path in environment.get("RAYPATH", ".").split(os.pathsep) if path
     ]
     for directory in library_directories:
         if (directory / "rayinit.cal").is_file():
