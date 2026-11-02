@@ -10,3 +10,16 @@
 /viewer/dist/
 /viewer/node_modules/
 /dist/
+
+# Compiled extension modules and tool caches
+*.so
+*.pyd
+*.tsbuildinfo
+
+# Regenerable Radiance scene exports and logs inside result folders
+/benchmarks/results/**/*.oct
+/benchmarks/results/**/*.rad
+/benchmarks/results/**/*.pts
+/benchmarks/results/**/*.log
+/simulation/**/*.oct
+/simulation/**/*.rad
