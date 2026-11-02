@@ -1,0 +1,2298 @@
+{
+  "angle_tolerance": 1.0,
+  "display_name": "plan_t_offset_low",
+  "identifier": "plan_t_offset_low",
+  "properties": {
+    "radiance": {
+      "global_modifier_set": {
+        "air_boundary_modifier": "air_boundary",
+        "aperture_set": {
+          "interior_modifier": "generic_interior_window_vis_0.88",
+          "operable_modifier": "generic_exterior_window_vis_0.64",
+          "skylight_modifier": "generic_exterior_window_vis_0.64",
+          "type": "ApertureModifierSetAbridged",
+          "window_modifier": "generic_exterior_window_vis_0.64"
+        },
+        "context_modifier": "generic_context_0.20",
+        "door_set": {
+          "exterior_glass_modifier": "generic_exterior_window_vis_0.64",
+          "exterior_modifier": "generic_opaque_door_0.50",
+          "interior_glass_modifier": "generic_interior_window_vis_0.88",
+          "interior_modifier": "generic_opaque_door_0.50",
+          "overhead_modifier": "generic_opaque_door_0.50",
+          "type": "DoorModifierSetAbridged"
+        },
+        "floor_set": {
+          "exterior_modifier": "generic_floor_0.20",
+          "interior_modifier": "generic_floor_0.20",
+          "type": "FloorModifierSetAbridged"
+        },
+        "modifiers": [
+          {
+            "b_reflectance": 1.0,
+            "dependencies": [],
+            "g_reflectance": 1.0,
+            "identifier": "air_boundary",
+            "modifier": null,
+            "r_reflectance": 1.0,
+            "roughness": 0.0,
+            "specularity": 0.0,
+            "transmitted_diff": 1.0,
+            "transmitted_spec": 1.0,
+            "type": "Trans"
+          },
+          {
+            "b_reflectance": 0.8,
+            "dependencies": [],
+            "g_reflectance": 0.8,
+            "identifier": "generic_ceiling_0.80",
+            "modifier": null,
+            "r_reflectance": 0.8,
+            "roughness": 0.0,
+            "specularity": 0.0,
+            "type": "Plastic"
+          },
+          {
+            "b_reflectance": 0.2,
+            "dependencies": [],
+            "g_reflectance": 0.2,
+            "identifier": "generic_context_0.20",
+            "modifier": null,
+            "r_reflectance": 0.2,
+            "roughness": 0.0,
+            "specularity": 0.0,
+            "type": "Plastic"
+          },
+          {
+            "b_reflectance": 0.35,
+            "dependencies": [],
+            "g_reflectance": 0.35,
+            "identifier": "generic_exterior_shade_0.35",
+            "modifier": null,
+            "r_reflectance": 0.35,
+            "roughness": 0.0,
+            "specularity": 0.0,
+            "type": "Plastic"
+          },
+          {
+            "b_transmissivity": 0.6975761815384331,
+            "dependencies": [],
+            "g_transmissivity": 0.6975761815384331,
+            "identifier": "generic_exterior_window_vis_0.64",
+            "modifier": null,
+            "r_transmissivity": 0.6975761815384331,
+            "refraction_index": null,
+            "type": "Glass"
+          },
+          {
+            "b_reflectance": 0.2,
+            "dependencies": [],
+            "g_reflectance": 0.2,
+            "identifier": "generic_floor_0.20",
+            "modifier": null,
+            "r_reflectance": 0.2,
+            "roughness": 0.0,
+            "specularity": 0.0,
+            "type": "Plastic"
+          },
+          {
+            "b_reflectance": 0.5,
+            "dependencies": [],
+            "g_reflectance": 0.5,
+            "identifier": "generic_interior_shade_0.50",
+            "modifier": null,
+            "r_reflectance": 0.5,
+            "roughness": 0.0,
+            "specularity": 0.0,
+            "type": "Plastic"
+          },
+          {
+            "b_transmissivity": 0.9584154328610596,
+            "dependencies": [],
+            "g_transmissivity": 0.9584154328610596,
+            "identifier": "generic_interior_window_vis_0.88",
+            "modifier": null,
+            "r_transmissivity": 0.9584154328610596,
+            "refraction_index": null,
+            "type": "Glass"
+          },
+          {
+            "b_reflectance": 0.5,
+            "dependencies": [],
+            "g_reflectance": 0.5,
+            "identifier": "generic_opaque_door_0.50",
+            "modifier": null,
+            "r_reflectance": 0.5,
+            "roughness": 0.0,
+            "specularity": 0.0,
+            "type": "Plastic"
+          },
+          {
+            "b_reflectance": 0.5,
+            "dependencies": [],
+            "g_reflectance": 0.5,
+            "identifier": "generic_wall_0.50",
+            "modifier": null,
+            "r_reflectance": 0.5,
+            "roughness": 0.0,
+            "specularity": 0.0,
+            "type": "Plastic"
+          }
+        ],
+        "roof_ceiling_set": {
+          "exterior_modifier": "generic_ceiling_0.80",
+          "interior_modifier": "generic_ceiling_0.80",
+          "type": "RoofCeilingModifierSetAbridged"
+        },
+        "shade_set": {
+          "exterior_modifier": "generic_exterior_shade_0.35",
+          "interior_modifier": "generic_interior_shade_0.50",
+          "type": "ShadeModifierSetAbridged"
+        },
+        "type": "GlobalModifierSet",
+        "wall_set": {
+          "exterior_modifier": "generic_wall_0.50",
+          "interior_modifier": "generic_wall_0.50",
+          "type": "WallModifierSetAbridged"
+        }
+      },
+      "modifier_sets": [],
+      "modifiers": [
+        {
+          "b_transmissivity": 0.6540474888954341,
+          "dependencies": [],
+          "g_transmissivity": 0.6540474888954341,
+          "identifier": "clear",
+          "modifier": null,
+          "r_transmissivity": 0.6540474888954341,
+          "refraction_index": null,
+          "type": "Glass"
+        },
+        {
+          "b_reflectance": 0.5,
+          "dependencies": [],
+          "g_reflectance": 0.5,
+          "identifier": "diffuse",
+          "modifier": null,
+          "r_reflectance": 0.5,
+          "roughness": 0.0,
+          "specularity": 0.0,
+          "type": "Plastic"
+        }
+      ],
+      "sensor_grids": [
+        {
+          "identifier": "plan_t_offset_low_grid",
+          "mesh": {
+            "faces": [
+              [
+                1,
+                5,
+                4,
+                0
+              ],
+              [
+                2,
+                6,
+                5,
+                1
+              ],
+              [
+                3,
+                7,
+                6,
+                2
+              ],
+              [
+                5,
+                9,
+                8,
+                4
+              ],
+              [
+                6,
+                10,
+                9,
+                5
+              ],
+              [
+                7,
+                11,
+                10,
+                6
+              ],
+              [
+                9,
+                13,
+                12,
+                8
+              ],
+              [
+                10,
+                14,
+                13,
+                9
+              ],
+              [
+                11,
+                15,
+                14,
+                10
+              ],
+              [
+                13,
+                17,
+                16,
+                12
+              ],
+              [
+                14,
+                18,
+                17,
+                13
+              ],
+              [
+                15,
+                19,
+                18,
+                14
+              ],
+              [
+                17,
+                21,
+                20,
+                16
+              ],
+              [
+                18,
+                22,
+                21,
+                17
+              ],
+              [
+                19,
+                23,
+                22,
+                18
+              ],
+              [
+                21,
+                34,
+                33,
+                20
+              ],
+              [
+                22,
+                35,
+                34,
+                21
+              ],
+              [
+                23,
+                36,
+                35,
+                22
+              ],
+              [
+                24,
+                37,
+                36,
+                23
+              ],
+              [
+                25,
+                38,
+                37,
+                24
+              ],
+              [
+                26,
+                39,
+                38,
+                25
+              ],
+              [
+                27,
+                40,
+                39,
+                26
+              ],
+              [
+                28,
+                41,
+                40,
+                27
+              ],
+              [
+                29,
+                42,
+                41,
+                28
+              ],
+              [
+                30,
+                43,
+                42,
+                29
+              ],
+              [
+                31,
+                44,
+                43,
+                30
+              ],
+              [
+                32,
+                45,
+                44,
+                31
+              ],
+              [
+                34,
+                47,
+                46,
+                33
+              ],
+              [
+                35,
+                48,
+                47,
+                34
+              ],
+              [
+                36,
+                49,
+                48,
+                35
+              ],
+              [
+                37,
+                50,
+                49,
+                36
+              ],
+              [
+                38,
+                51,
+                50,
+                37
+              ],
+              [
+                39,
+                52,
+                51,
+                38
+              ],
+              [
+                40,
+                53,
+                52,
+                39
+              ],
+              [
+                41,
+                54,
+                53,
+                40
+              ],
+              [
+                42,
+                55,
+                54,
+                41
+              ],
+              [
+                43,
+                56,
+                55,
+                42
+              ],
+              [
+                44,
+                57,
+                56,
+                43
+              ],
+              [
+                45,
+                58,
+                57,
+                44
+              ],
+              [
+                47,
+                60,
+                59,
+                46
+              ],
+              [
+                48,
+                61,
+                60,
+                47
+              ],
+              [
+                49,
+                62,
+                61,
+                48
+              ],
+              [
+                60,
+                64,
+                63,
+                59
+              ],
+              [
+                61,
+                65,
+                64,
+                60
+              ],
+              [
+                62,
+                66,
+                65,
+                61
+              ],
+              [
+                64,
+                68,
+                67,
+                63
+              ],
+              [
+                65,
+                69,
+                68,
+                64
+              ],
+              [
+                66,
+                70,
+                69,
+                65
+              ],
+              [
+                68,
+                72,
+                71,
+                67
+              ],
+              [
+                69,
+                73,
+                72,
+                68
+              ],
+              [
+                70,
+                74,
+                73,
+                69
+              ],
+              [
+                72,
+                76,
+                75,
+                71
+              ],
+              [
+                73,
+                77,
+                76,
+                72
+              ],
+              [
+                74,
+                78,
+                77,
+                73
+              ]
+            ],
+            "type": "Mesh3D",
+            "vertices": [
+              [
+                0.0,
+                12.0,
+                0.75
+              ],
+              [
+                0.0,
+                11.0,
+                0.75
+              ],
+              [
+                0.0,
+                10.0,
+                0.75
+              ],
+              [
+                0.0,
+                9.0,
+                0.75
+              ],
+              [
+                1.0,
+                12.0,
+                0.75
+              ],
+              [
+                1.0,
+                11.0,
+                0.75
+              ],
+              [
+                1.0,
+                10.0,
+                0.75
+              ],
+              [
+                1.0,
+                9.0,
+                0.75
+              ],
+              [
+                2.0,
+                12.0,
+                0.75
+              ],
+              [
+                2.0,
+                11.0,
+                0.75
+              ],
+              [
+                2.0,
+                10.0,
+                0.75
+              ],
+              [
+                2.0,
+                9.0,
+                0.75
+              ],
+              [
+                3.0,
+                12.0,
+                0.75
+              ],
+              [
+                3.0,
+                11.0,
+                0.75
+              ],
+              [
+                3.0,
+                10.0,
+                0.75
+              ],
+              [
+                3.0,
+                9.0,
+                0.75
+              ],
+              [
+                4.0,
+                12.0,
+                0.75
+              ],
+              [
+                4.0,
+                11.0,
+                0.75
+              ],
+              [
+                4.0,
+                10.0,
+                0.75
+              ],
+              [
+                4.0,
+                9.0,
+                0.75
+              ],
+              [
+                5.0,
+                12.0,
+                0.75
+              ],
+              [
+                5.0,
+                11.0,
+                0.75
+              ],
+              [
+                5.0,
+                10.0,
+                0.75
+              ],
+              [
+                5.0,
+                9.0,
+                0.75
+              ],
+              [
+                5.0,
+                8.0,
+                0.75
+              ],
+              [
+                5.0,
+                7.0,
+                0.75
+              ],
+              [
+                5.0,
+                6.0,
+                0.75
+              ],
+              [
+                5.0,
+                5.0,
+                0.75
+              ],
+              [
+                5.0,
+                4.0,
+                0.75
+              ],
+              [
+                5.0,
+                3.0,
+                0.75
+              ],
+              [
+                5.0,
+                2.0,
+                0.75
+              ],
+              [
+                5.0,
+                1.0,
+                0.75
+              ],
+              [
+                5.0,
+                0.0,
+                0.75
+              ],
+              [
+                6.0,
+                12.0,
+                0.75
+              ],
+              [
+                6.0,
+                11.0,
+                0.75
+              ],
+              [
+                6.0,
+                10.0,
+                0.75
+              ],
+              [
+                6.0,
+                9.0,
+                0.75
+              ],
+              [
+                6.0,
+                8.0,
+                0.75
+              ],
+              [
+                6.0,
+                7.0,
+                0.75
+              ],
+              [
+                6.0,
+                6.0,
+                0.75
+              ],
+              [
+                6.0,
+                5.0,
+                0.75
+              ],
+              [
+                6.0,
+                4.0,
+                0.75
+              ],
+              [
+                6.0,
+                3.0,
+                0.75
+              ],
+              [
+                6.0,
+                2.0,
+                0.75
+              ],
+              [
+                6.0,
+                1.0,
+                0.75
+              ],
+              [
+                6.0,
+                0.0,
+                0.75
+              ],
+              [
+                7.0,
+                12.0,
+                0.75
+              ],
+              [
+                7.0,
+                11.0,
+                0.75
+              ],
+              [
+                7.0,
+                10.0,
+                0.75
+              ],
+              [
+                7.0,
+                9.0,
+                0.75
+              ],
+              [
+                7.0,
+                8.0,
+                0.75
+              ],
+              [
+                7.0,
+                7.0,
+                0.75
+              ],
+              [
+                7.0,
+                6.0,
+                0.75
+              ],
+              [
+                7.0,
+                5.0,
+                0.75
+              ],
+              [
+                7.0,
+                4.0,
+                0.75
+              ],
+              [
+                7.0,
+                3.0,
+                0.75
+              ],
+              [
+                7.0,
+                2.0,
+                0.75
+              ],
+              [
+                7.0,
+                1.0,
+                0.75
+              ],
+              [
+                7.0,
+                0.0,
+                0.75
+              ],
+              [
+                8.0,
+                12.0,
+                0.75
+              ],
+              [
+                8.0,
+                11.0,
+                0.75
+              ],
+              [
+                8.0,
+                10.0,
+                0.75
+              ],
+              [
+                8.0,
+                9.0,
+                0.75
+              ],
+              [
+                9.0,
+                12.0,
+                0.75
+              ],
+              [
+                9.0,
+                11.0,
+                0.75
+              ],
+              [
+                9.0,
+                10.0,
+                0.75
+              ],
+              [
+                9.0,
+                9.0,
+                0.75
+              ],
+              [
+                10.0,
+                12.0,
+                0.75
+              ],
+              [
+                10.0,
+                11.0,
+                0.75
+              ],
+              [
+                10.0,
+                10.0,
+                0.75
+              ],
+              [
+                10.0,
+                9.0,
+                0.75
+              ],
+              [
+                11.0,
+                12.0,
+                0.75
+              ],
+              [
+                11.0,
+                11.0,
+                0.75
+              ],
+              [
+                11.0,
+                10.0,
+                0.75
+              ],
+              [
+                11.0,
+                9.0,
+                0.75
+              ],
+              [
+                12.0,
+                12.0,
+                0.75
+              ],
+              [
+                12.0,
+                11.0,
+                0.75
+              ],
+              [
+                12.0,
+                10.0,
+                0.75
+              ],
+              [
+                12.0,
+                9.0,
+                0.75
+              ]
+            ]
+          },
+          "room_identifier": "plan_t_offset_low",
+          "sensors": [
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                0.5,
+                11.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                0.5,
+                10.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                0.5,
+                9.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                1.5,
+                11.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                1.5,
+                10.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                1.5,
+                9.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                2.5,
+                11.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                2.5,
+                10.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                2.5,
+                9.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                3.5,
+                11.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                3.5,
+                10.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                3.5,
+                9.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                4.5,
+                11.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                4.5,
+                10.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                4.5,
+                9.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                5.5,
+                11.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                5.5,
+                10.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                5.5,
+                9.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                5.5,
+                8.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                5.5,
+                7.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                5.5,
+                6.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                5.5,
+                5.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                5.5,
+                4.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                5.5,
+                3.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                5.5,
+                2.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                5.5,
+                1.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                5.5,
+                0.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                6.5,
+                11.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                6.5,
+                10.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                6.5,
+                9.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                6.5,
+                8.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                6.5,
+                7.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                6.5,
+                6.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                6.5,
+                5.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                6.5,
+                4.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                6.5,
+                3.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                6.5,
+                2.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                6.5,
+                1.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                6.5,
+                0.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                7.5,
+                11.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                7.5,
+                10.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                7.5,
+                9.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                8.5,
+                11.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                8.5,
+                10.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                8.5,
+                9.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                9.5,
+                11.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                9.5,
+                10.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                9.5,
+                9.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                10.5,
+                11.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                10.5,
+                10.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                10.5,
+                9.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                11.5,
+                11.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                11.5,
+                10.5,
+                0.75
+              ]
+            },
+            {
+              "dir": [
+                -0.0,
+                -0.0,
+                1.0
+              ],
+              "pos": [
+                11.5,
+                9.5,
+                0.75
+              ]
+            }
+          ],
+          "type": "SensorGrid"
+        }
+      ],
+      "type": "ModelRadianceProperties"
+    },
+    "type": "ModelProperties"
+  },
+  "rooms": [
+    {
+      "display_name": "plan_t_offset_low",
+      "faces": [
+        {
+          "boundary_condition": {
+            "type": "Ground"
+          },
+          "display_name": "plan_t_offset_low..Face0",
+          "face_type": "Floor",
+          "geometry": {
+            "boundary": [
+              [
+                12.0,
+                12.0,
+                0.0
+              ],
+              [
+                12.0,
+                9.0,
+                0.0
+              ],
+              [
+                7.5,
+                9.0,
+                0.0
+              ],
+              [
+                7.5,
+                0.0,
+                0.0
+              ],
+              [
+                4.5,
+                0.0,
+                0.0
+              ],
+              [
+                4.5,
+                9.0,
+                0.0
+              ],
+              [
+                0.0,
+                9.0,
+                0.0
+              ],
+              [
+                0.0,
+                12.0,
+                0.0
+              ]
+            ],
+            "plane": {
+              "n": [
+                0.0,
+                0.0,
+                -1.0
+              ],
+              "o": [
+                4.5,
+                9.0,
+                0.0
+              ],
+              "type": "Plane",
+              "x": [
+                1.0,
+                0.0,
+                0.0
+              ]
+            },
+            "type": "Face3D"
+          },
+          "identifier": "plan_t_offset_low..Face0",
+          "properties": {
+            "radiance": {
+              "modifier": "diffuse",
+              "type": "FaceRadiancePropertiesAbridged"
+            },
+            "type": "FacePropertiesAbridged"
+          },
+          "type": "Face"
+        },
+        {
+          "apertures": [
+            {
+              "boundary_condition": {
+                "type": "Outdoors"
+              },
+              "display_name": "plan_t_offset_low..Face1_opening_0",
+              "geometry": {
+                "boundary": [
+                  [
+                    4.7,
+                    0.0,
+                    1.4
+                  ],
+                  [
+                    4.7,
+                    0.0,
+                    0.2
+                  ],
+                  [
+                    5.9,
+                    0.0,
+                    0.2
+                  ],
+                  [
+                    5.9,
+                    0.0,
+                    1.4
+                  ]
+                ],
+                "plane": {
+                  "n": [
+                    0.0,
+                    -1.0,
+                    0.0
+                  ],
+                  "o": [
+                    4.7,
+                    0.0,
+                    0.2
+                  ],
+                  "type": "Plane",
+                  "x": [
+                    -1.0,
+                    -0.0,
+                    0.0
+                  ]
+                },
+                "type": "Face3D"
+              },
+              "identifier": "plan_t_offset_low..Face1_opening_0",
+              "is_operable": false,
+              "properties": {
+                "radiance": {
+                  "modifier": "clear",
+                  "type": "ApertureRadiancePropertiesAbridged"
+                },
+                "type": "AperturePropertiesAbridged"
+              },
+              "type": "Aperture"
+            }
+          ],
+          "boundary_condition": {
+            "type": "Outdoors"
+          },
+          "display_name": "plan_t_offset_low..Face1",
+          "face_type": "Wall",
+          "geometry": {
+            "boundary": [
+              [
+                4.5,
+                0.0,
+                3.0
+              ],
+              [
+                4.5,
+                0.0,
+                0.0
+              ],
+              [
+                7.5,
+                0.0,
+                0.0
+              ],
+              [
+                7.5,
+                0.0,
+                3.0
+              ]
+            ],
+            "plane": {
+              "n": [
+                0.0,
+                -1.0,
+                0.0
+              ],
+              "o": [
+                4.5,
+                0.0,
+                0.0
+              ],
+              "type": "Plane",
+              "x": [
+                -1.0,
+                -0.0,
+                0.0
+              ]
+            },
+            "type": "Face3D"
+          },
+          "identifier": "plan_t_offset_low..Face1",
+          "properties": {
+            "radiance": {
+              "modifier": "diffuse",
+              "type": "FaceRadiancePropertiesAbridged"
+            },
+            "type": "FacePropertiesAbridged"
+          },
+          "type": "Face"
+        },
+        {
+          "boundary_condition": {
+            "type": "Outdoors"
+          },
+          "display_name": "plan_t_offset_low..Face2",
+          "face_type": "Wall",
+          "geometry": {
+            "boundary": [
+              [
+                7.5,
+                0.0,
+                3.0
+              ],
+              [
+                7.5,
+                0.0,
+                0.0
+              ],
+              [
+                7.5,
+                9.0,
+                0.0
+              ],
+              [
+                7.5,
+                9.0,
+                3.0
+              ]
+            ],
+            "plane": {
+              "n": [
+                1.0,
+                0.0,
+                0.0
+              ],
+              "o": [
+                7.5,
+                0.0,
+                0.0
+              ],
+              "type": "Plane",
+              "x": [
+                0.0,
+                -1.0,
+                0.0
+              ]
+            },
+            "type": "Face3D"
+          },
+          "identifier": "plan_t_offset_low..Face2",
+          "properties": {
+            "radiance": {
+              "modifier": "diffuse",
+              "type": "FaceRadiancePropertiesAbridged"
+            },
+            "type": "FacePropertiesAbridged"
+          },
+          "type": "Face"
+        },
+        {
+          "boundary_condition": {
+            "type": "Outdoors"
+          },
+          "display_name": "plan_t_offset_low..Face3",
+          "face_type": "Wall",
+          "geometry": {
+            "boundary": [
+              [
+                7.5,
+                9.0,
+                3.0
+              ],
+              [
+                7.5,
+                9.0,
+                0.0
+              ],
+              [
+                12.0,
+                9.0,
+                0.0
+              ],
+              [
+                12.0,
+                9.0,
+                3.0
+              ]
+            ],
+            "plane": {
+              "n": [
+                0.0,
+                -1.0,
+                0.0
+              ],
+              "o": [
+                7.5,
+                9.0,
+                0.0
+              ],
+              "type": "Plane",
+              "x": [
+                -1.0,
+                -0.0,
+                0.0
+              ]
+            },
+            "type": "Face3D"
+          },
+          "identifier": "plan_t_offset_low..Face3",
+          "properties": {
+            "radiance": {
+              "modifier": "diffuse",
+              "type": "FaceRadiancePropertiesAbridged"
+            },
+            "type": "FacePropertiesAbridged"
+          },
+          "type": "Face"
+        },
+        {
+          "boundary_condition": {
+            "type": "Outdoors"
+          },
+          "display_name": "plan_t_offset_low..Face4",
+          "face_type": "Wall",
+          "geometry": {
+            "boundary": [
+              [
+                12.0,
+                9.0,
+                3.0
+              ],
+              [
+                12.0,
+                9.0,
+                0.0
+              ],
+              [
+                12.0,
+                12.0,
+                0.0
+              ],
+              [
+                12.0,
+                12.0,
+                3.0
+              ]
+            ],
+            "plane": {
+              "n": [
+                1.0,
+                0.0,
+                0.0
+              ],
+              "o": [
+                12.0,
+                9.0,
+                0.0
+              ],
+              "type": "Plane",
+              "x": [
+                0.0,
+                -1.0,
+                0.0
+              ]
+            },
+            "type": "Face3D"
+          },
+          "identifier": "plan_t_offset_low..Face4",
+          "properties": {
+            "radiance": {
+              "modifier": "diffuse",
+              "type": "FaceRadiancePropertiesAbridged"
+            },
+            "type": "FacePropertiesAbridged"
+          },
+          "type": "Face"
+        },
+        {
+          "boundary_condition": {
+            "type": "Outdoors"
+          },
+          "display_name": "plan_t_offset_low..Face5",
+          "face_type": "Wall",
+          "geometry": {
+            "boundary": [
+              [
+                12.0,
+                12.0,
+                3.0
+              ],
+              [
+                12.0,
+                12.0,
+                0.0
+              ],
+              [
+                0.0,
+                12.0,
+                0.0
+              ],
+              [
+                0.0,
+                12.0,
+                3.0
+              ]
+            ],
+            "plane": {
+              "n": [
+                0.0,
+                1.0,
+                0.0
+              ],
+              "o": [
+                12.0,
+                12.0,
+                0.0
+              ],
+              "type": "Plane",
+              "x": [
+                1.0,
+                -0.0,
+                0.0
+              ]
+            },
+            "type": "Face3D"
+          },
+          "identifier": "plan_t_offset_low..Face5",
+          "properties": {
+            "radiance": {
+              "modifier": "diffuse",
+              "type": "FaceRadiancePropertiesAbridged"
+            },
+            "type": "FacePropertiesAbridged"
+          },
+          "type": "Face"
+        },
+        {
+          "boundary_condition": {
+            "type": "Outdoors"
+          },
+          "display_name": "plan_t_offset_low..Face6",
+          "face_type": "Wall",
+          "geometry": {
+            "boundary": [
+              [
+                0.0,
+                12.0,
+                3.0
+              ],
+              [
+                0.0,
+                12.0,
+                0.0
+              ],
+              [
+                0.0,
+                9.0,
+                0.0
+              ],
+              [
+                0.0,
+                9.0,
+                3.0
+              ]
+            ],
+            "plane": {
+              "n": [
+                -1.0,
+                0.0,
+                0.0
+              ],
+              "o": [
+                0.0,
+                12.0,
+                0.0
+              ],
+              "type": "Plane",
+              "x": [
+                0.0,
+                1.0,
+                0.0
+              ]
+            },
+            "type": "Face3D"
+          },
+          "identifier": "plan_t_offset_low..Face6",
+          "properties": {
+            "radiance": {
+              "modifier": "diffuse",
+              "type": "FaceRadiancePropertiesAbridged"
+            },
+            "type": "FacePropertiesAbridged"
+          },
+          "type": "Face"
+        },
+        {
+          "boundary_condition": {
+            "type": "Outdoors"
+          },
+          "display_name": "plan_t_offset_low..Face7",
+          "face_type": "Wall",
+          "geometry": {
+            "boundary": [
+              [
+                0.0,
+                9.0,
+                3.0
+              ],
+              [
+                0.0,
+                9.0,
+                0.0
+              ],
+              [
+                4.5,
+                9.0,
+                0.0
+              ],
+              [
+                4.5,
+                9.0,
+                3.0
+              ]
+            ],
+            "plane": {
+              "n": [
+                0.0,
+                -1.0,
+                0.0
+              ],
+              "o": [
+                0.0,
+                9.0,
+                0.0
+              ],
+              "type": "Plane",
+              "x": [
+                -1.0,
+                -0.0,
+                0.0
+              ]
+            },
+            "type": "Face3D"
+          },
+          "identifier": "plan_t_offset_low..Face7",
+          "properties": {
+            "radiance": {
+              "modifier": "diffuse",
+              "type": "FaceRadiancePropertiesAbridged"
+            },
+            "type": "FacePropertiesAbridged"
+          },
+          "type": "Face"
+        },
+        {
+          "boundary_condition": {
+            "type": "Outdoors"
+          },
+          "display_name": "plan_t_offset_low..Face8",
+          "face_type": "Wall",
+          "geometry": {
+            "boundary": [
+              [
+                4.5,
+                9.0,
+                3.0
+              ],
+              [
+                4.5,
+                9.0,
+                0.0
+              ],
+              [
+                4.5,
+                0.0,
+                0.0
+              ],
+              [
+                4.5,
+                0.0,
+                3.0
+              ]
+            ],
+            "plane": {
+              "n": [
+                -1.0,
+                0.0,
+                0.0
+              ],
+              "o": [
+                4.5,
+                9.0,
+                0.0
+              ],
+              "type": "Plane",
+              "x": [
+                0.0,
+                1.0,
+                0.0
+              ]
+            },
+            "type": "Face3D"
+          },
+          "identifier": "plan_t_offset_low..Face8",
+          "properties": {
+            "radiance": {
+              "modifier": "diffuse",
+              "type": "FaceRadiancePropertiesAbridged"
+            },
+            "type": "FacePropertiesAbridged"
+          },
+          "type": "Face"
+        },
+        {
+          "boundary_condition": {
+            "type": "Outdoors"
+          },
+          "display_name": "plan_t_offset_low..Face9",
+          "face_type": "RoofCeiling",
+          "geometry": {
+            "boundary": [
+              [
+                0.0,
+                12.0,
+                3.0
+              ],
+              [
+                0.0,
+                9.0,
+                3.0
+              ],
+              [
+                4.5,
+                9.0,
+                3.0
+              ],
+              [
+                4.5,
+                0.0,
+                3.0
+              ],
+              [
+                7.5,
+                0.0,
+                3.0
+              ],
+              [
+                7.5,
+                9.0,
+                3.0
+              ],
+              [
+                12.0,
+                9.0,
+                3.0
+              ],
+              [
+                12.0,
+                12.0,
+                3.0
+              ]
+            ],
+            "plane": {
+              "n": [
+                0.0,
+                0.0,
+                1.0
+              ],
+              "o": [
+                4.5,
+                0.0,
+                3.0
+              ],
+              "type": "Plane",
+              "x": [
+                1.0,
+                0.0,
+                0.0
+              ]
+            },
+            "type": "Face3D"
+          },
+          "identifier": "plan_t_offset_low..Face9",
+          "properties": {
+            "radiance": {
+              "modifier": "diffuse",
+              "type": "FaceRadiancePropertiesAbridged"
+            },
+            "type": "FacePropertiesAbridged"
+          },
+          "type": "Face"
+        }
+      ],
+      "identifier": "plan_t_offset_low",
+      "properties": {
+        "radiance": {
+          "type": "RoomRadiancePropertiesAbridged"
+        },
+        "type": "RoomPropertiesAbridged"
+      },
+      "type": "Room"
+    }
+  ],
+  "tolerance": 0.01,
+  "type": "Model",
+  "units": "Meters",
+  "user_data": {
+    "validation_scene": {
+      "category": "form",
+      "footprint_family": "t",
+      "identifier": "plan_t_offset_low",
+      "include_glazing": true,
+      "interactions": [
+        "concave_plan",
+        "reentrant_occlusion",
+        "window_shape",
+        "window_position"
+      ],
+      "question": "How does a offset low opening illuminate a T-shaped plan?",
+      "room_count": 1,
+      "suite_version": 3,
+      "window_profile": "offset_low"
+    }
+  },
+  "version": "2.2.0"
+}

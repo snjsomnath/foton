@@ -1,0 +1,21 @@
+{
+  "commit": "FULL_COMMIT_SHA_TESTED",
+  "engine_version": "0.2.0",
+  "rhino_version": "8.REPLACE_WITH_TESTED_VERSION",
+  "system": "Darwin",
+  "backend": "metal",
+  "tested_at": "",
+  "notes": "",
+  "scenarios": {
+    "fresh_install": false,
+    "open_example": false,
+    "run": false,
+    "cancel": false,
+    "rerun": false,
+    "change_inputs": false,
+    "upgrade_invalidates_reuse": false,
+    "reload_moved_results": false,
+    "honeybee_metrics": false,
+    "ladybug_heatmap": false
+  }
+}
