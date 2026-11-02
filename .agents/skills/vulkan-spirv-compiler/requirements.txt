@@ -1,1 +1,0 @@
-# glslangValidator is an external executable supplied by the Vulkan SDK.
