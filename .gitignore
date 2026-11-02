@@ -23,3 +23,10 @@
 /benchmarks/results/**/*.log
 /simulation/**/*.oct
 /simulation/**/*.rad
+# Raw sweep artifacts; summaries and READMEs stay tracked
+/validation/results/**/*.oct
+/validation/results/**/*.rad
+/validation/results/**/*.pts
+/validation/results/**/*.dome
+/validation/results/**/*.npy
+/validation/results/*.log

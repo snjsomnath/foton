@@ -1,0 +1,177 @@
+{
+  "scene": "dark_interior",
+  "sensors": 36,
+  "reference_bounces": 12,
+  "radiance": {
+    "1": {
+      "seconds": 0.5,
+      "energy_vs_deepest": 0.9931,
+      "full_vs_deepest": {
+        "bias_percent": -0.694,
+        "rms_percent": 2.437,
+        "energy_ratio": 0.9931
+      }
+    },
+    "2": {
+      "seconds": 0.7,
+      "energy_vs_deepest": 0.9994,
+      "full_vs_deepest": {
+        "bias_percent": -0.057,
+        "rms_percent": 2.344,
+        "energy_ratio": 0.9994
+      }
+    },
+    "4": {
+      "seconds": 0.9,
+      "energy_vs_deepest": 1.0001,
+      "full_vs_deepest": {
+        "bias_percent": 0.006,
+        "rms_percent": 2.455,
+        "energy_ratio": 1.0001
+      }
+    },
+    "6": {
+      "seconds": 0.9,
+      "energy_vs_deepest": 1.0004,
+      "full_vs_deepest": {
+        "bias_percent": 0.042,
+        "rms_percent": 2.437,
+        "energy_ratio": 1.0004
+      }
+    },
+    "8": {
+      "seconds": 0.9,
+      "energy_vs_deepest": 1.0017,
+      "full_vs_deepest": {
+        "bias_percent": 0.167,
+        "rms_percent": 2.548,
+        "energy_ratio": 1.0017
+      }
+    },
+    "12": {
+      "seconds": 0.9,
+      "energy_vs_deepest": 1.0,
+      "full_vs_deepest": {
+        "bias_percent": 0.0,
+        "rms_percent": 0.0,
+        "energy_ratio": 1.0
+      }
+    }
+  },
+  "foton": {
+    "1": {
+      "wall_ms": 3.78,
+      "energy_vs_1_bounce": 1.0,
+      "full_vs_deepest": {
+        "bias_percent": -0.678,
+        "rms_percent": 2.768,
+        "energy_ratio": 0.9932
+      },
+      "indirect_vs_deepest": {
+        "bias_percent": -9.785,
+        "rms_percent": 17.221,
+        "energy_ratio": 0.9022
+      },
+      "full_vs_same_bounces": {
+        "bias_percent": 0.016,
+        "rms_percent": 2.593,
+        "energy_ratio": 1.0002
+      }
+    },
+    "2": {
+      "wall_ms": 4.11,
+      "energy_vs_1_bounce": 1.0057,
+      "full_vs_deepest": {
+        "bias_percent": -0.113,
+        "rms_percent": 2.64,
+        "energy_ratio": 0.9989
+      },
+      "indirect_vs_deepest": {
+        "bias_percent": -1.627,
+        "rms_percent": 16.43,
+        "energy_ratio": 0.9837
+      },
+      "full_vs_same_bounces": {
+        "bias_percent": -0.056,
+        "rms_percent": 2.659,
+        "energy_ratio": 0.9994
+      }
+    },
+    "4": {
+      "wall_ms": 2.19,
+      "energy_vs_1_bounce": 1.0063,
+      "full_vs_deepest": {
+        "bias_percent": -0.054,
+        "rms_percent": 2.628,
+        "energy_ratio": 0.9995
+      },
+      "indirect_vs_deepest": {
+        "bias_percent": -0.781,
+        "rms_percent": 16.354,
+        "energy_ratio": 0.9922
+      },
+      "full_vs_same_bounces": {
+        "bias_percent": -0.06,
+        "rms_percent": 2.599,
+        "energy_ratio": 0.9994
+      }
+    },
+    "6": {
+      "wall_ms": 2.08,
+      "energy_vs_1_bounce": 1.0063,
+      "full_vs_deepest": {
+        "bias_percent": -0.054,
+        "rms_percent": 2.628,
+        "energy_ratio": 0.9995
+      },
+      "indirect_vs_deepest": {
+        "bias_percent": -0.779,
+        "rms_percent": 16.354,
+        "energy_ratio": 0.9922
+      },
+      "full_vs_same_bounces": {
+        "bias_percent": -0.095,
+        "rms_percent": 2.57,
+        "energy_ratio": 0.999
+      }
+    },
+    "8": {
+      "wall_ms": 1.71,
+      "energy_vs_1_bounce": 1.0063,
+      "full_vs_deepest": {
+        "bias_percent": -0.054,
+        "rms_percent": 2.628,
+        "energy_ratio": 0.9995
+      },
+      "indirect_vs_deepest": {
+        "bias_percent": -0.779,
+        "rms_percent": 16.354,
+        "energy_ratio": 0.9922
+      },
+      "full_vs_same_bounces": {
+        "bias_percent": -0.221,
+        "rms_percent": 2.737,
+        "energy_ratio": 0.9978
+      }
+    },
+    "12": {
+      "wall_ms": 1.74,
+      "energy_vs_1_bounce": 1.0063,
+      "full_vs_deepest": {
+        "bias_percent": -0.054,
+        "rms_percent": 2.628,
+        "energy_ratio": 0.9995
+      },
+      "indirect_vs_deepest": {
+        "bias_percent": -0.779,
+        "rms_percent": 16.354,
+        "energy_ratio": 0.9922
+      },
+      "full_vs_same_bounces": {
+        "bias_percent": -0.054,
+        "rms_percent": 2.628,
+        "energy_ratio": 0.9995
+      }
+    }
+  }
+}
