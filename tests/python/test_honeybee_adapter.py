@@ -12,6 +12,7 @@ import numpy as np
 
 from honeybee.model import Model
 from honeybee.room import Room
+from ladybug_geometry.geometry3d import Vector3D
 
 from foton.honeybee.adapter import (
     _append_geometry,
@@ -54,8 +55,35 @@ class HoneybeeAdapterTests(unittest.TestCase):
         )
         self.assertEqual(model.units, "Feet")
         self.assertEqual(prepared.model.units, "Meters")
-        self.assertEqual(prepared.arrays["vertices"].dtype, np.float32)
+        self.assertEqual(prepared.arrays["vertices"].dtype, np.float64)
         self.assertTrue(prepared.arrays["vertices"].flags.c_contiguous)
+        native = prepared.native_arrays()
+        self.assertEqual(native["vertices"].dtype, np.float32)
+        self.assertEqual(native["sensor_positions"].dtype, np.float32)
+
+    def test_distant_model_is_recentred_before_the_float32_cast(self):
+        # A room at a SWEREF99-scale northing must trace like the same room at the
+        # origin; without recentring float32 spacing there is 0.5 m.
+        near = Model("Near", [Room.from_box("Room", 6, 6, 3)])
+        far_room = Room.from_box("Room", 6, 6, 3)
+        far_room.move(Vector3D(150_000.0, 6_400_000.0, 0.0))
+        far = Model("Far", [far_room])
+        for model in (near, far):
+            model.rooms[0][3].apertures_by_ratio(0.4)
+        prepared_near = prepare_honeybee_scene(near, grid_size=1.0)
+        prepared_far = prepare_honeybee_scene(far, grid_size=1.0)
+        np.testing.assert_array_equal(
+            prepared_far.arrays["scene_origin"], [150_003.0, 6_400_003.0, 2.0]
+        )
+        np.testing.assert_allclose(
+            prepared_far.native_arrays()["vertices"],
+            prepared_near.native_arrays()["vertices"],
+            atol=1e-6,
+        )
+        self.assertEqual(
+            prepared_far.geometry_info["scene_origin_m"],
+            [150_003.0, 6_400_003.0, 2.0],
+        )
 
     def test_punched_geometry_preserves_opening_area(self):
         room = Room.from_box("Room", 6, 9, 3)

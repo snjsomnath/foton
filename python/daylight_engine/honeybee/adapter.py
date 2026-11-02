@@ -25,24 +25,44 @@ class PreparedHoneybeeScene:
     geometry_info: dict[str, Any]
     validation_warnings: tuple[dict[str, Any], ...]
 
+    def native_arrays(self):
+        """Engine-ready arrays: geometry and sensors recentred and cast to float32.
+
+        ``arrays`` keeps world coordinates in float64 so Radiance comparisons stay
+        exact; recentring on ``scene_origin`` before the cast keeps full precision
+        for models placed at real-world coordinates (float32 spacing is 0.5 m at
+        a 6e6 m northing).
+        """
+        origin = self.arrays["scene_origin"]
+        return {
+            **self.arrays,
+            "vertices": np.ascontiguousarray(
+                self.arrays["vertices"] - origin, dtype=np.float32
+            ),
+            "sensor_positions": np.ascontiguousarray(
+                self.arrays["sensor_positions"] - origin, dtype=np.float32
+            ),
+        }
+
     def create_native_scene(self, engine):
+        arrays = self.native_arrays()
         return engine.create_scene(
-            self.arrays["vertices"],
-            self.arrays["triangles"],
-            self.arrays["triangle_materials"],
-            self.arrays["mesh_ranges"],
-            self.arrays["instance_transforms"],
-            self.arrays["instance_mesh_indices"],
-            self.arrays["instance_room_ids"],
-            self.arrays["instance_masks"],
-            self.arrays["material_kinds"],
-            self.arrays["material_diffuse_rgb"],
-            self.arrays["material_transmittance_rgb"],
-            self.arrays["sensor_positions"],
-            self.arrays["sensor_normals"],
-            self.arrays["sensor_ids"],
-            self.arrays["sensor_room_ids"],
-            self.arrays["sensor_area_weights"],
+            arrays["vertices"],
+            arrays["triangles"],
+            arrays["triangle_materials"],
+            arrays["mesh_ranges"],
+            arrays["instance_transforms"],
+            arrays["instance_mesh_indices"],
+            arrays["instance_room_ids"],
+            arrays["instance_masks"],
+            arrays["material_kinds"],
+            arrays["material_diffuse_rgb"],
+            arrays["material_transmittance_rgb"],
+            arrays["sensor_positions"],
+            arrays["sensor_normals"],
+            arrays["sensor_ids"],
+            arrays["sensor_room_ids"],
+            arrays["sensor_area_weights"],
         )
 
 
@@ -86,7 +106,9 @@ def prepare_honeybee_scene(
     arrays = {
         **geometry_arrays,
         **sensor_arrays,
+        "scene_origin": _scene_origin(geometry_arrays["vertices"]),
     }
+    geometry_info["scene_origin_m"] = arrays["scene_origin"].tolist()
     fingerprint = _fingerprint_model(
         model,
         grid_filter,
@@ -103,6 +125,14 @@ def prepare_honeybee_scene(
         geometry_info=geometry_info,
         validation_warnings=tuple(validation_warnings),
     )
+
+
+def _scene_origin(vertices):
+    """Whole-metre midpoint of the geometry bounds, so small models near the
+    origin shift by exact float32 values and distant models lose nothing."""
+    vertices = np.asarray(vertices, dtype=np.float64)
+    midpoint = (vertices.min(axis=0) + vertices.max(axis=0)) / 2
+    return np.round(midpoint)
 
 
 def _load_and_normalize_model(model_or_path):
@@ -310,7 +340,7 @@ def _prepare_geometry(model, room_map, *, include_aperture_glazing=False):
         np.eye(4, dtype=np.float32)[None, :, :], instance_count, axis=0
     )
     arrays = {
-        "vertices": np.ascontiguousarray(vertices, dtype=np.float32),
+        "vertices": np.ascontiguousarray(vertices, dtype=np.float64),
         "triangles": np.ascontiguousarray(triangles, dtype=np.uint32),
         "triangle_materials": np.ascontiguousarray(
             triangle_materials, dtype=np.uint32
@@ -693,7 +723,7 @@ def _prepare_sensors(model, room_map, *, grid_filter, grid_size, sensor_height):
         )
     arrays = {
         "sensor_positions": np.ascontiguousarray(
-            sensor_positions, dtype=np.float32
+            sensor_positions, dtype=np.float64
         ),
         "sensor_normals": np.ascontiguousarray(sensor_normals, dtype=np.float32),
         "sensor_ids": np.arange(len(sensor_positions), dtype=np.uint32),

@@ -247,7 +247,7 @@ class AcceptanceFixtureTests(unittest.TestCase):
         self.assertEqual(sum(len(face.apertures) for face in classroom_room.faces), 0)
 
     def test_near_corner_secondary_ray_does_not_escape_classroom(self):
-        arrays = self.prepared.arrays
+        arrays = self.prepared.native_arrays()
         classroom = next(
             info
             for info in self.prepared.grid_info
