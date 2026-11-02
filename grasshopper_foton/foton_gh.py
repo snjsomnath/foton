@@ -15,6 +15,14 @@ import subprocess
 import tempfile
 import threading
 import time
+import sys
+
+try:
+    from foton_bridge import resolve_manifest, reusable, reuse_identity
+except ImportError:
+    # Source checkout; release bundles contain foton_bridge beside this package.
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(__file__)), "python"))
+    from foton_bridge import resolve_manifest, reusable, reuse_identity
 
 try:
     import Queue as queue
@@ -177,19 +185,50 @@ def _parse_protocol_line(line):
     return message
 
 
-def capabilities(executable=None, backend="auto"):
+def _signal_process(process, force=False):
+    """Stop CPython children using CPython or Rhino's .NET subprocess wrapper."""
+    if process.poll() is not None:
+        return
+    method = getattr(process, "kill" if force else "terminate", None)
+    if method is not None:
+        method()
+    else:
+        # Rhino 8 IronPython exposes System.Diagnostics.Process directly.
+        process.process.Kill()
+
+
+def capabilities(executable=None, backend="auto", output=None):
     executable = discover_executable(executable)
     env = _subprocess_environment(executable)
+    command = [executable, "capabilities", "--backend", str(backend)]
+    if output:
+        command.extend(["--output", str(output)])
     process = subprocess.Popen(
-        [executable, "capabilities", "--backend", str(backend)],
+        command,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         env=env,
     )
-    stdout, stderr = process.communicate()
-    if process.returncode != 0:
+    timed_out = []
+    def expire():
+        timed_out.append(True)
+        _signal_process(process, force=True)
+    timer = threading.Timer(30.0, expire)
+    timer.start()
+    try:
+        stdout, stderr = process.communicate()
+        # Rhino's IronPython communicate() drains pipes without setting returncode.
+        return_code = process.wait()
+    finally:
+        timer.cancel()
+    if timed_out:
+        raise FotonError("Foton preflight timed out after 30 seconds")
+    if return_code != 0:
         raise FotonError(_text(stderr).strip() or "Foton capability check failed")
-    result = json.loads(_text(stdout))
+    try:
+        result = json.loads(_text(stdout))
+    except ValueError as error:
+        raise FotonError("Invalid capability response: " + str(error))
     if result.get("protocol") != PROTOCOL_NAME:
         raise FotonError("The executable does not provide the Foton Honeybee protocol")
     if int(result.get("protocol_version", -1)) != PROTOCOL_VERSION:
@@ -364,7 +403,7 @@ def load_manifest(value):
         raise FotonError("The Foton run is not complete")
     if not isinstance(manifest.get("grids"), list):
         raise FotonError("The Foton manifest has no SensorGrid results")
-    return manifest
+    return resolve_manifest(manifest, path)
 
 
 def _metric_values(path, count):
@@ -381,6 +420,8 @@ def _metric_values(path, count):
                 path, len(values), count
             )
         )
+    if any(math.isnan(value) or math.isinf(value) for value in values):
+        raise FotonError("Metric file contains non-finite values: " + path)
     return values
 
 
@@ -500,12 +541,6 @@ def _run_process(command, progress=None, cancel=None):
     try:
         while process.poll() is None or not stdout_done:
             if cancel is not None and cancel():
-                process.terminate()
-                started = time.time()
-                while process.poll() is None and time.time() - started < 2.0:
-                    time.sleep(0.05)
-                if process.poll() is None:
-                    process.kill()
                 raise FotonCancelled("Foton annual daylight was cancelled")
             try:
                 kind, line = messages.get(True, 0.1)
@@ -519,9 +554,20 @@ def _run_process(command, progress=None, cancel=None):
                 progress(message)
             if message.get("event") == "complete":
                 manifest = message.get("manifest")
-    except KeyboardInterrupt:
-        process.terminate()
-        raise FotonCancelled("Foton annual daylight was cancelled")
+    except BaseException as error:
+        if process.poll() is None:
+            _signal_process(process)
+            started = time.time()
+            while process.poll() is None and time.time() - started < 2.0:
+                time.sleep(0.05)
+            if process.poll() is None:
+                _signal_process(process, force=True)
+        process.wait()
+        stdout_thread.join(1.0)
+        stderr_thread.join(1.0)
+        if isinstance(error, KeyboardInterrupt):
+            raise FotonCancelled("Foton annual daylight was cancelled")
+        raise
     return_code = process.wait()
     stdout_thread.join(1.0)
     stderr_thread.join(1.0)
@@ -582,10 +628,16 @@ def run_annual_daylight(
             export_illuminance=True,
         )
         requested_output = os.path.abspath(os.path.expanduser(output_folder))
+        identity = None
         existing_manifest = os.path.join(requested_output, "run_manifest.json")
         if reuse and os.path.isfile(existing_manifest):
-            existing = load_manifest(existing_manifest)
-            if existing.get("request", {}).get("fingerprint") == request["fingerprint"]:
+            current = capabilities(executable, backend or "auto", requested_output)
+            identity = reuse_identity(request, current)
+            try:
+                existing = load_manifest(existing_manifest)
+            except (FotonError, ValueError, IOError, TypeError):
+                existing = {}
+            if reusable(existing, identity):
                 existing["grasshopper_reused"] = True
                 if progress is not None:
                     progress({"event": "reused", "manifest": existing})
@@ -646,4 +698,3 @@ def run_annual_daylight(
         return load_result_bundle(manifest)
     finally:
         shutil.rmtree(temp_folder, ignore_errors=True)
-

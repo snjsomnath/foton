@@ -1,0 +1,8 @@
+# Embedded Grasshopper source hashes must remain identical on Windows and macOS.
+grasshopper_foton/**/*.py text eol=lf
+grasshopper_foton/*.py text eol=lf
+python/foton_bridge/*.py text eol=lf
+scripts/build_grasshopper.py text eol=lf
+grasshopper_foton/distribution/*.ghuser binary
+grasshopper_foton/distribution/*.gh binary
+grasshopper_foton/distribution/*.ghx -text

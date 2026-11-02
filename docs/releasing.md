@@ -43,10 +43,18 @@ PyPI token is required.
    git push origin v0.2.0
    ```
 
-The tag starts the wheel matrix. Publication happens only after every wheel and source
-distribution has been built and uploaded as workflow artifacts.
+The tag starts the wheel matrix and public-beta acceptance workflow. Publication
+requires all distributions, the Grasshopper package, and both platform acceptance
+gates to pass.
 
 ## Name ownership
 
 The exact PyPI project name `foton` belongs to another publisher. Do not upload this
 project under that name unless ownership has been formally transferred on PyPI.
+
+## Public-beta acceptance gate
+
+Read [release readiness](release-readiness.md) before tagging. Publishing now
+requires current-commit Metal and Windows Vulkan numerical suites, complete live
+Rhino 8 evidence on both platforms, and a source-matched Grasshopper download.
+Configure the documented trusted GPU runners; absent evidence blocks publication.

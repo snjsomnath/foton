@@ -1,5 +1,11 @@
 # Foton GhPython components
 
+For the ready-made release download, start with the
+[Rhino 8 quickstart](../docs/grasshopper-quickstart.md). Maintainers generate native
+components using `scripts/build_grasshopper.py` in Rhino, then run
+`scripts/package_grasshopper.py`. The instructions below describe the manual
+developer workflow.
+
 These scripts are copy-ready sources for manual IronPython GhPython components.
 They run Foton through the external `foton-honeybee` executable, so Rhino never
 loads Foton's CPython native extension.

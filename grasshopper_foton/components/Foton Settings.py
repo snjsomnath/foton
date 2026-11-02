@@ -63,13 +63,17 @@ if globals().get("_check", False):
         executable = data["executable"]
         engine_version = data["engine_version"]
         protocol_version = data["protocol_version"]
-        backend = data.get("engine", {}).get("backend")
+        backend = data.get("selected_backend", data.get("engine", {}).get("name"))
         capabilities = data
         cache_folder = data.get("weather_cache")
         report = json.dumps(data, indent=2, sort_keys=True)
         ghenv.Component.Message = "{0} / {1}".format(engine_version, backend)
+        if not data.get("ready", True):
+            ghenv.Component.Message = "Setup required"
+        for message in data.get("errors", []) + data.get("warnings", []):
+            from Grasshopper.Kernel import GH_RuntimeMessageLevel
+            ghenv.Component.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, str(message))
     except FotonError as error:
         report = str(error)
         ghenv.Component.Message = "Not found"
         raise RuntimeError(report)
-
