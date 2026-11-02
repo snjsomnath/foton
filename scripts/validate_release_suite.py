@@ -647,6 +647,7 @@ def main():
         if args.models_dir
         else None,
         "wheel_sha256": digest(args.wheel) if args.wheel else None,
+        "weather": str(args.weather),
         "weather_sha256": digest(args.weather) if args.weather.exists() else None,
         "started_at": datetime.now(timezone.utc).isoformat(),
         "smoke": args.smoke,
