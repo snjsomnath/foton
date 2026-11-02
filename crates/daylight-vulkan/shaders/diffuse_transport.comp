@@ -11,7 +11,7 @@ layout(push_constant, scalar) uniform Uniforms {
     uint patch_count;
     uint active_mask;
     uint max_transparent;
-    uint padding;
+    uint total_sample_count;
     uint scene_seed_low;
     uint scene_seed_high;
     float accumulator_scale;
@@ -183,7 +183,7 @@ void main() {
             if(diffuse_bounces>0) {
                 uint patch_index=radiance_patch(direction);
                 accumulate((sensor_index*uniforms.patch_count+patch_index)*3,
-                    throughput*(3.14159265359/float(uniforms.sample_count)));
+                    throughput*(3.14159265359/float(uniforms.total_sample_count)));
             }
             break;
         }

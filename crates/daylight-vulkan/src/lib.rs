@@ -51,11 +51,21 @@ struct TransportUniforms {
     patch_count: u32,
     active_mask: u32,
     max_transparent: u32,
-    padding: u32,
+    total_sample_count: u32,
     scene_seed_low: u32,
     scene_seed_high: u32,
     accumulator_scale: f32,
     padding_two: u32,
+}
+
+/// Upper bound on sensor×sample paths per diffuse dispatch. Larger requests are
+/// split into sample tiles so cancellation is honoured between tiles and no
+/// single submission runs long enough to trip a driver watchdog (TDR on Windows).
+const MAX_PATHS_PER_DISPATCH: usize = 1 << 22;
+
+fn sample_tile(sensor_count: usize, maximum_samples: u32) -> u32 {
+    let per_sensor = MAX_PATHS_PER_DISPATCH / sensor_count.max(1);
+    (per_sensor.max(64) as u32).min(maximum_samples.max(1))
 }
 
 #[repr(C)]
@@ -440,39 +450,46 @@ impl VulkanBackend {
                 coefficient_count * 3 * size_of::<u32>(),
                 vk::BufferUsageFlags::STORAGE_BUFFER,
             )?;
-            self.diffuse.dispatch(
-                &self.context,
-                &[
-                    &common.sensors,
-                    &common.directions,
-                    &common.metadata,
-                    &common.triangle_materials,
-                    &common.materials,
-                    &common.triangle_normals,
-                    &common.normal_transforms,
-                    &indirect,
-                ],
-                Some(acceleration.handle),
-                bytemuck::bytes_of(&TransportUniforms {
-                    sensor_count: scene.sensors.len() as u32,
-                    sample_offset: 0,
-                    sample_count: request.maximum_samples,
-                    maximum_bounces: request.maximum_bounces,
-                    patch_count: request.sky.basis.row_count() as u32,
-                    active_mask: u32::MAX,
-                    max_transparent: MAX_TRANSPARENT,
-                    padding: 0,
-                    scene_seed_low: request.scene_seed as u32,
-                    scene_seed_high: (request.scene_seed >> 32) as u32,
-                    accumulator_scale: TRANSPORT_SCALE,
-                    padding_two: 0,
-                }),
-                [
-                    request.maximum_samples.div_ceil(8),
-                    (scene.sensors.len() as u32).div_ceil(8),
-                    1,
-                ],
-            )?;
+            let tile = sample_tile(scene.sensors.len(), request.maximum_samples);
+            let mut sample_offset = 0u32;
+            while sample_offset < request.maximum_samples {
+                check_cancelled(cancelled)?;
+                let sample_count = tile.min(request.maximum_samples - sample_offset);
+                self.diffuse.dispatch(
+                    &self.context,
+                    &[
+                        &common.sensors,
+                        &common.directions,
+                        &common.metadata,
+                        &common.triangle_materials,
+                        &common.materials,
+                        &common.triangle_normals,
+                        &common.normal_transforms,
+                        &indirect,
+                    ],
+                    Some(acceleration.handle),
+                    bytemuck::bytes_of(&TransportUniforms {
+                        sensor_count: scene.sensors.len() as u32,
+                        sample_offset,
+                        sample_count,
+                        maximum_bounces: request.maximum_bounces,
+                        patch_count: request.sky.basis.row_count() as u32,
+                        active_mask: u32::MAX,
+                        max_transparent: MAX_TRANSPARENT,
+                        total_sample_count: request.maximum_samples,
+                        scene_seed_low: request.scene_seed as u32,
+                        scene_seed_high: (request.scene_seed >> 32) as u32,
+                        accumulator_scale: TRANSPORT_SCALE,
+                        padding_two: 0,
+                    }),
+                    [
+                        sample_count.div_ceil(8),
+                        (scene.sensors.len() as u32).div_ceil(8),
+                        1,
+                    ],
+                )?;
+                sample_offset += sample_count;
+            }
             self.finalize.dispatch(
                 &self.context,
                 &[&indirect, &coefficients],

@@ -8,7 +8,7 @@ struct TransportUniforms {
     uint patch_count;
     uint active_category_mask;
     uint maximum_transparent_intersections;
-    uint padding;
+    uint total_sample_count;
     uint scene_seed_low;
     uint scene_seed_high;
     float accumulator_scale;
@@ -317,7 +317,7 @@ kernel void diffuse_transport(
                 accumulate_indirect(
                     indirect_coefficients,
                     destination,
-                    throughput * (M_PI_F / float(uniforms.sample_count)),
+                    throughput * (M_PI_F / float(uniforms.total_sample_count)),
                     uniforms.accumulator_scale);
             }
             break;

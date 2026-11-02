@@ -421,3 +421,45 @@ fn committed_metal_scene_reduces_cached_coefficients_without_retracing() {
     assert!(cached.coefficients.is_none());
     assert_ne!(first.annual.sensors, cached.annual.sensors);
 }
+
+#[cfg(target_os = "macos")]
+#[test]
+fn metal_sample_tiling_is_exact_when_available() {
+    // 2,048 sensors at 4,096 samples exceed the 2^22 paths-per-dispatch bound and
+    // trace as two sample tiles. Each 1,024-sensor half fits one dispatch. The
+    // fixed-point accumulators are order-independent, so the tiled result must
+    // equal the untiled halves exactly.
+    let Some(metal) = enabled_metal() else {
+        return;
+    };
+    let scene = shoebox_scene(ShoeboxOptions {
+        room_count: 1,
+        sensors_per_room: 2048,
+        glazing_transmittance: Some([0.6; 3]),
+    })
+    .unwrap();
+    let mut request = request();
+    request.maximum_samples = 4096;
+    request.maximum_bounces = 2;
+    let tiled = metal
+        .analyze(&scene, &request, 1, &AtomicBool::new(false), &|_| {})
+        .unwrap();
+    let tiled = tiled.coefficients.as_ref().unwrap();
+    for (half, range) in [(0usize, 0..1024usize), (1, 1024..2048)] {
+        let mut subset = scene.clone();
+        subset.sensors = scene.sensors[range.clone()].to_vec();
+        let untiled = metal
+            .analyze(&subset, &request, 1, &AtomicBool::new(false), &|_| {})
+            .unwrap();
+        let untiled = untiled.coefficients.as_ref().unwrap();
+        for (local, global) in range.enumerate() {
+            for patch in 0..SkyBasis::Tregenza.row_count() {
+                assert_eq!(
+                    tiled.get(global, patch),
+                    untiled.get(local, patch),
+                    "half {half}, sensor {global}, patch {patch}"
+                );
+            }
+        }
+    }
+}

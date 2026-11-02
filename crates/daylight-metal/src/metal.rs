@@ -86,11 +86,21 @@ struct TransportUniforms {
     patch_count: u32,
     active_category_mask: u32,
     maximum_transparent_intersections: u32,
-    padding: u32,
+    total_sample_count: u32,
     scene_seed_low: u32,
     scene_seed_high: u32,
     accumulator_scale: f32,
     padding_two: u32,
+}
+
+/// Upper bound on sensor×sample paths per diffuse dispatch. Larger requests are
+/// split into sample tiles so cancellation is honoured between tiles and no
+/// single command buffer runs long enough to trip a GPU watchdog.
+const MAX_PATHS_PER_DISPATCH: usize = 1 << 22;
+
+fn sample_tile(sensor_count: usize, maximum_samples: u32) -> u32 {
+    let per_sensor = MAX_PATHS_PER_DISPATCH / sensor_count.max(1);
+    (per_sensor.max(64) as u32).min(maximum_samples.max(1))
 }
 
 #[repr(C)]
@@ -477,6 +487,7 @@ impl MetalBackend {
         scene: &SceneData,
         request: &AnalysisRequest,
         resident: Option<&AccelerationResources>,
+        cancelled: &AtomicBool,
     ) -> Result<GpuCoefficientOutput> {
         let acceleration_started = Instant::now();
         let built_acceleration = if resident.is_none() {
@@ -613,62 +624,69 @@ impl MetalBackend {
                     accumulator_len * size_of::<u32>(),
                 );
             }
-            let transport_uniforms = TransportUniforms {
-                sensor_count: scene.sensors.len() as u32,
-                sample_offset: 0,
-                sample_count: request.maximum_samples,
-                maximum_bounces: request.maximum_bounces,
-                patch_count: basis.row_count() as u32,
-                active_category_mask: u32::MAX,
-                maximum_transparent_intersections: MAXIMUM_TRANSPARENT_INTERSECTIONS,
-                padding: 0,
-                scene_seed_low: request.scene_seed as u32,
-                scene_seed_high: (request.scene_seed >> 32) as u32,
-                accumulator_scale: TRANSPORT_ACCUMULATOR_SCALE,
-                padding_two: 0,
-            };
-            let command_buffer = self.command_buffer("diffuse transport")?;
-            let encoder =
-                command_buffer
-                    .computeCommandEncoder()
-                    .ok_or_else(|| DaylightError::Backend {
-                        detail: "failed to create diffuse transport encoder".into(),
-                    })?;
-            encoder.setComputePipelineState(&self.diffuse_pipeline);
-            unsafe {
-                encoder.setBytes_length_atIndex(
-                    NonNull::from(&transport_uniforms).cast::<c_void>(),
-                    size_of::<TransportUniforms>(),
-                    0,
+            let tile = sample_tile(scene.sensors.len(), request.maximum_samples);
+            let mut sample_offset = 0u32;
+            while sample_offset < request.maximum_samples {
+                check_cancelled(cancelled)?;
+                let sample_count = tile.min(request.maximum_samples - sample_offset);
+                let transport_uniforms = TransportUniforms {
+                    sensor_count: scene.sensors.len() as u32,
+                    sample_offset,
+                    sample_count,
+                    maximum_bounces: request.maximum_bounces,
+                    patch_count: basis.row_count() as u32,
+                    active_category_mask: u32::MAX,
+                    maximum_transparent_intersections: MAXIMUM_TRANSPARENT_INTERSECTIONS,
+                    total_sample_count: request.maximum_samples,
+                    scene_seed_low: request.scene_seed as u32,
+                    scene_seed_high: (request.scene_seed >> 32) as u32,
+                    accumulator_scale: TRANSPORT_ACCUMULATOR_SCALE,
+                    padding_two: 0,
+                };
+                let command_buffer = self.command_buffer("diffuse transport")?;
+                let encoder =
+                    command_buffer
+                        .computeCommandEncoder()
+                        .ok_or_else(|| DaylightError::Backend {
+                            detail: "failed to create diffuse transport encoder".into(),
+                        })?;
+                encoder.setComputePipelineState(&self.diffuse_pipeline);
+                unsafe {
+                    encoder.setBytes_length_atIndex(
+                        NonNull::from(&transport_uniforms).cast::<c_void>(),
+                        size_of::<TransportUniforms>(),
+                        0,
+                    );
+                    encoder.setBuffer_offset_atIndex(Some(&sensor_buffer), 0, 1);
+                    encoder.setBuffer_offset_atIndex(Some(&direction_buffer), 0, 2);
+                    encoder.setBuffer_offset_atIndex(Some(&metadata_buffer), 0, 3);
+                    encoder.setBuffer_offset_atIndex(Some(&triangle_material_buffer), 0, 4);
+                    encoder.setBuffer_offset_atIndex(Some(&material_buffer), 0, 5);
+                    encoder.setBuffer_offset_atIndex(Some(&triangle_normal_buffer), 0, 6);
+                    encoder.setBuffer_offset_atIndex(Some(&normal_transform_buffer), 0, 7);
+                    encoder.setBuffer_offset_atIndex(Some(&indirect_buffer), 0, 8);
+                    encoder.setAccelerationStructure_atBufferIndex(Some(&acceleration.top_level), 9);
+                }
+                encoder.dispatchThreads_threadsPerThreadgroup(
+                    MTLSize {
+                        width: sample_count as usize,
+                        height: scene.sensors.len(),
+                        depth: 1,
+                    },
+                    MTLSize {
+                        width: self
+                            .diffuse_pipeline
+                            .threadExecutionWidth()
+                            .max(1)
+                            .min(sample_count as usize),
+                        height: 1,
+                        depth: 1,
+                    },
                 );
-                encoder.setBuffer_offset_atIndex(Some(&sensor_buffer), 0, 1);
-                encoder.setBuffer_offset_atIndex(Some(&direction_buffer), 0, 2);
-                encoder.setBuffer_offset_atIndex(Some(&metadata_buffer), 0, 3);
-                encoder.setBuffer_offset_atIndex(Some(&triangle_material_buffer), 0, 4);
-                encoder.setBuffer_offset_atIndex(Some(&material_buffer), 0, 5);
-                encoder.setBuffer_offset_atIndex(Some(&triangle_normal_buffer), 0, 6);
-                encoder.setBuffer_offset_atIndex(Some(&normal_transform_buffer), 0, 7);
-                encoder.setBuffer_offset_atIndex(Some(&indirect_buffer), 0, 8);
-                encoder.setAccelerationStructure_atBufferIndex(Some(&acceleration.top_level), 9);
+                encoder.endEncoding();
+                tracing_ms += complete(command_buffer, "diffuse transport")?;
+                sample_offset += sample_count;
             }
-            encoder.dispatchThreads_threadsPerThreadgroup(
-                MTLSize {
-                    width: request.maximum_samples as usize,
-                    height: scene.sensors.len(),
-                    depth: 1,
-                },
-                MTLSize {
-                    width: self
-                        .diffuse_pipeline
-                        .threadExecutionWidth()
-                        .max(1)
-                        .min(request.maximum_samples as usize),
-                    height: 1,
-                    depth: 1,
-                },
-            );
-            encoder.endEncoding();
-            tracing_ms += complete(command_buffer, "diffuse transport")?;
 
             let finalize_uniforms = FinalizeUniforms {
                 coefficient_count: output_len as u32,
@@ -921,7 +939,7 @@ impl MetalBackend {
                 tracing_ms: 0.0,
             }
         } else {
-            self.trace_coefficients_on_gpu(&scene, request, resident)?
+            self.trace_coefficients_on_gpu(&scene, request, resident, cancelled)?
         };
         progress(0.75);
         check_cancelled(cancelled)?;
