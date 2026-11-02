@@ -58,9 +58,12 @@ and sampling stability 40,000 with 80,000 ambient divisions;
 each reference level also checks replicate-half stability (the one-bounce level
 is a diagnostic only). Stability RMS gates are 5% at MF:1 and 10% at MF:2, where
 the same ray budget covers four times as many bins; energy gates do not change.
-References that are physically dark (sealed rooms), skies a room cannot see, and
-indirect stages below 0.5% of direct energy count as agreement rather than as
-relative error over noise. The indirect stage's RMS error is normalised by the
+References that are physically dark (a grid whose hourly illuminance averages
+under 1 lux and never exceeds 10 lux in either engine: sealed rooms, windowless
+rooms in multi-room models), skies a room cannot see, controlled skies worth
+under 0.5% of the uniform-sky light, and indirect stages below 0.5% of direct
+energy count as agreement rather than as relative error over noise; their
+errors are still recorded. The indirect stage's RMS error is normalised by the
 full coefficients it contributes to, so a rooflit room's small, noisy reflected
 component is judged by its effect on the result; its energy bias gate (3%) is
 unchanged. Radiance-versus-Radiance stability also waives differences below
@@ -84,8 +87,12 @@ percentiles and worst locations remain visible alongside aggregate scores.
 The stock Honeybee acceptance comparison and performance data are separate from
 numerical correctness. A 10x speed target is a performance diagnostic, not an
 accuracy gate. Compare cold with cold and cached with cached at comparable accuracy.
-The existing final quality preset remains unchanged and must pass these gates
-before it can be advertised as validated.
+The suite runs the `final` quality preset as users get it: 256 direct samples
+per patch, 65,536 indirect samples at MF:1 and 262,144 at MF:2 (the budget
+scales with the patch count so per-patch noise, and with it hourly
+illuminance error, is the same at both densities), eight bounces. The preset
+must pass these gates before it can be advertised as validated. The first
+archived campaign is summarised in [purpose and plan](purpose-and-plan.md).
 
 ## Grasshopper artifact build
 

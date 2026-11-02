@@ -22,14 +22,37 @@ DEFAULT_UDI_LOWER_LUX = 100.0
 DEFAULT_UDI_UPPER_LUX = 3000.0
 DEFAULT_TIME_FRACTION = 0.5
 SOLVER_REVISION = "honeybee-distinct-bounce-dimensions-v5"
-# "final" was 64/4096 until 2026-11-02. Against a converged Radiance reference
-# 16,384 indirect samples halve the per-coefficient RMS error (6% -> 3.4%) and cut
-# the DA error from 2.8 pp to 0.7 pp; 256 direct samples resolve sun patches cut
-# by shading edges. Cost on an M4 Pro: 2,020 sensors in 0.38 s (MF:1).
+# Sample budgets at Tregenza MF:1 (146 patches); `quality_preset` scales the
+# indirect budget with the patch count so each sky patch keeps the same number
+# of paths at MF:2. "final" was 64/4096 until 2026-11-02 and 256/16,384 for the
+# first archived campaign that day: at 16,384 the whole-sky coefficient RMS
+# error was 4-5 %, but hourly illuminance under clear skies depends on single
+# patch coefficients, and in rooms lit through few patches (offset windows,
+# obstructed facades) its CV(RMSE) against converged Radiance was 12-21 %.
+# Quadrupling the budget halves it (21 % -> 11 % -> 7 % at 16k/64k/256k).
+# 256 direct samples resolve sun patches cut by shading edges. Cost on an M4 Pro:
+# 2,020 sensors in about 1.3 s at MF:1 and 5.2 s at MF:2.
 QUALITY_PRESETS = {
     "preview": {"direct_samples": 1, "maximum_samples": 64},
-    "final": {"direct_samples": 256, "maximum_samples": 16384},
+    "final": {"direct_samples": 256, "maximum_samples": 65536},
 }
+
+
+def quality_preset(quality: str, sky_density: int = 1) -> dict[str, int]:
+    """Return the sample budget for ``quality`` at ``sky_density``.
+
+    Indirect samples are shared across all sky patches, so the budget grows
+    with the square of the sky density (4x at MF:2) to keep the per-patch
+    Monte Carlo noise, and therefore hourly illuminance error, unchanged.
+    """
+    if quality not in QUALITY_PRESETS:
+        raise ValueError("quality must be 'preview' or 'final'")
+    density = int(sky_density)
+    if isinstance(sky_density, bool) or density < 1:
+        raise ValueError("sky_density must be a positive integer")
+    preset = dict(QUALITY_PRESETS[quality])
+    preset["maximum_samples"] = int(preset["maximum_samples"]) * density * density
+    return preset
 # Diffuse bounce depth at which the 2026-11-02 sweep put Foton within 0.5 % of a
 # 12-bounce Radiance reference on glazed and interior-glazed rooms
 # (validation/results/2026-11-02-bounce-sweep). One bounce under-predicts by ~18 %.
@@ -143,12 +166,11 @@ class HoneybeeStudy:
         threshold, udi_lower, udi_upper, time_fraction = _metric_parameters(
             threshold, udi_lower, udi_upper, target_time
         )
-        if quality not in QUALITY_PRESETS:
-            raise ValueError("quality must be 'preview' or 'final'")
+        preset = quality_preset(quality, sky_density)
         if direct_samples is None:
-            direct_samples = QUALITY_PRESETS[quality]["direct_samples"]
+            direct_samples = preset["direct_samples"]
         if maximum_samples is None:
-            maximum_samples = QUALITY_PRESETS[quality]["maximum_samples"]
+            maximum_samples = preset["maximum_samples"]
         if isinstance(direct_samples, bool) or int(direct_samples) <= 0:
             raise ValueError("direct_samples must be a positive integer")
         if isinstance(maximum_samples, bool) or int(maximum_samples) < 0:

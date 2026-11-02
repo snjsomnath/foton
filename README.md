@@ -133,13 +133,17 @@ The goal is not to replace Radiance. The goal is to make a focused part of
 Radiance-style daylight transport fast enough to use interactively in
 architectural design and research.
 
-**Accuracy against Radiance is not yet established on the full corpus.** The
-default diffuse depth is now eight bounces, which a six-scene sweep put within
-0.5% of a 12-bounce Radiance reference (the previous one-bounce default
-under-predicted glazed rooms by about 18%). The ordered plan to establish parity
-on the 90-scene corpus is in [purpose and plan](docs/purpose-and-plan.md). Static
-diffuse materials and thin glass are supported; nothing here claims compliance,
-ASE, glare, dynamic shading or BSDF support.
+**Accuracy against Radiance is established on the teaching scenes and most of
+the corpus, not yet on all of it.** The first archived campaign (2 November
+2026, 106 scenes at two sky densities against converged Radiance 5.4a
+references) passed 176 of 212 cases, including all 32 teaching cases; DA, UDI
+and sDA agreed within 1 percentage point almost everywhere. The remaining
+failures were hourly-illuminance scatter from Foton's own sample budget (since
+quadrupled), rooms lit only through internal glazing, and one bright 12 m room
+that neither engine converges. Details, the diagnosis and what is still open are
+in [purpose and plan](docs/purpose-and-plan.md). Static diffuse materials and
+thin glass are supported; nothing here claims compliance, ASE, glare, dynamic
+shading or BSDF support.
 
 Further reading: [Grasshopper quickstart](docs/grasshopper-quickstart.md),
 [installation](docs/installation.md), [Python API](docs/python-api.md),

@@ -10,6 +10,7 @@ from typing import Any, Awaitable, Callable
 
 import numpy as np
 
+from ..honeybee.annual import DEFAULT_MAXIMUM_BOUNCES, quality_preset
 from .geometry import ParametricScene, RoomParameters, generate_parametric_scene
 from .demo_geometry import generate_demo_scene
 from .weather import WeatherDataset, WeatherStore
@@ -131,7 +132,13 @@ class ViewerSession:
         if quality == "final" and not weather.annual_metrics_available:
             raise ValueError("the built-in overcast demo supports preview quality only")
         sky = weather.tregenza if quality == "preview" else weather.final
-        maximum_samples, maximum_bounces = (64, 1) if quality == "preview" else (16384, 8)
+        # Preview is a one-bounce Tregenza sketch; final uses the Honeybee
+        # "final" budget at the MF:2 sky the final matrix is built on.
+        if quality == "preview":
+            maximum_samples, maximum_bounces = 64, 1
+        else:
+            maximum_samples = quality_preset("final", 2)["maximum_samples"]
+            maximum_bounces = DEFAULT_MAXIMUM_BOUNCES
         if not 0 <= selected_timestep < sky.shape[1]:
             raise ValueError("selected timestep is out of range")
 

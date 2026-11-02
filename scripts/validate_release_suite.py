@@ -29,8 +29,8 @@ from foton.honeybee.adapter import prepare_honeybee_scene
 from foton.honeybee.annual import (
     DEFAULT_MAXIMUM_BOUNCES,
     PHOTOPIC_WEIGHTS,
-    QUALITY_PRESETS,
     honeybee_schedule,
+    quality_preset,
 )
 from foton.honeybee.radiance import (
     run_radiance_coefficient_stages,
@@ -201,7 +201,7 @@ def run_scene(args, identifier, density, output):
         not metadata["include_glazing"],
     )
     rows = 146 if density == 1 else 578
-    preset = QUALITY_PRESETS["preview" if args.smoke else "final"]
+    preset = quality_preset("preview" if args.smoke else "final", density)
     candidate = trace_coefficients(
         prepared,
         backend=args.backend,
@@ -390,12 +390,24 @@ def run_scene(args, identifier, density, output):
             * float(np.sqrt(np.mean(np.square(actual - ref))))
             / max(uniform_rms, 1e-20)
         )
+        # A sky worth under 0.5 % of the uniform-sky light (north sky reaching
+        # a south room off its louvres) cannot move a metric; its bias is
+        # recorded but not gated, matching the indirect-stage waiver.
+        negligible = float(np.mean(np.abs(ref))) <= 0.005 * uniform_level
         controlled[name]["physically_near_zero"] = near_zero
+        controlled[name]["negligible"] = bool(negligible and not near_zero)
         controlled[name]["reference_mean"] = float(np.mean(ref))
+        controlled[name]["reference_fraction_of_uniform"] = float(
+            np.mean(np.abs(ref)) / max(uniform_level, 1e-20)
+        )
         controlled[name]["rms_normalized_to_uniform_percent"] = rms_to_uniform
-        controlled[name]["passed"] = near_zero or (
-            abs(controlled[name].get("bias_percent", float("inf"))) < 5
-            and rms_to_uniform < 10
+        controlled[name]["passed"] = (
+            near_zero
+            or negligible
+            or (
+                abs(controlled[name].get("bias_percent", float("inf"))) < 5
+                and rms_to_uniform < 10
+            )
         )
     study = HoneybeeStudy(
         model,

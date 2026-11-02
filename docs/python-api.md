@@ -115,10 +115,12 @@ original HBJSON SensorGrid and sensor order.
 
 `sky_density=1` is the Honeybee-compatible Tregenza MF:1 default (146 rows).
 Use `sky_density=2` for Reinhart MF:2 (578 rows). Final quality uses 256
-deterministic solid-angle samples per sky patch, 16,384 indirect samples, eight
-diffuse bounces, and seed 0; a 2,020-sensor model traces in about 0.4 s on an
-M4 Pro. `direct_samples`, `maximum_samples` and `maximum_bounces` are available
-as overrides. Re-running only weather, schedule, thresholds, or raw export on the
+deterministic solid-angle samples per sky patch, 65,536 indirect samples at
+MF:1 (262,144 at MF:2, so that each sky patch keeps the same number of paths),
+eight diffuse bounces, and seed 0; a 2,020-sensor model traces in about 1.3 s
+at MF:1 and 5 s at MF:2 on an M4 Pro. `quality_preset(quality, sky_density)`
+returns the budget. `direct_samples`, `maximum_samples` and `maximum_bounces`
+are available as overrides. Re-running only weather, schedule, thresholds, or raw export on the
 same study reuses compatible coefficients and reports zero tracing time.
 
 With `export_illuminance=True`, the `results` folder is directly loadable by

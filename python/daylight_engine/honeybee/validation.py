@@ -502,13 +502,9 @@ def compare_converged_annual(
                         "foton_lux": float(candidate[worst_sensor, worst_hour]),
                         "radiance_lux": float(reference[worst_sensor, worst_hour]),
                     },
-                    # A sealed room's Radiance leak peaks well under 1 lux; relative
-                    # error against that is noise, so both dark means agreement.
-                    "physically_dark": bool(
-                        max(float(np.max(reference)), float(np.max(candidate))) <= 1.0
-                    ),
+                    "physically_dark": _physically_dark(reference, candidate),
                     "passed": bool(
-                        max(float(np.max(reference)), float(np.max(candidate))) <= 1.0
+                        _physically_dark(reference, candidate)
                         or (abs(nmbe) < 5.0 and cvrmse < 10.0)
                     ),
                 },
@@ -576,6 +572,26 @@ def _metrics_from_sunup(values, occupied_sunup, occupied_total):
 SDA_AMBIGUITY_PP = 5.0
 NEGLIGIBLE_INDIRECT_FRACTION = 0.005
 NEGLIGIBLE_INDIRECT_ENERGY_PER_SENSOR = 1.0e-4
+
+
+DARK_GRID_MEAN_LUX = 1.0
+DARK_GRID_MAXIMUM_LUX = 10.0
+
+
+def _physically_dark(reference, candidate) -> bool:
+    """True when both hourly illuminance arrays describe an unlit grid.
+
+    A room with no path to daylight (a sealed room, or a windowless room in
+    a multi-room model) still reads a Radiance leak through coincident
+    faces: under 1 lux in the sealed fixture, 1.8 lux at one hour of a
+    windowless classroom at MF:2. Relative error against that is noise. A
+    grid lit by any real aperture averages far more than 1 lux.
+    """
+    reference = np.asarray(reference, dtype=np.float64)
+    candidate = np.asarray(candidate, dtype=np.float64)
+    mean = max(float(np.mean(np.abs(reference))), float(np.mean(np.abs(candidate))))
+    peak = max(float(np.max(np.abs(reference), initial=0.0)), float(np.max(np.abs(candidate), initial=0.0)))
+    return bool(mean <= DARK_GRID_MEAN_LUX and peak <= DARK_GRID_MAXIMUM_LUX)
 
 
 def _waive_negligible_indirect(direct, indirect, sensor_count):

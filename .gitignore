@@ -39,3 +39,10 @@
 /validation/results/**/center_visibility/
 /validation/results/**/stock/
 /validation/results/**/*.bin
+# Per-case inputs and duplicates: models are regenerated from validation/scenes.py
+# and hashed in the report; suite.json carries every case's report.json.
+/validation/results/**/weather_cache/
+/validation/results/**/model.hbjson
+/validation/results/**/stock.log
+/validation/results/*/*/mf*/report.json
+/validation/results/**/*.tar.zst

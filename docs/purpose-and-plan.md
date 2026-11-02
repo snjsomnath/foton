@@ -36,12 +36,16 @@ Speed is already sufficient. On an M4 Pro a 216-sensor room traces in about 6 ms
 at 4,096 samples and 2 bounces, against about 3.5 s for Radiance. Raising the
 bounce count to what accuracy needs stays well under 100 ms.
 
-Accuracy on the full corpus is not yet established. Until 2 November 2026 the
-default and validated setting was **one diffuse bounce**, while the Radiance
-reference uses eight; the only recorded comparison (15 September 2026, two
-scenes) showed Foton 17.6% low on full transport for that reason, and the one
-full campaign (18 September) was lost with its temporary directory. Step 1 below
-fixed the default; the corpus-wide campaign (step 3) has not been rerun since.
+Accuracy is established on the teaching scenes and on most of the corpus. The
+first archived campaign (2 November 2026, step 3) passed 176 of 212 cases,
+all 32 teaching cases among them, with DA, UDI and sDA within 1 percentage
+point of converged Radiance almost everywhere. The failures were diagnosed:
+most were Foton's own per-patch sample noise in hourly illuminance (the
+`final` budget has since been quadrupled), a few were suite gates firing on
+negligible or leaked light, and the rest are two real open items, rooms lit
+only through internal glazing and a bright 12 m room neither engine converges.
+Until 2 November 2026 the default had been **one diffuse bounce** against an
+eight-bounce reference, which is why the September comparison read 17.6% low.
 
 ## Plan
 
@@ -109,8 +113,29 @@ Run the full suite once on Metal from a clean commit, with output under
 repository and the bulk oracle matrices in a compressed archive next to them.
 This is the first parity evidence tied to a commit.
 
-**In progress, 2 November 2026.** Three partial runs taught the suite what it
-was actually measuring before a full campaign could mean anything:
+**Done 2 November 2026**, commit `320e9fc`, results and a per-failure analysis
+in [`validation/results/2026-11-02-architectural-v4-metal/`](../validation/results/2026-11-02-architectural-v4-metal/README.md):
+212 cases (106 scenes × MF:1, MF:2), 6.3 h with 12 Radiance workers,
+**176 passed, 30 accuracy failures, 6 unstable references, no errors**. All
+32 teaching cases passed; DA, cDA, UDI and sDA agreed within 1 pp on every
+grid but three (2.0–2.5 pp). Of the 36 non-passing cases:
+
+| Cause | Cases | Diagnosis | Action |
+| --- | ---: | --- | --- |
+| Hourly illuminance CV(RMSE) 10–21 %, bias ≈ 0, coefficients within gates | 22 | Foton per-patch sample noise: rerunning Foton alone at 4× and 16× samples against the stored reference halved it each time (21.4 → 10.9 → 6.7 %) | `final` indirect budget 16,384 → 65,536 at MF:1 and 262,144 at MF:2 (scales with patch count); 2,020 sensors now 1.3 s / 5.2 s |
+| North sky into a south room off louvres or a light shelf, Foton 6–11 % low | 4 | A real, systematic bias on 0.15 % of the light; the same bias sits under the near-zero waiver in every other shading scene | Controlled skies under 0.5 % of the uniform level are recorded, not gated; bias listed under known issues |
+| Windowless `classroom_01` in the acceptance model, Radiance leaks 1.8 lux at one hour, Foton 0 | 2 | Leak through coincident interior faces; the dark guard asked for a peak under 1 lux | Dark guard: mean under 1 lux and peak under 10 lux |
+| Borrowed-light rooms (`interior_glazing`, `three_room_chain`, `glazed_corridor`) | 7 | Energy −3 % to +6 % and RMS 10–27 % two panes from the sky; the Radiance reference itself is unstable on two of them | Open, see known issues |
+| `deep_reflective` | 2 | Radiance 8 vs 12 bounces differ 3.7 %, Foton −5.7 % against the 12-bounce mean; neither converged | Open, see known issues |
+
+The acceptance model also carries an informational comparison with the stock
+Honeybee recipe, which reads 16 % below both Foton and converged `rfluxmtx`;
+it is not gated. A second campaign with the new budget and gates is the next
+run; the expectation from the single-case reruns is that only the borrowed-light
+rooms and `deep_reflective` remain outside the gates.
+
+Three partial runs before the campaign taught the suite what it was actually
+measuring:
 
 - A first run from `2621348` marked every scene `unstable_reference`: the
   depth-stability check compared Radiance at 4 and 8 bounces, a 2% physics
@@ -129,9 +154,9 @@ was actually measuring before a full campaign could mean anything:
   now adds replicates (up to twelve) and direct samples (up to 16,384 per
   patch) until the reference's halves agree, instead of giving up at four.
 
-The campaign runs on suite version 4 (106 scenes) with 12 Radiance workers into
-`validation/results/2026-11-02-architectural-v4-metal/`. Raw stage folders are
-ignored by git; only the report, suite and comparison JSON/Markdown are tracked.
+Raw stage folders, coefficient matrices and the weather cache are ignored by
+git; the suite JSON (which holds every case's report), the Markdown reports and
+the comparison files are tracked.
 
 ### 4. Decide direct sun
 
@@ -170,13 +195,19 @@ Vulkan is "built and unit-tested", not "validated".
 Not blocking; fix opportunistically.
 
 - Sky light reaching a sensor by specular reflection off glass is never counted;
-  Radiance counts it. Small, mainly in scenes with glazed neighbours.
-- A room lit only through an internal glazed wall (`interior_glazing`,
-  `adjacent_grid`) reads 2.5% low on full and 3.4% low on indirect
-  coefficients against Radiance, outside the 3% indirect gate, while the
-  directly lit room agrees within 0.4%. Light there has crossed two panes;
-  the glass reflection omission above is the first suspect. The scene is
-  recorded as an accuracy failure, not waived.
+  Radiance counts it. The campaign shows where: light the north sky sends into
+  a south room off exterior louvres, fins, overhangs and light shelves is
+  6–11% low in every shading scene. It is 0.02–0.18% of the room's light, so
+  no metric moves, but it is systematic and the glass–shade inter-reflection
+  is the likely path.
+- Rooms lit only through internal glazing disagree with Radiance beyond the
+  gates: `interior_glazing` adjacent room −2.4/−3.3% energy (MF:1/MF:2),
+  `three_room_chain` third room +4 to +6% with 21–27% RMS, `glazed_corridor`
+  meeting room 21% RMS over a 1–2% bias. Directly lit rooms in the same
+  models agree within 0.5%. Signs differ between scenes, and the Radiance
+  reference itself fails its 8-versus-12-bounce stability check on two of
+  them, so this needs a dedicated two-pane study rather than a gate change.
+  Recorded as accuracy failures, not waived.
 - `convergence` in result metadata is hard-coded to 1.0 and nothing measures it.
 - The README calls MF:2-to-Tregenza aggregation "exact"; about 32% of the solid
   angle lands outside the mapped parent. Only tests use the aggregation.
@@ -184,7 +215,15 @@ Not blocking; fix opportunistically.
 - Only 16 Sobol dimensions exist, so paths beyond bounce 7 reuse dimensions.
   With the default now at 8 bounces this is live; the sweep shows no visible
   bias from it at 8, but 12 bounces diverge from Radiance by +7% in the bright
-  deep room, and dimension reuse is the first suspect.
+  deep room, and dimension reuse is the first suspect. In the campaign the
+  same room (`deep_reflective`) is `unstable_reference` at both densities:
+  Radiance 8 and 12 bounces differ by 3.7%, and Foton at 8 bounces reads
+  5.7% under the 12-bounce mean, so part of the gap is simply that 8 bounces
+  is not converged at reflectance 0.8 over 12 m.
+- The stock Honeybee annual recipe at its default ambient settings reads about
+  16% below converged `rfluxmtx` (and Foton) on the acceptance offices. That
+  comparison is informational; anyone validating Foton against a stock
+  Honeybee run should expect Foton to come out higher.
 - The resident-scene cache can store old geometry under a new revision if an
   update races an analysis, and entries are never evicted.
 - Transport logic is written three times (MSL, GLSL, Rust). Every fix above has
