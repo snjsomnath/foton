@@ -114,10 +114,11 @@ DA, cDA, UDI-low, UDI, UDI-high, and area-weighted sDA are returned in the
 original HBJSON SensorGrid and sensor order.
 
 `sky_density=1` is the Honeybee-compatible Tregenza MF:1 default (146 rows).
-Use `sky_density=2` for Reinhart MF:2 (578 rows). Final quality uses 64
-deterministic solid-angle samples per sky patch, 4,096 indirect samples, one
-diffuse bounce, and seed 0. `direct_samples` is available as an advanced
-override. Re-running only weather, schedule, thresholds, or raw export on the
+Use `sky_density=2` for Reinhart MF:2 (578 rows). Final quality uses 256
+deterministic solid-angle samples per sky patch, 16,384 indirect samples, eight
+diffuse bounces, and seed 0; a 2,020-sensor model traces in about 0.4 s on an
+M4 Pro. `direct_samples`, `maximum_samples` and `maximum_bounces` are available
+as overrides. Re-running only weather, schedule, thresholds, or raw export on the
 same study reuses compatible coefficients and reports zero tracing time.
 
 With `export_illuminance=True`, the `results` folder is directly loadable by

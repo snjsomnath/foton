@@ -109,12 +109,27 @@ Run the full suite once on Metal from a clean commit, with output under
 repository and the bulk oracle matrices in a compressed archive next to them.
 This is the first parity evidence tied to a commit.
 
-**In progress, 2 November 2026.** A first run from commit `2621348` marked every
-scene `unstable_reference` within a minute: the suite's depth-stability check
-compared Radiance at 4 and 8 bounces, which differ by about 2% from physics
-alone. The levels are now `(20000,1)`, `(40000,8)`, `(40000,12)`, `(80000,12)`
-with the 12-bounce mean as reference. The campaign was restarted on suite
-version 4 (106 scenes, teaching category included) with 12 Radiance workers into
+**In progress, 2 November 2026.** Three partial runs taught the suite what it
+was actually measuring before a full campaign could mean anything:
+
+- A first run from `2621348` marked every scene `unstable_reference`: the
+  depth-stability check compared Radiance at 4 and 8 bounces, a 2% physics
+  difference, against a 1% gate. Levels are now `(20000,1)`, `(40000,8)`,
+  `(40000,12)`, `(80000,12)` with the 12-bounce mean as reference.
+- Several gates then failed on noise over near-zero references (sealed room
+  leak, north sky through a south window, indirect light in a black room, one
+  sensor flipping sDA on a 36-sensor grid). Each is now judged on whether the
+  quantity is physically present before a relative error is taken.
+- The first lit-room failures were Foton's own sampling: at 64 direct and
+  4,096 indirect samples the full-coefficient RMS error against a converged
+  reference was 6 to 8% and DA was off by 2.8 pp in a shaded room. At 256 /
+  16,384 the RMS halves and DA error falls to 0.7 pp, for 0.4 s on 2,020
+  sensors. The `final` preset is now 256 / 16,384 / 8 bounces.
+- Radiance itself is noisy on rooflights and borrowed-light grids; the suite
+  now adds replicates (up to twelve) and direct samples (up to 16,384 per
+  patch) until the reference's halves agree, instead of giving up at four.
+
+The campaign runs on suite version 4 (106 scenes) with 12 Radiance workers into
 `validation/results/2026-11-02-architectural-v4-metal/`. Raw stage folders are
 ignored by git; only the report, suite and comparison JSON/Markdown are tracked.
 
@@ -156,6 +171,12 @@ Not blocking; fix opportunistically.
 
 - Sky light reaching a sensor by specular reflection off glass is never counted;
   Radiance counts it. Small, mainly in scenes with glazed neighbours.
+- A room lit only through an internal glazed wall (`interior_glazing`,
+  `adjacent_grid`) reads 2.5% low on full and 3.4% low on indirect
+  coefficients against Radiance, outside the 3% indirect gate, while the
+  directly lit room agrees within 0.4%. Light there has crossed two panes;
+  the glass reflection omission above is the first suspect. The scene is
+  recorded as an accuracy failure, not waived.
 - `convergence` in result metadata is hard-coded to 1.0 and nothing measures it.
 - The README calls MF:2-to-Tregenza aggregation "exact"; about 32% of the solid
   angle lands outside the mapped parent. Only tests use the aggregation.

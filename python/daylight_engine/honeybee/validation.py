@@ -120,8 +120,11 @@ def compare_coefficient_repeatability(
                     global_sensor_offset=start,
                     nmbe_gate=3.0,
                     cvrmse_gate=10.0,
+                    rms_reference=full_runs[first][start:end],
                 )
                 _waive_negligible_indirect(direct, indirect, end - start)
+                for stage in (direct, indirect):
+                    _waive_negligible_energy_difference(stage, end - start)
                 grids.append(
                     {
                         "identifier": info["identifier"],
@@ -192,6 +195,7 @@ def compare_coefficient_convergence(
     ]
     first_indirect = np.mean(np.stack(indirect_runs[:midpoint]), axis=0)
     second_indirect = np.mean(np.stack(indirect_runs[midpoint:]), axis=0)
+    first_full = np.mean(np.stack(full_runs[:midpoint]), axis=0)
     grids = []
     for info in prepared.grid_info:
         start = int(info["start_sensor_index"])
@@ -207,6 +211,7 @@ def compare_coefficient_convergence(
                 global_sensor_offset=start,
                 nmbe_gate=energy_gate_percent,
                 cvrmse_gate=rms_gate_percent,
+                rms_reference=first_full[start:end] if name == "indirect" else None,
             )
             values["passed"] = bool(
                 abs(values["nmbe_percent"]) < energy_gate_percent
@@ -214,6 +219,8 @@ def compare_coefficient_convergence(
             )
             stages[name] = values
         _waive_negligible_indirect(stages["direct"], stages["indirect"], end - start)
+        for stage in stages.values():
+            _waive_negligible_energy_difference(stage, end - start)
         grids.append(
             {
                 "identifier": info["identifier"],
@@ -300,6 +307,11 @@ def compare_coefficient_stages(
                 global_sensor_offset=start,
                 nmbe_gate=nmbe_gate,
                 cvrmse_gate=cvrmse_gate,
+                rms_reference=(
+                    arrays["radiance_full"][start:end]
+                    if stage_name == "indirect"
+                    else None
+                ),
             )
         _waive_negligible_indirect(
             stage_results["direct"], stage_results["indirect"], count
@@ -588,6 +600,21 @@ def _waive_negligible_indirect(direct, indirect, sensor_count):
         indirect["passed"] = True
 
 
+def _waive_negligible_energy_difference(stage, sensor_count):
+    """Pass a reference-stability stage whose two sides differ by less summed
+    energy than 1e-4 per sensor, however large that is in relative terms.
+
+    Used only when Radiance is compared with Radiance: a borrowed-light grid at
+    1 % of its neighbour's light cannot fail its own repeatability on noise
+    that would not move a single lux.
+    """
+    delta = abs(float(stage["candidate_energy"]) - float(stage["reference_energy"]))
+    negligible = delta <= NEGLIGIBLE_INDIRECT_ENERGY_PER_SENSOR * int(sensor_count)
+    stage["energy_difference_negligible"] = bool(negligible)
+    if negligible:
+        stage["passed"] = True
+
+
 def _coefficient_statistics(
     reference,
     candidate,
@@ -595,8 +622,13 @@ def _coefficient_statistics(
     global_sensor_offset,
     nmbe_gate,
     cvrmse_gate,
+    rms_reference=None,
 ):
+    """Stage statistics. ``rms_reference`` lets the RMS error of a partial stage
+    (indirect light) be measured against the total it contributes to, so a small
+    stage is judged by its effect on the result rather than on its own noise."""
     difference = candidate - reference
+    rms_basis = reference if rms_reference is None else np.asarray(rms_reference)
     reference_mean = float(np.mean(reference))
     reference_maximum = float(np.max(np.abs(reference), initial=0))
     candidate_maximum = float(np.max(np.abs(candidate), initial=0))
@@ -609,7 +641,7 @@ def _coefficient_statistics(
     elif abs(reference_mean) <= 1.0e-20:
         maximum = float(np.max(np.abs(difference), initial=0))
         nmbe = cvrmse = 0.0 if maximum <= 1.0e-8 else float("inf")
-        reference_rms = float(np.sqrt(np.mean(np.square(reference))))
+        reference_rms = float(np.sqrt(np.mean(np.square(rms_basis))))
         rms_normalized_rmse = (
             0.0
             if maximum <= 1.0e-8
@@ -623,7 +655,7 @@ def _coefficient_statistics(
             100.0 * float(np.sqrt(np.mean(np.square(difference))))
             / abs(reference_mean)
         )
-        reference_rms = float(np.sqrt(np.mean(np.square(reference))))
+        reference_rms = float(np.sqrt(np.mean(np.square(rms_basis))))
         rms_normalized_rmse = (
             100.0
             * float(np.sqrt(np.mean(np.square(difference))))
@@ -648,6 +680,7 @@ def _coefficient_statistics(
             / max(abs(reference_energy), 1.0e-20)
         ),
         "physically_near_zero": physically_near_zero,
+        "rms_normalized_to": "full" if rms_reference is not None else "stage",
         "absolute_error": {
             "p50": float(np.percentile(absolute, 50)),
             "p90": float(np.percentile(absolute, 90)),

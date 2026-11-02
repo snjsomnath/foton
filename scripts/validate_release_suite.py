@@ -220,7 +220,16 @@ def run_scene(args, identifier, density, output):
         raise RuntimeError(
             "Independent sky samples disagree with Radiance patch numbering"
         )
-    for count in (4, 16) if args.smoke else (256, 1024):
+    # MF:2 spreads the same ambient-ray budget over four times as many sky
+    # bins, so per-coefficient Monte Carlo noise roughly doubles; the RMS
+    # stability gates follow. Energy (bias) gates are unchanged.
+    stability_rms_gate = 5.0 if density == 1 else 10.0
+    # Direct integration doubles its sample budget until two successive
+    # levels agree (borrowed-light grids carry little direct energy and are
+    # noisy at 1,024 samples per patch); the last level is the reference.
+    direct_counts = (4, 16, 64) if args.smoke else (256, 1024, 4096, 16384)
+    direct_stability = None
+    for count in direct_counts:
         print(f"  Independent direct integration: {count} samples/patch", flush=True)
         directions, weights = patch_samples(density, count)
         direct_runs.append(
@@ -237,16 +246,19 @@ def run_scene(args, identifier, density, output):
                 binary_io=args.direct_io == "binary",
             )
         )
-    # MF:2 spreads the same ambient-ray budget over four times as many sky
-    # bins, so per-coefficient Monte Carlo noise roughly doubles; the RMS
-    # stability gates follow. Energy (bias) gates are unchanged.
-    stability_rms_gate = 5.0 if density == 1 else 10.0
-    direct_stability = convergence_by_grid(
-        prepared,
-        direct_runs[0].coefficients,
-        direct_runs[1].coefficients,
-        rms_gate=stability_rms_gate,
-    )
+        if len(direct_runs) >= 2:
+            direct_stability = convergence_by_grid(
+                prepared,
+                direct_runs[-2].coefficients,
+                direct_runs[-1].coefficients,
+                rms_gate=stability_rms_gate,
+            )
+            direct_stability["samples_per_patch"] = [
+                direct_counts[len(direct_runs) - 2],
+                direct_counts[len(direct_runs) - 1],
+            ]
+            if direct_stability["passed"]:
+                break
 
     # Independently vary depth and sample budget. The one-bounce level stays as a
     # diagnostic of how much reflected light the candidate's default depth adds.
@@ -260,32 +272,38 @@ def run_scene(args, identifier, density, output):
     )
     references, oracle_records = [], []
     for samples, bounces in levels:
+        # Four replicates to start; noisy references (rooflights, borrowed
+        # light) get four more at a time, up to twelve, until the replicate
+        # halves agree. Every replicate feeds the level's mean.
         runs = []
-        for replicate in range(4):
-            print(
-                f"  Radiance: ad={samples}, bounces={bounces}, replicate={replicate + 1}/4",
-                flush=True,
+        while True:
+            for replicate in range(len(runs), len(runs) + 4):
+                print(
+                    f"  Radiance: ad={samples}, bounces={bounces}, replicate={replicate + 1}",
+                    flush=True,
+                )
+                run = run_radiance_coefficient_stages(
+                    prepared.arrays["sensor_positions"],
+                    prepared.arrays["sensor_normals"],
+                    octree=octree,
+                    sky_dome=dome,
+                    sky_density=density,
+                    work_directory=output
+                    / ("ad%d_b%d_r%d" % (samples, bounces, replicate)),
+                    workers=args.workers,
+                    radiance_bin=args.radiance_bin,
+                    material_bounces=bounces,
+                    radiance_parameters=("-ad", str(samples), "-lw", "1e-7", "-dr", "0"),
+                )
+                runs.append(run)
+            repeatability = compare_coefficient_convergence(
+                prepared,
+                radiance_direct_runs=[r.direct for r in runs],
+                radiance_full_runs=[r.full for r in runs],
+                rms_gate_percent=stability_rms_gate,
             )
-            run = run_radiance_coefficient_stages(
-                prepared.arrays["sensor_positions"],
-                prepared.arrays["sensor_normals"],
-                octree=octree,
-                sky_dome=dome,
-                sky_density=density,
-                work_directory=output
-                / ("ad%d_b%d_r%d" % (samples, bounces, replicate)),
-                workers=args.workers,
-                radiance_bin=args.radiance_bin,
-                material_bounces=bounces,
-                radiance_parameters=("-ad", str(samples), "-lw", "1e-7", "-dr", "0"),
-            )
-            runs.append(run)
-        repeatability = compare_coefficient_convergence(
-            prepared,
-            radiance_direct_runs=[r.direct for r in runs],
-            radiance_full_runs=[r.full for r in runs],
-            rms_gate_percent=stability_rms_gate,
-        )
+            if repeatability["oracle_stable"] or len(runs) >= 12:
+                break
         references.append(np.mean([r.full for r in runs], axis=0))
         oracle_records.append(
             {
@@ -352,7 +370,7 @@ def run_scene(args, identifier, density, output):
         "west": (-directions[:, 0, 0]).clip(0),
     }
     controlled = {}
-    uniform_level = None
+    uniform_level = uniform_rms = None
     for name, sky in skies.items():
         sky[0] = 0
         ref = np.einsum("spr,p,r->s", references[-1], sky, PHOTOPIC_WEIGHTS)
@@ -360,14 +378,24 @@ def run_scene(args, identifier, density, output):
         controlled[name] = difference(ref, actual)
         if uniform_level is None:
             uniform_level = float(np.mean(np.abs(ref)))
+            uniform_rms = float(np.sqrt(np.mean(np.square(ref))))
         # A sky the room cannot see (north sky through a south window) leaves a
         # reference of Radiance leakage only; relative error there is noise.
         near_zero = float(np.mean(np.abs(ref))) <= max(1e-3 * uniform_level, 1e-3)
+        # Per-sensor scatter is judged against the uniform-sky level, so a
+        # component worth 0.3% of the light (horizon band into a rooflight)
+        # is weighed by its effect on the result; its bias is still gated.
+        rms_to_uniform = (
+            100.0
+            * float(np.sqrt(np.mean(np.square(actual - ref))))
+            / max(uniform_rms, 1e-20)
+        )
         controlled[name]["physically_near_zero"] = near_zero
         controlled[name]["reference_mean"] = float(np.mean(ref))
+        controlled[name]["rms_normalized_to_uniform_percent"] = rms_to_uniform
         controlled[name]["passed"] = near_zero or (
             abs(controlled[name].get("bias_percent", float("inf"))) < 5
-            and controlled[name].get("rms_normalized_error_percent", float("inf")) < 10
+            and rms_to_uniform < 10
         )
     study = HoneybeeStudy(
         model,

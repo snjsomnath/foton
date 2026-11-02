@@ -22,9 +22,13 @@ DEFAULT_UDI_LOWER_LUX = 100.0
 DEFAULT_UDI_UPPER_LUX = 3000.0
 DEFAULT_TIME_FRACTION = 0.5
 SOLVER_REVISION = "honeybee-distinct-bounce-dimensions-v5"
+# "final" was 64/4096 until 2026-11-02. Against a converged Radiance reference
+# 16,384 indirect samples halve the per-coefficient RMS error (6% -> 3.4%) and cut
+# the DA error from 2.8 pp to 0.7 pp; 256 direct samples resolve sun patches cut
+# by shading edges. Cost on an M4 Pro: 2,020 sensors in 0.38 s (MF:1).
 QUALITY_PRESETS = {
     "preview": {"direct_samples": 1, "maximum_samples": 64},
-    "final": {"direct_samples": 64, "maximum_samples": 4096},
+    "final": {"direct_samples": 256, "maximum_samples": 16384},
 }
 # Diffuse bounce depth at which the 2026-11-02 sweep put Foton within 0.5 % of a
 # 12-bounce Radiance reference on glazed and interior-glazed rooms

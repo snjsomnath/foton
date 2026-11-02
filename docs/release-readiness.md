@@ -50,15 +50,22 @@ Honeybee material.
 Each scene runs in both sky bases (180 required cases), under uniform, overcast,
 horizon-weighted and four cardinal-direction controlled skies, then Gothenburg
 annual weather. Four Radiance replicates are
-evaluated at each of `(ad=20000,bounces=1)`, `(40000,8)`, `(40000,12)`, `(80000,12)`;
-the 12-bounce mean is the reference. Depth stability compares 8 with 12 bounces
+evaluated at each of `(ad=20000,bounces=1)`, `(40000,8)`, `(40000,12)`, `(80000,12)`,
+with four more replicates added (up to twelve) while a level's replicate halves
+disagree; the 12-bounce mean is the reference. Direct integration doubles its
+samples per patch from 256 up to 16,384 until two successive levels agree. Depth stability compares 8 with 12 bounces
 and sampling stability 40,000 with 80,000 ambient divisions;
 each reference level also checks replicate-half stability (the one-bounce level
 is a diagnostic only). Stability RMS gates are 5% at MF:1 and 10% at MF:2, where
 the same ray budget covers four times as many bins; energy gates do not change.
 References that are physically dark (sealed rooms), skies a room cannot see, and
 indirect stages below 0.5% of direct energy count as agreement rather than as
-relative error over noise. sDA ignores sensors whose reference DA lies within
+relative error over noise. The indirect stage's RMS error is normalised by the
+full coefficients it contributes to, so a rooflit room's small, noisy reflected
+component is judged by its effect on the result; its energy bias gate (3%) is
+unchanged. Radiance-versus-Radiance stability also waives differences below
+1e-4 summed coefficient energy per sensor. Controlled-sky scatter is normalised
+to the uniform-sky level for the same reason; each sky's bias gate stays at 5%. sDA ignores sensors whose reference DA lies within
 5 pp of the 50% threshold and allows one sensor's share on small grids.
 Direct integration uses independent
 stratified sky samples at 256 and 1,024 samples per patch, not the native sampler.

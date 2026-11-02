@@ -131,7 +131,7 @@ class ViewerSession:
         if quality == "final" and not weather.annual_metrics_available:
             raise ValueError("the built-in overcast demo supports preview quality only")
         sky = weather.tregenza if quality == "preview" else weather.final
-        maximum_samples, maximum_bounces = (64, 1) if quality == "preview" else (4096, 2)
+        maximum_samples, maximum_bounces = (64, 1) if quality == "preview" else (16384, 8)
         if not 0 <= selected_timestep < sky.shape[1]:
             raise ValueError("selected timestep is out of range")
 
