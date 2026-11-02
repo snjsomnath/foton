@@ -27,7 +27,9 @@ const environment = {
 };
 
 const frontendCommand = process.platform === "win32" ? "npm.cmd" : "npm";
-const frontend = spawn(frontendCommand, ["run", "dev:frontend"], {
+const frontendArgs = ["run", "dev:frontend"];
+if (process.argv.includes("--demo")) frontendArgs.push("--", "--open", "/demo.html");
+const frontend = spawn(frontendCommand, frontendArgs, {
   cwd: viewerDirectory,
   env: environment,
   stdio: "inherit",

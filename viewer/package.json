@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/dev.mjs",
+    "dev:demo": "node scripts/dev.mjs --demo",
     "dev:frontend": "vite",
     "dev:backend": "python -m foton.viewer --reload",
     "build": "tsc -b && vite build",

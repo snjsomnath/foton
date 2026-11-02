@@ -11,6 +11,7 @@ from typing import Any, Awaitable, Callable
 import numpy as np
 
 from .geometry import ParametricScene, RoomParameters, generate_parametric_scene
+from .demo_geometry import generate_demo_scene
 from .weather import WeatherDataset, WeatherStore
 
 
@@ -93,9 +94,10 @@ class ViewerSession:
         client_revision: int,
         parameters: dict[str, Any],
         send: SendMessage,
+        demo: bool = False,
     ) -> None:
         self._cancel_active()
-        generated = generate_parametric_scene(RoomParameters.model_validate(parameters))
+        generated = generate_demo_scene(parameters) if demo else generate_parametric_scene(RoomParameters.model_validate(parameters))
         scene = await asyncio.to_thread(generated.create_native_scene, self.engine)
         self.generated = generated
         self.scene = scene

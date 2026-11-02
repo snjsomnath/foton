@@ -1,0 +1,4546 @@
+[
+  {
+    "chapter": "Foton",
+    "duration": 2,
+    "title": "Foton",
+    "caption": "GPU light transport for daylight teaching.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -48,
+      26,
+      1.8
+    ],
+    "cameraEnd": [
+      12,
+      32,
+      1.8
+    ],
+    "focus": "facade",
+    "focusEnd": "facade",
+    "solar": "off",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {}
+  },
+  {
+    "chapter": "Foton",
+    "duration": 3,
+    "title": "Interactive daylight analysis",
+    "caption": "Fast GPU calculations support parametric exploration.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      12,
+      32,
+      1.8
+    ],
+    "cameraEnd": [
+      48,
+      52,
+      1.8
+    ],
+    "focus": "facade",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {}
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Window geometry",
+    "caption": "Change window width and position.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      48,
+      52,
+      1.8
+    ],
+    "cameraEnd": [
+      39.69999999999999,
+      50.6,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "window_width",
+      "window_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 2.81,
+      "window_offset": -0.18,
+      "overhang_depth": 0.675,
+      "left_fin_depth": 0.45,
+      "right_fin_depth": 0.45
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Window geometry",
+    "caption": "Change window width and position.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      39.69999999999999,
+      50.6,
+      1.8
+    ],
+    "cameraEnd": [
+      31.400000000000006,
+      49.2,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "window_width",
+      "window_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 2.62,
+      "window_offset": -0.36,
+      "overhang_depth": 0.6,
+      "left_fin_depth": 0.4,
+      "right_fin_depth": 0.4
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Window geometry",
+    "caption": "Change window width and position.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      31.400000000000006,
+      49.2,
+      1.8
+    ],
+    "cameraEnd": [
+      23.099999999999994,
+      47.8,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "window_width",
+      "window_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 2.43,
+      "window_offset": -0.54,
+      "overhang_depth": 0.525,
+      "left_fin_depth": 0.35,
+      "right_fin_depth": 0.35
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Window geometry",
+    "caption": "Change window width and position.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      23.099999999999994,
+      47.8,
+      1.8
+    ],
+    "cameraEnd": [
+      14.799999999999983,
+      46.4,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "window_width",
+      "window_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 2.24,
+      "window_offset": -0.72,
+      "overhang_depth": 0.45,
+      "left_fin_depth": 0.3,
+      "right_fin_depth": 0.3
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Window geometry",
+    "caption": "Change window width and position.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      14.799999999999983,
+      46.4,
+      1.8
+    ],
+    "cameraEnd": [
+      6.5,
+      45.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "window_width",
+      "window_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 2.05,
+      "window_offset": -0.9,
+      "overhang_depth": 0.375,
+      "left_fin_depth": 0.25,
+      "right_fin_depth": 0.25
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Window geometry",
+    "caption": "Change window width and position.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      6.5,
+      45.0,
+      1.8
+    ],
+    "cameraEnd": [
+      -1.8000000000000114,
+      43.6,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "window_width",
+      "window_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.86,
+      "window_offset": -1.08,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 0.2,
+      "right_fin_depth": 0.2
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Window geometry",
+    "caption": "Change window width and position.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -1.8000000000000114,
+      43.6,
+      1.8
+    ],
+    "cameraEnd": [
+      -10.099999999999994,
+      42.2,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "window_width",
+      "window_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.67,
+      "window_offset": -1.26,
+      "overhang_depth": 0.225,
+      "left_fin_depth": 0.15,
+      "right_fin_depth": 0.15
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Window geometry",
+    "caption": "Change window width and position.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -10.099999999999994,
+      42.2,
+      1.8
+    ],
+    "cameraEnd": [
+      -18.400000000000006,
+      40.8,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "window_width",
+      "window_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.48,
+      "window_offset": -1.44,
+      "overhang_depth": 0.15,
+      "left_fin_depth": 0.1,
+      "right_fin_depth": 0.1
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Window geometry",
+    "caption": "Change window width and position.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -18.400000000000006,
+      40.8,
+      1.8
+    ],
+    "cameraEnd": [
+      -26.700000000000017,
+      39.4,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "window_width",
+      "window_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.29,
+      "window_offset": -1.62,
+      "overhang_depth": 0.075,
+      "left_fin_depth": 0.05,
+      "right_fin_depth": 0.05
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Window geometry",
+    "caption": "Change window width and position.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -26.700000000000017,
+      39.4,
+      1.8
+    ],
+    "cameraEnd": [
+      -35.0,
+      38.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "window_width",
+      "window_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.1,
+      "window_offset": -1.8,
+      "overhang_depth": 0.0,
+      "left_fin_depth": 0.0,
+      "right_fin_depth": 0.0
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Shading devices",
+    "caption": "Adjust window height, overhangs and side fins.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -35.0,
+      38.0,
+      1.8
+    ],
+    "cameraEnd": [
+      -28.0,
+      37.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "window_offset",
+      "window_height",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.1,
+      "window_offset": -1.44,
+      "overhang_depth": 0.18,
+      "left_fin_depth": 0.11,
+      "right_fin_depth": 0.11,
+      "window_height": 1.57,
+      "sill_height": 0.94
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Shading devices",
+    "caption": "Adjust window height, overhangs and side fins.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -28.0,
+      37.0,
+      1.8
+    ],
+    "cameraEnd": [
+      -21.0,
+      36.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "window_offset",
+      "window_height",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.1,
+      "window_offset": -1.08,
+      "overhang_depth": 0.36,
+      "left_fin_depth": 0.22,
+      "right_fin_depth": 0.22,
+      "window_height": 1.64,
+      "sill_height": 0.88
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Shading devices",
+    "caption": "Adjust window height, overhangs and side fins.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -21.0,
+      36.0,
+      1.8
+    ],
+    "cameraEnd": [
+      -14.0,
+      35.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "window_offset",
+      "window_height",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.1,
+      "window_offset": -0.72,
+      "overhang_depth": 0.54,
+      "left_fin_depth": 0.33,
+      "right_fin_depth": 0.33,
+      "window_height": 1.71,
+      "sill_height": 0.82
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Shading devices",
+    "caption": "Adjust window height, overhangs and side fins.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -14.0,
+      35.0,
+      1.8
+    ],
+    "cameraEnd": [
+      -7.0,
+      34.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "window_offset",
+      "window_height",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.1,
+      "window_offset": -0.36,
+      "overhang_depth": 0.72,
+      "left_fin_depth": 0.44,
+      "right_fin_depth": 0.44,
+      "window_height": 1.78,
+      "sill_height": 0.76
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Shading devices",
+    "caption": "Adjust window height, overhangs and side fins.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -7.0,
+      34.0,
+      1.8
+    ],
+    "cameraEnd": [
+      0.0,
+      33.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "window_offset",
+      "window_height",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.1,
+      "window_offset": 0.0,
+      "overhang_depth": 0.9,
+      "left_fin_depth": 0.55,
+      "right_fin_depth": 0.55,
+      "window_height": 1.85,
+      "sill_height": 0.7
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Shading devices",
+    "caption": "Adjust window height, overhangs and side fins.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      0.0,
+      33.0,
+      1.8
+    ],
+    "cameraEnd": [
+      7.0,
+      32.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "window_offset",
+      "window_height",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.1,
+      "window_offset": 0.36,
+      "overhang_depth": 1.08,
+      "left_fin_depth": 0.66,
+      "right_fin_depth": 0.66,
+      "window_height": 1.92,
+      "sill_height": 0.64
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Shading devices",
+    "caption": "Adjust window height, overhangs and side fins.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      7.0,
+      32.0,
+      1.8
+    ],
+    "cameraEnd": [
+      14.0,
+      31.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "window_offset",
+      "window_height",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.1,
+      "window_offset": 0.72,
+      "overhang_depth": 1.26,
+      "left_fin_depth": 0.77,
+      "right_fin_depth": 0.77,
+      "window_height": 1.99,
+      "sill_height": 0.58
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Shading devices",
+    "caption": "Adjust window height, overhangs and side fins.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      14.0,
+      31.0,
+      1.8
+    ],
+    "cameraEnd": [
+      21.0,
+      30.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "window_offset",
+      "window_height",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.1,
+      "window_offset": 1.08,
+      "overhang_depth": 1.44,
+      "left_fin_depth": 0.88,
+      "right_fin_depth": 0.88,
+      "window_height": 2.06,
+      "sill_height": 0.52
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Shading devices",
+    "caption": "Adjust window height, overhangs and side fins.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      21.0,
+      30.0,
+      1.8
+    ],
+    "cameraEnd": [
+      28.0,
+      29.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "window_offset",
+      "window_height",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.1,
+      "window_offset": 1.44,
+      "overhang_depth": 1.62,
+      "left_fin_depth": 0.99,
+      "right_fin_depth": 0.99,
+      "window_height": 2.13,
+      "sill_height": 0.46
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Shading devices",
+    "caption": "Adjust window height, overhangs and side fins.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      28.0,
+      29.0,
+      1.8
+    ],
+    "cameraEnd": [
+      35.0,
+      28.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "window_offset",
+      "window_height",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.1,
+      "window_offset": 1.8,
+      "overhang_depth": 1.8,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 1,
+    "title": "Multiple windows",
+    "caption": "Add openings to the fa\u00e7ade.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      35.0,
+      28.0,
+      1.8
+    ],
+    "cameraEnd": [
+      0.0,
+      50,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "window_width",
+      "overhang_depth",
+      "glazing_transmittance"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 1.8,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Material properties",
+    "caption": "Vary glazing transmittance and surface reflectance.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      0.0,
+      50,
+      1.8
+    ],
+    "cameraEnd": [
+      -4.800000000000011,
+      50.8,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "glazing_transmittance",
+      "wall_reflectance",
+      "floor_reflectance"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 1.65,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.625,
+      "wall_reflectance": 0.72,
+      "floor_reflectance": 0.235,
+      "ceiling_reflectance": 0.815,
+      "shade_reflectance": 0.535
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Material properties",
+    "caption": "Vary glazing transmittance and surface reflectance.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -4.800000000000011,
+      50.8,
+      1.8
+    ],
+    "cameraEnd": [
+      -9.599999999999994,
+      51.6,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "glazing_transmittance",
+      "wall_reflectance",
+      "floor_reflectance"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 1.5,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.65,
+      "wall_reflectance": 0.74,
+      "floor_reflectance": 0.27,
+      "ceiling_reflectance": 0.83,
+      "shade_reflectance": 0.57
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Material properties",
+    "caption": "Vary glazing transmittance and surface reflectance.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -9.599999999999994,
+      51.6,
+      1.8
+    ],
+    "cameraEnd": [
+      -14.400000000000006,
+      52.4,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "glazing_transmittance",
+      "wall_reflectance",
+      "floor_reflectance"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 1.35,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.675,
+      "wall_reflectance": 0.76,
+      "floor_reflectance": 0.305,
+      "ceiling_reflectance": 0.845,
+      "shade_reflectance": 0.605
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Material properties",
+    "caption": "Vary glazing transmittance and surface reflectance.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -14.400000000000006,
+      52.4,
+      1.8
+    ],
+    "cameraEnd": [
+      -19.200000000000017,
+      53.2,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "glazing_transmittance",
+      "wall_reflectance",
+      "floor_reflectance"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 1.2,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.7,
+      "wall_reflectance": 0.78,
+      "floor_reflectance": 0.34,
+      "ceiling_reflectance": 0.86,
+      "shade_reflectance": 0.64
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Material properties",
+    "caption": "Vary glazing transmittance and surface reflectance.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -19.200000000000017,
+      53.2,
+      1.8
+    ],
+    "cameraEnd": [
+      -24.0,
+      54.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "glazing_transmittance",
+      "wall_reflectance",
+      "floor_reflectance"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 1.05,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.725,
+      "wall_reflectance": 0.8,
+      "floor_reflectance": 0.375,
+      "ceiling_reflectance": 0.875,
+      "shade_reflectance": 0.675
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Material properties",
+    "caption": "Vary glazing transmittance and surface reflectance.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -24.0,
+      54.0,
+      1.8
+    ],
+    "cameraEnd": [
+      -28.80000000000001,
+      54.8,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "glazing_transmittance",
+      "wall_reflectance",
+      "floor_reflectance"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.9,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.75,
+      "wall_reflectance": 0.82,
+      "floor_reflectance": 0.41,
+      "ceiling_reflectance": 0.89,
+      "shade_reflectance": 0.71
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Material properties",
+    "caption": "Vary glazing transmittance and surface reflectance.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -28.80000000000001,
+      54.8,
+      1.8
+    ],
+    "cameraEnd": [
+      -33.599999999999994,
+      55.6,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "glazing_transmittance",
+      "wall_reflectance",
+      "floor_reflectance"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.75,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.775,
+      "wall_reflectance": 0.84,
+      "floor_reflectance": 0.445,
+      "ceiling_reflectance": 0.905,
+      "shade_reflectance": 0.745
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Material properties",
+    "caption": "Vary glazing transmittance and surface reflectance.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -33.599999999999994,
+      55.6,
+      1.8
+    ],
+    "cameraEnd": [
+      -38.400000000000006,
+      56.4,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "glazing_transmittance",
+      "wall_reflectance",
+      "floor_reflectance"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.6,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.8,
+      "wall_reflectance": 0.86,
+      "floor_reflectance": 0.48,
+      "ceiling_reflectance": 0.92,
+      "shade_reflectance": 0.78
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Material properties",
+    "caption": "Vary glazing transmittance and surface reflectance.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -38.400000000000006,
+      56.4,
+      1.8
+    ],
+    "cameraEnd": [
+      -43.20000000000002,
+      57.2,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "glazing_transmittance",
+      "wall_reflectance",
+      "floor_reflectance"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.45,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.825,
+      "wall_reflectance": 0.88,
+      "floor_reflectance": 0.515,
+      "ceiling_reflectance": 0.935,
+      "shade_reflectance": 0.815
+    }
+  },
+  {
+    "chapter": "Parameters",
+    "duration": 0.3,
+    "title": "Material properties",
+    "caption": "Vary glazing transmittance and surface reflectance.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -43.20000000000002,
+      57.2,
+      1.8
+    ],
+    "cameraEnd": [
+      -48.0,
+      58.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "glazing_transmittance",
+      "wall_reflectance",
+      "floor_reflectance"
+    ],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.85,
+      "wall_reflectance": 0.9,
+      "floor_reflectance": 0.55,
+      "ceiling_reflectance": 0.95,
+      "shade_reflectance": 0.85
+    }
+  },
+  {
+    "chapter": "Room geometry",
+    "duration": 0.3,
+    "title": "Room dimensions",
+    "caption": "Change room width, depth and height.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -48.0,
+      58.0,
+      1.8
+    ],
+    "cameraEnd": [
+      -41.19999999999999,
+      60.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "width",
+      "depth",
+      "height"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.85,
+      "wall_reflectance": 0.9,
+      "floor_reflectance": 0.55,
+      "ceiling_reflectance": 0.95,
+      "shade_reflectance": 0.85,
+      "width": 6.6,
+      "depth": 9.5,
+      "height": 3.1
+    }
+  },
+  {
+    "chapter": "Room geometry",
+    "duration": 0.3,
+    "title": "Room dimensions",
+    "caption": "Change room width, depth and height.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -41.19999999999999,
+      60.0,
+      1.8
+    ],
+    "cameraEnd": [
+      -34.400000000000006,
+      62.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "width",
+      "depth",
+      "height"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.85,
+      "wall_reflectance": 0.9,
+      "floor_reflectance": 0.55,
+      "ceiling_reflectance": 0.95,
+      "shade_reflectance": 0.85,
+      "width": 7.2,
+      "depth": 10.0,
+      "height": 3.2
+    }
+  },
+  {
+    "chapter": "Room geometry",
+    "duration": 0.3,
+    "title": "Room dimensions",
+    "caption": "Change room width, depth and height.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -34.400000000000006,
+      62.0,
+      1.8
+    ],
+    "cameraEnd": [
+      -27.599999999999994,
+      64.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "width",
+      "depth",
+      "height"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.85,
+      "wall_reflectance": 0.9,
+      "floor_reflectance": 0.55,
+      "ceiling_reflectance": 0.95,
+      "shade_reflectance": 0.85,
+      "width": 7.8,
+      "depth": 10.5,
+      "height": 3.3
+    }
+  },
+  {
+    "chapter": "Room geometry",
+    "duration": 0.3,
+    "title": "Room dimensions",
+    "caption": "Change room width, depth and height.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -27.599999999999994,
+      64.0,
+      1.8
+    ],
+    "cameraEnd": [
+      -20.799999999999983,
+      66.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "width",
+      "depth",
+      "height"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.85,
+      "wall_reflectance": 0.9,
+      "floor_reflectance": 0.55,
+      "ceiling_reflectance": 0.95,
+      "shade_reflectance": 0.85,
+      "width": 8.4,
+      "depth": 11.0,
+      "height": 3.4
+    }
+  },
+  {
+    "chapter": "Room geometry",
+    "duration": 0.3,
+    "title": "Room dimensions",
+    "caption": "Change room width, depth and height.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -20.799999999999983,
+      66.0,
+      1.8
+    ],
+    "cameraEnd": [
+      -14.0,
+      68.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "width",
+      "depth",
+      "height"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.85,
+      "wall_reflectance": 0.9,
+      "floor_reflectance": 0.55,
+      "ceiling_reflectance": 0.95,
+      "shade_reflectance": 0.85,
+      "width": 9.0,
+      "depth": 11.5,
+      "height": 3.5
+    }
+  },
+  {
+    "chapter": "Room geometry",
+    "duration": 0.3,
+    "title": "Room dimensions",
+    "caption": "Change room width, depth and height.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -14.0,
+      68.0,
+      1.8
+    ],
+    "cameraEnd": [
+      -7.199999999999989,
+      70.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "width",
+      "depth",
+      "height"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.85,
+      "wall_reflectance": 0.9,
+      "floor_reflectance": 0.55,
+      "ceiling_reflectance": 0.95,
+      "shade_reflectance": 0.85,
+      "width": 9.6,
+      "depth": 12.0,
+      "height": 3.6
+    }
+  },
+  {
+    "chapter": "Room geometry",
+    "duration": 0.3,
+    "title": "Room dimensions",
+    "caption": "Change room width, depth and height.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -7.199999999999989,
+      70.0,
+      1.8
+    ],
+    "cameraEnd": [
+      -0.4000000000000057,
+      72.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "width",
+      "depth",
+      "height"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.85,
+      "wall_reflectance": 0.9,
+      "floor_reflectance": 0.55,
+      "ceiling_reflectance": 0.95,
+      "shade_reflectance": 0.85,
+      "width": 10.2,
+      "depth": 12.5,
+      "height": 3.7
+    }
+  },
+  {
+    "chapter": "Room geometry",
+    "duration": 0.3,
+    "title": "Room dimensions",
+    "caption": "Change room width, depth and height.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -0.4000000000000057,
+      72.0,
+      1.8
+    ],
+    "cameraEnd": [
+      6.400000000000006,
+      74.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "width",
+      "depth",
+      "height"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.85,
+      "wall_reflectance": 0.9,
+      "floor_reflectance": 0.55,
+      "ceiling_reflectance": 0.95,
+      "shade_reflectance": 0.85,
+      "width": 10.8,
+      "depth": 13.0,
+      "height": 3.8
+    }
+  },
+  {
+    "chapter": "Room geometry",
+    "duration": 0.3,
+    "title": "Room dimensions",
+    "caption": "Change room width, depth and height.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      6.400000000000006,
+      74.0,
+      1.8
+    ],
+    "cameraEnd": [
+      13.200000000000017,
+      76.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "width",
+      "depth",
+      "height"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.85,
+      "wall_reflectance": 0.9,
+      "floor_reflectance": 0.55,
+      "ceiling_reflectance": 0.95,
+      "shade_reflectance": 0.85,
+      "width": 11.4,
+      "depth": 13.5,
+      "height": 3.9
+    }
+  },
+  {
+    "chapter": "Room geometry",
+    "duration": 0.3,
+    "title": "Room dimensions",
+    "caption": "Change room width, depth and height.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      13.200000000000017,
+      76.0,
+      1.8
+    ],
+    "cameraEnd": [
+      20.0,
+      78.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "width",
+      "depth",
+      "height"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.85,
+      "wall_reflectance": 0.9,
+      "floor_reflectance": 0.55,
+      "ceiling_reflectance": 0.95,
+      "shade_reflectance": 0.85,
+      "width": 12.0,
+      "depth": 14.0,
+      "height": 4.0
+    }
+  },
+  {
+    "chapter": "Room geometry",
+    "duration": 0.3333333333333333,
+    "title": "L-shaped room",
+    "caption": "Recalculate daylight as the floor plan changes.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      20.0,
+      78.0,
+      1.8
+    ],
+    "cameraEnd": [
+      15.833333333333343,
+      78.5,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "notch_width",
+      "notch_depth",
+      "width"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.85,
+      "wall_reflectance": 0.9,
+      "floor_reflectance": 0.55,
+      "ceiling_reflectance": 0.95,
+      "shade_reflectance": 0.85,
+      "width": 12.0,
+      "depth": 14.0,
+      "height": 4.0,
+      "notch_width": 0.5833,
+      "notch_depth": 0.6667
+    }
+  },
+  {
+    "chapter": "Room geometry",
+    "duration": 0.3333333333333333,
+    "title": "L-shaped room",
+    "caption": "Recalculate daylight as the floor plan changes.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      15.833333333333343,
+      78.5,
+      1.8
+    ],
+    "cameraEnd": [
+      11.666666666666657,
+      79.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "notch_width",
+      "notch_depth",
+      "width"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.85,
+      "wall_reflectance": 0.9,
+      "floor_reflectance": 0.55,
+      "ceiling_reflectance": 0.95,
+      "shade_reflectance": 0.85,
+      "width": 12.0,
+      "depth": 14.0,
+      "height": 4.0,
+      "notch_width": 1.1667,
+      "notch_depth": 1.3333
+    }
+  },
+  {
+    "chapter": "Room geometry",
+    "duration": 0.3333333333333333,
+    "title": "L-shaped room",
+    "caption": "Recalculate daylight as the floor plan changes.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      11.666666666666657,
+      79.0,
+      1.8
+    ],
+    "cameraEnd": [
+      7.5,
+      79.5,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "notch_width",
+      "notch_depth",
+      "width"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.85,
+      "wall_reflectance": 0.9,
+      "floor_reflectance": 0.55,
+      "ceiling_reflectance": 0.95,
+      "shade_reflectance": 0.85,
+      "width": 12.0,
+      "depth": 14.0,
+      "height": 4.0,
+      "notch_width": 1.75,
+      "notch_depth": 2.0
+    }
+  },
+  {
+    "chapter": "Room geometry",
+    "duration": 0.3333333333333333,
+    "title": "L-shaped room",
+    "caption": "Recalculate daylight as the floor plan changes.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      7.5,
+      79.5,
+      1.8
+    ],
+    "cameraEnd": [
+      3.333333333333343,
+      80.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "notch_width",
+      "notch_depth",
+      "width"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.85,
+      "wall_reflectance": 0.9,
+      "floor_reflectance": 0.55,
+      "ceiling_reflectance": 0.95,
+      "shade_reflectance": 0.85,
+      "width": 12.0,
+      "depth": 14.0,
+      "height": 4.0,
+      "notch_width": 2.3333,
+      "notch_depth": 2.6667
+    }
+  },
+  {
+    "chapter": "Room geometry",
+    "duration": 0.3333333333333333,
+    "title": "L-shaped room",
+    "caption": "Recalculate daylight as the floor plan changes.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      3.333333333333343,
+      80.0,
+      1.8
+    ],
+    "cameraEnd": [
+      -0.8333333333333428,
+      80.5,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "notch_width",
+      "notch_depth",
+      "width"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.85,
+      "wall_reflectance": 0.9,
+      "floor_reflectance": 0.55,
+      "ceiling_reflectance": 0.95,
+      "shade_reflectance": 0.85,
+      "width": 12.0,
+      "depth": 14.0,
+      "height": 4.0,
+      "notch_width": 2.9167,
+      "notch_depth": 3.3333
+    }
+  },
+  {
+    "chapter": "Room geometry",
+    "duration": 0.3333333333333333,
+    "title": "L-shaped room",
+    "caption": "Recalculate daylight as the floor plan changes.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -0.8333333333333428,
+      80.5,
+      1.8
+    ],
+    "cameraEnd": [
+      -5.0,
+      81.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "notch_width",
+      "notch_depth",
+      "width"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.85,
+      "wall_reflectance": 0.9,
+      "floor_reflectance": 0.55,
+      "ceiling_reflectance": 0.95,
+      "shade_reflectance": 0.85,
+      "width": 12.0,
+      "depth": 14.0,
+      "height": 4.0,
+      "notch_width": 3.5,
+      "notch_depth": 4.0
+    }
+  },
+  {
+    "chapter": "Room geometry",
+    "duration": 0.3333333333333333,
+    "title": "L-shaped room",
+    "caption": "Recalculate daylight as the floor plan changes.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -5.0,
+      81.0,
+      1.8
+    ],
+    "cameraEnd": [
+      -9.166666666666657,
+      81.5,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "notch_width",
+      "notch_depth",
+      "width"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.85,
+      "wall_reflectance": 0.9,
+      "floor_reflectance": 0.55,
+      "ceiling_reflectance": 0.95,
+      "shade_reflectance": 0.85,
+      "width": 12.0,
+      "depth": 14.0,
+      "height": 4.0,
+      "notch_width": 4.0833,
+      "notch_depth": 4.6667
+    }
+  },
+  {
+    "chapter": "Room geometry",
+    "duration": 0.3333333333333333,
+    "title": "L-shaped room",
+    "caption": "Recalculate daylight as the floor plan changes.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -9.166666666666657,
+      81.5,
+      1.8
+    ],
+    "cameraEnd": [
+      -13.333333333333343,
+      82.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "notch_width",
+      "notch_depth",
+      "width"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.85,
+      "wall_reflectance": 0.9,
+      "floor_reflectance": 0.55,
+      "ceiling_reflectance": 0.95,
+      "shade_reflectance": 0.85,
+      "width": 12.0,
+      "depth": 14.0,
+      "height": 4.0,
+      "notch_width": 4.6667,
+      "notch_depth": 5.3333
+    }
+  },
+  {
+    "chapter": "Room geometry",
+    "duration": 0.3333333333333333,
+    "title": "L-shaped room",
+    "caption": "Recalculate daylight as the floor plan changes.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -13.333333333333343,
+      82.0,
+      1.8
+    ],
+    "cameraEnd": [
+      -17.5,
+      82.5,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "notch_width",
+      "notch_depth",
+      "width"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.85,
+      "wall_reflectance": 0.9,
+      "floor_reflectance": 0.55,
+      "ceiling_reflectance": 0.95,
+      "shade_reflectance": 0.85,
+      "width": 12.0,
+      "depth": 14.0,
+      "height": 4.0,
+      "notch_width": 5.25,
+      "notch_depth": 6.0
+    }
+  },
+  {
+    "chapter": "Room geometry",
+    "duration": 0.3333333333333333,
+    "title": "L-shaped room",
+    "caption": "Recalculate daylight as the floor plan changes.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -17.5,
+      82.5,
+      1.8
+    ],
+    "cameraEnd": [
+      -21.666666666666686,
+      83.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "notch_width",
+      "notch_depth",
+      "width"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.85,
+      "wall_reflectance": 0.9,
+      "floor_reflectance": 0.55,
+      "ceiling_reflectance": 0.95,
+      "shade_reflectance": 0.85,
+      "width": 12.0,
+      "depth": 14.0,
+      "height": 4.0,
+      "notch_width": 5.8333,
+      "notch_depth": 6.6667
+    }
+  },
+  {
+    "chapter": "Room geometry",
+    "duration": 0.3333333333333333,
+    "title": "L-shaped room",
+    "caption": "Recalculate daylight as the floor plan changes.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -21.666666666666686,
+      83.0,
+      1.8
+    ],
+    "cameraEnd": [
+      -25.833333333333314,
+      83.5,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "notch_width",
+      "notch_depth",
+      "width"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.85,
+      "wall_reflectance": 0.9,
+      "floor_reflectance": 0.55,
+      "ceiling_reflectance": 0.95,
+      "shade_reflectance": 0.85,
+      "width": 12.0,
+      "depth": 14.0,
+      "height": 4.0,
+      "notch_width": 6.4167,
+      "notch_depth": 7.3333
+    }
+  },
+  {
+    "chapter": "Room geometry",
+    "duration": 0.3333333333333333,
+    "title": "L-shaped room",
+    "caption": "Recalculate daylight as the floor plan changes.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -25.833333333333314,
+      83.5,
+      1.8
+    ],
+    "cameraEnd": [
+      -30.0,
+      84.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "notch_width",
+      "notch_depth",
+      "width"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.85,
+      "wall_reflectance": 0.9,
+      "floor_reflectance": 0.55,
+      "ceiling_reflectance": 0.95,
+      "shade_reflectance": 0.85,
+      "width": 12.0,
+      "depth": 14.0,
+      "height": 4.0,
+      "notch_width": 7.0,
+      "notch_depth": 8.0
+    }
+  },
+  {
+    "chapter": "Room geometry",
+    "duration": 2,
+    "title": "Sensor grid",
+    "caption": "Change sensor spacing and workplane height.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -30.0,
+      84.0,
+      1.8
+    ],
+    "cameraEnd": [
+      -65.0,
+      46,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "sensor_spacing",
+      "workplane_height",
+      "notch_width"
+    ],
+    "metric": "df",
+    "quality": "final",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "window_width": 1.4,
+      "window_offset": 0,
+      "overhang_depth": 0.3,
+      "left_fin_depth": 1.1,
+      "right_fin_depth": 1.1,
+      "window_height": 2.2,
+      "sill_height": 0.4,
+      "window_count": 3,
+      "glazing_transmittance": 0.85,
+      "wall_reflectance": 0.9,
+      "floor_reflectance": 0.55,
+      "ceiling_reflectance": 0.95,
+      "shade_reflectance": 0.85,
+      "width": 12.0,
+      "depth": 14.0,
+      "height": 4.0,
+      "notch_width": 7.0,
+      "notch_depth": 8.0,
+      "sensor_spacing": 0.8,
+      "workplane_height": 1
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Context shading",
+    "caption": "Include a neighbouring building in the calculation.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -65.0,
+      46,
+      1.8
+    ],
+    "cameraEnd": [
+      -70.5,
+      46.2,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_distance",
+      "context_offset"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": -4,
+      "context_height": 0.6
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Context shading",
+    "caption": "Include a neighbouring building in the calculation.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -70.5,
+      46.2,
+      1.8
+    ],
+    "cameraEnd": [
+      -76.0,
+      46.4,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_distance",
+      "context_offset"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": -4,
+      "context_height": 1.2
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Context shading",
+    "caption": "Include a neighbouring building in the calculation.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -76.0,
+      46.4,
+      1.8
+    ],
+    "cameraEnd": [
+      -81.5,
+      46.6,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_distance",
+      "context_offset"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": -4,
+      "context_height": 1.8
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Context shading",
+    "caption": "Include a neighbouring building in the calculation.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -81.5,
+      46.6,
+      1.8
+    ],
+    "cameraEnd": [
+      -87.0,
+      46.8,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_distance",
+      "context_offset"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": -4,
+      "context_height": 2.4
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Context shading",
+    "caption": "Include a neighbouring building in the calculation.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -87.0,
+      46.8,
+      1.8
+    ],
+    "cameraEnd": [
+      -92.5,
+      47.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_distance",
+      "context_offset"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": -4,
+      "context_height": 3.0
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Context shading",
+    "caption": "Include a neighbouring building in the calculation.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -92.5,
+      47.0,
+      1.8
+    ],
+    "cameraEnd": [
+      -98.0,
+      47.2,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_distance",
+      "context_offset"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": -4,
+      "context_height": 3.6
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Context shading",
+    "caption": "Include a neighbouring building in the calculation.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -98.0,
+      47.2,
+      1.8
+    ],
+    "cameraEnd": [
+      -103.5,
+      47.4,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_distance",
+      "context_offset"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": -4,
+      "context_height": 4.2
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Context shading",
+    "caption": "Include a neighbouring building in the calculation.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -103.5,
+      47.4,
+      1.8
+    ],
+    "cameraEnd": [
+      -109.0,
+      47.6,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_distance",
+      "context_offset"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": -4,
+      "context_height": 4.8
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Context shading",
+    "caption": "Include a neighbouring building in the calculation.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -109.0,
+      47.6,
+      1.8
+    ],
+    "cameraEnd": [
+      -114.5,
+      47.8,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_distance",
+      "context_offset"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": -4,
+      "context_height": 5.4
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Context shading",
+    "caption": "Include a neighbouring building in the calculation.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -114.5,
+      47.8,
+      1.8
+    ],
+    "cameraEnd": [
+      -120.0,
+      48.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_distance",
+      "context_offset"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": -4,
+      "context_height": 6.0
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Obstruction position",
+    "caption": "Move the neighbouring building relative to the windows.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -120.0,
+      48.0,
+      1.8
+    ],
+    "cameraEnd": [
+      -127.0,
+      48.7,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": -3.6,
+      "context_height": 6.0,
+      "overhang_depth": 0.675
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Obstruction position",
+    "caption": "Move the neighbouring building relative to the windows.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -127.0,
+      48.7,
+      1.8
+    ],
+    "cameraEnd": [
+      -134.0,
+      49.4,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": -3.2,
+      "context_height": 6.0,
+      "overhang_depth": 0.6
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Obstruction position",
+    "caption": "Move the neighbouring building relative to the windows.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -134.0,
+      49.4,
+      1.8
+    ],
+    "cameraEnd": [
+      -141.0,
+      50.1,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": -2.8,
+      "context_height": 6.0,
+      "overhang_depth": 0.525
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Obstruction position",
+    "caption": "Move the neighbouring building relative to the windows.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -141.0,
+      50.1,
+      1.8
+    ],
+    "cameraEnd": [
+      -148.0,
+      50.8,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": -2.4,
+      "context_height": 6.0,
+      "overhang_depth": 0.45
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Obstruction position",
+    "caption": "Move the neighbouring building relative to the windows.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -148.0,
+      50.8,
+      1.8
+    ],
+    "cameraEnd": [
+      -155.0,
+      51.5,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": -2.0,
+      "context_height": 6.0,
+      "overhang_depth": 0.375
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Obstruction position",
+    "caption": "Move the neighbouring building relative to the windows.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -155.0,
+      51.5,
+      1.8
+    ],
+    "cameraEnd": [
+      -162.0,
+      52.2,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": -1.6,
+      "context_height": 6.0,
+      "overhang_depth": 0.3
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Obstruction position",
+    "caption": "Move the neighbouring building relative to the windows.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -162.0,
+      52.2,
+      1.8
+    ],
+    "cameraEnd": [
+      -169.0,
+      52.9,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": -1.2,
+      "context_height": 6.0,
+      "overhang_depth": 0.225
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Obstruction position",
+    "caption": "Move the neighbouring building relative to the windows.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -169.0,
+      52.9,
+      1.8
+    ],
+    "cameraEnd": [
+      -176.0,
+      53.6,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": -0.8,
+      "context_height": 6.0,
+      "overhang_depth": 0.15
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Obstruction position",
+    "caption": "Move the neighbouring building relative to the windows.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -176.0,
+      53.6,
+      1.8
+    ],
+    "cameraEnd": [
+      -183.0,
+      54.3,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": -0.4,
+      "context_height": 6.0,
+      "overhang_depth": 0.075
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Obstruction position",
+    "caption": "Move the neighbouring building relative to the windows.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -183.0,
+      54.3,
+      1.8
+    ],
+    "cameraEnd": [
+      -190.0,
+      55.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": 0.0,
+      "context_height": 6.0,
+      "overhang_depth": 0.0
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Combined shading",
+    "caption": "Adjust the building height, position and overhang.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -190.0,
+      55.0,
+      1.8
+    ],
+    "cameraEnd": [
+      -194.5,
+      53.9,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": 0.8,
+      "context_height": 5.7,
+      "overhang_depth": 0.18
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Combined shading",
+    "caption": "Adjust the building height, position and overhang.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -194.5,
+      53.9,
+      1.8
+    ],
+    "cameraEnd": [
+      -199.0,
+      52.8,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": 1.6,
+      "context_height": 5.4,
+      "overhang_depth": 0.36
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Combined shading",
+    "caption": "Adjust the building height, position and overhang.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -199.0,
+      52.8,
+      1.8
+    ],
+    "cameraEnd": [
+      -203.5,
+      51.7,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": 2.4,
+      "context_height": 5.1,
+      "overhang_depth": 0.54
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Combined shading",
+    "caption": "Adjust the building height, position and overhang.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -203.5,
+      51.7,
+      1.8
+    ],
+    "cameraEnd": [
+      -208.0,
+      50.6,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": 3.2,
+      "context_height": 4.8,
+      "overhang_depth": 0.72
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Combined shading",
+    "caption": "Adjust the building height, position and overhang.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -208.0,
+      50.6,
+      1.8
+    ],
+    "cameraEnd": [
+      -212.5,
+      49.5,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": 4.0,
+      "context_height": 4.5,
+      "overhang_depth": 0.9
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Combined shading",
+    "caption": "Adjust the building height, position and overhang.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -212.5,
+      49.5,
+      1.8
+    ],
+    "cameraEnd": [
+      -217.0,
+      48.4,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": 4.8,
+      "context_height": 4.2,
+      "overhang_depth": 1.08
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Combined shading",
+    "caption": "Adjust the building height, position and overhang.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -217.0,
+      48.4,
+      1.8
+    ],
+    "cameraEnd": [
+      -221.5,
+      47.3,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": 5.6,
+      "context_height": 3.9,
+      "overhang_depth": 1.26
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Combined shading",
+    "caption": "Adjust the building height, position and overhang.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -221.5,
+      47.3,
+      1.8
+    ],
+    "cameraEnd": [
+      -226.0,
+      46.2,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": 6.4,
+      "context_height": 3.6,
+      "overhang_depth": 1.44
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Combined shading",
+    "caption": "Adjust the building height, position and overhang.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -226.0,
+      46.2,
+      1.8
+    ],
+    "cameraEnd": [
+      -230.5,
+      45.1,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": 7.2,
+      "context_height": 3.3,
+      "overhang_depth": 1.62
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Combined shading",
+    "caption": "Adjust the building height, position and overhang.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -230.5,
+      45.1,
+      1.8
+    ],
+    "cameraEnd": [
+      -235.0,
+      44.0,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": 8.0,
+      "context_height": 3.0,
+      "overhang_depth": 1.8
+    }
+  },
+  {
+    "chapter": "Hourly analysis",
+    "duration": 0.6666666666666666,
+    "title": "Hourly daylight",
+    "caption": "Gothenburg weather \u00b7 21 June \u00b7 07:30\u201318:30",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -235.0,
+      44.0,
+      1.8
+    ],
+    "cameraEnd": [
+      -247.0,
+      44,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "day",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 7,
+    "timestep": 4111,
+    "parameters": {}
+  },
+  {
+    "chapter": "Hourly analysis",
+    "duration": 0.6666666666666666,
+    "title": "Hourly daylight",
+    "caption": "Gothenburg weather \u00b7 21 June \u00b7 07:30\u201318:30",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -247.0,
+      44,
+      1.8
+    ],
+    "cameraEnd": [
+      -259.0,
+      44,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "day",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 8,
+    "timestep": 4112,
+    "parameters": {}
+  },
+  {
+    "chapter": "Hourly analysis",
+    "duration": 0.6666666666666666,
+    "title": "Hourly daylight",
+    "caption": "Gothenburg weather \u00b7 21 June \u00b7 07:30\u201318:30",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -259.0,
+      44,
+      1.8
+    ],
+    "cameraEnd": [
+      -271.0,
+      44,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "day",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 9,
+    "timestep": 4113,
+    "parameters": {}
+  },
+  {
+    "chapter": "Hourly analysis",
+    "duration": 0.6666666666666666,
+    "title": "Hourly daylight",
+    "caption": "Gothenburg weather \u00b7 21 June \u00b7 07:30\u201318:30",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -271.0,
+      44,
+      1.8
+    ],
+    "cameraEnd": [
+      -283.0,
+      44,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "day",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 10,
+    "timestep": 4114,
+    "parameters": {}
+  },
+  {
+    "chapter": "Hourly analysis",
+    "duration": 0.6666666666666666,
+    "title": "Hourly daylight",
+    "caption": "Gothenburg weather \u00b7 21 June \u00b7 07:30\u201318:30",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -283.0,
+      44,
+      1.8
+    ],
+    "cameraEnd": [
+      -295.0,
+      44,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "day",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 11,
+    "timestep": 4115,
+    "parameters": {}
+  },
+  {
+    "chapter": "Hourly analysis",
+    "duration": 0.6666666666666666,
+    "title": "Hourly daylight",
+    "caption": "Gothenburg weather \u00b7 21 June \u00b7 07:30\u201318:30",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -295.0,
+      44,
+      1.8
+    ],
+    "cameraEnd": [
+      -307.0,
+      44,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "day",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {}
+  },
+  {
+    "chapter": "Hourly analysis",
+    "duration": 0.6666666666666666,
+    "title": "Hourly daylight",
+    "caption": "Gothenburg weather \u00b7 21 June \u00b7 07:30\u201318:30",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -307.0,
+      44,
+      1.8
+    ],
+    "cameraEnd": [
+      -319.0,
+      44,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "day",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 13,
+    "timestep": 4117,
+    "parameters": {}
+  },
+  {
+    "chapter": "Hourly analysis",
+    "duration": 0.6666666666666666,
+    "title": "Hourly daylight",
+    "caption": "Gothenburg weather \u00b7 21 June \u00b7 07:30\u201318:30",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -319.0,
+      44,
+      1.8
+    ],
+    "cameraEnd": [
+      -331.0,
+      44,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "day",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 14,
+    "timestep": 4118,
+    "parameters": {}
+  },
+  {
+    "chapter": "Hourly analysis",
+    "duration": 0.6666666666666666,
+    "title": "Hourly daylight",
+    "caption": "Gothenburg weather \u00b7 21 June \u00b7 07:30\u201318:30",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -331.0,
+      44,
+      1.8
+    ],
+    "cameraEnd": [
+      -343.0,
+      44,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "day",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 15,
+    "timestep": 4119,
+    "parameters": {}
+  },
+  {
+    "chapter": "Hourly analysis",
+    "duration": 0.6666666666666666,
+    "title": "Hourly daylight",
+    "caption": "Gothenburg weather \u00b7 21 June \u00b7 07:30\u201318:30",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -343.0,
+      44,
+      1.8
+    ],
+    "cameraEnd": [
+      -355.0,
+      44,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "day",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 16,
+    "timestep": 4120,
+    "parameters": {}
+  },
+  {
+    "chapter": "Hourly analysis",
+    "duration": 0.6666666666666666,
+    "title": "Hourly daylight",
+    "caption": "Gothenburg weather \u00b7 21 June \u00b7 07:30\u201318:30",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -355.0,
+      44,
+      1.8
+    ],
+    "cameraEnd": [
+      -367.0,
+      44,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "day",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 17,
+    "timestep": 4121,
+    "parameters": {}
+  },
+  {
+    "chapter": "Hourly analysis",
+    "duration": 0.6666666666666666,
+    "title": "Hourly daylight",
+    "caption": "Gothenburg weather \u00b7 21 June \u00b7 07:30\u201318:30",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -367.0,
+      44,
+      1.8
+    ],
+    "cameraEnd": [
+      -379.0,
+      44,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "day",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 18,
+    "timestep": 4122,
+    "parameters": {}
+  },
+  {
+    "chapter": "Annual analysis",
+    "duration": 0.4,
+    "title": "Seasonal sun paths",
+    "caption": "Monthly paths and the sun\u2019s position at noon through the year.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -379.0,
+      44,
+      1.8
+    ],
+    "cameraEnd": [
+      -398.0,
+      45,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "year",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 12,
+    "timestep": 492,
+    "parameters": {}
+  },
+  {
+    "chapter": "Annual analysis",
+    "duration": 0.4,
+    "title": "Seasonal sun paths",
+    "caption": "Monthly paths and the sun\u2019s position at noon through the year.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -398.0,
+      45,
+      1.8
+    ],
+    "cameraEnd": [
+      -393.0,
+      45,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "year",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 12,
+    "timestep": 1236,
+    "parameters": {}
+  },
+  {
+    "chapter": "Annual analysis",
+    "duration": 0.4,
+    "title": "Seasonal sun paths",
+    "caption": "Monthly paths and the sun\u2019s position at noon through the year.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -393.0,
+      45,
+      1.8
+    ],
+    "cameraEnd": [
+      -388.0,
+      45,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "year",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 12,
+    "timestep": 1908,
+    "parameters": {}
+  },
+  {
+    "chapter": "Annual analysis",
+    "duration": 0.4,
+    "title": "Seasonal sun paths",
+    "caption": "Monthly paths and the sun\u2019s position at noon through the year.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -388.0,
+      45,
+      1.8
+    ],
+    "cameraEnd": [
+      -383.0,
+      45,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "year",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 12,
+    "timestep": 2652,
+    "parameters": {}
+  },
+  {
+    "chapter": "Annual analysis",
+    "duration": 0.4,
+    "title": "Seasonal sun paths",
+    "caption": "Monthly paths and the sun\u2019s position at noon through the year.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -383.0,
+      45,
+      1.8
+    ],
+    "cameraEnd": [
+      -378.0,
+      45,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "year",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 12,
+    "timestep": 3372,
+    "parameters": {}
+  },
+  {
+    "chapter": "Annual analysis",
+    "duration": 0.4,
+    "title": "Seasonal sun paths",
+    "caption": "Monthly paths and the sun\u2019s position at noon through the year.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -378.0,
+      45,
+      1.8
+    ],
+    "cameraEnd": [
+      -373.0,
+      45,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "year",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {}
+  },
+  {
+    "chapter": "Annual analysis",
+    "duration": 0.4,
+    "title": "Seasonal sun paths",
+    "caption": "Monthly paths and the sun\u2019s position at noon through the year.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -373.0,
+      45,
+      1.8
+    ],
+    "cameraEnd": [
+      -368.0,
+      45,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "year",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 12,
+    "timestep": 4836,
+    "parameters": {}
+  },
+  {
+    "chapter": "Annual analysis",
+    "duration": 0.4,
+    "title": "Seasonal sun paths",
+    "caption": "Monthly paths and the sun\u2019s position at noon through the year.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -368.0,
+      45,
+      1.8
+    ],
+    "cameraEnd": [
+      -363.0,
+      45,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "year",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 12,
+    "timestep": 5580,
+    "parameters": {}
+  },
+  {
+    "chapter": "Annual analysis",
+    "duration": 0.4,
+    "title": "Seasonal sun paths",
+    "caption": "Monthly paths and the sun\u2019s position at noon through the year.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -363.0,
+      45,
+      1.8
+    ],
+    "cameraEnd": [
+      -358.0,
+      45,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "year",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 12,
+    "timestep": 6324,
+    "parameters": {}
+  },
+  {
+    "chapter": "Annual analysis",
+    "duration": 0.4,
+    "title": "Seasonal sun paths",
+    "caption": "Monthly paths and the sun\u2019s position at noon through the year.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -358.0,
+      45,
+      1.8
+    ],
+    "cameraEnd": [
+      -353.0,
+      45,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "year",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 12,
+    "timestep": 7044,
+    "parameters": {}
+  },
+  {
+    "chapter": "Annual analysis",
+    "duration": 0.4,
+    "title": "Seasonal sun paths",
+    "caption": "Monthly paths and the sun\u2019s position at noon through the year.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -353.0,
+      45,
+      1.8
+    ],
+    "cameraEnd": [
+      -348.0,
+      45,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "year",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 12,
+    "timestep": 7788,
+    "parameters": {}
+  },
+  {
+    "chapter": "Annual analysis",
+    "duration": 0.4,
+    "title": "Seasonal sun paths",
+    "caption": "Monthly paths and the sun\u2019s position at noon through the year.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -348.0,
+      45,
+      1.8
+    ],
+    "cameraEnd": [
+      -343.0,
+      45,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "year",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "final",
+    "hour": 12,
+    "timestep": 8508,
+    "parameters": {}
+  },
+  {
+    "chapter": "Annual analysis",
+    "duration": 1.6,
+    "title": "Daylight factor",
+    "caption": "Indoor / outdoor illuminance under an overcast sky.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -343.0,
+      45,
+      1.8
+    ],
+    "cameraEnd": [
+      -325.0,
+      52,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "year",
+    "sliders": [],
+    "metric": "df",
+    "quality": "final",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {}
+  },
+  {
+    "chapter": "Annual analysis",
+    "duration": 1.8,
+    "title": "Daylight autonomy",
+    "caption": "Share of occupied hours with at least 300 lux at each sensor.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -325.0,
+      52,
+      1.8
+    ],
+    "cameraEnd": [
+      -305.0,
+      52,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "year",
+    "sliders": [],
+    "metric": "da",
+    "quality": "final",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {}
+  },
+  {
+    "chapter": "Annual analysis",
+    "duration": 1.8,
+    "title": "Spatial daylight autonomy",
+    "caption": "Area with at least 300 lux for half the occupied hours \u00b7 static shades.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -305.0,
+      52,
+      1.8
+    ],
+    "cameraEnd": [
+      -285.0,
+      52,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "year",
+    "sliders": [],
+    "metric": "sda",
+    "quality": "final",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {}
+  },
+  {
+    "chapter": "Multiple zones",
+    "duration": 1.5,
+    "title": "Multiple-zone analysis",
+    "caption": "Increase the number of rooms in the model.",
+    "detail": "",
+    "overview": {
+      "from": [
+        [
+          0,
+          -0.75,
+          0
+        ],
+        [
+          6,
+          9.0,
+          3
+        ]
+      ],
+      "to": [
+        [
+          0,
+          -0.75,
+          0
+        ],
+        [
+          69,
+          21.75,
+          3
+        ]
+      ],
+      "leadIn": 0
+    },
+    "camera": [
+      -285.0,
+      52,
+      1.8
+    ],
+    "cameraEnd": [
+      -345.0,
+      48,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "sensor_spacing": 1.5
+    }
+  },
+  {
+    "chapter": "Multiple zones",
+    "duration": 1.5,
+    "title": "16 zones",
+    "caption": "GPU transport with independent sensor grids.",
+    "detail": "",
+    "overview": {
+      "from": [
+        [
+          0,
+          -0.75,
+          0
+        ],
+        [
+          69,
+          21.75,
+          3
+        ]
+      ],
+      "to": [
+        [
+          0,
+          -0.75,
+          0
+        ],
+        [
+          141,
+          47.25,
+          3
+        ]
+      ],
+      "leadIn": 0.5
+    },
+    "camera": [
+      -345.0,
+      48,
+      1.8
+    ],
+    "cameraEnd": [
+      -325.0,
+      62,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "sensor_spacing": 1.5,
+      "room_count": 16
+    }
+  },
+  {
+    "chapter": "Multiple zones",
+    "duration": 1.5,
+    "title": "64 zones",
+    "caption": "GPU transport with independent sensor grids.",
+    "detail": "",
+    "overview": {
+      "from": [
+        [
+          0,
+          -0.75,
+          0
+        ],
+        [
+          141,
+          47.25,
+          3
+        ]
+      ],
+      "to": [
+        [
+          0,
+          -0.75,
+          0
+        ],
+        [
+          285,
+          98.25,
+          3
+        ]
+      ],
+      "leadIn": 0.5
+    },
+    "camera": [
+      -325.0,
+      62,
+      1.8
+    ],
+    "cameraEnd": [
+      -325.0,
+      62,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "sensor_spacing": 1.5,
+      "room_count": 64
+    }
+  },
+  {
+    "chapter": "Multiple zones",
+    "duration": 1.5,
+    "title": "256 zones",
+    "caption": "GPU transport with independent sensor grids.",
+    "detail": "",
+    "overview": {
+      "from": [
+        [
+          0,
+          -0.75,
+          0
+        ],
+        [
+          285,
+          98.25,
+          3
+        ]
+      ],
+      "to": [
+        [
+          0,
+          -0.75,
+          0
+        ],
+        [
+          573,
+          200.25,
+          3
+        ]
+      ],
+      "leadIn": 0.5
+    },
+    "camera": [
+      -325.0,
+      62,
+      1.8
+    ],
+    "cameraEnd": [
+      -325.0,
+      62,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "sensor_spacing": 1.5,
+      "room_count": 256
+    }
+  },
+  {
+    "chapter": "Multiple zones",
+    "duration": 8,
+    "title": "1,024 zones",
+    "caption": "24,576 sensor cells calculated on the GPU.",
+    "detail": "",
+    "overview": {
+      "from": [
+        [
+          0,
+          -0.75,
+          0
+        ],
+        [
+          573,
+          200.25,
+          3
+        ]
+      ],
+      "to": [
+        [
+          0,
+          -0.75,
+          0
+        ],
+        [
+          573,
+          200.25,
+          3
+        ]
+      ],
+      "leadIn": 0.5
+    },
+    "camera": [
+      -325.0,
+      62,
+      1.8
+    ],
+    "cameraEnd": [
+      -375.0,
+      62,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "sensor_spacing": 1.5,
+      "room_count": 1024
+    }
+  },
+  {
+    "chapter": "Open source",
+    "duration": 7,
+    "title": "Open-source daylight simulation",
+    "caption": "Fast GPU light transport for parametric daylight teaching.",
+    "detail": "MIT licence \u00b7 Source code available on GitHub",
+    "overview": null,
+    "camera": [
+      -375.0,
+      62,
+      1.8
+    ],
+    "cameraEnd": [
+      -348.0,
+      48,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "sensor_spacing": 1.5,
+      "room_count": 1024
+    }
+  }
+]
