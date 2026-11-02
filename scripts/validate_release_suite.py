@@ -243,10 +243,13 @@ def run_scene(args, identifier, density, output):
 
     # Independently vary depth and sample budget. The one-bounce level stays as a
     # diagnostic of how much reflected light the candidate's default depth adds.
+    # Depth stability compares 8 and 12 material bounces: the 2026-11-02 sweep put
+    # glazed rooms within 0.5% there, while 4 vs 8 differ by ~2% from physics
+    # alone and would mark every converged reference unstable.
     levels = (
-        ((64, 1), (128, 4), (128, 8), (256, 8))
+        ((64, 1), (128, 8), (128, 12), (256, 12))
         if args.smoke
-        else ((20000, 1), (40000, 4), (40000, 8), (80000, 8))
+        else ((20000, 1), (40000, 8), (40000, 12), (80000, 12))
     )
     references, oracle_records = [], []
     for samples, bounces in levels:

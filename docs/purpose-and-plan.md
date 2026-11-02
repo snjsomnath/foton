@@ -90,11 +90,17 @@ below must check that before trusting it.
 
 ### 2. Two cheap robustness fixes
 
-- Recentre geometry in the Honeybee adapter before the float32 cast. Models
-  placed at real-world coordinates currently lose precision silently; at a
-  SWEREF99 northing of 6.4 million the float32 spacing is 0.5 m.
-- Split the GPU trace into tiles so cancellation works mid-run and Windows
-  GPU timeouts cannot kill a long dispatch.
+**Done 2 November 2026.**
+
+- The adapter keeps geometry and sensors in world coordinates as float64 and
+  recentres them on `scene_origin` (whole-metre bounding-box midpoint) when the
+  native scene is created, so a model at a SWEREF99 northing of 6.4 million
+  traces identically to the same room at the origin. Radiance comparisons keep
+  using the world arrays. `scene_origin_m` is recorded in `geometry_info`.
+- Both GPU backends split the diffuse trace into sample tiles of at most 2^22
+  sensor×sample paths, checking cancellation between tiles; the per-path weight
+  uses the total sample count so results are unchanged. Scenes under about
+  1,000 sensors at 4,096 samples still run as one dispatch.
 
 ### 3. One archived Metal campaign
 
@@ -103,24 +109,41 @@ Run the full suite once on Metal from a clean commit, with output under
 repository and the bulk oracle matrices in a compressed archive next to them.
 This is the first parity evidence tied to a commit.
 
+**In progress, 2 November 2026.** A first run from commit `2621348` marked every
+scene `unstable_reference` within a minute: the suite's depth-stability check
+compared Radiance at 4 and 8 bounces, which differ by about 2% from physics
+alone. The levels are now `(20000,1)`, `(40000,8)`, `(40000,12)`, `(80000,12)`
+with the 12-bounce mean as reference. The campaign was restarted on suite
+version 4 (106 scenes, teaching category included) with 12 Radiance workers into
+`validation/results/2026-11-02-architectural-v4-metal/`. Raw stage folders are
+ignored by git; only the report, suite and comparison JSON/Markdown are tracked.
+
 ### 4. Decide direct sun
 
-Foton is a two-phase sky-patch method with no separate sun. That is correct for
-DF and for coefficient parity against `rfluxmtx`, but DA, UDI and sDA depend on
-direct sun, which Honeybee's annual recipe treats separately. For version 0.3
-the documentation should state the two-phase scope plainly. A direct-sun pass is
-a later feature, not a blocker for parity now.
+**Decided 2 November 2026: version 0.3 is two-phase only.** Foton is a sky-patch
+method with no separate sun. That is correct for DF and for coefficient parity
+against `rfluxmtx`; DA, UDI and sDA depend on direct sun, which Honeybee's
+annual recipe traces separately, so those metrics will differ from Honeybee in
+sunny climates (patch-smeared sun under-states peak illuminance and spreads it
+across neighbouring sensors). The README states this under "What it does not
+do". A direct-sun pass (sun-position coefficients, as in the 2-phase DDS or
+Honeybee's enhanced 2-phase) is the first feature after parity, not a blocker
+for it; the teaching use is mostly overcast-sky and relative comparisons.
 
 ### 5. Teaching fixtures
 
-The 90 current scenes test physical interactions well but are weighted toward a
-footprint-by-window-shape matrix (47 of 90) whose window shapes teach little.
-Add a `teaching` category of roughly 15 to 20 scenes built as parameter sweeps:
-window-to-wall ratio 20/40/60%, room depth 4/6/8/10 m, surface reflectance
-0.3/0.5/0.7, overhang depth 0/0.5/1.0 m, obstruction angle 0/30/60°; three
-named room types (classroom, open-plan office, living room); and three climates
-beyond Gothenburg (one sunny, one overcast). Reduce the window-shape matrix to a
-sample.
+**Done 2 November 2026 (suite version 4).** The 90 earlier scenes test physical
+interactions well but are weighted toward a footprint-by-window-shape matrix
+(47 of 90) whose window shapes teach little. `validation/scenes.py` now adds a
+`teaching` category of 16 single-parameter sweeps on a 6 × 6 × 3 m base:
+WWR 20/40/60 %, depth 4/6/8/10 m, reflectance 0.3/0.5/0.7, overhang 0.5/1.0 m,
+obstruction 30/60°, and a classroom, an open-plan office and a living room.
+They run under the same gates with `--category teaching`. The window-shape
+matrix is kept for continuity with the 2026-11-02 campaign.
+
+Still to do: climates. The suite runs one EPW (Gothenburg). Add one sunny and
+one overcast EPW and run the teaching category under each; this is the only
+place the direct-sun decision (step 4) is quantified.
 
 ### 6. Vulkan and Linux
 

@@ -74,6 +74,10 @@ model.
 
 In particular, it should not yet be assumed equivalent to Radiance for:
 
+- a separate direct-sun pass: Foton is a two-phase method, so the sun is
+  carried inside its sky patch (as `rfluxmtx` does), not traced as a disc.
+  DF and sky-coefficient parity are exact; DA, UDI and sDA in sunny climates
+  will differ from Honeybee's default recipe, which adds a sun pass
 - complex BSDF materials
 - advanced daylight-redirecting systems
 - highly specular environments

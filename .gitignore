@@ -30,3 +30,12 @@
 /validation/results/**/*.dome
 /validation/results/**/*.npy
 /validation/results/*.log
+# Campaign raw stages: only report/suite/comparison JSON and Markdown are tracked
+/validation/results/**/direct_*/
+/validation/results/**/ad*_b*_r*/
+/validation/results/**/annual/
+/validation/results/**/annual_cached/
+/validation/results/**/oracle/
+/validation/results/**/center_visibility/
+/validation/results/**/stock/
+/validation/results/**/*.bin
