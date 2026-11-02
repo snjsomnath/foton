@@ -70,7 +70,7 @@ class AnnualDaylightRequest:
     target_time: float = 50.0
     direct_samples: int | None = None
     maximum_samples: int | None = None
-    maximum_bounces: int = 1
+    maximum_bounces: int = 8  # keep in step with foton.honeybee.annual.DEFAULT_MAXIMUM_BOUNCES
     scene_seed: int = 0
     export_illuminance: bool = True
 

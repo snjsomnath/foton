@@ -18,6 +18,7 @@ from foton import (
     sky_patch_solid_angles,
 )
 from foton.honeybee.adapter import prepare_honeybee_scene
+from foton.honeybee.annual import DEFAULT_MAXIMUM_BOUNCES
 from foton.honeybee.radiance import (
     run_radiance_coefficient_stages,
     run_radiance_integrated_direct,
@@ -76,6 +77,7 @@ def trace_coefficients(
     rows,
     direct_samples,
     indirect_samples,
+    maximum_bounces=DEFAULT_MAXIMUM_BOUNCES,
 ):
     engine = Engine({"backend": backend})
     scene = prepared.create_native_scene(engine)
@@ -101,7 +103,7 @@ def trace_coefficients(
         quality="final",
         direct_samples=direct_samples,
         maximum_samples=indirect_samples,
-        maximum_bounces=1,
+        maximum_bounces=maximum_bounces,
         scene_seed=0,
         export_coefficients=True,
     ).result()

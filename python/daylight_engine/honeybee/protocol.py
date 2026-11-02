@@ -56,7 +56,7 @@ def annual_request(
     target_time=50.0,
     direct_samples=None,
     maximum_samples=None,
-    maximum_bounces=1,
+    maximum_bounces=8,  # keep in step with annual.DEFAULT_MAXIMUM_BOUNCES
     scene_seed=0,
     export_illuminance=True,
 ) -> dict[str, Any]:

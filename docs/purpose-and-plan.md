@@ -36,12 +36,12 @@ Speed is already sufficient. On an M4 Pro a 216-sensor room traces in about 6 ms
 at 4,096 samples and 2 bounces, against about 3.5 s for Radiance. Raising the
 bounce count to what accuracy needs stays well under 100 ms.
 
-Accuracy is not yet established, for one main reason: the default and validated
-setting is **one diffuse bounce**, while the Radiance reference uses eight. With
-0.5 reflectance one bounce captures roughly half of the reflected light. The
-only recorded comparison (15 September 2026, two scenes) showed Foton 17.6% low
-on full transport, consistent with that. The one full campaign (18 September)
-was lost with its temporary directory before it was archived.
+Accuracy on the full corpus is not yet established. Until 2 November 2026 the
+default and validated setting was **one diffuse bounce**, while the Radiance
+reference uses eight; the only recorded comparison (15 September 2026, two
+scenes) showed Foton 17.6% low on full transport for that reason, and the one
+full campaign (18 September) was lost with its temporary directory. Step 1 below
+fixed the default; the corpus-wide campaign (step 3) has not been rerun since.
 
 ## Plan
 
@@ -67,17 +67,26 @@ bright deep room is still gaining 10% between six and eight bounces, so the
 eight-bounce Radiance reference itself may not be converged there; the sweep
 below must check that before trusting it.
 
-- Measure: run six scenes (sealed, open aperture, coloured glass, dark interior,
-  bright deep room, one borrowed-light case) at 1, 2, 4, 6 and 8 bounces against
-  the existing eight-bounce Radiance reference. Record error and trace time.
-- Choose the lowest bounce count that passes the 5%/10% transport gates with
-  margin, probably 4 to 6, and make it the `final` preset default.
-- Remove every hard-coded `maximum_bounces=1`: the preset default in
-  `python/daylight_engine/honeybee/annual.py`, the suite record in
-  `scripts/validate_release_suite.py`, and the candidate trace in
-  `scripts/validate_honeybee_coefficients.py`. The suite must validate whatever
-  the preset is.
-- Requires Radiance 6 on the machine running the sweep.
+**Done 2 November 2026** with `scripts/bounce_sweep.py`; results in
+[`validation/results/2026-11-02-bounce-sweep/`](../validation/results/2026-11-02-bounce-sweep/README.md)
+(Radiance 5.4a, `-ad 40000`, MF:1, six scenes, bounces 1/2/4/6/8/12).
+
+- Foton at *n* bounces matches Radiance at *n* material bounces to within 0.5%
+  on every lit scene, so the bounce semantics agree and the one-bounce deficit
+  is purely truncation: −18% on the coloured-glass and interior-glazing rooms,
+  −57% on the bright deep room, −0.7% on the dark room.
+- Against a 12-bounce Radiance reference, 8 bounces is within −0.3% to −0.5%
+  on the glazed rooms and −0.05% on the dark room, at ≈1.5× the one-bounce
+  trace time (all under 6 ms). **`DEFAULT_MAXIMUM_BOUNCES = 8`** is now the
+  default in `annual.py`, `protocol.py`, the CLI, `honeybee_foton.client`,
+  the PyO3 `analyze` signature and both validation scripts.
+- Open: the bright deep room (`deep_reflective`, 12 m, high reflectance) is not
+  converged at 12 bounces in either engine, and at 12 bounces Foton sits +7%
+  above Radiance while agreeing with it at 8. Something in how the two engines
+  terminate deep paths differs; it only shows in a scene well outside teaching
+  reflectances, and is tracked under "Smaller known issues".
+- Sealed and open-aperture rooms have no reflected light; their indirect-error
+  columns in the sweep are noise over a zero reference.
 
 ### 2. Two cheap robustness fixes
 
@@ -129,6 +138,9 @@ Not blocking; fix opportunistically.
   angle lands outside the mapped parent. Only tests use the aggregation.
 - The daylight-factor outdoor reference is 0.44% high on Tregenza.
 - Only 16 Sobol dimensions exist, so paths beyond bounce 7 reuse dimensions.
+  With the default now at 8 bounces this is live; the sweep shows no visible
+  bias from it at 8, but 12 bounces diverge from Radiance by +7% in the bright
+  deep room, and dimension reuse is the first suspect.
 - The resident-scene cache can store old geometry under a new revision if an
   update races an analysis, and entries are never evicted.
 - Transport logic is written three times (MSL, GLSL, Rust). Every fix above has

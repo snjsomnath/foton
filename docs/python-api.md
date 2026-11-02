@@ -31,7 +31,7 @@ job = scene.analyze(
         "static_sda300_50",
     ],
     maximum_samples=64,
-    maximum_bounces=1,
+    maximum_bounces=8,   # default; 1 bounce under-predicts glazed rooms by ~18 %
     export_coefficients=False,
 )
 snapshot = job.poll()

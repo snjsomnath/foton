@@ -26,6 +26,10 @@ QUALITY_PRESETS = {
     "preview": {"direct_samples": 1, "maximum_samples": 64},
     "final": {"direct_samples": 64, "maximum_samples": 4096},
 }
+# Diffuse bounce depth at which the 2026-11-02 sweep put Foton within 0.5 % of a
+# 12-bounce Radiance reference on glazed and interior-glazed rooms
+# (validation/results/2026-11-02-bounce-sweep). One bounce under-predicts by ~18 %.
+DEFAULT_MAXIMUM_BOUNCES = 8
 
 
 @dataclass(frozen=True)
@@ -122,7 +126,7 @@ class HoneybeeStudy:
         sky_density: int = 1,
         direct_samples: int | None = None,
         maximum_samples: int | None = None,
-        maximum_bounces: int = 1,
+        maximum_bounces: int = DEFAULT_MAXIMUM_BOUNCES,
         scene_seed: int = 0,
         output_folder: str | Path | None = None,
         export_illuminance: bool = False,
@@ -434,7 +438,7 @@ class AnnualDaylightRecipe:
             "sky_density": 1,
             "direct_samples": None,
             "maximum_samples": None,
-            "maximum_bounces": 1,
+            "maximum_bounces": DEFAULT_MAXIMUM_BOUNCES,
             "threshold": 300.0,
             "udi_lower": 100.0,
             "udi_upper": 3000.0,

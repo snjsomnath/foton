@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 import sys
 
-from .annual import run_annual_daylight
+from .annual import DEFAULT_MAXIMUM_BOUNCES, run_annual_daylight
 from .protocol import (
     PROTOCOL_NAME,
     PROTOCOL_VERSION,
@@ -56,7 +56,9 @@ def _parser() -> argparse.ArgumentParser:
     annual.add_argument("--target-time", type=float, default=50)
     annual.add_argument("--direct-samples", type=int)
     annual.add_argument("--maximum-samples", type=int)
-    annual.add_argument("--maximum-bounces", type=int, default=1)
+    annual.add_argument(
+        "--maximum-bounces", type=int, default=DEFAULT_MAXIMUM_BOUNCES
+    )
     annual.add_argument("--scene-seed", type=int, default=0)
     annual.add_argument("--radiance-bin")
     annual.add_argument("--jsonl", action="store_true")

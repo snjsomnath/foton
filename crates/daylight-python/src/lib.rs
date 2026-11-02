@@ -314,7 +314,7 @@ impl PyScene {
         time_fraction=0.5,
         direct_samples=1,
         maximum_samples=64,
-        maximum_bounces=1,
+        maximum_bounces=8,
         scene_seed=0,
         export_coefficients=false,
         export_illuminance=false,

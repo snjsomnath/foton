@@ -26,7 +26,12 @@ import numpy as np
 from foton import Engine, __version__
 from foton.honeybee import HoneybeeStudy, compare_annual_daylight
 from foton.honeybee.adapter import prepare_honeybee_scene
-from foton.honeybee.annual import PHOTOPIC_WEIGHTS, QUALITY_PRESETS, honeybee_schedule
+from foton.honeybee.annual import (
+    DEFAULT_MAXIMUM_BOUNCES,
+    PHOTOPIC_WEIGHTS,
+    QUALITY_PRESETS,
+    honeybee_schedule,
+)
 from foton.honeybee.radiance import (
     run_radiance_coefficient_stages,
     run_radiance_integrated_direct,
@@ -236,7 +241,8 @@ def run_scene(args, identifier, density, output):
         prepared, direct_runs[0].coefficients, direct_runs[1].coefficients
     )
 
-    # Independently vary depth and sample budget, keeping one-bounce diagnostics.
+    # Independently vary depth and sample budget. The one-bounce level stays as a
+    # diagnostic of how much reflected light the candidate's default depth adds.
     levels = (
         ((64, 1), (128, 4), (128, 8), (256, 8))
         if args.smoke
@@ -461,7 +467,7 @@ def run_scene(args, identifier, density, output):
         "gpu_executed": gpu,
         "candidate": candidate["metadata"],
         "sky_bin_audit": sky_audit,
-        "settings": {**preset, "maximum_bounces": 1},
+        "settings": {**preset, "maximum_bounces": DEFAULT_MAXIMUM_BOUNCES},
         "direct_io": args.direct_io,
         "oracle_stable": stable,
         "direct_stability": direct_stability,

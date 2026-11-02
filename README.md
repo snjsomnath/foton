@@ -129,9 +129,11 @@ The goal is not to replace Radiance. The goal is to make a focused part of
 Radiance-style daylight transport fast enough to use interactively in
 architectural design and research.
 
-**Accuracy against Radiance is not yet established.** The current default of one
-diffuse bounce under-predicts reflected light; measured deficits and the ordered
-plan to fix them are in [purpose and plan](docs/purpose-and-plan.md). Static
+**Accuracy against Radiance is not yet established on the full corpus.** The
+default diffuse depth is now eight bounces, which a six-scene sweep put within
+0.5% of a 12-bounce Radiance reference (the previous one-bounce default
+under-predicted glazed rooms by about 18%). The ordered plan to establish parity
+on the 90-scene corpus is in [purpose and plan](docs/purpose-and-plan.md). Static
 diffuse materials and thin glass are supported; nothing here claims compliance,
 ASE, glare, dynamic shading or BSDF support.
 
