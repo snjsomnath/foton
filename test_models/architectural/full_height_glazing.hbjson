@@ -1538,7 +1538,7 @@
       ],
       "question": "Is large near-floor glazing represented without edge leaks?",
       "room_count": 1,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     }
   },

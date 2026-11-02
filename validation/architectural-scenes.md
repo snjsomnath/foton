@@ -1,8 +1,9 @@
 # Architectural daylight corpus
 
-`validation/scenes.py` defines 90 deterministic architectural questions. Suite
-version 3 preserves the original 50 cases and adds a five-by-eight footprint/window
-matrix. There are 89 generated models plus the three-room acceptance HBJSON. Every
+`validation/scenes.py` defines 106 deterministic architectural questions. Suite
+version 3 preserved the original 50 cases and added a five-by-eight footprint/window
+matrix; version 4 adds a 16-scene `teaching` category of single-parameter sweeps.
+There are 105 generated models plus the three-room acceptance HBJSON. Every
 model has explicit diffuse/Glass materials, room-linked sensor grids and metadata.
 The default procedural workplane uses one-metre cells, 0.75 m above each floor;
 the acceptance case retains its original three grids and 2,020 sensors.
@@ -20,6 +21,15 @@ the acceptance case retains its original three grids and 2,020 sensors.
 | Materials | 7 | Tinted glass, bright deep room, dark finishes, bright ceiling, coloured walls, low/mixed glazing transmittance |
 | Connections | 6 | Interior glazing, serial glazing, corridor-to-office light, stacked opaque zones, four courtyard rooms, rooflit atrium |
 | Integration | 1 | Original Honeybee model, grid ordering, stock recipe and metric reload |
+| Teaching | 16 | One-parameter sweeps on a 6 × 6 × 3 m base: WWR 20/40/60 %, depth 4/6/8/10 m, reflectance 0.3/0.5/0.7, overhang 0.5/1.0 m, obstruction 30/60°, plus a classroom, an open-plan office and a living room |
+
+The `teaching_*` scenes are what a daylighting course varies, each changing one
+thing against `teaching_depth6` (0.5 reflectance, 3 × 1.5 m south window, sill
+0.8 m). Obstruction angles are measured from the window centre to the top of a
+facade 10 m away. Run only this category with
+`python scripts/validate_release_suite.py --category teaching ...`. Climate
+variation is a weather input, not a scene: the suite runs one EPW
+(`epw/gothenburg.epw`); sunny and overcast climates are still to be added.
 
 The generated sample [catalogue](../test_models/architectural/README.md) lists the question for
 each individual model. `python -m validation.scenes --list` reads the source catalogue

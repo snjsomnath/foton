@@ -2542,7 +2542,7 @@
       ],
       "question": "How does enclosing context restrict a room's courtyard view?",
       "room_count": 1,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     }
   },

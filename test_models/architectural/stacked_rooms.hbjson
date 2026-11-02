@@ -2882,7 +2882,7 @@
       ],
       "question": "Does an opaque shared slab isolate two storeys?",
       "room_count": 2,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     }
   },

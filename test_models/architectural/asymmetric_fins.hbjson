@@ -1661,7 +1661,7 @@
       ],
       "question": "Do unequal fins produce different east and west sky masks?",
       "room_count": 1,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     }
   },

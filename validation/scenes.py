@@ -19,7 +19,60 @@ _LEGACY_IDS = (
     "irregular",
     "acceptance",
 )
-SCENE_VERSION = 3
+SCENE_VERSION = 4
+
+# Parameter sweeps a daylighting course actually varies. Each scene changes one
+# thing against the 6 x 6 x 3 m, 0.5-reflectance, 3 x 1.5 m south-window base
+# (which is `teaching_depth6`). Values are (room w, d, h), window (w, h, sill),
+# opaque reflectance, overhang depth, obstruction angle in degrees.
+TEACHING_BASE = {
+    "room": (6, 6, 3),
+    "window": (3.0, 1.5, 0.8),
+    "reflectance": 0.5,
+    "overhang": 0.0,
+    "obstruction": 0,
+}
+TEACHING_SCENES = {
+    # Window-to-wall ratio on an 18 m2 south wall; width fixed at 5.4 m.
+    "teaching_wwr20": {"window": (5.4, 0.667, 0.8)},
+    "teaching_wwr40": {"window": (5.4, 1.333, 0.8)},
+    "teaching_wwr60": {"window": (5.4, 2.0, 0.8)},
+    "teaching_depth4": {"room": (6, 4, 3)},
+    "teaching_depth6": {},
+    "teaching_depth8": {"room": (6, 8, 3)},
+    "teaching_depth10": {"room": (6, 10, 3)},
+    "teaching_reflectance30": {"reflectance": 0.3},
+    "teaching_reflectance70": {"reflectance": 0.7},
+    "teaching_overhang050": {"overhang": 0.5},
+    "teaching_overhang100": {"overhang": 1.0},
+    "teaching_obstruction30": {"obstruction": 30},
+    "teaching_obstruction60": {"obstruction": 60},
+    "teaching_classroom": {"room": (9, 7, 3.2), "window": (2.4, 1.6, 0.9), "windows": 3},
+    "teaching_office": {"room": (12, 8, 2.8), "window": (11.0, 1.6, 0.9)},
+    "teaching_living_room": {"room": (5, 4.5, 2.6), "window": (2.4, 2.0, 0.4)},
+}
+TEACHING_QUESTIONS = {
+    "teaching_wwr20": "How does a 20% window-to-wall ratio light the base room?",
+    "teaching_wwr40": "How does a 40% window-to-wall ratio light the base room?",
+    "teaching_wwr60": "How does a 60% window-to-wall ratio light the base room?",
+    "teaching_depth4": "How does daylight fall off in a 4 m deep room?",
+    "teaching_depth6": "What is the 6 m deep teaching base room?",
+    "teaching_depth8": "How does daylight fall off in an 8 m deep room?",
+    "teaching_depth10": "How does daylight fall off in a 10 m deep room?",
+    "teaching_reflectance30": "How much does 0.3 surface reflectance cost at the back of the room?",
+    "teaching_reflectance70": "How much does 0.7 surface reflectance add at the back of the room?",
+    "teaching_overhang050": "What does a 0.5 m overhang remove from the base room?",
+    "teaching_overhang100": "What does a 1.0 m overhang remove from the base room?",
+    "teaching_obstruction30": "How does a 30 degree obstruction angle reduce sky access?",
+    "teaching_obstruction60": "How does a 60 degree obstruction angle reduce sky access?",
+    "teaching_classroom": "How is a 9 x 7 m classroom with three windows lit?",
+    "teaching_office": "How is a 12 x 8 m open-plan office with a ribbon window lit?",
+    "teaching_living_room": "How is a 5 x 4.5 m living room with a tall window lit?",
+}
+
+
+def teaching_parameters(identifier):
+    return {**TEACHING_BASE, **TEACHING_SCENES[identifier]}
 
 # Exterior outlines of the specified rectangle unions, counter-clockwise.
 PLAN_FOOTPRINTS = {
@@ -497,6 +550,20 @@ SCENE_SPECS += tuple(
     for family in PLAN_FOOTPRINTS
     for profile in WINDOW_PROFILES
 )
+SCENE_SPECS += tuple(
+    SceneSpec(
+        identifier,
+        "teaching",
+        TEACHING_QUESTIONS[identifier],
+        tuple(
+            sorted(
+                {"side_glazing", "multiple_bounces"}
+                | {key for key in TEACHING_SCENES[identifier] if key != "windows"}
+            )
+        ),
+    )
+    for identifier in TEACHING_SCENES
+)
 SCENE_IDS = tuple(spec.identifier for spec in SCENE_SPECS)
 _SPECS = {spec.identifier: spec for spec in SCENE_SPECS}
 SCENE_CATEGORIES = tuple(dict.fromkeys(spec.category for spec in SCENE_SPECS))
@@ -759,6 +826,25 @@ def _rooms(identifier):
     """Construct form and openings before finishes, shades and sensor grids."""
     if _SPECS[identifier].footprint_family:
         return [_plan_room(identifier)]
+    if identifier in TEACHING_SCENES:
+        parameters = teaching_parameters(identifier)
+        room = _box(identifier, *parameters["room"])
+        width, height, sill = parameters["window"]
+        count = parameters.get("windows", 1)
+        wall_width = parameters["room"][0]
+        pitch = wall_width / count
+        for index in range(count):
+            center = pitch * (index + 0.5)
+            _aperture(
+                _wall(room, "south"),
+                (
+                    (center - width / 2, 0, sill),
+                    (center + width / 2, 0, sill),
+                    (center + width / 2, 0, sill + height),
+                    (center - width / 2, 0, sill + height),
+                ),
+            )
+        return [room]
     if identifier == "three_room_chain":
         rooms = [
             _box(identifier + "_%d" % i, depth=4, origin=(0, i * 4, 0))
@@ -860,6 +946,8 @@ def _rooms(identifier):
 def _shading(model, identifier):
     room = model.rooms[0]
     aperture = room.apertures[0] if room.apertures else None
+    if identifier in TEACHING_SCENES and teaching_parameters(identifier)["overhang"]:
+        aperture.overhang(teaching_parameters(identifier)["overhang"])
     if identifier in ("deep_overhang", "rotated_37"):
         aperture.overhang(2 if identifier == "deep_overhang" else 0.9)
     if identifier in ("asymmetric_fins", "rotated_37"):
@@ -936,6 +1024,15 @@ def _shading(model, identifier):
 
 
 def _context(model, identifier):
+    if identifier in TEACHING_SCENES and teaching_parameters(identifier)["obstruction"]:
+        # Obstruction angle measured from the window centre to the top of a
+        # facade 10 m away across the street, as in BRE/BS 8206 site layout.
+        import math
+
+        angle = teaching_parameters(identifier)["obstruction"]
+        _, height, sill = teaching_parameters(identifier)["window"]
+        top = sill + height / 2 + 10 * math.tan(math.radians(angle))
+        _context_box(model, "street_facade", 40, 2, top, (-17, -12, 0))
     if identifier == "reflective_neighbour":
         _shade(model, "neighbour", ((-2, -2, 0), (8, -2, 0), (8, -2, 5), (-2, -2, 5)))
     elif identifier == "urban_canyon":
@@ -952,9 +1049,10 @@ def _context(model, identifier):
 def _finishes(model, identifier):
     from honeybee_radiance.modifier.material import Plastic, Glass
 
-    opaque = Plastic.from_single_reflectance(
-        "diffuse", 0.1 if identifier == "dark_interior" else 0.5
-    )
+    reflectance = 0.1 if identifier == "dark_interior" else 0.5
+    if identifier in TEACHING_SCENES:
+        reflectance = teaching_parameters(identifier)["reflectance"]
+    opaque = Plastic.from_single_reflectance("diffuse", reflectance)
     glass = Glass.from_single_transmittance(
         "clear", 0.2 if identifier == "low_transmittance" else 0.6
     )

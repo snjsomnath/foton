@@ -94,3 +94,19 @@ Generated fixtures; numerical acceptance requires the Radiance comparison suite.
 | [plan_cross_circle](plan_cross_circle.hbjson) | form | How does a circle opening illuminate a CROSS-shaped plan? |
 | [plan_cross_arch](plan_cross_arch.hbjson) | form | How does a arch opening illuminate a CROSS-shaped plan? |
 | [plan_cross_distributed](plan_cross_distributed.hbjson) | form | How does a distributed opening illuminate a CROSS-shaped plan? |
+| [teaching_wwr20](teaching_wwr20.hbjson) | teaching | How does a 20% window-to-wall ratio light the base room? |
+| [teaching_wwr40](teaching_wwr40.hbjson) | teaching | How does a 40% window-to-wall ratio light the base room? |
+| [teaching_wwr60](teaching_wwr60.hbjson) | teaching | How does a 60% window-to-wall ratio light the base room? |
+| [teaching_depth4](teaching_depth4.hbjson) | teaching | How does daylight fall off in a 4 m deep room? |
+| [teaching_depth6](teaching_depth6.hbjson) | teaching | What is the 6 m deep teaching base room? |
+| [teaching_depth8](teaching_depth8.hbjson) | teaching | How does daylight fall off in an 8 m deep room? |
+| [teaching_depth10](teaching_depth10.hbjson) | teaching | How does daylight fall off in a 10 m deep room? |
+| [teaching_reflectance30](teaching_reflectance30.hbjson) | teaching | How much does 0.3 surface reflectance cost at the back of the room? |
+| [teaching_reflectance70](teaching_reflectance70.hbjson) | teaching | How much does 0.7 surface reflectance add at the back of the room? |
+| [teaching_overhang050](teaching_overhang050.hbjson) | teaching | What does a 0.5 m overhang remove from the base room? |
+| [teaching_overhang100](teaching_overhang100.hbjson) | teaching | What does a 1.0 m overhang remove from the base room? |
+| [teaching_obstruction30](teaching_obstruction30.hbjson) | teaching | How does a 30 degree obstruction angle reduce sky access? |
+| [teaching_obstruction60](teaching_obstruction60.hbjson) | teaching | How does a 60 degree obstruction angle reduce sky access? |
+| [teaching_classroom](teaching_classroom.hbjson) | teaching | How is a 9 x 7 m classroom with three windows lit? |
+| [teaching_office](teaching_office.hbjson) | teaching | How is a 12 x 8 m open-plan office with a ribbon window lit? |
+| [teaching_living_room](teaching_living_room.hbjson) | teaching | How is a 5 x 4.5 m living room with a tall window lit? |

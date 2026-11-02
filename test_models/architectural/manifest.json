@@ -1,5 +1,5 @@
 {
-  "scene_count": 90,
+  "scene_count": 106,
   "scenes": [
     {
       "apertures": 0,
@@ -15,9 +15,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "f8c34c94f653ca3e4ccc2119a2fe3874f84f37fc93ae0e116b5e53caeeebc25f",
+      "sha256": "a4f9183cd343c44882724cc54e26bcfcc96c7a56be5d2b6f4eb5587924d9c549",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -35,9 +35,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "227bde44174db3e0be22bde396eadcb49eafcb203fd5c0d7be31fe78c01d241a",
+      "sha256": "b0fef91524f2586cd8ff316990faabee3b38b22058d6023dbd3348b442680ef6",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -55,9 +55,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "24e034ced56aefb3dcea7eb55a0e6e97313239dae9909f33e5a131ff5cfaedae",
+      "sha256": "328e7cba9901ee67886fb29e8b6a21d4da6f5ef30806e30a04bc278f49987af3",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -76,9 +76,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "05b2337e5ea480156b4ade835d68351653c7c08f86e16258360f463f14447c5d",
+      "sha256": "afbef582969108219b06f8604116c36f95a27c472e59b9d5957d146f247b8da4",
       "shades": 3,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -97,9 +97,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 72,
-      "sha256": "c7397775ee21e7bff327a338191d78c552c04040c909ccf81b3e5cd552ce8a4b",
+      "sha256": "e2ba7fcebab4a22b5d161dd88b62cb95fcf3dce1b0cab639acb219ab73447857",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -117,9 +117,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "d2d979ecf7be65041f9bbcd5280353af43b39df15f9f389f6728f85d13e53233",
+      "sha256": "85cd1a7ef4392c467c48f8d2304893fefb22ddba64778bc1db27601edc9f5a0c",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -137,9 +137,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "f98da881dbe8261c4cd0f7826899549f129fa2f83510ee42c7462a1511d86aee",
+      "sha256": "582dbd7db6445ca59b88513a9965cfb3d630c006c49504b696b0715833d559d4",
       "shades": 1,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -158,9 +158,9 @@
       "room_count": 2,
       "rooms": 2,
       "sensors": 72,
-      "sha256": "2d19f126bb4f182b0162cecb768340f7c2a63240d9492b8cd2a24655a1b2bca7",
+      "sha256": "dbbf5a6d7b62f370d12b089836dd4b5fe07d27c20a037f037da65244c7ccf0c3",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -178,9 +178,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 24,
-      "sha256": "61a1ddc5edbe46585a9f23fee4beb9f7489c7661c7e128e25b3e2371e59b1778",
+      "sha256": "996211c6d1f8aaae38e564eb2c707edadbf3a4285e013c46af64a697953268ab",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -200,9 +200,9 @@
       "room_count": 3,
       "rooms": 3,
       "sensors": 2020,
-      "sha256": "29120b50db6d1636684564a2c76219bec689b684d0c46cc6f3e69377823730a0",
+      "sha256": "164d83736b5338bab56c0d2d8a0e1e5db788d79d8855068c694e0b1ea9a92bb7",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -220,9 +220,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "70a76df776754eee07312d839e92d0514c77eded5a1fd6e476531fd796f3995b",
+      "sha256": "d1441ed19368b6c03a94df8f57e6e845286cfff8fcd65d1c3f37522204a17ccb",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -240,9 +240,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 24,
-      "sha256": "a5434be5b4a111285af75b68835bd712e474822cd117e4d190e99e5689b84063",
+      "sha256": "f2ed690794fce8a9dc7e114079f07544e29a7aec0a4667eea0e3022f071eb51a",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -260,9 +260,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 45,
-      "sha256": "9fd9f4312f541913f028b185e7cb5832bae1426508d8cfdbbe5e42fd6a917bc4",
+      "sha256": "5c3fc381c9055e4457c82d84484d1eae2388f14f87a6c50b4665e2e7ceac4b03",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -280,9 +280,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "c9ac11d5d5dc8fc8a217d044ce8318f55288d826a6fb927bdffeb6c4c7665377",
+      "sha256": "49e62a6cab898b8e3fb103a4fdf8affdea7e393a24f06c4737d63f9511194882",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -300,9 +300,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 48,
-      "sha256": "c260835a27c18b5c902cc030d442349e0fbd18b1aaaf21f4fcb1abbd79940be2",
+      "sha256": "dd699f4adc8b185409cb2cbabdb162c78df3095b193400d151308b660ef72de8",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -320,9 +320,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 48,
-      "sha256": "f92a60480036af7e1527e103f0642584e7d1b4dfb0c437aa88e4e4f99e73bc35",
+      "sha256": "7300c4863c57b9c0cac7ea5b26c0e4f08dbf77d5f1dbf0631716bec19e4bc902",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -341,9 +341,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 53,
-      "sha256": "10d29bda8ecbff7b95352676917d1dbd94e4a921b37c008b3b9d2d6868b4973f",
+      "sha256": "e13a990ebba9622e82cef63d9613edf726b823cdc19902e3f2fd6b92a7c7d6f5",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -361,9 +361,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "ab39a18ff425cd55a17f80af1924931578398d4cb0047a75ccc09b20e9e84796",
+      "sha256": "5f458f9173e715db5729f3ecd1ac25d4771c125e464e88c0075d8744de1cc869",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -381,9 +381,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "07bd2312d369e35147436e702d785ccfa935cd7fc50f668a10be3d2b6d78a6e3",
+      "sha256": "97f11200b78ec58327f6bc723ba5bb80846a80307e53d1afcbeb93090d009c81",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -401,9 +401,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "f0b6935a1dc57fc7f2f0097da6dec80a123af5fbf764e8de23046c4e83addc10",
+      "sha256": "f0e8452d5788c445a3f807d2eba465782558794168857d984f023e10e9e817c2",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -422,9 +422,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "959a4c3dcd741cd639a3e68a1f9152792c2803dbcab6c881896866826a5d7d6d",
+      "sha256": "62922dfd53752cfd3be1fbde25d4de8eba37cffd8da0f6d21274ac502d220383",
       "shades": 3,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -442,9 +442,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "39ec477e589b972b4cb5c58f56932d259e4fbfccf71bdc472ef466cf8c089699",
+      "sha256": "605f2d2eddb97fd6a157d3fb9b45c138d4092d28402311a02f4a5037a4944aa8",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -462,9 +462,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "41fcc5a76516f7be0a8c64e9a41c19a0ccf0b0eb48788808f7ee299e4d52f780",
+      "sha256": "1095b1f72f9e97da8176c133ec3d32b7b7efdec514b71ef70062a5b0abfcd98e",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -483,9 +483,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "296dc7bcefbd60b8697327659b834f08302d97838589e9a21c96f3c5b6d002be",
+      "sha256": "2c6a6b4b31dd7b3bee5aaf25c479da19121630e4243d0ee18b12f8638e3df03d",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -503,9 +503,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "72bb0ec617914adecc18dc52502dc00c6eb1f8d5f28bddac6c7d27c23f42b020",
+      "sha256": "bcb3d8b603684490e685701104cf3659995e468a5268df2d0fede02d7ebb4eff",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -523,9 +523,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "fe6b04f015ea7459af9437488999d9bc1a0060811ff6770c9737f8a1d9b7c786",
+      "sha256": "c7d100f81dd1d86476f7c1368b98c162475eadef886fc98422d00dd3d4133871",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -544,9 +544,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "b885ee48fa01b16165dbee625bd404610e5c069cef3aa52688310c3bb9edc369",
+      "sha256": "8486f136e4452264fafe1f53967b2585efc0821ffcd2e7858bf41fabdf59a161",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -565,9 +565,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "fd097c475721fa4b95a7bee4c22e24b62c471cea1f2ddd61103f3e98d78cb980",
+      "sha256": "1c36fc8c7a0f753a32c87cebc170c313559ad0b60789643890ece5cba37da03a",
       "shades": 4,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -585,9 +585,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "5c2a58aad061c3a4a815027b52e01b00ef135facc12cf43aa0e2623bb82ebb91",
+      "sha256": "2e6c5ffb57caa3ede1d468ba1e6b045269ea9e5f07f6bdacacbd4433d825f031",
       "shades": 1,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -605,9 +605,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "0827c89304f0a39122a0a084f0f05ff497416bc10a5d7a20790684a792f66e36",
+      "sha256": "f21db1943ba3478067d5e91c561b791ae3469e81229e8f62be16662c33d488b0",
       "shades": 2,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -626,9 +626,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "908794342fa3631791bc58dba90155546bdd2d443a9065baeca30ef6719bbe78",
+      "sha256": "6cd69b617aa381932e5a93d69bb1b950db3a8b897f4310647f53dc99861d1e22",
       "shades": 4,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -647,9 +647,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "0c1f20570c61034457547500c97880810708d9e2bafb438ea0c398d5f62ad0c2",
+      "sha256": "0da0175622b97d63825ab37e28254d861706958c381af13ec8d5de4118d36840",
       "shades": 5,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -668,9 +668,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "394961e879b4ea50d84b1435f5b662db58664a21ae41540996c38b9f7006500f",
+      "sha256": "8d2483dd2f3fb57372d27dd8f0b8d852dd2ef3caad04684383f6acb8ef0b7c88",
       "shades": 9,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -689,9 +689,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "4c9d7d1450dc62df6f924ebcd43a37cbec0d58b09a7a2a439d0245ddd0a41dd6",
+      "sha256": "97d1b8be670f1c9fcf2e0d61c797de910a3df1ec000e9478c40b729e1cf3501c",
       "shades": 2,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -710,9 +710,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "652d5f87a68a2fd6668d70c075f8f253c04cb9c244ea54e5f1587b35204eb818",
+      "sha256": "a52cdc28d94a388607d927e5507b9306bfca799889ad4bd2c08fc06f07dfb733",
       "shades": 6,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -730,9 +730,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "103043abd880fc41295a9fe3d9f5d4e77375aab4106c39b7907d85e2a138df23",
+      "sha256": "7c3d034e572363a0c73e79f1d78eeb7020478dd766747f90e68e8f6525da08f7",
       "shades": 4,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -751,9 +751,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "189affd1fe9a7c940b8fce70fb5e4fab3b306a9dca80481401216011a1d41b61",
+      "sha256": "10efc6a8711856a786a5b53b989b988f14ab94579274913751bb28f96fdfb0a6",
       "shades": 12,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -772,9 +772,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "100f3682ba74bba2690148b5e7bde313ea760eb451ecfe3fb3bbe113b7a7d1ee",
+      "sha256": "aa9bcf4d14b6481025780e0c9ed8447aa3ec0c520d8f9616ca56543f1d0deb43",
       "shades": 18,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -793,9 +793,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "346b0d8e10d8c9e8c6fb60a798da4b38a39b51ff07f2acb6d8b511efcae98a35",
+      "sha256": "5ffcd03a92c97000f7f246b2c94f286b252b8e972a2f74752f6514cb6507ea8c",
       "shades": 6,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -814,9 +814,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "4473f3236ad3a8983031c9cf8e6cb77550bca46912a436b4f346148b3a886030",
+      "sha256": "57d3f0d73bfea2de24b34a5945201b0bbc203b67332fcba9af6ceddc7d864e4b",
       "shades": 1,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -834,9 +834,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "eca8c8f632d855422b24052058a2450d7d8a907afaef60776feeade1f75fd66f",
+      "sha256": "d5cb0bb749744db97c26e4defd8b3245329ca1b50fe11f2f21ecdb36a5a7add0",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -854,9 +854,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "198b691d34265eb04671a91ba78c6511dc805cc0b49ef49e797bf6d5d4637d08",
+      "sha256": "dca8473321bf25de9f7bf9adae8354af9a5c39d2f58ffd5aff83b29875afaef2",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -874,9 +874,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "12716ee5f6d8c39812b505f509d1f94b59a159857828f9b7a2b8eda2d2dd0667",
+      "sha256": "56dbf02e78eb8c213f6f289433daa5cb36f00ae8c3ec508607ee25eedc4c0a92",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -893,9 +893,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "74ed4cd5532c447198d08ac15e471d94fd778b3bff8ec9bb4ff75333a7511d07",
+      "sha256": "e875f4e0a8e01051f332638de4a93847b1050808a88765c6849d94cb4425958c",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -914,9 +914,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 36,
-      "sha256": "112a4571c3722800314964afbf5adf46bdf302120fa37be462be412aa15ed6a1",
+      "sha256": "5614cf4949bdd716f2eca9a62f86be34089a21c9338e8b2020646ef40c3d3e18",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -935,9 +935,9 @@
       "room_count": 3,
       "rooms": 3,
       "sensors": 72,
-      "sha256": "439a0a33866f1d236592979ae159a4c57366d3b092751ad047bdcb2b0d521576",
+      "sha256": "f3846adf324b3664039a2aaee7369111902787ebdf388122cfd26002e6aaf601",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -956,9 +956,9 @@
       "room_count": 3,
       "rooms": 3,
       "sensors": 90,
-      "sha256": "1939cdba4d2cb88ba51f2247abc419667f60f46d77e8e9e2483c88e140d8b6df",
+      "sha256": "9bef6a29aa688c1bfa87b8843bfb2f1325bce185462ed39b09f5c074fa295048",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -977,9 +977,9 @@
       "room_count": 2,
       "rooms": 2,
       "sensors": 72,
-      "sha256": "610302b8198a942fcb888257fd2253ac46eb5b6060cb1dea927ae432caba7834",
+      "sha256": "995308bbf5ce6317a78dc820129d02472ced7a834264f311a8b2b375c4c41b24",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -998,9 +998,9 @@
       "room_count": 4,
       "rooms": 4,
       "sensors": 112,
-      "sha256": "d2a79d74512dd1bc6dad7b8bb1b563bfe1fc0b8f5531c75cb30c5e9c9d1bddb3",
+      "sha256": "3b6c40253e43e88596e3faf4acf2caddee514342ba0d81d812f920ae5f5c0874",
       "shades": 4,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -1020,9 +1020,9 @@
       "room_count": 3,
       "rooms": 3,
       "sensors": 108,
-      "sha256": "d21079106e7a4c9eb97c7b015a210bdda6d495c7d3fe2b85b6c79ee15664111d",
+      "sha256": "da2f2cde189ef489a4b33b6a1068bb6db6e5ab70d31896268d0c76dded9c8622",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     },
     {
@@ -1042,9 +1042,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 74,
-      "sha256": "31414dc6bf228e0e827278fad66a454477900a9ba61ea7e0ccb81e5e65d34691",
+      "sha256": "3cd90d3f466709cf8211a823c03585d36798bd50760ce22249d14923eb380312",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "small_center"
     },
     {
@@ -1064,9 +1064,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 74,
-      "sha256": "9708ba592926e1d64572aa05a0c142a882effa757dbd6880f1ba9ee48c0cd71b",
+      "sha256": "8e421ec83ede17d60e5dea9b9df1fdd81333957a33e51fa53cd798dcb870ce45",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "large_center"
     },
     {
@@ -1086,9 +1086,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 74,
-      "sha256": "2edbc025602638d40228611a587a81898746cc2232beb5eb4c07a70dca343b3c",
+      "sha256": "defd298032426f7152d7b8a55b5f26b6cfd1ad66d1d8cf6f6cc9eccb43f5fdc1",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "offset_low"
     },
     {
@@ -1108,9 +1108,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 74,
-      "sha256": "84f3a23ea905218b748dcd279d8a7de232b500eb0c0a2309110158dc23727101",
+      "sha256": "8db82d98dbf2919c560eff54bd1c62323f7bc7f02d55424c12cab20754763487",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "offset_high"
     },
     {
@@ -1130,9 +1130,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 74,
-      "sha256": "16fca239f734a4e747591e6b96be6e9fb58ee74ae501249481297ad84bf00b9d",
+      "sha256": "e0bcb319eb722f3d07937d9b7bb978099c702dd41b211ee646d64bc5192e29ee",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "triangle"
     },
     {
@@ -1152,9 +1152,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 74,
-      "sha256": "d1ef024341761df3181b3cbad549d41c9830ea262e4a4e38e67847dd39b1bd17",
+      "sha256": "022eeedb31fb1f560b7c28701370ea0044dcda87981ff43c3579d36a7467770f",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "circle"
     },
     {
@@ -1174,9 +1174,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 74,
-      "sha256": "67348501fce7c0322a59f8d2c6a7796b0d727abef69562176e7bab8165eff8dd",
+      "sha256": "f07d1c93c1fd287973c96832a5666638c2cf2869fafa0063c61ff4baccc8fee9",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "arch"
     },
     {
@@ -1196,9 +1196,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 74,
-      "sha256": "dc9afc301993d190cfe6565c85bf18a19f31de8ecda4e75c67bb7f31ca345d20",
+      "sha256": "c76976a99ac641fda06867bcd4e1374d7bcbb2f17df2a394aa2beae20db81df7",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "distributed"
     },
     {
@@ -1218,9 +1218,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 47,
-      "sha256": "3363b82fbfc0aa31456c03ae655c5a4ceca20b788b22f9d7da319588b45bbf28",
+      "sha256": "6eaf1d2f3d9c3a40c4aeba00a660032125207827e4a00a75f975304cef9bf547",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "small_center"
     },
     {
@@ -1240,9 +1240,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 47,
-      "sha256": "51aa0936500ce4a015fc33844ccb81639eca0afeb78e6fdae2506d553ae0e7fd",
+      "sha256": "aa3b8105994544b668b943a088b2c50c3f269f92ebd7d581dbbefa7cd4dae203",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "large_center"
     },
     {
@@ -1262,9 +1262,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 47,
-      "sha256": "fa41158a9d9ad73829d451592c1c9570473d66eb4139055b0790d837376919ed",
+      "sha256": "8cdd2c9007d165ae472870ad763079fa781d125e07cdf6af0bf7cbc12fe6f7cb",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "offset_low"
     },
     {
@@ -1284,9 +1284,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 47,
-      "sha256": "75125db4546af9411ef2b00c98d5b597c0f1c8682a52d4339200b87585f965b0",
+      "sha256": "2d6b846412e474dcbcf1162c1ecce549320628805bf22a0f947487a6e1172f08",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "offset_high"
     },
     {
@@ -1306,9 +1306,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 47,
-      "sha256": "b131aa9653393acfbc21cee9097e0ed022f84169913ade7f1d009a2a1db75ddb",
+      "sha256": "4ecd585d3a9ba4dc6a11c24947d63ef817a61e64097fa9b94c6c255625adeb15",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "triangle"
     },
     {
@@ -1328,9 +1328,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 47,
-      "sha256": "1ebd7241ba5b4891f2b9b3a0367d059d6eaa9423d25a05112c76ea9a39c30519",
+      "sha256": "8012d9d77dcd78a8e59bfa189f0e967d3fe67d90130bf5b064bbef8bc3b5d498",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "circle"
     },
     {
@@ -1350,9 +1350,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 47,
-      "sha256": "1a350332cfbcd79e7532bfabaa5f759b2082b2da2bd25c5e4228f136293aed62",
+      "sha256": "9309ab0700de9ea33076f20658192981f9695a44757202cdb47fa93f2f0ff589",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "arch"
     },
     {
@@ -1372,9 +1372,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 47,
-      "sha256": "3fb69bbeaf8739f7a3d422e0b12394a5cba4834541c09cf4f541c7a4f1abb0fb",
+      "sha256": "939fdd461aac91964c9a0241029ea14f0138e61fbe995663725e2f88644b425c",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "distributed"
     },
     {
@@ -1394,9 +1394,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 48,
-      "sha256": "b36749160ee082896a533af09c06e4b6088468371fd829f0b8c0b9e1b398ceec",
+      "sha256": "b930e7cdbce8d9a52e887b3765ab9c80b10915607b5c61e5ec633b4bcec522e9",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "small_center"
     },
     {
@@ -1416,9 +1416,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 48,
-      "sha256": "dcd999c53a8605f1292e95c234b19457c89a3f39e8acde89b21217c105190af9",
+      "sha256": "bfa918c1f81c5d80a8431b531d249d86615b12b2dd718c2c579e320da1dea201",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "large_center"
     },
     {
@@ -1438,9 +1438,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 48,
-      "sha256": "8a38c3e7549e1e7430cba9a2bfe01bfe3952d557f1da16c98ab4c5bb69e1a1a4",
+      "sha256": "159d5a01f979de8ac96e31fded2b9221f2e4138f08c856ec1893b5f463589006",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "offset_low"
     },
     {
@@ -1460,9 +1460,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 48,
-      "sha256": "8639e882b3ed4f6cd41610a7a6f725a7dedffecc80a5484bd19d6c5eee7d007f",
+      "sha256": "86e061b8573ff65dde77ec4fa29bd134d74036d81cd4700d7560022745382eac",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "offset_high"
     },
     {
@@ -1482,9 +1482,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 48,
-      "sha256": "969ccae9de476d8be6df9ced1decfdfb93d343619b4f55c3c6a55c8c4edd77db",
+      "sha256": "f5bd922b33e9dead615492606cfa05c071020b1aed94ae055db9b9ed0a94a282",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "triangle"
     },
     {
@@ -1504,9 +1504,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 48,
-      "sha256": "1f362d9754b64a145ecaa60de8bbcfae6a44fb9a16b3aac733faf13fb10ce924",
+      "sha256": "02b66f7c60c0efade9846b2a9aaa2a07a1d971f5142331579562f09730c0a30a",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "circle"
     },
     {
@@ -1526,9 +1526,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 48,
-      "sha256": "24c0667f713903bdaa16ea398904ecf44a35d1fae68bd852e12245f566d9e43b",
+      "sha256": "c49fcbeed76e2dcfc084d276b56dff3d5abf5ad3f82885e183f2217470c3e686",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "arch"
     },
     {
@@ -1548,9 +1548,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 48,
-      "sha256": "e80524a86ce639c528e4c216a759061178f48d96aeb5056f0ed90b2fb4021279",
+      "sha256": "566e0e0f968b5a6bb3470b859ff7be18ca6f57084c2d6266bac96e78f8050cf7",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "distributed"
     },
     {
@@ -1570,9 +1570,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 54,
-      "sha256": "5709904e0ed22bb809d500c659e0060091bab12ef21f6561b3bd835188ba0166",
+      "sha256": "3f4c4e3e141180d041243c5b86b6678bbdb348d1d6b70ca9691fefea7ac03e6b",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "small_center"
     },
     {
@@ -1592,9 +1592,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 54,
-      "sha256": "9659a9e1b233bfb4f4966a04b93f1467f6b995e90dadb089f4faf411e907d142",
+      "sha256": "053874653b70dd038720b157f9a7bae751d8c8e544b7eda67a41d611afc424b0",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "large_center"
     },
     {
@@ -1614,9 +1614,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 54,
-      "sha256": "914c264a5e66d0435baf580d3bf015b058f17f7ef7dc404e8921f7aa33690668",
+      "sha256": "b556777d1684cfc1fec9fef06102740537e519986b6f13f365fb87daed7675a3",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "offset_low"
     },
     {
@@ -1636,9 +1636,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 54,
-      "sha256": "9f2622ce4f99fb0a215ca2d4fd657e0272e92a0a6e6756ae946e63a2b2404ca5",
+      "sha256": "8a5e943ee7240dcb5dc898d7bcd732e6cfe16b303eb10d1cb7eac72686829a54",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "offset_high"
     },
     {
@@ -1658,9 +1658,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 54,
-      "sha256": "4b1e685a190796cc4950f9cfa7e7f5008227de0eddfb4bffcc06b4f8c002ebe4",
+      "sha256": "36fe3faad46bf2aac2f07be2667c4f406203249f460edf7e7a61b567cc987180",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "triangle"
     },
     {
@@ -1680,9 +1680,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 54,
-      "sha256": "0842a5edecf9a9ffbb092c99a1a1f845f274af08d0304badb068668d922ab075",
+      "sha256": "5de716d7c748d8c9b4f82cbb32c2db9e9c86c82ad9518e3218944668fadbdbb0",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "circle"
     },
     {
@@ -1702,9 +1702,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 54,
-      "sha256": "de6a914c71e4d0ba0398645982d6e57366a4fe26b4b8fb6efb13d290a5d44a52",
+      "sha256": "e42e4b6f30bb4d21a8a87714d5fab5afed41217de7d30274c17477d32a280db7",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "arch"
     },
     {
@@ -1724,9 +1724,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 54,
-      "sha256": "f3d82af719506d5656e04eae0dfa0aad2fbde2e57baf7354dd5309e14c37a09e",
+      "sha256": "ace834353a108609716fe4b070c77e7fb68ff6653a73b80ca1a596081ceb4cf2",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "distributed"
     },
     {
@@ -1746,9 +1746,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 44,
-      "sha256": "8d76e3bcee2905022628e4bc1b273c34d46e3a2572c443c528134ed019948f6f",
+      "sha256": "a96b32aaa8b9d45207ad9f505984a3ad846aac8e3cf6602cfe7ac958f7fc374e",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "small_center"
     },
     {
@@ -1768,9 +1768,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 44,
-      "sha256": "ab029a52348d5da924227d91723d64b4a4cd64264409af53349d561f83d66a59",
+      "sha256": "28ea48dec6737d36dd8e8cca07faa2e3a319aabea80ded6f91c3e90ccee2a69f",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "large_center"
     },
     {
@@ -1790,9 +1790,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 44,
-      "sha256": "710fd04bb950e4f3f9304911efd3eb8536d4560b433c716d375bc97e6380eadd",
+      "sha256": "d4e3067fc42c415bd860ac80f9b17741de4f100b735f9e501e2e4d3d80d1e7e0",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "offset_low"
     },
     {
@@ -1812,9 +1812,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 44,
-      "sha256": "755619d98a2dbf7ce1a168648a69c9379223500b0cb12e495a1f90dd20d40306",
+      "sha256": "b95f36095ad806a1cd3a93d67bca10ce3257c9f34705c067b13f17b464d7523b",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "offset_high"
     },
     {
@@ -1834,9 +1834,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 44,
-      "sha256": "f9dcf221ce8f558f33c26b5d03878f5d465ba2f72d551832f6083fba9360df9f",
+      "sha256": "5d1d52bf3aa51ec71094f56fa5d4098d84bfdcab4d0cbb3263303cc23fe78c93",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "triangle"
     },
     {
@@ -1856,9 +1856,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 44,
-      "sha256": "9f15dc828fc35defc0a6d13a615191e4ddccf4b2aeb15054f0b211d615bc32cf",
+      "sha256": "0cd86a602f5624677dd4d0b83f40dd7debd62b893d7fa63c750a50d77fa2a870",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "circle"
     },
     {
@@ -1878,9 +1878,9 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 44,
-      "sha256": "148b47806f72b01e3214382d5bbea64799e50dbe66bc2542ef7516351d126bdd",
+      "sha256": "8f5a9a9654bcd265a08d627e09cb8c4232aa833307961cb9cd881ff0a6ed3c97",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "arch"
     },
     {
@@ -1900,12 +1900,350 @@
       "room_count": 1,
       "rooms": 1,
       "sensors": 44,
-      "sha256": "6ef6c3f99623462e7c67a0076588129b9fd72eceecd563f80cc3dda3152b4d83",
+      "sha256": "29af6703a2fe1f24afdbc9214aea0954f85530f99ac3a916f638b98905012cf1",
       "shades": 0,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "distributed"
+    },
+    {
+      "apertures": 1,
+      "category": "teaching",
+      "file": "teaching_wwr20.hbjson",
+      "footprint_family": null,
+      "identifier": "teaching_wwr20",
+      "include_glazing": true,
+      "interactions": [
+        "multiple_bounces",
+        "side_glazing",
+        "window"
+      ],
+      "question": "How does a 20% window-to-wall ratio light the base room?",
+      "room_count": 1,
+      "rooms": 1,
+      "sensors": 36,
+      "sha256": "80b0bf83949053631fdfde4e4fa756b4feb879892dd959dc3415f1171ea15a85",
+      "shades": 0,
+      "suite_version": 4,
+      "window_profile": null
+    },
+    {
+      "apertures": 1,
+      "category": "teaching",
+      "file": "teaching_wwr40.hbjson",
+      "footprint_family": null,
+      "identifier": "teaching_wwr40",
+      "include_glazing": true,
+      "interactions": [
+        "multiple_bounces",
+        "side_glazing",
+        "window"
+      ],
+      "question": "How does a 40% window-to-wall ratio light the base room?",
+      "room_count": 1,
+      "rooms": 1,
+      "sensors": 36,
+      "sha256": "1dd6361cf5b501708b41c9376438111f01d82282abe78b11a845275ef349f303",
+      "shades": 0,
+      "suite_version": 4,
+      "window_profile": null
+    },
+    {
+      "apertures": 1,
+      "category": "teaching",
+      "file": "teaching_wwr60.hbjson",
+      "footprint_family": null,
+      "identifier": "teaching_wwr60",
+      "include_glazing": true,
+      "interactions": [
+        "multiple_bounces",
+        "side_glazing",
+        "window"
+      ],
+      "question": "How does a 60% window-to-wall ratio light the base room?",
+      "room_count": 1,
+      "rooms": 1,
+      "sensors": 36,
+      "sha256": "a2e7b30e6ffefe88c8fa224b220f46cc82da6e18ff4ad42da51692c0b26bd484",
+      "shades": 0,
+      "suite_version": 4,
+      "window_profile": null
+    },
+    {
+      "apertures": 1,
+      "category": "teaching",
+      "file": "teaching_depth4.hbjson",
+      "footprint_family": null,
+      "identifier": "teaching_depth4",
+      "include_glazing": true,
+      "interactions": [
+        "multiple_bounces",
+        "room",
+        "side_glazing"
+      ],
+      "question": "How does daylight fall off in a 4 m deep room?",
+      "room_count": 1,
+      "rooms": 1,
+      "sensors": 24,
+      "sha256": "bdbdd2e5b9b95c2c9c7d726865eb5237976c1cf8622dcb3c45982739b2cf1545",
+      "shades": 0,
+      "suite_version": 4,
+      "window_profile": null
+    },
+    {
+      "apertures": 1,
+      "category": "teaching",
+      "file": "teaching_depth6.hbjson",
+      "footprint_family": null,
+      "identifier": "teaching_depth6",
+      "include_glazing": true,
+      "interactions": [
+        "multiple_bounces",
+        "side_glazing"
+      ],
+      "question": "What is the 6 m deep teaching base room?",
+      "room_count": 1,
+      "rooms": 1,
+      "sensors": 36,
+      "sha256": "4c9d08b5332498d8ac54da15dca6cce2b5eaf1da5502ed609807900974d38b50",
+      "shades": 0,
+      "suite_version": 4,
+      "window_profile": null
+    },
+    {
+      "apertures": 1,
+      "category": "teaching",
+      "file": "teaching_depth8.hbjson",
+      "footprint_family": null,
+      "identifier": "teaching_depth8",
+      "include_glazing": true,
+      "interactions": [
+        "multiple_bounces",
+        "room",
+        "side_glazing"
+      ],
+      "question": "How does daylight fall off in an 8 m deep room?",
+      "room_count": 1,
+      "rooms": 1,
+      "sensors": 48,
+      "sha256": "7914d90bb6f5113509a35f5aae3090c603e36c5c9a51cd2a223f79db17a022cf",
+      "shades": 0,
+      "suite_version": 4,
+      "window_profile": null
+    },
+    {
+      "apertures": 1,
+      "category": "teaching",
+      "file": "teaching_depth10.hbjson",
+      "footprint_family": null,
+      "identifier": "teaching_depth10",
+      "include_glazing": true,
+      "interactions": [
+        "multiple_bounces",
+        "room",
+        "side_glazing"
+      ],
+      "question": "How does daylight fall off in a 10 m deep room?",
+      "room_count": 1,
+      "rooms": 1,
+      "sensors": 60,
+      "sha256": "1be056a611e9e5005b8bc0555c4db68877bce5cd3ac76e1d1f67a92aaf51ddb7",
+      "shades": 0,
+      "suite_version": 4,
+      "window_profile": null
+    },
+    {
+      "apertures": 1,
+      "category": "teaching",
+      "file": "teaching_reflectance30.hbjson",
+      "footprint_family": null,
+      "identifier": "teaching_reflectance30",
+      "include_glazing": true,
+      "interactions": [
+        "multiple_bounces",
+        "reflectance",
+        "side_glazing"
+      ],
+      "question": "How much does 0.3 surface reflectance cost at the back of the room?",
+      "room_count": 1,
+      "rooms": 1,
+      "sensors": 36,
+      "sha256": "2cdd8427b44da3457aaea9c69112c56492406e36dbd0bc0960d00e0aaed1f700",
+      "shades": 0,
+      "suite_version": 4,
+      "window_profile": null
+    },
+    {
+      "apertures": 1,
+      "category": "teaching",
+      "file": "teaching_reflectance70.hbjson",
+      "footprint_family": null,
+      "identifier": "teaching_reflectance70",
+      "include_glazing": true,
+      "interactions": [
+        "multiple_bounces",
+        "reflectance",
+        "side_glazing"
+      ],
+      "question": "How much does 0.7 surface reflectance add at the back of the room?",
+      "room_count": 1,
+      "rooms": 1,
+      "sensors": 36,
+      "sha256": "a825e6e4086304bcf7a75c58de4bad9295c3514e6f320971113df8e19732c75d",
+      "shades": 0,
+      "suite_version": 4,
+      "window_profile": null
+    },
+    {
+      "apertures": 1,
+      "category": "teaching",
+      "file": "teaching_overhang050.hbjson",
+      "footprint_family": null,
+      "identifier": "teaching_overhang050",
+      "include_glazing": true,
+      "interactions": [
+        "multiple_bounces",
+        "overhang",
+        "side_glazing"
+      ],
+      "question": "What does a 0.5 m overhang remove from the base room?",
+      "room_count": 1,
+      "rooms": 1,
+      "sensors": 36,
+      "sha256": "0ccc7b72f6257d256bde391b1773942bb2284ae77908fc407a1f6a7585094047",
+      "shades": 1,
+      "suite_version": 4,
+      "window_profile": null
+    },
+    {
+      "apertures": 1,
+      "category": "teaching",
+      "file": "teaching_overhang100.hbjson",
+      "footprint_family": null,
+      "identifier": "teaching_overhang100",
+      "include_glazing": true,
+      "interactions": [
+        "multiple_bounces",
+        "overhang",
+        "side_glazing"
+      ],
+      "question": "What does a 1.0 m overhang remove from the base room?",
+      "room_count": 1,
+      "rooms": 1,
+      "sensors": 36,
+      "sha256": "8626bf388251a0d4f96628afe3a2a809b5b0fcc4740a0a36bbd406a7743914ae",
+      "shades": 1,
+      "suite_version": 4,
+      "window_profile": null
+    },
+    {
+      "apertures": 1,
+      "category": "teaching",
+      "file": "teaching_obstruction30.hbjson",
+      "footprint_family": null,
+      "identifier": "teaching_obstruction30",
+      "include_glazing": true,
+      "interactions": [
+        "multiple_bounces",
+        "obstruction",
+        "side_glazing"
+      ],
+      "question": "How does a 30 degree obstruction angle reduce sky access?",
+      "room_count": 1,
+      "rooms": 1,
+      "sensors": 36,
+      "sha256": "79a19502c561a195ebd0f600675c3ba9804dfd94b3d30cffa518cee65d38b801",
+      "shades": 6,
+      "suite_version": 4,
+      "window_profile": null
+    },
+    {
+      "apertures": 1,
+      "category": "teaching",
+      "file": "teaching_obstruction60.hbjson",
+      "footprint_family": null,
+      "identifier": "teaching_obstruction60",
+      "include_glazing": true,
+      "interactions": [
+        "multiple_bounces",
+        "obstruction",
+        "side_glazing"
+      ],
+      "question": "How does a 60 degree obstruction angle reduce sky access?",
+      "room_count": 1,
+      "rooms": 1,
+      "sensors": 36,
+      "sha256": "1d7c1de11c9548e8582ad12aba3cea86c183cc66651a5318abe59b3c1e6d40c4",
+      "shades": 6,
+      "suite_version": 4,
+      "window_profile": null
+    },
+    {
+      "apertures": 3,
+      "category": "teaching",
+      "file": "teaching_classroom.hbjson",
+      "footprint_family": null,
+      "identifier": "teaching_classroom",
+      "include_glazing": true,
+      "interactions": [
+        "multiple_bounces",
+        "room",
+        "side_glazing",
+        "window"
+      ],
+      "question": "How is a 9 x 7 m classroom with three windows lit?",
+      "room_count": 1,
+      "rooms": 1,
+      "sensors": 63,
+      "sha256": "fa85e5a9f350af58c13d618dd04cab0e584d1c788f55fb226a584d901a48b5da",
+      "shades": 0,
+      "suite_version": 4,
+      "window_profile": null
+    },
+    {
+      "apertures": 1,
+      "category": "teaching",
+      "file": "teaching_office.hbjson",
+      "footprint_family": null,
+      "identifier": "teaching_office",
+      "include_glazing": true,
+      "interactions": [
+        "multiple_bounces",
+        "room",
+        "side_glazing",
+        "window"
+      ],
+      "question": "How is a 12 x 8 m open-plan office with a ribbon window lit?",
+      "room_count": 1,
+      "rooms": 1,
+      "sensors": 96,
+      "sha256": "bdbca28d14a35bc5affd0d02845be003eda1c6720059bf6b9eb2f3bbaf99e8a1",
+      "shades": 0,
+      "suite_version": 4,
+      "window_profile": null
+    },
+    {
+      "apertures": 1,
+      "category": "teaching",
+      "file": "teaching_living_room.hbjson",
+      "footprint_family": null,
+      "identifier": "teaching_living_room",
+      "include_glazing": true,
+      "interactions": [
+        "multiple_bounces",
+        "room",
+        "side_glazing",
+        "window"
+      ],
+      "question": "How is a 5 x 4.5 m living room with a tall window lit?",
+      "room_count": 1,
+      "rooms": 1,
+      "sensors": 20,
+      "sha256": "29dc864a7e370395047ae1532e08dd86c769316cd3f01b20847bb8d2c50a09ff",
+      "shades": 0,
+      "suite_version": 4,
+      "window_profile": null
     }
   ],
-  "suite_version": 3,
+  "suite_version": 4,
   "units": "Meters"
 }

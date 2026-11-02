@@ -2393,7 +2393,7 @@
       ],
       "question": "Do the wings of a U-shaped room occlude one another?",
       "room_count": 1,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     }
   },

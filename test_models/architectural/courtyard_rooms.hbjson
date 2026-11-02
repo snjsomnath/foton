@@ -5021,7 +5021,7 @@
       ],
       "question": "Do four inward-facing rooms shade one another beneath a pergola?",
       "room_count": 4,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     }
   },

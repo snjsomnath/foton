@@ -4435,7 +4435,7 @@
       ],
       "question": "Can a rooflit atrium feed rooms at two levels through internal glass?",
       "room_count": 3,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     }
   },

@@ -1466,7 +1466,7 @@
       ],
       "question": "Does a completely enclosed room remain dark?",
       "room_count": 1,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     }
   },

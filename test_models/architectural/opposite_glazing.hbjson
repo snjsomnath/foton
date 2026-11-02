@@ -1599,7 +1599,7 @@
       ],
       "question": "How does glazing on opposite facades balance daylight?",
       "room_count": 1,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     }
   },

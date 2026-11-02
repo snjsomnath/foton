@@ -1882,7 +1882,7 @@
       ],
       "question": "Does an off-axis tall obstruction affect the appropriate sky sectors?",
       "room_count": 1,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     }
   },

@@ -61,8 +61,8 @@ def coefficients(identifier, reflected=False, rows=146):
     return analyze(scene(identifier)[1], reflected=reflected, rows=rows)
 
 
-def test_corpus_has_ninety_distinct_documented_architectural_questions():
-    assert len(SCENE_IDS) == len(set(SCENE_IDS)) == 90
+def test_corpus_has_distinct_documented_architectural_questions():
+    assert len(SCENE_IDS) == len(set(SCENE_IDS)) == 106
     assert len({spec.question for spec in SCENE_SPECS}) == len(SCENE_IDS)
     assert set(SCENE_CATEGORIES) == {
         "controls",
@@ -74,7 +74,9 @@ def test_corpus_has_ninety_distinct_documented_architectural_questions():
         "materials",
         "connections",
         "integration",
+        "teaching",
     }
+    assert sum(spec.category == "teaching" for spec in SCENE_SPECS) == 16
     assert all(spec.interactions and spec.room_count > 0 for spec in SCENE_SPECS)
     with pytest.raises(ValueError, match="Unknown validation scene"):
         scene_metadata("not_a_scene")

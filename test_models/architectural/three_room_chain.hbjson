@@ -3509,7 +3509,7 @@
       ],
       "question": "Can daylight cross two successive internal glass partitions?",
       "room_count": 3,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     }
   },

@@ -1717,7 +1717,7 @@
       ],
       "question": "Does an oblique room retain its glazing, shades and grids?",
       "room_count": 1,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     }
   },

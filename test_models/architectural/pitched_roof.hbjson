@@ -1893,7 +1893,7 @@
       ],
       "question": "Do sloped roof surfaces reflect light correctly beneath a ridge?",
       "room_count": 1,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     }
   },

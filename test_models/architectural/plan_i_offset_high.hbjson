@@ -3076,7 +3076,7 @@
       ],
       "question": "How does a offset high opening illuminate a I-shaped plan?",
       "room_count": 1,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": "offset_high"
     }
   },

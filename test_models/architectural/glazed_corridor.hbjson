@@ -3938,7 +3938,7 @@
       ],
       "question": "Does a glazed corridor feed an office and an adjoining meeting room?",
       "room_count": 3,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     }
   },

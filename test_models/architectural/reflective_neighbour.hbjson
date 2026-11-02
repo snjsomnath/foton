@@ -1607,7 +1607,7 @@
       ],
       "question": "Does a bright neighbouring facade contribute reflected daylight?",
       "room_count": 1,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     }
   },

@@ -1538,7 +1538,7 @@
       ],
       "question": "How does a dark finish suppress indirect illumination?",
       "room_count": 1,
-      "suite_version": 3,
+      "suite_version": 4,
       "window_profile": null
     }
   },
