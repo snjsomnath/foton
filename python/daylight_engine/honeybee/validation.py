@@ -121,7 +121,7 @@ def compare_coefficient_repeatability(
                     nmbe_gate=3.0,
                     cvrmse_gate=10.0,
                 )
-                _waive_negligible_indirect(direct, indirect)
+                _waive_negligible_indirect(direct, indirect, end - start)
                 grids.append(
                     {
                         "identifier": info["identifier"],
@@ -213,7 +213,7 @@ def compare_coefficient_convergence(
                 and values["rms_normalized_rmse_percent"] < rms_gate_percent
             )
             stages[name] = values
-        _waive_negligible_indirect(stages["direct"], stages["indirect"])
+        _waive_negligible_indirect(stages["direct"], stages["indirect"], end - start)
         grids.append(
             {
                 "identifier": info["identifier"],
@@ -301,7 +301,9 @@ def compare_coefficient_stages(
                 nmbe_gate=nmbe_gate,
                 cvrmse_gate=cvrmse_gate,
             )
-        _waive_negligible_indirect(stage_results["direct"], stage_results["indirect"])
+        _waive_negligible_indirect(
+            stage_results["direct"], stage_results["indirect"], count
+        )
         grids.append(
             {
                 "identifier": info["identifier"],
@@ -456,8 +458,19 @@ def compare_converged_annual(
                 "passed": bool(float(np.mean(error)) < 2.0),
             }
         weights = _grid_area_weights(prepared, grid_index)
-        candidate_sda = _sda(_metric_values(root, "da", identifier), weights)
-        reference_sda = _sda(reference_metrics["da"], weights)
+        candidate_da = _metric_values(root, "da", identifier)
+        reference_da = reference_metrics["da"]
+        candidate_sda = _sda(candidate_da, weights)
+        reference_sda = _sda(reference_da, weights)
+        # sDA counts sensors at DA >= 50 %. A sensor whose reference DA lies
+        # within the DA tolerance of that threshold can flip on Monte Carlo
+        # noise alone, so only flips outside the band count against Foton.
+        flipped = (candidate_da >= 50.0) != (reference_da >= 50.0)
+        ambiguous = flipped & (np.abs(reference_da - 50.0) <= SDA_AMBIGUITY_PP)
+        unexplained_pp = 100.0 * float(
+            np.sum(weights[flipped & ~ambiguous]) / max(float(np.sum(weights)), 1e-20)
+        )
+        sda_tolerance = max(2.0, 100.0 / count)
         grids.append(
             {
                 "identifier": identifier,
@@ -494,13 +507,12 @@ def compare_converged_annual(
                     "difference_percentage_points": abs(
                         candidate_sda - reference_sda
                     ),
-                    # sDA counts sensors; on small grids one sensor sitting at
-                    # the DA threshold is worth more than the 2 pp gate.
-                    "tolerance_percentage_points": max(2.0, 100.0 / count),
-                    "passed": bool(
-                        abs(candidate_sda - reference_sda)
-                        <= max(2.0, 100.0 / count) + 1.0e-9
-                    ),
+                    # On small grids one sensor is worth more than the 2 pp gate.
+                    "tolerance_percentage_points": sda_tolerance,
+                    "ambiguous_sensor_count": int(np.sum(ambiguous)),
+                    "ambiguity_band_percentage_points": SDA_AMBIGUITY_PP,
+                    "unexplained_flip_percentage_points": unexplained_pp,
+                    "passed": bool(unexplained_pp <= sda_tolerance + 1.0e-9),
                 },
             }
         )
@@ -549,17 +561,24 @@ def _metrics_from_sunup(values, occupied_sunup, occupied_total):
     }
 
 
+SDA_AMBIGUITY_PP = 5.0
 NEGLIGIBLE_INDIRECT_FRACTION = 0.005
+NEGLIGIBLE_INDIRECT_ENERGY_PER_SENSOR = 1.0e-4
 
 
-def _waive_negligible_indirect(direct, indirect):
+def _waive_negligible_indirect(direct, indirect, sensor_count):
     """Pass the indirect stage when it carries no appreciable energy.
 
     In a black or open room the indirect reference is the difference of two
     noisy Radiance runs around zero, so relative error there is meaningless.
-    Both sides must be below 0.5 % of the direct reference energy.
+    Both sides must be below 0.5 % of the direct reference energy, or below an
+    absolute 1e-4 summed coefficient energy per sensor (a sealed room's leak is
+    about 6e-6 per sensor; a lit room's indirect is 0.05 to 0.1).
     """
-    scale = NEGLIGIBLE_INDIRECT_FRACTION * abs(float(direct["reference_energy"]))
+    scale = max(
+        NEGLIGIBLE_INDIRECT_FRACTION * abs(float(direct["reference_energy"])),
+        NEGLIGIBLE_INDIRECT_ENERGY_PER_SENSOR * int(sensor_count),
+    )
     negligible = (
         abs(float(indirect["reference_energy"])) <= scale
         and abs(float(indirect["candidate_energy"])) <= scale

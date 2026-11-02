@@ -127,7 +127,7 @@ def audit_sky_bins(directions, density, radiance_bin=None):
     }
 
 
-def difference(reference, candidate, darkness=1e-5):
+def difference(reference, candidate, darkness=1e-5, bias_gate=1.0, rms_gate=5.0):
     # `darkness` is in coefficient units: lit rooms peak near 0.04, while a
     # sealed room leaks about 1e-6 in Radiance. Below it both arrays count as
     # dark and agree.
@@ -161,11 +161,11 @@ def difference(reference, candidate, darkness=1e-5):
         "worst_index": [
             int(x) for x in np.unravel_index(np.argmax(absolute), absolute.shape)
         ],
-        "passed": abs(bias) < 1 and rms < 5,
+        "passed": abs(bias) < bias_gate and rms < rms_gate,
     }
 
 
-def convergence_by_grid(prepared, first, second):
+def convergence_by_grid(prepared, first, second, rms_gate=5.0):
     grids = []
     for grid in prepared.grid_info:
         start, count = grid["start_sensor_index"], grid["sensor_count"]
@@ -173,7 +173,9 @@ def convergence_by_grid(prepared, first, second):
             {
                 "identifier": grid["identifier"],
                 **difference(
-                    first[start : start + count], second[start : start + count]
+                    first[start : start + count],
+                    second[start : start + count],
+                    rms_gate=rms_gate,
                 ),
             }
         )

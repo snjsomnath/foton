@@ -237,8 +237,15 @@ def run_scene(args, identifier, density, output):
                 binary_io=args.direct_io == "binary",
             )
         )
+    # MF:2 spreads the same ambient-ray budget over four times as many sky
+    # bins, so per-coefficient Monte Carlo noise roughly doubles; the RMS
+    # stability gates follow. Energy (bias) gates are unchanged.
+    stability_rms_gate = 5.0 if density == 1 else 10.0
     direct_stability = convergence_by_grid(
-        prepared, direct_runs[0].coefficients, direct_runs[1].coefficients
+        prepared,
+        direct_runs[0].coefficients,
+        direct_runs[1].coefficients,
+        rms_gate=stability_rms_gate,
     )
 
     # Independently vary depth and sample budget. The one-bounce level stays as a
@@ -277,6 +284,7 @@ def run_scene(args, identifier, density, output):
             prepared,
             radiance_direct_runs=[r.direct for r in runs],
             radiance_full_runs=[r.full for r in runs],
+            rms_gate_percent=stability_rms_gate,
         )
         references.append(np.mean([r.full for r in runs], axis=0))
         oracle_records.append(
@@ -294,8 +302,12 @@ def run_scene(args, identifier, density, output):
                 ],
             }
         )
-    depth_stability = convergence_by_grid(prepared, references[1], references[2])
-    sample_stability = convergence_by_grid(prepared, references[2], references[3])
+    depth_stability = convergence_by_grid(
+        prepared, references[1], references[2], rms_gate=stability_rms_gate
+    )
+    sample_stability = convergence_by_grid(
+        prepared, references[2], references[3], rms_gate=stability_rms_gate
+    )
     # The one-bounce level is a diagnostic, not part of the reference, so its
     # replicate repeatability (noisy at ad=20000) does not decide stability.
     stable = (
