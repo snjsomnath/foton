@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import numpy as np
 import unittest
@@ -16,8 +17,18 @@ ROOT = Path(__file__).resolve().parents[2]
 async def request(app, method, path):
     messages = []
 
+    request_sent = False
+
     async def receive():
-        return {"type": "http.request", "body": b"", "more_body": False}
+        # Deliver the (empty) request body once, then behave like a client
+        # that stays connected. Returning a request on every call would make
+        # Starlette's disconnect listener for file responses spin without
+        # ever yielding to the event loop, so the response never completes.
+        nonlocal request_sent
+        if not request_sent:
+            request_sent = True
+            return {"type": "http.request", "body": b"", "more_body": False}
+        await asyncio.Event().wait()
 
     async def send(message):
         messages.append(message)
