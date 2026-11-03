@@ -370,7 +370,8 @@ fn committed_metal_scene_reuses_resident_acceleration_structures() {
         .unwrap();
     assert_eq!(first.solver_revision, 1);
     assert_eq!(second.solver_revision, 1);
-    assert_eq!(first.timings.acceleration_structure_ms, 0.0);
+    // The build happens at commit and is reported once, by the first trace.
+    assert!(first.timings.acceleration_structure_ms > 0.0);
     assert_eq!(second.timings.acceleration_structure_ms, 0.0);
     assert_eq!(first.coefficients, second.coefficients);
 
@@ -389,7 +390,7 @@ fn committed_metal_scene_reuses_resident_acceleration_structures() {
         .unwrap();
     assert_eq!(revision, 2);
     assert_eq!(updated.solver_revision, 2);
-    assert_eq!(updated.timings.acceleration_structure_ms, 0.0);
+    assert!(updated.timings.acceleration_structure_ms > 0.0);
     assert_eq!(first.coefficients, updated.coefficients);
 }
 
