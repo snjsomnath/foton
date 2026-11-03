@@ -25,8 +25,8 @@ jobs:
           - runner: [self-hosted, Windows, X64, foton-vulkan]
             backend: vulkan
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.13"
       - uses: dtolnay/rust-toolchain@stable
@@ -45,7 +45,7 @@ jobs:
         run: python scripts/validate_release_suite.py --backend ${{ matrix.backend }} --workers 8 --output artifacts
       - name: Preserve validation evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: beta-validation-${{ matrix.backend }}-${{ github.sha }}
           path: |
