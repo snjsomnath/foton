@@ -1,0 +1,28 @@
+name: Installation or analysis problem
+description: Report a reproducible Foton problem
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Foton Settings diagnostics
+      description: Include engine/protocol, backend, OS, Rhino and GPU driver versions. Remove private paths.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps and minimal model
+      description: Include settings, error text, and a minimal shareable HBJSON or Grasshopper definition.
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Radiance comparison (if relevant)
+      description: Include the suite report, Radiance version and commands, sky basis, weather, schedule, and cold/cached timing context.

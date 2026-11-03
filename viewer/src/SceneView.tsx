@@ -57,7 +57,7 @@ export function SceneView({ geometry, analysis, metric }: SceneViewProps) {
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color("#0d1117");
-    scene.fog = new THREE.Fog("#0d1117", 18, 45);
+    // scene.fog = new THREE.Fog("#0d1117", 18, 45);
     const camera = new THREE.PerspectiveCamera(38, 1, 0.05, 100);
     camera.up.set(0, 0, 1);
     camera.position.set(10, -13, 9);

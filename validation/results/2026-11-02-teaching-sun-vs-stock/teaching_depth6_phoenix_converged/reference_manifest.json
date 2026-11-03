@@ -1,0 +1,38 @@
+{
+  "command": [
+    "/Users/ssanjay/GitHub/foton/.venv/bin/lbt-recipes",
+    "run",
+    "annual-daylight",
+    "/private/tmp/claude-501/-Users-ssanjay-GitHub-foton/8946f656-9403-4636-9221-f1de0ea23053/scratchpad/stock_hi/teaching_depth6_phoenix/inputs.json",
+    "--project-folder",
+    "/private/tmp/claude-501/-Users-ssanjay-GitHub-foton/8946f656-9403-4636-9221-f1de0ea23053/scratchpad/stock_hi/teaching_depth6_phoenix",
+    "--workers",
+    "2"
+  ],
+  "elapsed_seconds": 34.22180316701997,
+  "inputs": {
+    "grid-filter": "*",
+    "model": "/Users/ssanjay/GitHub/foton/validation/results/2026-11-02-architectural-v4-metal-run2/teaching_depth6/mf1/model.hbjson",
+    "north": 0.0,
+    "radiance-parameters": "-ab 6 -ad 25000 -lw 4e-07 -dr 0",
+    "schedule": "/private/tmp/claude-501/-Users-ssanjay-GitHub-foton/8946f656-9403-4636-9221-f1de0ea23053/scratchpad/stock_hi/teaching_depth6_phoenix/schedule.csv",
+    "thresholds": "-t 300 -lt 100 -ut 3000",
+    "wea": "/Users/ssanjay/GitHub/foton/epw/phoenix.epw"
+  },
+  "lbt_recipes_version": "lbt-recipes, version 0.28.8",
+  "log": "/private/tmp/claude-501/-Users-ssanjay-GitHub-foton/8946f656-9403-4636-9221-f1de0ea23053/scratchpad/stock_hi/teaching_depth6_phoenix/annual-daylight.log",
+  "occupied_hours": 3650,
+  "project": "/private/tmp/claude-501/-Users-ssanjay-GitHub-foton/8946f656-9403-4636-9221-f1de0ea23053/scratchpad/stock_hi/teaching_depth6_phoenix/annual_daylight",
+  "radiance": {
+    "oconv": {
+      "path": "/usr/local/radiance/bin/oconv",
+      "version": "/usr/local/radiance/bin/oconv: fatal - unknown option: '-version'"
+    },
+    "rcontrib": {
+      "path": "/usr/local/radiance/bin/rcontrib",
+      "version": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)"
+    }
+  },
+  "recipe": "annual-daylight",
+  "schema_version": 1
+}

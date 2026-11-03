@@ -1,0 +1,137 @@
+{
+  "folders": {
+    "foton": "/private/tmp/claude-501/-Users-ssanjay-GitHub-foton/8946f656-9403-4636-9221-f1de0ea23053/scratchpad/sun_vs_stock/teaching_depth6/seattle",
+    "radiance": "/private/tmp/claude-501/-Users-ssanjay-GitHub-foton/8946f656-9403-4636-9221-f1de0ea23053/scratchpad/stock_hi/teaching_depth6_seattle/annual_daylight"
+  },
+  "grids": [
+    {
+      "identifier": "teaching_depth6_grid",
+      "illuminance": {
+        "absolute_error_lux": {
+          "maximum": 1066.19921875,
+          "p50": 5.1416015625,
+          "p90": 46.51339721679689,
+          "p95": 79.19858093261729,
+          "p99": 200.96601806640624
+        },
+        "compatibility_passed": true,
+        "cvrmse_percent": 2.9827771978167505,
+        "nmbe_percent": 0.5801186910523949,
+        "passed": true,
+        "per_sensor_maximum_error_lux": {
+          "maximum": 1066.19921875,
+          "p50": 369.1883544921875,
+          "p90": 617.26171875,
+          "p95": 755.787353515625,
+          "p99": 973.4458007812497
+        },
+        "strict_passed": true,
+        "worst": {
+          "foton_lux": 43668.8203125,
+          "hour_of_year": 2747.5,
+          "radiance_lux": 42602.62109375,
+          "sensor_index": 23,
+          "sun_up_hour_index": 1244
+        }
+      },
+      "metrics": {
+        "cda": {
+          "maximum_error_percentage_points": 1.3900000000000006,
+          "mean_absolute_error_percentage_points": 0.3216666666666682,
+          "passed": true
+        },
+        "da": {
+          "maximum_error_percentage_points": 2.8699999999999974,
+          "mean_absolute_error_percentage_points": 0.598611111111112,
+          "passed": true
+        },
+        "udi": {
+          "maximum_error_percentage_points": 1.1300000000000097,
+          "mean_absolute_error_percentage_points": 0.24111111111110972,
+          "passed": true
+        },
+        "udi_lower": {
+          "maximum_error_percentage_points": 1.009999999999998,
+          "mean_absolute_error_percentage_points": 0.22222222222222227,
+          "passed": true
+        },
+        "udi_upper": {
+          "maximum_error_percentage_points": 0.19000000000000128,
+          "mean_absolute_error_percentage_points": 0.07333333333333318,
+          "passed": true
+        }
+      },
+      "raw_shape": [
+        36,
+        4399
+      ],
+      "sda": {
+        "difference_percentage_points": 5.555555555555557,
+        "foton_percent": 94.44444444444444,
+        "passed": false,
+        "radiance_percent": 88.88888888888889
+      },
+      "sensor_count": 36
+    }
+  ],
+  "official_loader": {
+    "maximum_error_percentage_points": 0.004941138698640657,
+    "metrics": {
+      "cda": [
+        {
+          "identifier": "teaching_depth6_grid",
+          "maximum_error_percentage_points": 0.004941138698640657,
+          "passed": true
+        }
+      ],
+      "da": [
+        {
+          "identifier": "teaching_depth6_grid",
+          "maximum_error_percentage_points": 0.004931506849302991,
+          "passed": true
+        }
+      ],
+      "udi": [
+        {
+          "identifier": "teaching_depth6_grid",
+          "maximum_error_percentage_points": 0.004520547945205067,
+          "passed": true
+        }
+      ],
+      "udi_lower": [
+        {
+          "identifier": "teaching_depth6_grid",
+          "maximum_error_percentage_points": 0.004931506849315426,
+          "passed": true
+        }
+      ],
+      "udi_upper": [
+        {
+          "identifier": "teaching_depth6_grid",
+          "maximum_error_percentage_points": 0.004794520547942938,
+          "passed": true
+        }
+      ]
+    },
+    "passed": true,
+    "tolerance_percentage_points": 0.05
+  },
+  "oracle": "stock",
+  "passed": true,
+  "performance": {
+    "foton_seconds": null,
+    "passed": null,
+    "radiance_seconds": null,
+    "speedup": null
+  },
+  "schema_version": 1,
+  "structural": {
+    "grid_counts_match": true,
+    "grid_ids_match": true,
+    "sun_up_hours_match": true
+  },
+  "versions": {
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "python": "3.13.5"
+  }
+}

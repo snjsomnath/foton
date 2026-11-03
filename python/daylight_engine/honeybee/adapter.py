@@ -23,25 +23,46 @@ class PreparedHoneybeeScene:
     grid_info: list[dict[str, Any]]
     room_map: dict[str, int]
     geometry_info: dict[str, Any]
+    validation_warnings: tuple[dict[str, Any], ...]
+
+    def native_arrays(self):
+        """Engine-ready arrays: geometry and sensors recentred and cast to float32.
+
+        ``arrays`` keeps world coordinates in float64 so Radiance comparisons stay
+        exact; recentring on ``scene_origin`` before the cast keeps full precision
+        for models placed at real-world coordinates (float32 spacing is 0.5 m at
+        a 6e6 m northing).
+        """
+        origin = self.arrays["scene_origin"]
+        return {
+            **self.arrays,
+            "vertices": np.ascontiguousarray(
+                self.arrays["vertices"] - origin, dtype=np.float32
+            ),
+            "sensor_positions": np.ascontiguousarray(
+                self.arrays["sensor_positions"] - origin, dtype=np.float32
+            ),
+        }
 
     def create_native_scene(self, engine):
+        arrays = self.native_arrays()
         return engine.create_scene(
-            self.arrays["vertices"],
-            self.arrays["triangles"],
-            self.arrays["triangle_materials"],
-            self.arrays["mesh_ranges"],
-            self.arrays["instance_transforms"],
-            self.arrays["instance_mesh_indices"],
-            self.arrays["instance_room_ids"],
-            self.arrays["instance_masks"],
-            self.arrays["material_kinds"],
-            self.arrays["material_diffuse_rgb"],
-            self.arrays["material_transmittance_rgb"],
-            self.arrays["sensor_positions"],
-            self.arrays["sensor_normals"],
-            self.arrays["sensor_ids"],
-            self.arrays["sensor_room_ids"],
-            self.arrays["sensor_area_weights"],
+            arrays["vertices"],
+            arrays["triangles"],
+            arrays["triangle_materials"],
+            arrays["mesh_ranges"],
+            arrays["instance_transforms"],
+            arrays["instance_mesh_indices"],
+            arrays["instance_room_ids"],
+            arrays["instance_masks"],
+            arrays["material_kinds"],
+            arrays["material_diffuse_rgb"],
+            arrays["material_transmittance_rgb"],
+            arrays["sensor_positions"],
+            arrays["sensor_normals"],
+            arrays["sensor_ids"],
+            arrays["sensor_room_ids"],
+            arrays["sensor_area_weights"],
         )
 
 
@@ -51,6 +72,7 @@ def prepare_honeybee_scene(
     grid_filter="*",
     grid_size=0.5,
     sensor_height=0.75,
+    include_aperture_glazing=False,
 ) -> PreparedHoneybeeScene:
     if not isinstance(grid_filter, str) or not grid_filter:
         raise ValueError("grid_filter must be a non-empty string")
@@ -59,15 +81,21 @@ def prepare_honeybee_scene(
     if not np.isfinite(sensor_height) or sensor_height <= 0:
         raise ValueError("sensor_height must be finite and positive")
 
-    model = _load_and_normalize_model(model_or_path)
-    _validate_supported_model(model)
+    model, validation_warnings = _load_and_normalize_model(model_or_path)
+    _validate_supported_model(
+        model, include_aperture_glazing=include_aperture_glazing
+    )
     room_map = {
         room.identifier: index + 1 for index, room in enumerate(model.rooms)
     }
     if not room_map:
         raise ValueError("Honeybee model must contain at least one Room")
 
-    geometry_arrays, geometry_info = _prepare_geometry(model, room_map)
+    geometry_arrays, geometry_info = _prepare_geometry(
+        model,
+        room_map,
+        include_aperture_glazing=include_aperture_glazing,
+    )
     sensor_arrays, grid_info = _prepare_sensors(
         model,
         room_map,
@@ -78,15 +106,16 @@ def prepare_honeybee_scene(
     arrays = {
         **geometry_arrays,
         **sensor_arrays,
-        "material_kinds": np.ascontiguousarray([0], dtype=np.uint32),
-        "material_diffuse_rgb": np.ascontiguousarray(
-            [[0.5, 0.5, 0.5]], dtype=np.float32
-        ),
-        "material_transmittance_rgb": np.ascontiguousarray(
-            [[0.0, 0.0, 0.0]], dtype=np.float32
-        ),
+        "scene_origin": _scene_origin(geometry_arrays["vertices"]),
     }
-    fingerprint = _fingerprint_model(model, grid_filter, grid_size, sensor_height)
+    geometry_info["scene_origin_m"] = arrays["scene_origin"].tolist()
+    fingerprint = _fingerprint_model(
+        model,
+        grid_filter,
+        grid_size,
+        sensor_height,
+        include_aperture_glazing,
+    )
     return PreparedHoneybeeScene(
         model=model,
         model_fingerprint=fingerprint,
@@ -94,7 +123,16 @@ def prepare_honeybee_scene(
         grid_info=grid_info,
         room_map=room_map,
         geometry_info=geometry_info,
+        validation_warnings=tuple(validation_warnings),
     )
+
+
+def _scene_origin(vertices):
+    """Whole-metre midpoint of the geometry bounds, so small models near the
+    origin shift by exact float32 values and distant models lose nothing."""
+    vertices = np.asarray(vertices, dtype=np.float64)
+    midpoint = (vertices.min(axis=0) + vertices.max(axis=0)) / 2
+    return np.round(midpoint)
 
 
 def _load_and_normalize_model(model_or_path):
@@ -115,12 +153,30 @@ def _load_and_normalize_model(model_or_path):
 
     if model.units != "Meters":
         model.convert_to_units("Meters")
-    model.check_all(raise_exception=True, detailed=False, all_ext_checks=False)
-    return model
+    messages = model.check_all(
+        raise_exception=False,
+        detailed=True,
+        all_ext_checks=False,
+    )
+    messages = messages if isinstance(messages, list) else []
+    warnings = []
+    fatal = []
+    for message in messages:
+        if isinstance(message, dict) and str(message.get("code")) == "000108":
+            warnings.append(dict(message))
+        else:
+            fatal.append(message)
+    if fatal:
+        details = "; ".join(
+            item.get("message", str(item)) if isinstance(item, dict) else str(item)
+            for item in fatal
+        )
+        raise ValueError(f"Honeybee model validation failed: {details}")
+    return model, warnings
 
 
-def _validate_supported_model(model):
-    if model.doors:
+def _validate_supported_model(model, *, include_aperture_glazing=False):
+    if model.doors and not include_aperture_glazing:
         raise ValueError(
             "direct_visibility does not yet define door opening semantics; "
             "remove Doors or convert the intended opening to an Aperture"
@@ -133,6 +189,8 @@ def _validate_supported_model(model):
             raise ValueError(
                 f"AirBoundary face {face.identifier!r} is not supported"
             )
+
+    _validate_surface_aperture_pairs(model)
 
     radiance = _radiance_properties(model)
     if radiance is None:
@@ -152,25 +210,95 @@ def _validate_supported_model(model):
             )
 
 
-def _prepare_geometry(model, room_map):
-    groups: dict[int, list[Any]] = {
+def _prepare_geometry(model, room_map, *, include_aperture_glazing=False):
+    groups: dict[int, list[tuple[Any, int]]] = {
         room_id: [] for room_id in room_map.values()
     }
     groups[CONTEXT_ROOM_ID] = []
+    material_indices: dict[tuple[Any, ...], int] = {}
+    material_kinds: list[int] = []
+    material_diffuse_rgb: list[list[float]] = []
+    material_transmittance_rgb: list[list[float]] = []
+    material_info: list[dict[str, Any]] = []
 
+    def material_index(obj) -> int:
+        modifier = _resolved_modifier(obj)
+        specification = _modifier_specification(modifier)
+        key = (
+            specification["kind"],
+            *specification["diffuse_rgb"],
+            *specification["solver_transmittance_rgb"],
+        )
+        if key in material_indices:
+            return material_indices[key]
+        index = len(material_kinds)
+        material_indices[key] = index
+        material_kinds.append(int(specification["kind"]))
+        material_diffuse_rgb.append(list(specification["diffuse_rgb"]))
+        material_transmittance_rgb.append(
+            list(specification["solver_transmittance_rgb"])
+        )
+        material_info.append(
+            {
+                "index": index,
+                "identifier": getattr(modifier, "identifier", f"material_{index}"),
+                **specification,
+            }
+        )
+        return index
+
+    exported_aperture_identifiers: list[str] = []
+    shifted_surface_faces: list[str] = []
+    interior_faces: set[str] = set()
+    surface_offset = float(model.tolerance) * -2.0
     for room in model.rooms:
         room_id = room_map[room.identifier]
         for face in room.faces:
-            groups[room_id].append(face.punched_geometry)
+            exported_face = face
+            exclude_subfaces = False
+            if face.boundary_condition.__class__.__name__ == "Surface":
+                if face.identifier in interior_faces:
+                    exported_face = face.duplicate()
+                    exported_face.move(exported_face.normal * surface_offset)
+                    exclude_subfaces = True
+                    shifted_surface_faces.append(face.identifier)
+                else:
+                    objects = tuple(
+                        getattr(
+                            face.boundary_condition,
+                            "boundary_condition_objects",
+                            (),
+                        )
+                    )
+                    if not objects:
+                        raise ValueError(
+                            f"Surface Face {face.identifier!r} has no adjacent Face"
+                        )
+                    interior_faces.add(str(objects[0]))
+            groups[room_id].append(
+                (exported_face.punched_geometry, material_index(face))
+            )
+            if include_aperture_glazing and not exclude_subfaces:
+                for subface in (*exported_face.apertures, *exported_face.doors):
+                    groups[room_id].append(
+                        (subface.geometry, material_index(subface))
+                    )
+                    exported_aperture_identifiers.append(subface.identifier)
     for face in model.orphaned_faces:
-        groups[CONTEXT_ROOM_ID].append(face.punched_geometry)
+        groups[CONTEXT_ROOM_ID].append(
+            (face.punched_geometry, material_index(face))
+        )
 
     for shade in model.shades:
         room = _owning_room(shade)
         room_id = room_map.get(getattr(room, "identifier", ""), CONTEXT_ROOM_ID)
-        groups[room_id].append(shade.geometry)
+        groups[room_id].append(
+            (shade.geometry, material_index(shade))
+        )
     for shade_mesh in model.shade_meshes:
-        groups[CONTEXT_ROOM_ID].append(shade_mesh.geometry)
+        groups[CONTEXT_ROOM_ID].append(
+            (shade_mesh.geometry, material_index(shade_mesh))
+        )
 
     vertices: list[list[float]] = []
     triangles: list[list[int]] = []
@@ -184,8 +312,14 @@ def _prepare_geometry(model, room_map):
         if not geometries:
             continue
         first_triangle = len(triangles)
-        for geometry in geometries:
-            _append_geometry(geometry, vertices, triangles, triangle_materials)
+        for geometry, geometry_material_index in geometries:
+            _append_geometry(
+                geometry,
+                vertices,
+                triangles,
+                triangle_materials,
+                geometry_material_index,
+            )
         triangle_count = len(triangles) - first_triangle
         if triangle_count == 0:
             continue
@@ -206,7 +340,7 @@ def _prepare_geometry(model, room_map):
         np.eye(4, dtype=np.float32)[None, :, :], instance_count, axis=0
     )
     arrays = {
-        "vertices": np.ascontiguousarray(vertices, dtype=np.float32),
+        "vertices": np.ascontiguousarray(vertices, dtype=np.float64),
         "triangles": np.ascontiguousarray(triangles, dtype=np.uint32),
         "triangle_materials": np.ascontiguousarray(
             triangle_materials, dtype=np.uint32
@@ -220,19 +354,190 @@ def _prepare_geometry(model, room_map):
         "instance_masks": np.full(
             instance_count, OPAQUE_EXTERIOR_ACTIVE_MASK, dtype=np.uint32
         ),
+        "material_kinds": np.ascontiguousarray(
+            material_kinds, dtype=np.uint32
+        ),
+        "material_diffuse_rgb": np.ascontiguousarray(
+            material_diffuse_rgb, dtype=np.float32
+        ),
+        "material_transmittance_rgb": np.ascontiguousarray(
+            material_transmittance_rgb, dtype=np.float32
+        ),
     }
+    material_fingerprint = sha256(
+        json.dumps(
+            material_info,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=True,
+        ).encode("utf-8")
+    ).hexdigest()
     info = {
         "vertex_count": len(vertices),
         "triangle_count": len(triangles),
         "instance_count": instance_count,
         "triangle_counts": triangle_counts,
-        "aperture_mode": "geometric_opening",
+        "aperture_mode": (
+            "thin_glass" if include_aperture_glazing else "geometric_opening"
+        ),
         "shade_mode": "opaque",
+        "materials": material_info,
+        "material_fingerprint": material_fingerprint,
+        "apertures": _aperture_metadata(model, room_map),
+        "surface_aperture_pairs": _surface_aperture_pairs(
+            model, exported_aperture_identifiers
+        ),
+        "exported_aperture_identifiers": exported_aperture_identifiers,
+        "shifted_surface_face_identifiers": shifted_surface_faces,
+        "surface_face_offset_m": surface_offset,
     }
     return arrays, info
 
 
-def _append_geometry(geometry, vertices, triangles, triangle_materials):
+def _validate_surface_aperture_pairs(model):
+    """Reject incomplete or geometrically ambiguous interior aperture pairs."""
+    apertures = {aperture.identifier: aperture for aperture in model.apertures}
+    for aperture in model.apertures:
+        boundary = aperture.boundary_condition
+        if boundary.__class__.__name__ != "Surface":
+            continue
+        objects = tuple(getattr(boundary, "boundary_condition_objects", ()))
+        if not objects:
+            raise ValueError(
+                f"Surface Aperture {aperture.identifier!r} has no adjacent Aperture"
+            )
+        adjacent_identifier = str(objects[0])
+        adjacent = apertures.get(adjacent_identifier)
+        if adjacent is None:
+            raise ValueError(
+                f"Surface Aperture {aperture.identifier!r} references unknown "
+                f"Aperture {adjacent_identifier!r}"
+            )
+        adjacent_boundary = adjacent.boundary_condition
+        adjacent_objects = tuple(
+            getattr(adjacent_boundary, "boundary_condition_objects", ())
+        )
+        if (
+            adjacent_boundary.__class__.__name__ != "Surface"
+            or not adjacent_objects
+            or str(adjacent_objects[0]) != aperture.identifier
+        ):
+            raise ValueError(
+                f"Surface Aperture pair {aperture.identifier!r} / "
+                f"{adjacent_identifier!r} is not reciprocal"
+            )
+        first = np.asarray(
+            [_xyz(vertex) for vertex in aperture.geometry.vertices],
+            dtype=np.float64,
+        )
+        second = np.asarray(
+            [_xyz(vertex) for vertex in adjacent.geometry.vertices],
+            dtype=np.float64,
+        )
+        if _boundary_error(first, second, allow_reversed=True) > 1.0e-6:
+            raise ValueError(
+                f"Surface Aperture pair {aperture.identifier!r} / "
+                f"{adjacent_identifier!r} does not have coincident geometry"
+            )
+        first_normal = np.asarray(_xyz(aperture.normal), dtype=np.float64)
+        second_normal = np.asarray(_xyz(adjacent.normal), dtype=np.float64)
+        if not np.allclose(first_normal, -second_normal, atol=1.0e-6, rtol=0):
+            raise ValueError(
+                f"Surface Aperture pair {aperture.identifier!r} / "
+                f"{adjacent_identifier!r} does not have opposing normals"
+            )
+
+
+def _boundary_error(first, second, *, allow_reversed=False):
+    if first.shape != second.shape:
+        return float("inf")
+    candidates = [second]
+    if allow_reversed:
+        candidates.append(second[::-1])
+    return min(
+        float(
+            np.max(
+                np.abs(first - np.roll(candidate, shift, axis=0)),
+                initial=0,
+            )
+        )
+        for candidate in candidates
+        for shift in range(first.shape[0])
+    )
+
+
+def _surface_aperture_pairs(model, exported_aperture_identifiers=()):
+    pairs = []
+    visited = set()
+    apertures = {aperture.identifier: aperture for aperture in model.apertures}
+    for aperture in model.apertures:
+        if aperture.boundary_condition.__class__.__name__ != "Surface":
+            continue
+        adjacent_identifier = str(
+            aperture.boundary_condition.boundary_condition_objects[0]
+        )
+        key = tuple(sorted((aperture.identifier, adjacent_identifier)))
+        if key in visited:
+            continue
+        visited.add(key)
+        adjacent = apertures[adjacent_identifier]
+        pairs.append(
+            {
+                "aperture_identifiers": list(key),
+                "area_m2": float(aperture.geometry.area),
+                "coincident": True,
+                "opposing_normals": True,
+                "modifiers": [
+                    _resolved_modifier(aperture).identifier,
+                    _resolved_modifier(adjacent).identifier,
+                ],
+                "exported_aperture_identifier": next(
+                    (
+                        identifier
+                        for identifier in key
+                        if identifier in exported_aperture_identifiers
+                    ),
+                    None,
+                ),
+            }
+        )
+    return pairs
+
+
+def _aperture_metadata(model, room_map):
+    metadata = []
+    for room in model.rooms:
+        for face in room.faces:
+            for aperture in face.apertures:
+                boundary = aperture.boundary_condition
+                objects = tuple(
+                    getattr(boundary, "boundary_condition_objects", ())
+                )
+                metadata.append(
+                    {
+                        "identifier": aperture.identifier,
+                        "parent_face_identifier": face.identifier,
+                        "room_identifier": room.identifier,
+                        "room_id": int(room_map[room.identifier]),
+                        "boundary_condition": boundary.__class__.__name__,
+                        "adjacent_aperture_identifier": (
+                            str(objects[0]) if objects else None
+                        ),
+                        "modifier": _resolved_modifier(aperture).identifier,
+                        "area_m2": float(aperture.geometry.area),
+                        "normal": list(_xyz(aperture.normal)),
+                    }
+                )
+    return metadata
+
+
+def _append_geometry(
+    geometry,
+    vertices,
+    triangles,
+    triangle_materials,
+    material_index=0,
+):
     mesh = (
         geometry
         if geometry.__class__.__name__ == "Mesh3D"
@@ -246,7 +551,100 @@ def _append_geometry(geometry, vertices, triangles, triangle_materials):
             raise ValueError("Honeybee geometry contains a face with fewer than 3 vertices")
         for index in range(1, len(indices) - 1):
             triangles.append([indices[0], indices[index], indices[index + 1]])
-            triangle_materials.append(0)
+            triangle_materials.append(int(material_index))
+
+
+def _resolved_modifier(obj):
+    try:
+        modifier = obj.properties.radiance.modifier
+    except (AttributeError, ImportError) as exc:
+        raise ValueError(
+            f"Honeybee object {getattr(obj, 'identifier', '<unknown>')!r} "
+            "does not expose a resolved Radiance modifier"
+        ) from exc
+    if modifier is None:
+        raise ValueError(
+            f"Honeybee object {getattr(obj, 'identifier', '<unknown>')!r} "
+            "has no resolved Radiance modifier"
+        )
+    return modifier
+
+
+def _modifier_specification(modifier):
+    modifier_type = modifier.__class__.__name__.lower()
+    if modifier_type == "plastic":
+        specularity = float(getattr(modifier, "specularity", 0.0))
+        roughness = float(getattr(modifier, "roughness", 0.0))
+        if abs(specularity) > 1.0e-9 or abs(roughness) > 1.0e-9:
+            raise ValueError(
+                f"Radiance Plastic modifier {modifier.identifier!r} has "
+                "non-zero specularity or roughness; Foton v1 supports diffuse "
+                "Plastic only"
+            )
+        diffuse = [
+            float(modifier.r_reflectance),
+            float(modifier.g_reflectance),
+            float(modifier.b_reflectance),
+        ]
+        return {
+            "kind": 0,
+            "modifier_type": "Plastic",
+            "diffuse_rgb": diffuse,
+            "transmittance_rgb": [0.0, 0.0, 0.0],
+            "solver_transmittance_rgb": [0.0, 0.0, 0.0],
+        }
+    if modifier_type == "glass":
+        refraction_index = getattr(modifier, "refraction_index", None)
+        if refraction_index is not None and not np.isclose(
+            float(refraction_index), 1.52, atol=1.0e-6
+        ):
+            raise ValueError(
+                f"Radiance Glass modifier {modifier.identifier!r} uses "
+                f"refraction index {refraction_index}; Foton v1 supports 1.52"
+            )
+        transmissivity = [
+            float(modifier.r_transmissivity),
+            float(modifier.g_transmissivity),
+            float(modifier.b_transmissivity),
+        ]
+        transmittance = [
+            float(modifier.r_transmittance),
+            float(modifier.g_transmittance),
+            float(modifier.b_transmittance),
+        ]
+        return {
+            "kind": 1,
+            "modifier_type": "Glass",
+            "diffuse_rgb": [0.0, 0.0, 0.0],
+            "transmittance_rgb": transmittance,
+            "radiance_transmissivity_rgb": transmissivity,
+            "solver_transmittance_rgb": [
+                _glass_normal_transmittance(value)
+                for value in transmissivity
+            ],
+        }
+    raise ValueError(
+        f"Radiance modifier {modifier.identifier!r} of type "
+        f"{modifier.__class__.__name__} is not supported by Foton v1"
+    )
+
+
+def _glass_normal_transmittance(transmissivity):
+    """Return Radiance glass.c transmission at normal incidence."""
+    if transmissivity <= 0:
+        return 0.0
+    normal_reflectance = ((1.0 - 1.52) / (1.0 + 1.52)) ** 2
+    return (
+        (1.0 - normal_reflectance) ** 2
+        * transmissivity
+        / (
+            1.0
+            - normal_reflectance
+            * normal_reflectance
+            * transmissivity
+            * transmissivity
+        )
+    )
 
 
 def _prepare_sensors(model, room_map, *, grid_filter, grid_size, sensor_height):
@@ -325,7 +723,7 @@ def _prepare_sensors(model, room_map, *, grid_filter, grid_size, sensor_height):
         )
     arrays = {
         "sensor_positions": np.ascontiguousarray(
-            sensor_positions, dtype=np.float32
+            sensor_positions, dtype=np.float64
         ),
         "sensor_normals": np.ascontiguousarray(sensor_normals, dtype=np.float32),
         "sensor_ids": np.arange(len(sensor_positions), dtype=np.uint32),
@@ -454,13 +852,20 @@ def _radiance_properties(model):
         return None
 
 
-def _fingerprint_model(model, grid_filter, grid_size, sensor_height):
+def _fingerprint_model(
+    model,
+    grid_filter,
+    grid_size,
+    sensor_height,
+    include_aperture_glazing,
+):
     payload = {
         "model": model.to_dict(),
         "grid_filter": grid_filter,
         "grid_size": float(grid_size),
         "sensor_height": float(sensor_height),
-        "adapter_schema": 1,
+        "include_aperture_glazing": bool(include_aperture_glazing),
+        "adapter_schema": 3,
     }
     canonical = json.dumps(
         payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True

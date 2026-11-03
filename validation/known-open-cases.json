@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "note": "Corpus cases a release may ship outside the numerical gates. Each one is named, classed and explained; the release verifier rejects any other non-passing case. Remove an entry when its case passes.",
+  "cases": [
+    {
+      "scene": "interior_glazing",
+      "sky_density": 1,
+      "result_classes": ["accuracy_failure", "unstable_reference"],
+      "reason": "Room lit only through internal glazing: hourly CV(RMSE) 15 % over a -0.8 % bias; halves with 4x samples, so mostly per-patch noise behind one pane.",
+      "documented_in": "docs/purpose-and-plan.md#smaller-known-issues"
+    },
+    {
+      "scene": "interior_glazing",
+      "sky_density": 2,
+      "result_classes": ["accuracy_failure", "unstable_reference"],
+      "reason": "As MF:1; the Radiance reference itself moves 1.1 % between 8 and 12 bounces here.",
+      "documented_in": "docs/purpose-and-plan.md#smaller-known-issues"
+    },
+    {
+      "scene": "three_room_chain",
+      "sky_density": 1,
+      "result_classes": ["accuracy_failure", "unstable_reference"],
+      "reason": "Third room two panes from the sky reads +5 % on the full coefficients with both engines' halves agreeing: the one genuine transport disagreement left in the corpus.",
+      "documented_in": "docs/purpose-and-plan.md#smaller-known-issues"
+    },
+    {
+      "scene": "three_room_chain",
+      "sky_density": 2,
+      "result_classes": ["accuracy_failure", "unstable_reference"],
+      "reason": "Third room +3.6 % full / +5.4 % indirect energy; see MF:1.",
+      "documented_in": "docs/purpose-and-plan.md#smaller-known-issues"
+    },
+    {
+      "scene": "glazed_corridor",
+      "sky_density": 1,
+      "result_classes": ["accuracy_failure", "unstable_reference"],
+      "reason": "Meeting room behind the corridor: hourly CV(RMSE) 35 % over a -0.8 % bias; the Radiance reference fails its own depth and sampling stability there.",
+      "documented_in": "docs/purpose-and-plan.md#smaller-known-issues"
+    },
+    {
+      "scene": "glazed_corridor",
+      "sky_density": 2,
+      "result_classes": ["accuracy_failure", "unstable_reference"],
+      "reason": "Meeting room hourly CV(RMSE) 32 % over a -0.4 % bias; coefficient gates pass.",
+      "documented_in": "docs/purpose-and-plan.md#smaller-known-issues"
+    },
+    {
+      "scene": "deep_reflective",
+      "sky_density": 1,
+      "result_classes": ["unstable_reference", "accuracy_failure"],
+      "reason": "12 m room at reflectance 0.8: Radiance 8 and 12 bounces differ by 3.6 %, so the 3 % indirect gate is out of reach for any 8-bounce engine; Foton indirect -5.4 % against the 12-bounce mean, annual passes at -2.8 %.",
+      "documented_in": "docs/purpose-and-plan.md#smaller-known-issues"
+    },
+    {
+      "scene": "deep_reflective",
+      "sky_density": 2,
+      "result_classes": ["unstable_reference", "accuracy_failure"],
+      "reason": "As MF:1; Foton indirect -5.6 %, full -4.1 %.",
+      "documented_in": "docs/purpose-and-plan.md#smaller-known-issues"
+    }
+  ]
+}

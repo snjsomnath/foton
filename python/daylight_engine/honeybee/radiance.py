@@ -21,7 +21,29 @@ class RadianceRun:
     files: dict[str, str]
 
 
-def resolve_radiance_executables(radiance_bin=None):
+@dataclass(frozen=True)
+class RadianceCoefficientStages:
+    direct: np.ndarray
+    full: np.ndarray
+    indirect: np.ndarray
+    commands: list[list[str]]
+    versions: dict[str, str]
+    timings_ms: dict[str, float]
+    files: dict[str, str]
+
+
+@dataclass(frozen=True)
+class RadianceIntegratedDirect:
+    coefficients: np.ndarray
+    commands: list[list[str]]
+    versions: dict[str, str]
+    elapsed_ms: float
+    files: dict[str, str]
+    sample_count: int
+    invocation_count: int
+
+
+def resolve_radiance_executables(radiance_bin=None, *, required=("oconv", "rcontrib")):
     searched: list[str] = []
     candidate_directories: list[Path] = []
     if radiance_bin:
@@ -43,13 +65,11 @@ def resolve_radiance_executables(radiance_bin=None):
         searched.append(str(directory))
         if not directory.is_dir():
             continue
-        found = {
-            name: directory / name for name in ("oconv", "rcontrib")
-        }
-        if all(path.is_file() and os.access(path, os.X_OK) for path in found.values()):
-            return {name: str(path.resolve()) for name, path in found.items()}
+        found = {name: shutil.which(str(directory / name)) for name in required}
+        if all(found.values()):
+            return {name: str(Path(path).resolve()) for name, path in found.items()}
 
-    found = {name: shutil.which(name) for name in ("oconv", "rcontrib")}
+    found = {name: shutil.which(name) for name in required}
     if all(found.values()):
         return found
     missing = [name for name, path in found.items() if path is None]
@@ -147,7 +167,8 @@ def run_radiance_visibility(
     visibility = np.where(np.asarray(patch_weights) > 1.0e-8, visibility, 0.0)
     elapsed_ms = (time.perf_counter() - started) * 1_000.0
     versions = {
-        name: _executable_version(path) for name, path in executables.items()
+        name: _executable_version(path, subprocess_environment)
+        for name, path in executables.items()
     }
     return RadianceRun(
         visibility=np.ascontiguousarray(visibility, dtype=np.float32),
@@ -161,6 +182,354 @@ def run_radiance_visibility(
             "rays": str(rays_path),
         },
     )
+
+
+def run_radiance_coefficient_stages(
+    sensor_positions,
+    sensor_normals,
+    *,
+    octree,
+    sky_dome,
+    sky_density=1,
+    work_directory,
+    workers=None,
+    radiance_bin=None,
+    radiance_parameters=("-ad", "5000", "-lw", "2e-05", "-dr", "0"),
+    material_bounces=1,
+) -> RadianceCoefficientStages:
+    """Run direct and full coefficients with explicit material bounce depth."""
+    if isinstance(material_bounces, bool) or int(material_bounces) < 1:
+        raise ValueError("material_bounces must be a positive integer")
+    if sky_density not in {1, 2}:
+        raise ValueError("sky_density must be 1 or 2")
+    rows = 146 if sky_density == 1 else 578
+    octree = Path(octree).expanduser().resolve()
+    sky_dome = Path(sky_dome).expanduser().resolve()
+    if not octree.is_file():
+        raise FileNotFoundError(octree)
+    if not sky_dome.is_file():
+        raise FileNotFoundError(sky_dome)
+    executables = resolve_radiance_executables(
+        radiance_bin, required=("rfluxmtx", "rcontrib")
+    )
+    environment = _radiance_subprocess_environment(executables)
+    work_directory = Path(work_directory).expanduser().resolve()
+    work_directory.mkdir(parents=True, exist_ok=True)
+    positions = np.asarray(sensor_positions, dtype=np.float64)
+    normals = np.asarray(sensor_normals, dtype=np.float64)
+    if positions.ndim != 2 or positions.shape[1] != 3:
+        raise ValueError("sensor_positions must have shape [sensor, 3]")
+    if normals.shape != positions.shape:
+        raise ValueError("sensor_normals must match sensor_positions")
+    sensor_rows = np.concatenate((positions, normals), axis=1)
+    sensor_text = (
+        "\n".join(" ".join(f"{value:.12g}" for value in row) for row in sensor_rows)
+        + "\n"
+    )
+    sensors_path = work_directory / "sensors.pts"
+    sensors_path.write_text(sensor_text, encoding="ascii")
+
+    commands = []
+    timings = {}
+    matrices = {}
+    parameters = [str(value) for value in radiance_parameters]
+    for name, ambient_bounces in (("direct", 1), ("full", int(material_bounces) + 1)):
+        command = [
+            executables["rfluxmtx"],
+            "-I+",
+            "-h",
+            "-y",
+            str(positions.shape[0]),
+            "-ab",
+            str(ambient_bounces),
+            *parameters,
+        ]
+        if workers:
+            command.extend(["-n", str(workers)])
+        command.extend(["-", str(sky_dome), "-i", str(octree)])
+        commands.append(command)
+        started = time.perf_counter()
+        completed = subprocess.run(
+            command,
+            input=sensor_text,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=environment,
+            check=False,
+        )
+        timings[name] = (time.perf_counter() - started) * 1_000.0
+        if completed.returncode != 0:
+            raise RuntimeError(
+                f"rfluxmtx {name} stage failed with exit code "
+                f"{completed.returncode}: {completed.stderr.strip()}"
+            )
+        values = np.fromstring(completed.stdout, sep=" ", dtype=np.float64)
+        expected = positions.shape[0] * rows * 3
+        if values.size != expected:
+            raise RuntimeError(
+                f"rfluxmtx {name} stage returned {values.size} values; "
+                f"expected {expected}"
+            )
+        matrix = np.ascontiguousarray(
+            values.reshape(positions.shape[0], rows, 3), dtype=np.float32
+        )
+        if not np.isfinite(matrix).all():
+            raise RuntimeError(f"rfluxmtx {name} stage returned non-finite values")
+        matrices[name] = matrix
+        np.save(work_directory / f"radiance_{name}.npy", matrix)
+
+    indirect = np.ascontiguousarray(
+        matrices["full"].astype(np.float64) - matrices["direct"].astype(np.float64),
+        dtype=np.float32,
+    )
+    np.save(work_directory / "radiance_indirect.npy", indirect)
+    return RadianceCoefficientStages(
+        direct=matrices["direct"],
+        full=matrices["full"],
+        indirect=indirect,
+        commands=commands,
+        versions={
+            name: _executable_version(path, environment)
+            for name, path in executables.items()
+        },
+        timings_ms=timings,
+        files={
+            "octree": str(octree),
+            "sky_dome": str(sky_dome),
+            "sensors": str(sensors_path),
+            "direct": str(work_directory / "radiance_direct.npy"),
+            "full": str(work_directory / "radiance_full.npy"),
+            "indirect": str(work_directory / "radiance_indirect.npy"),
+        },
+    )
+
+
+def run_radiance_integrated_direct(
+    sensor_positions,
+    sensor_normals,
+    patch_sample_directions,
+    patch_solid_angles,
+    *,
+    octree,
+    sky_dome,
+    work_directory,
+    workers=None,
+    radiance_bin=None,
+    sensor_chunk=16,
+    binary_io=False,
+) -> RadianceIntegratedDirect:
+    """Integrate deterministic directional Radiance rays within every sky patch."""
+    if isinstance(sensor_chunk, bool) or int(sensor_chunk) <= 0:
+        raise ValueError("sensor_chunk must be a positive integer")
+    positions = np.asarray(sensor_positions, dtype=np.float64)
+    normals = np.asarray(sensor_normals, dtype=np.float64)
+    directions = np.asarray(patch_sample_directions, dtype=np.float64)
+    solid_angles = np.asarray(patch_solid_angles, dtype=np.float64)
+    if positions.ndim != 2 or positions.shape[1] != 3:
+        raise ValueError("sensor_positions must have shape [sensor, 3]")
+    if normals.shape != positions.shape:
+        raise ValueError("sensor_normals must match sensor_positions")
+    if directions.ndim != 3 or directions.shape[2] != 3:
+        raise ValueError("patch_sample_directions must have shape [patch, sample, 3]")
+    if solid_angles.shape != (directions.shape[0],):
+        raise ValueError("patch_solid_angles must match the patch dimension")
+    if not all(np.isfinite(value).all() for value in (positions, normals, directions)):
+        raise ValueError("integrated-direct inputs must be finite")
+
+    octree = Path(octree).expanduser().resolve()
+    sky_dome = Path(sky_dome).expanduser().resolve()
+    if not octree.is_file():
+        raise FileNotFoundError(octree)
+    if not sky_dome.is_file():
+        raise FileNotFoundError(sky_dome)
+    executables = resolve_radiance_executables(
+        radiance_bin, required=("oconv", "rcontrib")
+    )
+    environment = _radiance_subprocess_environment(executables)
+    work_directory = Path(work_directory).expanduser().resolve()
+    work_directory.mkdir(parents=True, exist_ok=True)
+    combined_octree = work_directory / "direct_scene.oct"
+    modifiers_path = work_directory / "sky_modifiers.txt"
+    rays_path = work_directory / ("direct_rays.bin" if binary_io else "direct_rays.pts")
+    coefficients_path = work_directory / "radiance_integrated_direct.npy"
+    modifier_names = _glow_modifiers(sky_dome)
+    if not modifier_names:
+        raise ValueError(f"sky dome contains no glow modifiers: {sky_dome}")
+    modifiers_path.write_text("\n".join(modifier_names) + "\n", encoding="ascii")
+
+    commands: list[list[str]] = []
+    started = time.perf_counter()
+    oconv_command = [
+        executables["oconv"],
+        "-i",
+        str(octree),
+        str(sky_dome),
+    ]
+    commands.append(oconv_command)
+    with combined_octree.open("wb") as output:
+        completed = subprocess.run(
+            oconv_command,
+            stdout=output,
+            stderr=subprocess.PIPE,
+            env=environment,
+            check=False,
+        )
+    if completed.returncode != 0:
+        raise RuntimeError(
+            "oconv integrated-direct scene failed with exit code "
+            f"{completed.returncode}: "
+            f"{completed.stderr.decode(errors='replace').strip()}"
+        )
+
+    command = [
+        executables["rcontrib"],
+        "-h",
+        "-w",
+        "-ab",
+        "0",
+        "-M",
+        str(modifiers_path),
+    ]
+    if workers:
+        command.extend(["-n", "1" if binary_io else str(workers)])
+    if binary_io:
+        # Radiance native-endian doubles preserve directions/origins without the
+        # expensive per-ray ASCII formatting and stdout parsing of large suites.
+        command.append("-fdd")
+    command.append(str(combined_octree))
+    commands.append(command)
+
+    patch_count, sample_count, _ = directions.shape
+    coefficients = np.zeros((positions.shape[0], patch_count, 3), dtype=np.float64)
+    chunks = [
+        (start, min(start + int(sensor_chunk), positions.shape[0]))
+        for start in range(0, positions.shape[0], int(sensor_chunk))
+    ]
+
+    def integrate_chunk(bounds):
+        start, end = bounds
+        origins = (
+            positions[start:end, None, None, :]
+            + normals[start:end, None, None, :] * 1.0e-4
+        )
+        origins = np.broadcast_to(origins, (end - start, patch_count, sample_count, 3))
+        ray_directions = np.broadcast_to(directions[None, :, :, :], origins.shape)
+        rays = np.concatenate((origins, ray_directions), axis=3).reshape(-1, 6)
+        if binary_io:
+            ray_input = np.ascontiguousarray(rays, dtype=np.float64).tobytes()
+            # Preserve the same final-chunk artifact without racing parallel
+            # writers or repeatedly writing gigabytes of regenerable ray input.
+            if end == positions.shape[0]:
+                rays_path.write_bytes(ray_input)
+        else:
+            ray_input = (
+                "\n".join(" ".join(f"{value:.9g}" for value in ray) for ray in rays)
+                + "\n"
+            )
+            rays_path.write_text(ray_input, encoding="ascii")
+        completed = subprocess.run(
+            command,
+            input=ray_input,
+            text=not binary_io,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=environment,
+            check=False,
+        )
+        if completed.returncode != 0:
+            raise RuntimeError(
+                "rcontrib integrated-direct stage failed with exit code "
+                f"{completed.returncode}: {completed.stderr.decode(errors='replace').strip() if binary_io else completed.stderr.strip()}"
+            )
+        values = (
+            np.frombuffer(completed.stdout, dtype=np.float64)
+            if binary_io
+            else np.fromstring(completed.stdout, sep=" ", dtype=np.float64)
+        )
+        expected = rays.shape[0] * len(modifier_names) * 3
+        if values.size != expected:
+            raise RuntimeError(
+                "rcontrib integrated-direct stage returned "
+                f"{values.size} values; expected {expected}"
+            )
+        throughput = values.reshape(
+            end - start,
+            patch_count,
+            sample_count,
+            len(modifier_names),
+            3,
+        ).sum(axis=3)
+        cosines = np.maximum(
+            np.einsum("si,pki->spk", normals[start:end], directions, optimize=True),
+            0.0,
+        )
+        integrated = np.sum(throughput * cosines[:, :, :, None], axis=2) * (
+            solid_angles[None, :, None] / sample_count
+        )
+        return start, end, integrated
+
+    if binary_io and workers and int(workers) > 1:
+        from concurrent.futures import ThreadPoolExecutor
+
+        # rcontrib -n N communicates per ray; for millions of direct rays this
+        # IPC dominates tracing. N independent single-process workers preserve
+        # the same per-ray results and total worker budget, without that IPC.
+        executor = ThreadPoolExecutor(max_workers=int(workers))
+        try:
+            for start, end, integrated in executor.map(integrate_chunk, chunks):
+                coefficients[start:end] = integrated
+        finally:
+            executor.shutdown(wait=True, cancel_futures=True)
+    else:
+        for start, end, integrated in map(integrate_chunk, chunks):
+            coefficients[start:end] = integrated
+
+    result = np.ascontiguousarray(coefficients, dtype=np.float32)
+    if not np.isfinite(result).all():
+        raise RuntimeError("integrated-direct coefficients contain non-finite values")
+    np.save(coefficients_path, result)
+    return RadianceIntegratedDirect(
+        coefficients=result,
+        commands=commands,
+        versions={
+            name: _executable_version(path, environment)
+            for name, path in executables.items()
+        },
+        elapsed_ms=(time.perf_counter() - started) * 1_000.0,
+        files={
+            "source_octree": str(octree),
+            "sky_dome": str(sky_dome),
+            "combined_octree": str(combined_octree),
+            "modifiers": str(modifiers_path),
+            "last_ray_chunk": str(rays_path),
+            "coefficients": str(coefficients_path),
+        },
+        sample_count=sample_count,
+        invocation_count=len(chunks),
+    )
+
+
+def _glow_modifiers(path):
+    tokens = []
+    for line in Path(path).read_text(encoding="utf-8").splitlines():
+        content = line.split("#", 1)[0].strip()
+        if content:
+            tokens.extend(content.split())
+    identifiers = []
+    index = 0
+    while index + 3 <= len(tokens):
+        _modifier, primitive, identifier = tokens[index : index + 3]
+        index += 3
+        try:
+            for _ in range(3):
+                count = int(tokens[index])
+                index += 1 + count
+        except (ValueError, IndexError) as error:
+            raise ValueError(f"invalid Radiance primitive in {path}") from error
+        if primitive == "glow":
+            identifiers.append(identifier)
+    return identifiers
 
 
 def _write_honeybee_radiance_scene(model, path):
@@ -182,8 +551,25 @@ def _write_honeybee_radiance_scene(model, path):
         black.to_radiance(),
     ]
     face_shades = set()
+    interior_faces = set()
+    surface_offset = float(model.tolerance) * -2.0
     for face in model.faces:
-        chunks.append(face_to_rad(face, blk=True, exclude_sub_faces=True))
+        exported_face = face
+        if face.boundary_condition.__class__.__name__ == "Surface":
+            if face.identifier in interior_faces:
+                exported_face = face.duplicate()
+                exported_face.move(exported_face.normal * surface_offset)
+            else:
+                objects = tuple(
+                    getattr(
+                        face.boundary_condition,
+                        "boundary_condition_objects",
+                        (),
+                    )
+                )
+                if objects:
+                    interior_faces.add(str(objects[0]))
+        chunks.append(face_to_rad(exported_face, blk=True, exclude_sub_faces=True))
         face_shades.update(shade.identifier for shade in face.shades)
     for shade in model.shades:
         if shade.identifier not in face_shades:
@@ -259,9 +645,7 @@ def _radiance_subprocess_environment(executables):
         library_directories.append(Path(executable).resolve().parent.parent / "lib")
 
     ray_paths = [
-        path
-        for path in environment.get("RAYPATH", ".").split(os.pathsep)
-        if path
+        path for path in environment.get("RAYPATH", ".").split(os.pathsep) if path
     ]
     for directory in library_directories:
         if (directory / "rayinit.cal").is_file():
@@ -269,16 +653,39 @@ def _radiance_subprocess_environment(executables):
             if resolved not in ray_paths:
                 ray_paths.insert(0, resolved)
     environment["RAYPATH"] = os.pathsep.join(ray_paths)
+    executable_directories = {
+        str(Path(path).resolve().parent) for path in executables.values()
+    }
+    path_entries = [
+        value for value in environment.get("PATH", "").split(os.pathsep) if value
+    ]
+    for directory in sorted(executable_directories):
+        if directory not in path_entries:
+            path_entries.insert(0, directory)
+    environment["PATH"] = os.pathsep.join(path_entries)
     return environment
 
 
-def _executable_version(path):
-    completed = subprocess.run(
-        [path, "-version"],
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        check=False,
-    )
-    output = (completed.stdout or completed.stderr).strip()
-    return output.splitlines()[0] if output else "unknown"
+def _executable_version(path, environment=None):
+    path = Path(path)
+    candidates = [path]
+    for sibling_name in ("rtrace", "rcontrib"):
+        sibling = path.parent / sibling_name
+        if sibling.is_file() and sibling not in candidates:
+            candidates.append(sibling)
+    first_result = None
+    for candidate in candidates:
+        completed = subprocess.run(
+            [str(candidate), "-version"],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=environment,
+            check=False,
+        )
+        output = (completed.stdout or completed.stderr).strip()
+        if first_result is None:
+            first_result = output.splitlines()[0] if output else "unknown"
+        if "RADIANCE" in output.upper():
+            return output.splitlines()[0]
+    return first_result

@@ -1,0 +1,303 @@
+{
+  "backend": "metal",
+  "capabilities": {
+    "hardware_acceleration": true,
+    "name": "Metal device: Apple M4 Pro (GPU direct, diffuse, glass, and annual reduction)",
+    "supports_async_jobs": true,
+    "supports_ray_tracing": true
+  },
+  "commit": "d931af507757f977fe4d8356cc7dec62437fe081",
+  "dirty": true,
+  "elapsed_seconds": 326.756983499974,
+  "engine_version": "0.2.0",
+  "hardware": {
+    "driver_diagnostics": [
+      {
+        "_name": "Apple M4 Pro",
+        "spdisplays_mtlgpufamilysupport": "spdisplays_metal4",
+        "spdisplays_vendor": "sppci_vendor_Apple",
+        "sppci_bus": "spdisplays_builtin",
+        "sppci_cores": "20",
+        "sppci_device_type": "spdisplays_gpu",
+        "sppci_model": "Apple M4 Pro"
+      }
+    ],
+    "machine": "arm64",
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "processor": "arm",
+    "system": "Darwin"
+  },
+  "passed": false,
+  "schema_version": 1,
+  "smoke": true,
+  "started_at": "2026-09-15T07:49:59.603007+00:00",
+  "status": "incomplete",
+  "suite_version": 1,
+  "scenes": [
+    {
+      "scene": "sealed",
+      "sky_density": 1,
+      "status": "incomplete",
+      "passed": false,
+      "gpu_executed": true,
+      "oracle_stable": true,
+      "sky_bin_audit": {
+        "calibration_sha256": "92b8c09984de7a551773530b3146ba79a51e1b003245f230b6e7b430eb6c26cd",
+        "command": [
+          "/private/tmp/foton-radiance-6/radiance/bin/rcalc",
+          "-e",
+          "MF:1",
+          "-f",
+          "/private/tmp/foton-radiance-6/radiance/lib/reinhart.cal",
+          "-e",
+          "Dx=$1;Dy=$2;Dz=$3;$1=rbin"
+        ],
+        "passed": true,
+        "ray_count": 2336
+      },
+      "outcomes": {
+        "honeybee_compatibility": "passed",
+        "numerical_correctness": "passed",
+        "performance": "measured"
+      },
+      "performance": {
+        "candidate_cached": {
+          "coefficient_trace_seconds": 0.0,
+          "cold_end_to_end_seconds": null,
+          "engine_acceleration_structure_seconds": 0.0,
+          "engine_annual_reduction_seconds": 0.001374875078909099,
+          "engine_snapshot_seconds": 0.0,
+          "engine_tracing_seconds": 0.0,
+          "engine_upload_seconds": 6.1458e-05,
+          "metric_reduction_seconds": 0.014368416974321008,
+          "raw_export_seconds": 0.010746208019554615,
+          "study_preparation_seconds": 0.007798959035426378,
+          "total_seconds": 0.11901983304414898,
+          "warm_study_seconds": 0.11901983304414898,
+          "weather_seconds": 0.08373829198535532,
+          "write_seconds": 0.020743708009831607
+        },
+        "candidate_cold": {
+          "coefficient_trace_seconds": 0.00017429166473448277,
+          "cold_end_to_end_seconds": 0.30050125007983297,
+          "engine_acceleration_structure_seconds": 0.0,
+          "engine_annual_reduction_seconds": 0.0013808750081807375,
+          "engine_snapshot_seconds": 0.0,
+          "engine_tracing_seconds": 0.00017429166473448277,
+          "engine_upload_seconds": 8.0584e-05,
+          "metric_reduction_seconds": 0.06425712502095848,
+          "raw_export_seconds": 0.018997459090314806,
+          "study_preparation_seconds": 0.007798959035426378,
+          "total_seconds": 0.2927022910444066,
+          "warm_study_seconds": null,
+          "weather_seconds": 0.19851479202043265,
+          "write_seconds": 0.029685124987736344
+        },
+        "coefficient_stages_seconds": {
+          "direct": 0.06691037490963936,
+          "full": 0.001970374956727028
+        }
+      },
+      "error": null
+    },
+    {
+      "scene": "sealed",
+      "sky_density": 2,
+      "status": "incomplete",
+      "passed": false,
+      "gpu_executed": true,
+      "oracle_stable": true,
+      "sky_bin_audit": {
+        "calibration_sha256": "92b8c09984de7a551773530b3146ba79a51e1b003245f230b6e7b430eb6c26cd",
+        "command": [
+          "/private/tmp/foton-radiance-6/radiance/bin/rcalc",
+          "-e",
+          "MF:2",
+          "-f",
+          "/private/tmp/foton-radiance-6/radiance/lib/reinhart.cal",
+          "-e",
+          "Dx=$1;Dy=$2;Dz=$3;$1=rbin"
+        ],
+        "passed": true,
+        "ray_count": 9248
+      },
+      "outcomes": {
+        "honeybee_compatibility": "passed",
+        "numerical_correctness": "passed",
+        "performance": "measured"
+      },
+      "performance": {
+        "candidate_cached": {
+          "coefficient_trace_seconds": 0.0,
+          "cold_end_to_end_seconds": null,
+          "engine_acceleration_structure_seconds": 0.0,
+          "engine_annual_reduction_seconds": 0.005070875049568713,
+          "engine_snapshot_seconds": 0.0,
+          "engine_tracing_seconds": 0.0,
+          "engine_upload_seconds": 9.6208e-05,
+          "metric_reduction_seconds": 0.05926458304747939,
+          "raw_export_seconds": 0.04170637496281415,
+          "study_preparation_seconds": 0.007960458053275943,
+          "total_seconds": 0.4131234169472009,
+          "warm_study_seconds": 0.4131234169472009,
+          "weather_seconds": 0.14889579196460545,
+          "write_seconds": 0.2047954590525478
+        },
+        "candidate_cold": {
+          "coefficient_trace_seconds": 0.00023729167878627777,
+          "cold_end_to_end_seconds": 0.7245514580281451,
+          "engine_acceleration_structure_seconds": 0.0,
+          "engine_annual_reduction_seconds": 0.005056875059381127,
+          "engine_snapshot_seconds": 0.0,
+          "engine_tracing_seconds": 0.00023729167878627777,
+          "engine_upload_seconds": 0.000148416,
+          "metric_reduction_seconds": 0.0652650420088321,
+          "raw_export_seconds": 0.023021292057819664,
+          "study_preparation_seconds": 0.007960458053275943,
+          "total_seconds": 0.7165909999748692,
+          "warm_study_seconds": null,
+          "weather_seconds": 0.496009457972832,
+          "write_seconds": 0.155117665999569
+        },
+        "coefficient_stages_seconds": {
+          "direct": 0.00915662501938641,
+          "full": 0.0023623749148100615
+        }
+      },
+      "error": null
+    },
+    {
+      "scene": "acceptance",
+      "sky_density": 1,
+      "status": "incomplete",
+      "passed": false,
+      "gpu_executed": true,
+      "oracle_stable": false,
+      "sky_bin_audit": {
+        "calibration_sha256": "92b8c09984de7a551773530b3146ba79a51e1b003245f230b6e7b430eb6c26cd",
+        "command": [
+          "/private/tmp/foton-radiance-6/radiance/bin/rcalc",
+          "-e",
+          "MF:1",
+          "-f",
+          "/private/tmp/foton-radiance-6/radiance/lib/reinhart.cal",
+          "-e",
+          "Dx=$1;Dy=$2;Dz=$3;$1=rbin"
+        ],
+        "passed": true,
+        "ray_count": 2336
+      },
+      "outcomes": {
+        "honeybee_compatibility": "passed",
+        "numerical_correctness": "incomplete",
+        "performance": "measured"
+      },
+      "performance": {
+        "candidate_cached": {
+          "coefficient_trace_seconds": 0.0,
+          "cold_end_to_end_seconds": null,
+          "engine_acceleration_structure_seconds": 0.0,
+          "engine_annual_reduction_seconds": 0.023092791670933366,
+          "engine_snapshot_seconds": 0.0,
+          "engine_tracing_seconds": 0.0,
+          "engine_upload_seconds": 0.0002825,
+          "metric_reduction_seconds": 0.0830648330738768,
+          "raw_export_seconds": 0.09304245898965746,
+          "study_preparation_seconds": 0.02814154198858887,
+          "total_seconds": 0.28732345800381154,
+          "warm_study_seconds": 0.28732345800381154,
+          "weather_seconds": 0.09033312508836389,
+          "write_seconds": 0.11359445902053267
+        },
+        "candidate_cold": {
+          "coefficient_trace_seconds": 0.002227624994702637,
+          "cold_end_to_end_seconds": 0.3964299999643117,
+          "engine_acceleration_structure_seconds": 0.0,
+          "engine_annual_reduction_seconds": 0.028212624951265752,
+          "engine_snapshot_seconds": 0.0,
+          "engine_tracing_seconds": 0.002227624994702637,
+          "engine_upload_seconds": 0.000324333,
+          "metric_reduction_seconds": 0.09351520892232656,
+          "raw_export_seconds": 0.1291156249353662,
+          "study_preparation_seconds": 0.02814154198858887,
+          "total_seconds": 0.36828845797572285,
+          "warm_study_seconds": null,
+          "weather_seconds": 0.10048366605769843,
+          "write_seconds": 0.17393920896574855
+        },
+        "coefficient_stages_seconds": {
+          "direct": 0.012372249970212579,
+          "full": 0.007740666973404586
+        }
+      },
+      "error": null
+    },
+    {
+      "scene": "acceptance",
+      "sky_density": 2,
+      "status": "incomplete",
+      "passed": false,
+      "gpu_executed": true,
+      "oracle_stable": false,
+      "sky_bin_audit": {
+        "calibration_sha256": "92b8c09984de7a551773530b3146ba79a51e1b003245f230b6e7b430eb6c26cd",
+        "command": [
+          "/private/tmp/foton-radiance-6/radiance/bin/rcalc",
+          "-e",
+          "MF:2",
+          "-f",
+          "/private/tmp/foton-radiance-6/radiance/lib/reinhart.cal",
+          "-e",
+          "Dx=$1;Dy=$2;Dz=$3;$1=rbin"
+        ],
+        "passed": true,
+        "ray_count": 9248
+      },
+      "outcomes": {
+        "honeybee_compatibility": "passed",
+        "numerical_correctness": "incomplete",
+        "performance": "measured"
+      },
+      "performance": {
+        "candidate_cached": {
+          "coefficient_trace_seconds": 0.0,
+          "cold_end_to_end_seconds": null,
+          "engine_acceleration_structure_seconds": 0.0,
+          "engine_annual_reduction_seconds": 0.0715383751085028,
+          "engine_snapshot_seconds": 0.0,
+          "engine_tracing_seconds": 0.0,
+          "engine_upload_seconds": 0.000973958,
+          "metric_reduction_seconds": 0.24751095799729228,
+          "raw_export_seconds": 0.16660429199691862,
+          "study_preparation_seconds": 0.03082470898516476,
+          "total_seconds": 0.5323364590294659,
+          "warm_study_seconds": 0.5323364590294659,
+          "weather_seconds": 0.10050649999175221,
+          "write_seconds": 0.18404237495269626
+        },
+        "candidate_cold": {
+          "coefficient_trace_seconds": 0.004500916693359613,
+          "cold_end_to_end_seconds": 0.5150141259655356,
+          "engine_acceleration_structure_seconds": 0.0,
+          "engine_annual_reduction_seconds": 0.0795805414672941,
+          "engine_snapshot_seconds": 0.0,
+          "engine_tracing_seconds": 0.004500916693359613,
+          "engine_upload_seconds": 0.000886833,
+          "metric_reduction_seconds": 0.26709854195360094,
+          "raw_export_seconds": 0.09649566689040512,
+          "study_preparation_seconds": 0.03082470898516476,
+          "total_seconds": 0.4841894169803709,
+          "warm_study_seconds": null,
+          "weather_seconds": 0.0990208750590682,
+          "write_seconds": 0.11780270794406533
+        },
+        "coefficient_stages_seconds": {
+          "direct": 0.03725195804145187,
+          "full": 0.018746667075902224
+        }
+      },
+      "error": null
+    }
+  ],
+  "notes": "Reduced-sample diagnostic: verifies pipeline execution, not numerical acceptance. Full arrays and reports were generated in /private/tmp/foton-metal-final-check."
+}

@@ -1,0 +1,21 @@
+{
+  "commit": "f65030f4e630e1c1af85737056e8039b3dde988d",
+  "engine_version": "0.3.0",
+  "rhino_version": "8.35.26251.13002",
+  "system": "Darwin",
+  "backend": "metal",
+  "tested_at": "2026-11-03",
+  "notes": "macOS 26.6 on Apple M4 Pro, Rhino 8.35 with Ladybug Tools 1.9.0, existing Rhino profile, foton-daylight 0.3.0 in the repository venv with Radiance 5.4a. Bundle: dist/foton-grasshopper-0.3.0.zip from scripts/package_grasshopper.py (source-matched build manifest). install: the three .ghuser files copied into the Grasshopper UserObjects folder and found by the component server. open_example, run, rerun, change_inputs, upgrade_invalidates_reuse, reload_moved_results, cancel: scripts/check_grasshopper.py driven inside Rhino, all seven checks passed (rhino-smoke.json). honeybee_metrics: HB Annual Daylight Metrics 1.9.0 read Foton's results folder and returned DA identical to Foton's own DA on all 36 sensors (max difference 0.0 pp). ladybug_heatmap: LB Spatial Heatmap coloured the model's own sensor-grid mesh from those DA values without error (docs/images/grasshopper-heatmap-viewport.png, docs/images/grasshopper-canvas.png). Not covered: a fresh Rhino profile, Windows.",
+  "scenarios": {
+    "install": true,
+    "open_example": true,
+    "run": true,
+    "cancel": true,
+    "rerun": true,
+    "change_inputs": true,
+    "upgrade_invalidates_reuse": true,
+    "reload_moved_results": true,
+    "honeybee_metrics": true,
+    "ladybug_heatmap": true
+  }
+}

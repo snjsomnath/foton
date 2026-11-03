@@ -1,0 +1,65 @@
+{
+  "backend": "metal",
+  "reuse_report": [
+    "reused\nReused compatible results."
+  ],
+  "scope": "automated_existing_Rhino_profile",
+  "reuse_paths": [
+    "/var/folders/81/qfpv0x1960ld1mtj3mzsvycr0000gn/T/foton-rhino-check-dh4zED/annual/run_manifest.json",
+    "/var/folders/81/qfpv0x1960ld1mtj3mzsvycr0000gn/T/foton-rhino-check-dh4zED/annual/run_manifest.json"
+  ],
+  "passed": true,
+  "output": "/var/folders/81/qfpv0x1960ld1mtj3mzsvycr0000gn/T/foton-rhino-check-dh4zED",
+  "checks": {
+    "moved_results": true,
+    "upgrade_invalidates_reuse": true,
+    "reload_results": true,
+    "cancel_external_process": true,
+    "changed_inputs_new_folder": true,
+    "run": true,
+    "reuse": true
+  },
+  "rhino_version": "8.35.26251.13002",
+  "engine_version": "0.2.0",
+  "tested_at": "2026-09-15",
+  "commit": "d931af507757f977fe4d8356cc7dec62437fe081",
+  "dirty": true,
+  "system": "Darwin",
+  "build_manifest": {
+    "artifacts": {
+      "Foton Annual Daylight.ghuser": "9e8d36c2a48b1fe721e075f0a595c5ff432c495bfa1e39c2238929381ff339c0",
+      "Foton Annual Results.ghuser": "28b997c6ee6ef417e6e7cabe4b02a94506051efc9984fbdefe250a1b6e1dc0cd",
+      "Foton First Analysis.gh": "01e14fea4239751b0385f01724da0f85b76ce0ed1a6bea3be86aed8d017035cf",
+      "Foton First Analysis.ghx": "5278a321c2ec292bb9b807a7e0f15284d881e1e72c6d574a075c7e5fbbe1baec",
+      "Foton Settings.ghuser": "36f7f1ad124ca5774e716e955fbcbcd33968f0a3af73bb1537b3c8fb997555ca"
+    },
+    "rhino_version": "8.35.26251.13002",
+    "round_trip_passed": true,
+    "schema_version": 1,
+    "sources": {
+      "grasshopper_foton/components/Foton Annual Daylight.py": "10aada01be057e26016f7ae7aea48b34b6f9334ce8cf4ec35f61608d40834239",
+      "grasshopper_foton/components/Foton Annual Results.py": "9a17393962ab171c40792491a66e3e292168b9f741a374d7ff9d64b6beeb09ea",
+      "grasshopper_foton/components/Foton Settings.py": "cebaa9ad9138c304449d3647d35a524708e1412aa94bb8b832ec9032cadd0639",
+      "grasshopper_foton/foton_gh.py": "c88e84703953af0a59e35ac1c20e6332552223253bc3aa045260015598d8521d",
+      "python/foton_bridge/__init__.py": "f9d2445845745d58812a0e965949cd3cdb85c61a6ba4a07fa5ba27137376355f",
+      "scripts/build_grasshopper.py": "ebf678060747054553b6a1bf0e183969e00feef441925b079a149f36bd3b07ae"
+    }
+  },
+  "hardware": {
+    "driver_diagnostics": [
+      {
+        "_name": "Apple M4 Pro",
+        "spdisplays_mtlgpufamilysupport": "spdisplays_metal4",
+        "spdisplays_vendor": "sppci_vendor_Apple",
+        "sppci_bus": "spdisplays_builtin",
+        "sppci_cores": "20",
+        "sppci_device_type": "spdisplays_gpu",
+        "sppci_model": "Apple M4 Pro"
+      }
+    ],
+    "machine": "arm64",
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "processor": "arm",
+    "system": "Darwin"
+  }
+}
