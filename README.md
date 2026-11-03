@@ -129,7 +129,10 @@ full transport calculation took:
 This is a single benchmark configuration, not a general speedup claim.
 
 The purpose of the comparison is to show the potential of GPU transport for
-interactive daylight analysis. (I also don't have access to other GPUs at the moment to test out foton using vullkan)
+interactive daylight analysis. The Vulkan backend has so far run on one other
+GPU, an NVIDIA Tesla T4 on Linux, where a cold annual run of a corpus scene
+takes a median 1.5 s against 0.25 s on the M4 Pro
+([evidence](validation/results/2026-11-03-architectural-v4-vulkan-t4/README.md)).
 
 ## Installation
 
@@ -148,11 +151,14 @@ Radiance-style daylight transport fast enough to use interactively in
 architectural design and research.
 
 **Accuracy against Radiance is established on the teaching scenes and on the
-corpus, with two named exceptions.** The archived campaign of 2 November 2026
-(106 scenes at two sky densities against converged Radiance 5.4a references,
-on the `final` preset as shipped) passed 204 of 212 cases, including all 32
-teaching cases and every room-form, shading, context and opening case; DA,
-cDA, UDI and sDA agreed within 2 percentage points on every grid. The eight
+corpus, with two named exceptions, on both GPU backends.** The archived
+campaigns of 2 and 3 November 2026 (106 scenes at two sky densities against
+converged Radiance 5.4a references, on the `final` preset as shipped) passed
+204 of 212 cases on Metal (Apple M4 Pro) and the same 204 on Vulkan (NVIDIA
+Tesla T4, Linux), the two backends agreeing within 0.008 percentage points of
+energy bias; all 32 teaching cases and every room-form, shading, context and
+opening case pass, and DA, cDA, UDI and sDA agreed within 2 percentage points
+on every grid. The eight
 cases outside the gates are rooms lit only through internal glazing, where
 hourly illuminance scatters 15 to 35 percent and one room reads 5 percent
 high, and one bright 12 m room where Radiance itself moves 3.6 percent between

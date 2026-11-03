@@ -45,6 +45,14 @@ Radiance as the correctness reference ([purpose and plan](docs/purpose-and-plan.
   `validate_release_suite.py --reuse-references`; the corpus-4 bundle is
   published as the `references-corpus4-2026-11-03` pre-release.
 
+Tested: Metal on an Apple M4 Pro (macOS 26.6) and Vulkan on an NVIDIA Tesla
+T4 (Linux), both 204 of 212 cases against the same converged Radiance 5.4a
+references with the same eight documented open cases, agreeing with each
+other within 0.008 percentage points of energy bias; Rhino 8.35 on macOS with
+Ladybug Tools 1.9.0 for the Grasshopper checklist. Unverified: Windows on any
+backend, Rhino on Windows, other GPUs. Details and the evidence files are in
+[release readiness](docs/release-readiness.md#tested-platforms-for-030).
+
 ## 0.2.0 - 2026-08-12
 
 Expanded the Python and Honeybee integration for annual daylight analysis.

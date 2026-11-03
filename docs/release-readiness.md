@@ -172,9 +172,13 @@ requires:
   metrics, Ladybug heatmap, with a date and reproduction notes;
 - each evidence file to carry the release commit, or an ancestor of it whose
   difference to the release commit touches only `validation/results/`, the two
-  evidence manifests, `docs/`, `README.md`, `CHANGELOG.md` and `epw/README.md`.
-  Anything that changes the engine, the scenes or the suite invalidates the
-  evidence and the suite must run again.
+  evidence manifests, `docs/`, `README.md`, `CHANGELOG.md`, `epw/README.md`,
+  the verifier itself, `tests/` and `.github/`. A backend's suite also
+  tolerates changes to the other backend's crate, and the Rhino checklist
+  tolerates changes to `validation/` and the suite scripts, which it never
+  runs. Anything that changes the engine, the scenes or the suite a piece of
+  evidence depends on invalidates it and that suite must run again (against
+  the published reference bundle, minutes rather than hours).
 
 The verifier prints which backend ran on which system and device and which
 Rhino version was exercised; the release notes state exactly those
@@ -182,6 +186,18 @@ combinations as tested and everything else as unverified. The
 `Public beta acceptance` workflow (`workflow_dispatch`) can produce a suite on
 a registered self-hosted GPU runner, but a run on any machine with Radiance
 and the GPU, committed under `validation/results/`, is equally valid evidence.
+
+### Tested platforms for 0.3.0
+
+| Evidence | Platform | Result |
+| --- | --- | --- |
+| [Metal suite](../validation/results/2026-11-03-architectural-v4-metal-0.3.0-release/README.md) | Apple M4 Pro, macOS 26.6, Radiance 5.4a | 204 of 212, the eight documented open cases |
+| [Vulkan suite](../validation/results/2026-11-03-architectural-v4-vulkan-t4/README.md) | NVIDIA Tesla T4, Linux (Google Colab), Radiance 5.4a | 204 of 212, the same eight; agrees with Metal within 0.008 pp of energy bias |
+| [Rhino 8 checklist](../validation/results/2026-11-03-rhino-macos/README.md) | Rhino 8.35, macOS, Metal, Ladybug Tools 1.9.0 | all ten scenarios |
+| [Reference campaign](../validation/results/2026-11-03-architectural-v4-metal-0.3.0/README.md) | Apple M4 Pro, 6.2 h with twelve Radiance workers | source of the published reference bundle |
+
+Unverified: Windows on any backend, Rhino on Windows, a fresh Rhino profile,
+any GPU other than the two above.
 
 ## Launch checklist
 
