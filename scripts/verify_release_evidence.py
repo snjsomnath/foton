@@ -51,6 +51,8 @@ EVIDENCE_ONLY_PATHS = (
     "scripts/verify_release_evidence.py",
     "tests/",
     ".github/",
+    ".gitattributes",
+    ".gitignore",
 )
 OPEN_CASE_CLASSES = ("accuracy_failure", "unstable_reference")
 # Each backend's evidence is also indifferent to the other backend's crate.

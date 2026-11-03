@@ -214,6 +214,7 @@ def test_release_gate_accepts_complete_evidence_and_rejects_stale_or_partial():
             "scripts/verify_release_evidence.py",
             "tests/python/test_release_readiness.py",
             ".github/workflows/release.yml",
+            ".gitattributes",
         ],
     )
     # But the suite that produces the numerical evidence is not exempt for the

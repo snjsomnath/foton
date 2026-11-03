@@ -313,7 +313,7 @@ def test_scene_cli_filters_categories_and_lists_without_exporting(capsys):
 
 
 def _canonical_polygon(vertices):
-    points = [tuple(vertex) for vertex in vertices]
+    points = [tuple(round(float(c), 9) for c in vertex) for vertex in vertices]
     if not points:
         return []
     start = points.index(min(points))
@@ -344,7 +344,7 @@ def canonical_geometry(value):
             elif key == "plane" and isinstance(item, dict):
                 # A face plane is stored with the first vertex as its origin;
                 # once that vertex moves only the normal and x-axis matter.
-                result[key] = {k: v for k, v in item.items() if k != "o"}
+                result[key] = {k: canonical_geometry(v) for k, v in item.items() if k != "o"}
             else:
                 result[key] = canonical_geometry(item)
         return result
@@ -355,6 +355,21 @@ def canonical_geometry(value):
         # implementations; a nanometre is not a geometry change.
         return round(value, 9)
     return value
+
+
+def test_canonical_geometry_ignores_start_vertex_winding_and_last_bit():
+    square = [[0.0, 0.0, 0.0], [6.0, 0.0, 0.0], [6.0, 6.0, 0.0], [0.0, 6.0, 0.0]]
+    # The same face as another Honeybee release on another libm would write it:
+    # started elsewhere, wound the other way, one bit off, newer schema version.
+    other = [[c + 1e-15 if c else c for c in vertex] for vertex in reversed(square[2:] + square[:2])]
+    first = {"version": "2.2.0", "geometry": {"boundary": square, "plane": {"n": [0.0, 0.0, 1.0], "o": square[0]}}}
+    second = {
+        "version": "2.4.0",
+        "geometry": {"boundary": other, "plane": {"n": [0.0, 0.0, 1.0000000000000002], "o": other[0]}},
+    }
+    assert canonical_geometry(first) == canonical_geometry(second)
+    moved = {"geometry": {"boundary": [[0.0, 0.0, 0.0], [6.0, 0.0, 0.0], [6.0, 6.0, 0.0], [0.0, 6.01, 0.0]]}}
+    assert canonical_geometry(first)["geometry"]["boundary"] != canonical_geometry(moved)["geometry"]["boundary"]
 
 
 def test_saved_sample_corpus_matches_current_generator_and_manifest():
