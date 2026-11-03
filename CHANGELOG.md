@@ -2,6 +2,18 @@
 
 All notable Foton changes are recorded here.
 
+## 0.3.1 - 2026-11-03
+
+A fix-only release.
+
+- Metal: on models with many rooms (about 256 or more), the GPU could skip
+  whole rooms while tracing, so rays passed through their walls. Results were
+  wrong and changed from run to run; on a 256-room, 9,216-sensor office block
+  mean DA moved between 0.47 and 0.89 where the correct value is 0.68.
+  Every room's geometry is now kept resident for the whole trace. Models up to
+  128 rooms, all validation scenes and the acceptance model were unaffected
+  and give bit-identical results to 0.3.0.
+
 ## 0.3.0 - 2026-11-03
 
 Radiance parity established and archived. Foton's purpose is now stated:
