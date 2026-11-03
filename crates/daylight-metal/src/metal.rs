@@ -437,6 +437,7 @@ impl MetalBackend {
         coefficient_buffer: &ProtocolObject<dyn MTLBuffer>,
     ) -> Result<AnnualIlluminance> {
         let sky_buffer = self.buffer_with_data(&request.sky.values)?;
+        let lit_buffer = self.buffer_with_data(&lit_timesteps(&request.sky))?;
         let value_count = sensor_count * request.sky.timestep_count;
         let output = self
             .device
@@ -473,6 +474,7 @@ impl MetalBackend {
             encoder.setBuffer_offset_atIndex(Some(coefficient_buffer), 0, 1);
             encoder.setBuffer_offset_atIndex(Some(&sky_buffer), 0, 2);
             encoder.setBuffer_offset_atIndex(Some(&output), 0, 3);
+            encoder.setBuffer_offset_atIndex(Some(&lit_buffer), 0, 4);
         }
         encoder.dispatchThreads_threadsPerThreadgroup(
             MTLSize {
@@ -1149,6 +1151,18 @@ fn complete(
         }
         Ok((command_buffer.GPUEndTime() - command_buffer.GPUStartTime()).max(0.0) * 1_000.0)
     })
+}
+
+/// One flag per timestep: 1 when any sky patch is non-zero. The hourly
+/// illuminance kernel skips the patch sum for dark hours, which is exactly zero.
+fn lit_timesteps(sky: &daylight_core::SkyMatrix) -> Vec<u32> {
+    let mut lit = vec![0u32; sky.timestep_count];
+    for (index, rgb) in sky.values.iter().enumerate() {
+        if rgb.iter().any(|value| *value != 0.0) {
+            lit[index % sky.timestep_count] = 1;
+        }
+    }
+    lit
 }
 
 fn acceleration_encoder(

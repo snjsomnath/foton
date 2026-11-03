@@ -61,6 +61,28 @@ struct PySnapshot {
 #[pyclass(name = "AnalysisResult", frozen)]
 struct PyAnalysisResult {
     result: daylight_core::AnalysisResult,
+    annual_illuminance: Mutex<HourlyIlluminance>,
+}
+
+/// The hourly illuminance is moved into a NumPy array on first request rather
+/// than copied: for 9,216 sensors it is 323 MB. Later requests return that
+/// same array.
+struct HourlyIlluminance {
+    values: Option<daylight_core::AnnualIlluminance>,
+    array: Option<Py<PyArray2<f32>>>,
+}
+
+impl PyAnalysisResult {
+    fn new(mut result: daylight_core::AnalysisResult) -> Self {
+        let values = result.annual_illuminance.take();
+        Self {
+            result,
+            annual_illuminance: Mutex::new(HourlyIlluminance {
+                values,
+                array: None,
+            }),
+        }
+    }
 }
 
 #[pymethods]
@@ -453,7 +475,7 @@ impl PyAnalysisJob {
             .take()
             .ok_or_else(|| PyRuntimeError::new_err("job result was already consumed"))?;
         let result = py.detach(|| job.result()).map_err(core_error)?;
-        Ok(PyAnalysisResult { result })
+        Ok(PyAnalysisResult::new(result))
     }
 }
 
@@ -575,15 +597,24 @@ impl PyAnalysisResult {
     }
 
     fn annual_illuminance(&self, py: Python<'_>) -> PyResult<Option<Py<PyArray2<f32>>>> {
-        let Some(illuminance) = self.result.annual_illuminance.as_ref() else {
+        let mut state = self
+            .annual_illuminance
+            .lock()
+            .expect("illuminance lock poisoned");
+        if let Some(array) = state.array.as_ref() {
+            return Ok(Some(array.clone_ref(py)));
+        }
+        let Some(illuminance) = state.values.take() else {
             return Ok(None);
         };
         let array = Array2::from_shape_vec(
             (illuminance.sensor_count, illuminance.timestep_count),
-            illuminance.values.clone(),
+            illuminance.values,
         )
         .map_err(|error| PyRuntimeError::new_err(error.to_string()))?;
-        Ok(Some(PyArray::from_owned_array(py, array).unbind()))
+        let array = PyArray::from_owned_array(py, array).unbind();
+        state.array = Some(array.clone_ref(py));
+        Ok(Some(array))
     }
 
     fn timings(&self, py: Python<'_>) -> PyResult<Py<PyDict>> {

@@ -64,6 +64,7 @@ kernel void annual_illuminance(
     device const packed_float3* coefficients [[buffer(1)]],
     device const packed_float3* sky_values [[buffer(2)]],
     device float* illuminance_values [[buffer(3)]],
+    device const uint* lit_timesteps [[buffer(4)]],
     uint2 thread_position [[thread_position_in_grid]])
 {
     const uint timestep_index = thread_position.x;
@@ -72,8 +73,11 @@ kernel void annual_illuminance(
         || timestep_index >= uniforms.timestep_count) {
         return;
     }
+    // A dark hour's patch sum is exactly zero, so it is not computed.
     float3 response = 0.0f;
-    for (uint patch_index = 0; patch_index < uniforms.patch_count; ++patch_index) {
+    for (uint patch_index = 0;
+         lit_timesteps[timestep_index] != 0u && patch_index < uniforms.patch_count;
+         ++patch_index) {
         const float3 coefficient = float3(
             coefficients[sensor_index * uniforms.patch_count + patch_index]);
         const float3 sky = float3(
