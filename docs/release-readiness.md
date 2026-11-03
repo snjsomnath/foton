@@ -187,6 +187,14 @@ combinations as tested and everything else as unverified. The
 a registered self-hosted GPU runner, but a run on any machine with Radiance
 and the GPU, committed under `validation/results/`, is equally valid evidence.
 
+### Tested platforms for 0.3.1
+
+| Evidence | Platform | Result |
+| --- | --- | --- |
+| [Metal suite](../validation/results/2026-11-03-architectural-v4-metal-0.3.1-release/README.md) | Apple M4 Pro, macOS 26.6, Radiance 5.4a | 204 of 212, the eight documented open cases; identical to 0.3.0 |
+| [Vulkan suite](../validation/results/2026-11-03-architectural-v4-vulkan-t4-0.3.1/README.md) | NVIDIA Tesla T4, Linux (Google Colab), Radiance 5.4a | 204 of 212, the same eight; identical to 0.3.0 |
+| [Rhino 8 checklist](../validation/results/2026-11-03-rhino-macos-0.3.1/README.md) | Rhino 8.35, macOS, Metal, Ladybug Tools 1.9.0 | all ten scenarios |
+
 ### Tested platforms for 0.3.0
 
 | Evidence | Platform | Result |
