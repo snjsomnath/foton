@@ -269,7 +269,7 @@ def main():
         "recorded_at_utc": timestamp.strftime("%Y-%m-%d %H:%M:%SZ"),
         "host": _host_record(engine),
         "engine": {**engine, "version": __version__},
-        "executable": args.executable,
+        "executable": Path(args.executable).name,
         "weather": Path(args.weather).name,
         "repeats": args.repeats,
         "cases": cases,

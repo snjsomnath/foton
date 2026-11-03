@@ -387,7 +387,7 @@
     "selected_backend": "metal",
     "version": "0.3.0"
   },
-  "executable": "/private/tmp/claude-501/-Users-ssanjay-GitHub/28b9f3fc-596a-473b-8ad9-533e0efa8ecc/scratchpad/foton/.venv/bin/foton-honeybee",
+  "executable": "foton-honeybee",
   "host": {
     "cpu": "Apple M4 Pro",
     "cpu_core_description": "14 (10 Performance and 4 Efficiency)",
