@@ -7,9 +7,9 @@ use std::{
 };
 
 use daylight_core::{
-    AnalysisJob, AnalysisQuality, AnalysisRequest, Backend, CoefficientMatrix, DaylightError,
-    Instance, InstanceUpdate, Material, MeshRange, SceneData, SceneHandle, Sensor, SkyBasis,
-    SkyMatrix, Vec3,
+    AllWeatherSkyOptions, AnalysisJob, AnalysisQuality, AnalysisRequest, Backend,
+    CoefficientMatrix, DaylightError, Instance, InstanceUpdate, Material, MeshRange, SceneData,
+    SceneHandle, Sensor, SkyBasis, SkyMatrix, SkyOutput, SkySite, SkyStep, Vec3,
 };
 #[cfg(target_os = "macos")]
 use daylight_metal::MetalBackend;
@@ -657,6 +657,144 @@ fn sky_patch_sample_directions(
     Ok(PyArray::from_owned_array(py, array).unbind())
 }
 
+/// Foton's own Perez all-weather sky matrix (see `daylight_core::sky::perez`).
+///
+/// Returns ``(matrix, sun_up, altitude, azimuth)``: a float32 array shaped
+/// (patches, steps, 3) of RGB radiance in W/sr/m^2 with the ground patch
+/// first, a boolean array marking steps with any part of the solar disc above
+/// the horizon, and the solar altitude and azimuth (radians) per step. Step
+/// ``i`` defaults to hour ``i + 0.5`` of a 365-day year; pass ``hour_of_year``
+/// to place the steps elsewhere.
+#[pyfunction]
+#[pyo3(signature = (
+    latitude,
+    longitude,
+    time_zone,
+    direct_normal,
+    diffuse_horizontal,
+    *,
+    basis = "tregenza",
+    north = 0.0,
+    hour_of_year = None,
+    output = "visible",
+    sky_color = None,
+    ground_reflectance = None,
+    dew_point = daylight_core::sky::perez::DEFAULT_DEW_POINT_CELSIUS,
+    max_brightness = None,
+    oracle_cosine_table = true,
+))]
+#[allow(clippy::too_many_arguments)]
+fn perez_sky_matrix<'py>(
+    py: Python<'py>,
+    latitude: f64,
+    longitude: f64,
+    time_zone: f64,
+    direct_normal: PyReadonlyArray1<'py, f32>,
+    diffuse_horizontal: PyReadonlyArray1<'py, f32>,
+    basis: &str,
+    north: f64,
+    hour_of_year: Option<PyReadonlyArray1<'py, f64>>,
+    output: &str,
+    sky_color: Option<[f32; 3]>,
+    ground_reflectance: Option<[f32; 3]>,
+    dew_point: f64,
+    max_brightness: Option<f64>,
+    oracle_cosine_table: bool,
+) -> PyResult<(
+    Py<PyArray3<f32>>,
+    Py<PyArray1<bool>>,
+    Py<PyArray1<f64>>,
+    Py<PyArray1<f64>>,
+)> {
+    let direct = direct_normal.as_slice()?;
+    let diffuse = diffuse_horizontal.as_slice()?;
+    if direct.len() != diffuse.len() || direct.is_empty() {
+        return Err(PyValueError::new_err(
+            "direct_normal and diffuse_horizontal must be non-empty arrays of equal length",
+        ));
+    }
+    let hours: Vec<f64> = match &hour_of_year {
+        Some(array) => {
+            let slice = array.as_slice()?;
+            if slice.len() != direct.len() {
+                return Err(PyValueError::new_err(
+                    "hour_of_year must have one entry per irradiance step",
+                ));
+            }
+            slice.to_vec()
+        }
+        None => (0..direct.len()).map(|index| index as f64 + 0.5).collect(),
+    };
+    let mut steps = Vec::with_capacity(direct.len());
+    for (index, hour) in hours.iter().copied().enumerate() {
+        if !hour.is_finite() || hour < 0.0 || hour >= 366.0 * 24.0 {
+            return Err(PyValueError::new_err(
+                "hour_of_year entries must lie within one year",
+            ));
+        }
+        let day_of_year = (hour / 24.0).floor() as u32 + 1;
+        steps.push(SkyStep {
+            day_of_year,
+            hour: hour - 24.0 * (day_of_year as f64 - 1.0),
+            direct_normal: direct[index],
+            diffuse_horizontal: diffuse[index],
+        });
+    }
+    let options = AllWeatherSkyOptions {
+        basis: parse_sky_basis(basis)?,
+        output: match output {
+            "visible" => SkyOutput::Visible,
+            "solar" => SkyOutput::Solar,
+            other => {
+                return Err(PyValueError::new_err(format!(
+                    "unknown sky output {other:?}; expected 'visible' or 'solar'"
+                )));
+            }
+        },
+        north_degrees: north,
+        sky_color: sky_color.unwrap_or(daylight_core::sky::perez::DEFAULT_SKY_COLOR),
+        ground_reflectance: ground_reflectance
+            .unwrap_or(daylight_core::sky::perez::DEFAULT_GROUND_REFLECTANCE),
+        dew_point_celsius: dew_point,
+        max_brightness,
+        oracle_cosine_table,
+    };
+    let site = SkySite {
+        latitude_degrees: latitude,
+        longitude_degrees: longitude,
+        time_zone_hours: time_zone,
+    };
+    let result = py
+        .detach(|| daylight_core::all_weather_sky_matrix(&site, &steps, &options))
+        .map_err(core_error)?;
+    let step_count = steps.len();
+    let rows = options.basis.row_count();
+    let values = result
+        .matrix
+        .values
+        .iter()
+        .flat_map(|value| [value[0], value[1], value[2]])
+        .collect::<Vec<_>>();
+    let matrix = Array3::from_shape_vec((rows, step_count, 3), values)
+        .map_err(|error| PyRuntimeError::new_err(error.to_string()))?;
+    let altitude = result
+        .solar_positions
+        .iter()
+        .map(|position| position.altitude)
+        .collect::<Vec<_>>();
+    let azimuth = result
+        .solar_positions
+        .iter()
+        .map(|position| position.azimuth)
+        .collect::<Vec<_>>();
+    Ok((
+        PyArray::from_owned_array(py, matrix).unbind(),
+        PyArray::from_vec(py, result.sun_up).unbind(),
+        PyArray::from_vec(py, altitude).unbind(),
+        PyArray::from_vec(py, azimuth).unbind(),
+    ))
+}
+
 fn parse_sky_basis(value: &str) -> PyResult<SkyBasis> {
     match value {
         "tregenza" => Ok(SkyBasis::Tregenza),
@@ -828,6 +966,7 @@ fn _native(module: &Bound<'_, PyModule>) -> PyResult<()> {
     module.add_function(wrap_pyfunction!(sky_patch_directions, module)?)?;
     module.add_function(wrap_pyfunction!(sky_patch_solid_angles, module)?)?;
     module.add_function(wrap_pyfunction!(sky_patch_sample_directions, module)?)?;
+    module.add_function(wrap_pyfunction!(perez_sky_matrix, module)?)?;
     module.add_class::<PyEngine>()?;
     module.add_class::<PyScene>()?;
     module.add_class::<PyAnalysisJob>()?;

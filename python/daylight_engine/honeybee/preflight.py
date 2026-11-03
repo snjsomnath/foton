@@ -9,6 +9,7 @@ from foton_bridge import backend_identifier
 from .annual import QUALITY_PRESETS, SOLVER_REVISION
 from .weather import (
     _default_cache_directory,
+    foton_sky_version,
     resolve_gendaymtx,
     executable_version,
     probe_gendaymtx,
@@ -33,13 +34,18 @@ def inspect_installation(backend="auto", output=None, radiance_bin=None):
             dependencies[package] = version(package)
         except PackageNotFoundError:
             errors.append("Missing " + package + "; install foton-daylight[honeybee]")
-    weather_version, executable = None, None
+    # Annual skies come from Foton's built-in Perez model; gendaymtx is an
+    # optional alternative (sky_source="gendaymtx") and the validation
+    # oracle, so a missing Radiance is reported, never an error.
+    weather_version = foton_sky_version()
+    executable, gendaymtx_version, gendaymtx_note = None, None, None
     try:
         executable = resolve_gendaymtx(radiance_bin)
-        weather_version = executable_version(executable)
+        gendaymtx_version = executable_version(executable)
         probe_gendaymtx(executable)
     except (OSError, RuntimeError, subprocess.TimeoutExpired) as error:
-        errors.append(str(error))
+        executable, gendaymtx_version = None, None
+        gendaymtx_note = str(error)
     directories = {
         "cache": _default_cache_directory(),
         "output": Path(output) if output else Path.home() / "foton_simulation",
@@ -66,6 +72,17 @@ def inspect_installation(backend="auto", output=None, radiance_bin=None):
         "quality_settings": QUALITY_PRESETS,
         "dependencies": dependencies,
         "directories_writable": writable,
+        "sky_source": "foton",
+        "sky_version": weather_version,
+        "sky_sources": {
+            "foton": {"available": True, "version": weather_version},
+            "gendaymtx": {
+                "available": executable is not None,
+                "executable": str(executable) if executable else None,
+                "version": gendaymtx_version,
+                "note": gendaymtx_note,
+            },
+        },
         "gendaymtx": str(executable) if executable else None,
         "errors": errors,
         "warnings": warnings,
@@ -75,5 +92,6 @@ def inspect_installation(backend="auto", output=None, radiance_bin=None):
             "solver_revision": SOLVER_REVISION,
             "selected_backend": selected,
             "weather_version": weather_version,
+            "sky_source": "foton",
         },
     }

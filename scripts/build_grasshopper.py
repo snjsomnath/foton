@@ -141,7 +141,7 @@ output = os.path.join(os.path.expanduser("~"), "foton_simulation", "first_exampl
         next(p for p in obj.Params.Input if p.Name == port).AddSource(toggle)
     panel = GH_Panel()
     panel.CreateAttributes()
-    panel.UserText = "Foton beta: install foton-daylight[honeybee] and Radiance 6. Set Settings executable_ if needed. Toggle Check, then Run. Read START_HERE.md. CPU fallback is diagnostic only."
+    panel.UserText = "Foton beta: install foton-daylight[honeybee] (no Radiance needed). Set Settings executable_ if needed. Toggle Check, then Run. Read START_HERE.md. CPU fallback is diagnostic only."
     panel.Attributes.Pivot = PointF(100, 650)
     document.AddObject(panel, False)
     archive = GH_Archive()

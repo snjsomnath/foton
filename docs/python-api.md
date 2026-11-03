@@ -63,12 +63,20 @@ serializes only solver metadata and never embeds the coefficient matrix.
 
 ## Honeybee annual daylight
 
-Install the Honeybee extra and ensure Radiance `gendaymtx` is available:
+Install the Honeybee extra; no Radiance installation is needed, the annual
+sky matrix comes from Foton's built-in Perez model:
 
 ```bash
 python -m pip install -e '.[honeybee]'
-export RADIANCE_BIN=/path/to/radiance/bin
 ```
+
+`HoneybeeStudy(..., sky_source="gendaymtx")` switches to Radiance's
+`gendaymtx` (then `RADIANCE_BIN` or a `radiance_bin` argument locates it);
+`run.metadata["weather"]["sky_source"]` records which one produced the run.
+`daylight_engine.perez_sky_matrix` exposes the model directly: it takes the
+site, the hourly direct-normal and diffuse-horizontal irradiance arrays and
+returns the `(patches, hours, 3)` float32 radiance matrix with the sun-up
+mask and solar positions.
 
 Use a study when running more than one weather, schedule, or threshold analysis.
 The prepared model, native scene, acceleration structures, and compatible

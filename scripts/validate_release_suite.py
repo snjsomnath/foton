@@ -342,12 +342,23 @@ def run_scene(args, identifier, density, output):
         quality="preview" if args.smoke else "final",
         sky_density=density,
     )
+    # The Radiance side of the annual comparison keeps gendaymtx's sky;
+    # Foton's run above used its own built-in Perez sky. Both are recorded,
+    # with how far the two matrices are apart over the sun-up hours.
     weather = prepare_annual_weather(
         args.weather,
         sky_density=density,
         radiance_bin=args.radiance_bin,
         cache_directory=output.parent.parent / "weather_cache",
+        sky_source="gendaymtx",
     )
+    foton_weather = prepare_annual_weather(
+        args.weather,
+        sky_density=density,
+        cache_directory=output.parent.parent / "weather_cache",
+        sky_source="foton",
+    )
+    sky_sources = compare_sky_sources(foton_weather, weather)
     indices = np.asarray(weather.sun_up_hours, dtype=int)
     annual_comparison = compare_converged_annual(
         prepared,
@@ -433,6 +444,7 @@ def run_scene(args, identifier, density, output):
         "gpu_executed": gpu,
         "candidate": candidate["metadata"],
         "sky_bin_audit": sky_audit,
+        "sky_sources": sky_sources,
         "settings": {**preset, "maximum_bounces": DEFAULT_MAXIMUM_BOUNCES},
         "direct_io": args.direct_io,
         "oracle_stable": stable,
@@ -463,6 +475,32 @@ def run_scene(args, identifier, density, output):
             "candidate_cached": cached.timings,
             "coefficient_stages_seconds": candidate["timings_seconds"],
         },
+    }
+
+
+def compare_sky_sources(candidate, reference):
+    """Record both annual sky sources and how closely their matrices agree."""
+    same_hours = tuple(candidate.sun_up_hours) == tuple(reference.sun_up_hours)
+    scale = np.max(reference.sky, axis=(0, 2))
+    meaningful = scale > 1e-3
+    difference = np.max(np.abs(candidate.sky - reference.sky), axis=(0, 2))
+    relative = difference[meaningful] / scale[meaningful]
+    return {
+        "candidate": {
+            "sky_source": candidate.sky_source,
+            "sky_version": candidate.sky_version,
+            "weather_id": candidate.weather_id,
+        },
+        "reference": {
+            "sky_source": reference.sky_source,
+            "sky_version": reference.sky_version,
+            "gendaymtx": reference.gendaymtx,
+            "weather_id": reference.weather_id,
+        },
+        "sun_up_hours_equal": bool(same_hours),
+        "compared_hours": int(np.count_nonzero(meaningful)),
+        "max_relative_difference": float(relative.max()) if relative.size else 0.0,
+        "mean_relative_difference": float(relative.mean()) if relative.size else 0.0,
     }
 
 

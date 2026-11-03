@@ -6,13 +6,13 @@ passing release evidence should be described as validated.
 ## Install once
 
 1. Install CPython 3.13 and run `python -m pip install "foton-daylight[honeybee]"`.
-2. Install [Radiance 6](https://www.radiance-online.org/download-install/installation-information).
-   Add its `bin` folder to PATH or set `RADIANCE_BIN`, then restart Rhino so it
-   inherits the environment. Older OpenStudio-bundled versions may lack required
-   sun-path commands. Foton Settings tests these commands before a run.
-3. Download the versioned `foton-grasshopper-<version>.zip` release asset and extract
+   That is the whole run-time requirement: the annual sky matrix is computed
+   by Foton's own Perez all-weather model, so Radiance is not needed. (Radiance
+   5.4a is used only to reproduce the validation evidence; if an installation
+   is present, Foton Settings reports it and a run can opt into its sky.)
+2. Download the versioned `foton-grasshopper-<version>.zip` release asset and extract
    the entire archive into a permanent folder. Keep `examples` beside the `.gh` file.
-4. Open **Foton First Analysis.gh** in Rhino 8 Grasshopper. The components already
+3. Open **Foton First Analysis.gh** in Rhino 8 Grasshopper. The components already
    contain their scripts and bridge; no script editing or module search paths are needed.
    To reuse them in other definitions, copy the three `.ghuser` files into the
    Grasshopper User Objects folder (available from Grasshopper's File / Special Folders menu).
@@ -49,7 +49,7 @@ writes a standard annual-daylight results folder.
 Use `quality_ = final` when evaluating accuracy; it is the preset the
 [release campaigns](../validation/results/2026-11-02-architectural-v4-metal-run2/README.md)
 validated against converged Radiance. Preview is visibly labelled. Changing
-inputs, quality defaults, solver versions, backend, or Radiance version invalidates
+inputs, quality defaults, solver versions, backend, or sky model version invalidates
 automatic reuse. Missing/corrupt metric files also cause a new run in a numbered folder.
 
 ## Troubleshooting
@@ -57,7 +57,7 @@ automatic reuse. Missing/corrupt metric files also cause a new run in a numbered
 | Symptom | Action |
 | --- | --- |
 | Executable not found | Supply its full path to Settings; check `python -m pip show foton-daylight`. |
-| Sun-path export unavailable | Install Radiance 6; point `RADIANCE_BIN` at its `bin` folder. |
+| Settings reports `gendaymtx` unavailable | Nothing to do: annual runs use Foton's built-in sky. Install Radiance 5.4a and set `RADIANCE_BIN` only to reproduce validation evidence or to opt into `gendaymtx`. |
 | Reference CPU selected | Update the GPU driver and inspect backend requirements; explicit Metal/Vulkan requests report errors instead of falling back. |
 | Output/cache not writable | Use a local writable output folder and inspect Settings' directory diagnostics. |
 | Unsupported modifier | Use diffuse Plastic or thin Glass with refractive index 1.52; Foton reports the rejected object/modifier. |
