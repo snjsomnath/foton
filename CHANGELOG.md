@@ -2,6 +2,25 @@
 
 All notable Foton changes are recorded here.
 
+## Unreleased
+
+- Foton computes its own annual sky matrix. `daylight_core::sky::perez`
+  implements the Perez all-weather model (Perez, Seals and Michalsky 1993,
+  with the Perez et al. 1990 luminous-efficacy fits) over the Tregenza 1987
+  and Reinhart MF:2 patches from the published papers; it is exposed as
+  `daylight_engine.perez_sky_matrix` and is the default
+  `prepare_annual_weather` source (`sky_source="foton"`). Radiance's
+  `gendaymtx` is now optional at run time (`sky_source="gendaymtx"`,
+  `--sky-source`) and serves as the validation oracle: the matrix agrees with
+  `gendaymtx -O0` bit for bit on Gothenburg, Phoenix and Seattle at both
+  densities, with identical sun-up hour sets (`tests/python/test_builtin_sky.py`,
+  golden file under `tests/fixtures/sky`). The weather cache is keyed on the
+  source; weather metadata, the run manifest and the Grasshopper Settings
+  preflight report it, and a missing Radiance no longer fails the preflight.
+  `pip install foton-daylight[honeybee]` is the whole run-time requirement
+  for an annual study; Radiance 5.4a is needed only to reproduce validation
+  evidence (the "Radiance 6" wording in the docs was never required).
+
 ## 0.3.0 - 2026-11-03
 
 Radiance parity established and archived. Foton's purpose is now stated:

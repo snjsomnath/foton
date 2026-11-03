@@ -11,7 +11,7 @@ for live Rhino results and unresolved numerical evidence.
 | Grasshopper | Rhino 8 Windows and macOS; external CPython bridge |
 | Materials | Diffuse Plastic and thin Glass, index 1.52 |
 | Metrics | DA, cDA, UDI bands, static area-weighted sDA |
-| Weather | Hourly 8,760-step EPW/WEA; Radiance 6 sky generation |
+| Weather | Hourly 8,760-step EPW/WEA; Foton's built-in Perez all-weather sky (Radiance's `gendaymtx` optional, used as the validation oracle) |
 | Sky bases | Tregenza 146 and Reinhart MF:2 578, including ground |
 | Excluded | Dynamic apertures/shades, BSDF, ASE, glare, compliance certification |
 | Hardware evidence | Publish actual tested device/driver combinations; other devices remain unverified |
@@ -19,7 +19,9 @@ for live Rhino results and unresolved numerical evidence.
 ## Reproducible numerical evidence
 
 Install the current wheel plus `honeybee`, `test`, `lbt-recipes==0.28.8`, and
-`setuptools`. From a clean checkout run:
+`setuptools`, with Radiance 5.4a available (the suite needs it for its
+references, its sky-bin audit and as the oracle for the built-in sky; users
+do not). From a clean checkout run:
 
 ```bash
 python scripts/validate_release_suite.py --backend metal --output artifacts
@@ -90,7 +92,12 @@ Each scene runs in both sky bases (212 required cases), under uniform, overcast,
 horizon-weighted and four cardinal-direction controlled skies, then Gothenburg
 annual weather (`--weather epw/phoenix.epw` or `epw/seattle.epw` substitutes
 a sunny or an overcast climate; the teaching category has been run under
-both). Four Radiance replicates are
+both). Foton's annual run uses its own Perez sky; the Radiance side of the
+annual comparison keeps `gendaymtx`'s. Each case report records both sources
+under `sky_sources` with the largest per-hour relative difference between
+the two matrices, and `tests/python/test_builtin_sky.py` holds the
+floating-point comparison itself (a committed `gendaymtx` golden file for
+CI, the whole year live when Radiance is installed). Four Radiance replicates are
 evaluated at each of `(ad=20000,bounces=1)`, `(40000,8)`, `(40000,12)`, `(80000,12)`,
 with four more replicates added (up to twelve) while a level's replicate halves
 disagree; the 12-bounce mean is the reference. Direct integration doubles its

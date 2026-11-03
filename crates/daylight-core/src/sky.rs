@@ -5,9 +5,11 @@ use crate::{
     geometry::Vec3,
 };
 
+pub mod perez;
+
 pub const TREGENZA_ROWS: usize = 146;
 pub const REINHART_MF2_ROWS: usize = 578;
-const TREGENZA_RING_COUNTS: [usize; 7] = [30, 30, 24, 24, 18, 12, 6];
+pub(crate) const TREGENZA_RING_COUNTS: [usize; 7] = [30, 30, 24, 24, 18, 12, 6];
 const TREGENZA_RING_ALTITUDES_DEGREES: [f32; 7] = [6.0, 18.0, 30.0, 42.0, 54.0, 66.0, 78.0];
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]

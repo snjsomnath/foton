@@ -116,6 +116,7 @@ class HoneybeeStudy:
         sensor_height: float = 0.75,
         radiance_bin: str | None = None,
         weather_cache: str | Path | None = None,
+        sky_source: str = "foton",
     ) -> None:
         started = time.perf_counter()
         self.model_input = model
@@ -123,6 +124,7 @@ class HoneybeeStudy:
         self.grid_filter = grid_filter
         self.radiance_bin = radiance_bin
         self.weather_cache = weather_cache
+        self.sky_source = sky_source
         self.prepared: PreparedHoneybeeScene = prepare_honeybee_scene(
             model,
             grid_filter=grid_filter,
@@ -187,6 +189,7 @@ class HoneybeeStudy:
             sky_density=sky_density,
             radiance_bin=self.radiance_bin,
             cache_directory=self.weather_cache,
+            sky_source=self.sky_source,
         )
         weather_seconds = time.perf_counter() - weather_started
         _report_progress(progress, "weather", 0.25, "Annual sky matrix ready")
@@ -414,6 +417,7 @@ def run_annual_daylight(
         grid_filter=grid_filter,
         radiance_bin=kwargs.pop("radiance_bin", None),
         weather_cache=kwargs.pop("weather_cache", None),
+        sky_source=kwargs.pop("sky_source", "foton"),
     )
     return study.annual_daylight(
         wea,
@@ -956,6 +960,8 @@ def _run_metadata(
             "sky_density": sky_density,
             "sun_up_hour_count": len(weather.sun_up_hours),
             "cache_hit": weather.cache_hit,
+            "sky_source": weather.sky_source,
+            "sky_version": weather.sky_version,
             "gendaymtx": weather.gendaymtx,
             "gendaymtx_version": weather.gendaymtx_version,
         },

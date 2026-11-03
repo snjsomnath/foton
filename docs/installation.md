@@ -35,20 +35,30 @@ python -c "from foton import Engine; print(Engine().capabilities())"
 Foton rejects software Vulkan devices during automatic selection. If no supported GPU
 is available, `Engine()` chooses the deterministic reference backend.
 
-## Radiance
+## Radiance (optional, validation only)
 
-Radiance is not bundled in the wheel. Use Radiance 6 for annual daylight; older
-OpenStudio copies may not support the required sun-path export. Run
-`foton-honeybee capabilities` to inspect functional prerequisites.
-Honeybee comparisons and benchmark references
-require `oconv`, `rcontrib`, and the Radiance function library:
+Annual daylight does not need Radiance. Foton computes its own Perez
+all-weather sky matrix (Perez, Seals and Michalsky 1993 over the Tregenza 1987
+and Reinhart MF:2 patch subdivisions), implemented in Rust from the published
+papers and validated to floating-point agreement against Radiance's
+`gendaymtx` on three climates at both densities. `pip install
+"foton-daylight[honeybee]"` is the whole run-time requirement for an annual
+study; `foton-honeybee capabilities` reports the sky source in use.
+
+Radiance is needed only to reproduce the validation evidence: the release
+suite converges `rfluxmtx` references, audits the sky patch numbering with
+`rcontrib`, and uses `gendaymtx` as the oracle for the built-in sky.
+Everything here runs on Radiance 5.4a. Point Foton at an installation with:
 
 ```bash
 export RADIANCE_BIN=/path/to/radiance/bin
 ```
 
 OpenStudio Radiance installations under `/Applications/OpenStudio-*/Radiance/bin`
-are discovered automatically on macOS.
+are discovered automatically on macOS. A study can still ask for Radiance's
+sky with `HoneybeeStudy(..., sky_source="gendaymtx")` or
+`foton-honeybee annual-daylight --sky-source gendaymtx`; the manifest records
+which source produced the matrix either way.
 
 ## Build from source
 

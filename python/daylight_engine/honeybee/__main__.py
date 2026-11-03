@@ -61,6 +61,13 @@ def _parser() -> argparse.ArgumentParser:
     )
     annual.add_argument("--scene-seed", type=int, default=0)
     annual.add_argument("--radiance-bin")
+    annual.add_argument(
+        "--sky-source",
+        choices=("foton", "gendaymtx"),
+        default="foton",
+        help="sky matrix source: Foton's built-in Perez sky (default) or "
+        "Radiance's gendaymtx",
+    )
     annual.add_argument("--jsonl", action="store_true")
     annual.add_argument(
         "--export-illuminance",
@@ -157,6 +164,7 @@ def main(argv=None) -> int:
             maximum_bounces=args.maximum_bounces,
             scene_seed=args.scene_seed,
             radiance_bin=args.radiance_bin,
+            sky_source=args.sky_source,
             export_illuminance=args.export_illuminance,
             progress=progress,
         )
@@ -171,7 +179,8 @@ def main(argv=None) -> int:
                 "engine_version": __version__,
                 "solver_revision": solver.get("solver_revision"),
                 "selected_backend": backend_identifier(solver.get("backend")),
-                "weather_version": run.metadata.get("weather", {}).get("gendaymtx_version"),
+                "weather_version": run.metadata.get("weather", {}).get("sky_version"),
+                "sky_source": run.metadata.get("weather", {}).get("sky_source"),
             },
         })
         if args.quality == "preview":

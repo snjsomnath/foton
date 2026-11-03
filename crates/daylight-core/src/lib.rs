@@ -31,6 +31,10 @@ pub use metrics::{
 };
 pub use sampling::{SampleKey, cosine_hemisphere, low_discrepancy_sample, sobol_uint};
 pub use schedule::OccupancySchedule;
+pub use sky::perez::{
+    AllWeatherSkyMatrix, AllWeatherSkyOptions, PatchTable, SkyOutput, SkySite, SkyStep,
+    SolarPosition, all_weather_sky_matrix, solar_position,
+};
 pub use sky::{
     CoefficientMatrix, REINHART_MF2_ROWS, SkyBasis, SkyMatrix, TREGENZA_ROWS, closest_patch,
     mf2_to_tregenza_map, patch_directions, patch_sample_directions, patch_solid_angles,
