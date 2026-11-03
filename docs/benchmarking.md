@@ -8,6 +8,32 @@ or performance claims.
 The comparison scripts keep unlike transport stages separate. Direct visibility is
 binary; diffuse coefficients and annual illuminance use NMBE and CV(RMSE).
 
+## Comparing machines
+
+On any computer with Foton, a Metal or Vulkan GPU and the `honeybee` extra
+installed, one command runs both timing benchmarks below and files the result
+under that machine:
+
+```bash
+python scripts/benchmark_suite.py
+python scripts/compare_benchmarks.py --write
+```
+
+`benchmark_suite.py` writes `benchmarks/machines/<machine-id>/<timestamp>.json`.
+The file holds a machine fingerprint (OS, CPU, GPU name, vendor, cores and
+driver, RAM, backend, Python, and the Foton version and git commit, flagged
+when the checkout has local changes) next to the full annual and Grasshopper
+round-trip reports. The machine ID is a readable CPU/GPU name plus a hash of
+the hardware fields only, so reruns after an OS, driver or Foton update land in
+the same folder. It takes about two minutes on an M4 Pro. `--quick` gives a
+smoke run that the comparison ignores.
+
+`compare_benchmarks.py --write` rebuilds
+[`benchmarks/machines/README.md`](../benchmarks/machines/README.md): one row
+per machine and Foton commit, with the newest full run of each. To add a
+machine, run both commands on it and open a pull request with the new JSON file
+and the regenerated table. Nothing here runs in CI apart from the unit tests.
+
 ## Hardware timing benchmark
 
 ```bash

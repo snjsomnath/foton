@@ -36,7 +36,7 @@ CORPUS = ROOT / "test_models" / "architectural"
 DEFAULT_SCENES = ("teaching_office", "courtyard_rooms", "acceptance", "office_floors")
 
 
-def parse_args():
+def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--backend", choices=("auto", "metal", "vulkan"), default="auto")
     parser.add_argument("--output", help="Directory for this benchmark run.")
@@ -54,7 +54,7 @@ def parse_args():
         "--rooms-per-facade", type=int, default=32, help="office_floors rooms per facade per storey."
     )
     parser.add_argument("--quick", action="store_true", help="Use the preview preset and one repeat.")
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
 def _safe_identifier(value):
@@ -285,8 +285,8 @@ def report_markdown(report):
     return "\n".join(lines) + "\n"
 
 
-def main():
-    args = parse_args()
+def run_suite(args):
+    """Run every scene in ``args`` and return the report without writing it."""
     if args.quick:
         args.repeats = 1
     if args.repeats <= 0:
@@ -296,16 +296,13 @@ def main():
 
     quality = "preview" if args.quick else "final"
     engine = _hardware_record(args.backend)
-    output = Path(args.output).resolve() if args.output else _default_output()
-    output.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as folder:
         work = Path(folder)
         weather_cache = work / "weather_cache"
         _run_once(CORPUS / "teaching_office.hbjson", args, quality, weather_cache, work / "warmup")
         cases = [benchmark_scene(name, args, quality, weather_cache, work) for name in args.scenes]
-    report = {
+    return {
         "schema_version": 2,
-        "run_id": output.name,
         "label": args.label,
         "recorded_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%SZ"),
         "host": _host_record(engine),
@@ -320,6 +317,13 @@ def main():
         "repeats": args.repeats,
         "cases": cases,
     }
+
+
+def main():
+    args = parse_args()
+    output = Path(args.output).resolve() if args.output else _default_output()
+    output.mkdir(parents=True, exist_ok=True)
+    report = {"run_id": output.name, **run_suite(args)}
     (output / "benchmark.json").write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )

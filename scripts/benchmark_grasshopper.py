@@ -58,7 +58,7 @@ STAGES = (
 )
 
 
-def parse_args():
+def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--backend", choices=("auto", "metal", "vulkan"), default="auto")
     parser.add_argument("--output", help="Directory for the report.")
@@ -70,7 +70,7 @@ def parse_args():
         default=str(Path(sys.executable).with_name("foton-honeybee")),
         help="foton-honeybee executable (default: the one next to this Python).",
     )
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
 def _model(identifier):
@@ -248,23 +248,17 @@ def report_markdown(report):
     return "\n".join(lines) + "\n"
 
 
-def main():
-    args = parse_args()
+def run_suite(args):
+    """Run every scene in ``args`` and return the report without writing it."""
     _require_python_dependencies()
     engine = _hardware_record(args.backend)
     timestamp = datetime.now(timezone.utc)
-    output = (
-        Path(args.output).resolve()
-        if args.output
-        else ROOT / "benchmarks" / "results" / f"{timestamp:%Y%m%dT%H%M%SZ}-grasshopper"
-    )
-    output.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as folder:
         work = Path(folder)
         # Warm-up: fills the per-user weather cache and compiles GPU pipelines.
         round_trip(_model("teaching_office"), args, work / "warmup")
         cases = [benchmark_scene(name, args, work) for name in args.scenes]
-    report = {
+    return {
         "schema_version": 1,
         "recorded_at_utc": timestamp.strftime("%Y-%m-%d %H:%M:%SZ"),
         "host": _host_record(engine),
@@ -274,6 +268,20 @@ def main():
         "repeats": args.repeats,
         "cases": cases,
     }
+
+
+def main():
+    args = parse_args()
+    output = (
+        Path(args.output).resolve()
+        if args.output
+        else ROOT
+        / "benchmarks"
+        / "results"
+        / f"{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}-grasshopper"
+    )
+    output.mkdir(parents=True, exist_ok=True)
+    report = run_suite(args)
     (output / "benchmark.json").write_text(
         json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
