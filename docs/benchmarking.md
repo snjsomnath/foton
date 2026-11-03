@@ -41,6 +41,22 @@ acceptance model (`compatibility.stock.performance` in each campaign's
 `suite.json`). `scripts/benchmark_large_scene.py` remains available for the
 instanced 1,000-room resident-scene stress test.
 
+## Grasshopper round trip
+
+```bash
+python scripts/benchmark_grasshopper.py --repeats 3
+```
+
+This times the path the Foton Annual Daylight component takes, through
+`grasshopper_foton.foton_gh.run_annual_daylight`: HBJSON export, input staging,
+the `foton-honeybee annual-daylight --jsonl` subprocess and loading the metric
+files back. The subprocess's JSONL progress events are timestamped as they
+arrive, which splits its time into start-up, scene build, sky, tracing, metric
+reduction and result writing. A last step reads the results folder with
+Honeybee's `AnnualDaylight` loader, as the Honeybee/Ladybug result components
+do. It runs in CPython without Rhino, so IronPython serialisation and DataTree
+conversion inside Grasshopper are not measured.
+
 ## Quick smoke run
 
 ```bash
