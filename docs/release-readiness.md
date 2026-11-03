@@ -37,17 +37,31 @@ Use `--scene sealed --sky-density 1 --smoke` for a fast diagnostic, or
 `--backend reference` without a GPU. Partial, smoke, CPU, dirty-checkout, and unstable
 oracle runs are explicitly **incomplete** and cannot qualify a release.
 
-The [90 architectural scenes](../validation/architectural-scenes.md) cover controls,
+A GPU host without the cores for the Radiance oracle (a cloud GPU with two
+vCPUs) can be judged against the converged references of a finished campaign.
+`python scripts/export_reference_bundle.py <campaign> --output <bundle>`
+collects each case's converged full, integrated-direct and one-bounce
+references with their stability verdicts, and `--reuse-references <bundle>`
+makes the suite compare the candidate against them instead of rerunning
+Radiance. The references describe the scene, not the engine, so nothing about
+what is judged changes: the run still exports the scene, audits the sky bins,
+prepares the weather and runs the stock recipe through Radiance. It refuses a
+bundle from a smoke, dirty or different-corpus run and refuses any case whose
+sensor grid or model summary differs from the reference's. `suite.json` and
+every report name the source campaign and commit under `reference_source`, and
+the release verifier prints it.
+
+The [106 architectural scenes](../validation/architectural-scenes.md) cover controls,
 room form, orientation, openings, shading, context, materials, room connections,
 and the original acceptance HBJSON. The original ten identifiers remain, with
-40 additional procedural fixtures including courtyard rooms, a rooflit atrium
+96 additional procedural fixtures including courtyard rooms, a rooflit atrium
 feeding two storeys, serial glazing, louvres, light shelves and deep reveals.
 Generated [HBJSON samples](../test_models/architectural/README.md) include a hash
 manifest and a per-scene architectural question. The open-aperture fixture removes
 glazing in both independent exports. It is a transport test, not a newly supported
 Honeybee material.
 
-Each scene runs in both sky bases (180 required cases), under uniform, overcast,
+Each scene runs in both sky bases (212 required cases), under uniform, overcast,
 horizon-weighted and four cardinal-direction controlled skies, then Gothenburg
 annual weather (`--weather epw/phoenix.epw` or `epw/seattle.epw` substitutes
 a sunny or an overcast climate; the teaching category has been run under

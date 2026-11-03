@@ -43,6 +43,7 @@ from foton.honeybee.validation import (
     verify_official_annual_daylight_loader,
 )
 from foton.honeybee.weather import prepare_annual_weather
+from scripts.export_reference_bundle import sensor_grid_digest
 from scripts.validate_honeybee_coefficients import trace_coefficients
 from validation.scenes import (
     SCENE_CATEGORIES,
@@ -212,7 +213,6 @@ def run_scene(args, identifier, density, output):
     for stage in ("direct", "full"):
         np.save(output / ("foton_" + stage + ".npy"), candidate[stage])
 
-    direct_runs = []
     sky_audit = audit_sky_bins(
         patch_samples(density, 32)[0], density, args.radiance_bin
     )
@@ -220,10 +220,327 @@ def run_scene(args, identifier, density, output):
         raise RuntimeError(
             "Independent sky samples disagree with Radiance patch numbering"
         )
+    model_summary = {
+        "rooms": len(model.rooms),
+        "apertures": len(model.apertures),
+        "shades": len(model.shades),
+        "sensors": len(prepared.arrays["sensor_positions"]),
+        "floor_area": model.floor_area,
+        "aperture_area": sum(aperture.area for aperture in model.apertures),
+    }
     # MF:2 spreads the same ambient-ray budget over four times as many sky
     # bins, so per-coefficient Monte Carlo noise roughly doubles; the RMS
     # stability gates follow. Energy (bias) gates are unchanged.
     stability_rms_gate = 5.0 if density == 1 else 10.0
+    if args.reuse_references:
+        oracle = load_reused_reference(
+            args.reuse_references, identifier, density, model_path, model_summary, prepared, rows
+        )
+    else:
+        oracle = run_oracle(
+            args, prepared, octree, dome, density, output, stability_rms_gate
+        )
+    stable = oracle["stable"]
+    converged = oracle["converged"]
+    stages = compare_coefficient_stages(
+        prepared,
+        foton_direct=candidate["direct"],
+        foton_full=candidate["full"],
+        radiance_direct=oracle["direct"],
+        radiance_full=converged,
+        output_folder=output,
+    )
+    one_bounce = compare_coefficient_stages(
+        prepared,
+        foton_direct=candidate["direct"],
+        foton_full=candidate["full"],
+        radiance_direct=oracle["direct"],
+        radiance_full=oracle["one_bounce"],
+    )
+    for comparison in (stages, one_bounce):
+        for grid in comparison["grids"]:
+            for stage in grid["stages"].values():
+                worst = stage["worst"]
+                worst["position"] = prepared.arrays["sensor_positions"][
+                    worst["global_sensor_index"]
+                ].tolist()
+    np.save(output / "radiance_converged_full.npy", converged)
+
+    directions, _ = patch_samples(density, 1)
+    z = directions[:, 0, 2].clip(0)
+    skies = {
+        "uniform": np.ones(rows),
+        "overcast": (1 + 2 * z) / 3,
+        "horizon": (z < 0.15).astype(float),
+        "north": directions[:, 0, 1].clip(0),
+        "east": directions[:, 0, 0].clip(0),
+        "south": (-directions[:, 0, 1]).clip(0),
+        "west": (-directions[:, 0, 0]).clip(0),
+    }
+    controlled = {}
+    uniform_level = uniform_rms = None
+    for name, sky in skies.items():
+        sky[0] = 0
+        ref = np.einsum("spr,p,r->s", converged, sky, PHOTOPIC_WEIGHTS)
+        actual = np.einsum("spr,p,r->s", candidate["full"], sky, PHOTOPIC_WEIGHTS)
+        controlled[name] = difference(ref, actual)
+        if uniform_level is None:
+            uniform_level = float(np.mean(np.abs(ref)))
+            uniform_rms = float(np.sqrt(np.mean(np.square(ref))))
+        # A sky the room cannot see (north sky through a south window) leaves a
+        # reference of Radiance leakage only; relative error there is noise.
+        near_zero = float(np.mean(np.abs(ref))) <= max(1e-3 * uniform_level, 1e-3)
+        # Per-sensor scatter is judged against the uniform-sky level, so a
+        # component worth 0.3% of the light (horizon band into a rooflight)
+        # is weighed by its effect on the result; its bias is still gated.
+        rms_to_uniform = (
+            100.0
+            * float(np.sqrt(np.mean(np.square(actual - ref))))
+            / max(uniform_rms, 1e-20)
+        )
+        # A sky worth under 0.5 % of the uniform-sky light (north sky reaching
+        # a south room off its louvres) cannot move a metric; its bias is
+        # recorded but not gated, matching the indirect-stage waiver.
+        negligible = float(np.mean(np.abs(ref))) <= 0.005 * uniform_level
+        controlled[name]["physically_near_zero"] = near_zero
+        controlled[name]["negligible"] = bool(negligible and not near_zero)
+        controlled[name]["reference_mean"] = float(np.mean(ref))
+        controlled[name]["reference_fraction_of_uniform"] = float(
+            np.mean(np.abs(ref)) / max(uniform_level, 1e-20)
+        )
+        controlled[name]["rms_normalized_to_uniform_percent"] = rms_to_uniform
+        controlled[name]["passed"] = (
+            near_zero
+            or negligible
+            or (
+                abs(controlled[name].get("bias_percent", float("inf"))) < 5
+                and rms_to_uniform < 10
+            )
+        )
+    study = HoneybeeStudy(
+        model,
+        backend=args.backend,
+        radiance_bin=args.radiance_bin,
+        weather_cache=output.parent.parent / "weather_cache",
+    )
+    if identifier == "black_open":
+        # This fixture deliberately removes glazing in both independent exports.
+        study.prepared = prepared
+        study.scene = prepared.create_native_scene(study.engine)
+    annual_output = output / "annual"
+    annual = study.annual_daylight(
+        args.weather,
+        output_folder=annual_output,
+        export_illuminance=True,
+        quality="preview" if args.smoke else "final",
+        sky_density=density,
+    )
+    cached = study.annual_daylight(
+        args.weather,
+        output_folder=output / "annual_cached",
+        export_illuminance=True,
+        quality="preview" if args.smoke else "final",
+        sky_density=density,
+    )
+    weather = prepare_annual_weather(
+        args.weather,
+        sky_density=density,
+        radiance_bin=args.radiance_bin,
+        cache_directory=output.parent.parent / "weather_cache",
+    )
+    indices = np.asarray(weather.sun_up_hours, dtype=int)
+    annual_comparison = compare_converged_annual(
+        prepared,
+        foton_folder=annual_output,
+        radiance_coefficients=converged,
+        sky_matrix=weather.sky[:, indices],
+        sun_up_hours=weather.sun_up_hours,
+        schedule=honeybee_schedule(),
+        output_folder=output,
+    )
+    loader = verify_official_annual_daylight_loader(annual_output)
+    darkness = {
+        "required": identifier == "sealed",
+        "passed": True,
+        "maximum_lux": None,
+        "tolerance_lux": 1e-6,
+    }
+    if identifier == "sealed":
+        arrays = list((annual_output / "results").rglob("*.npy"))
+        darkness["maximum_lux"] = max(float(np.max(np.abs(np.load(p)))) for p in arrays)
+        darkness["passed"] = darkness["maximum_lux"] <= darkness["tolerance_lux"]
+    stock = {"status": "not_applicable", "passed": True}
+    if identifier == "acceptance":
+        command = [
+            sys.executable,
+            str(ROOT / "scripts/run_honeybee_annual_reference.py"),
+            "--model",
+            str(model_path),
+            "--wea",
+            str(args.weather),
+            "--output",
+            str(output / "stock"),
+            "--workers",
+            str(args.workers),
+        ]
+        if args.radiance_bin:
+            command += ["--radiance-bin", args.radiance_bin]
+        with (output / "stock.log").open("w") as log:
+            subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, check=True)
+        reference_manifest = json.loads(
+            (output / "stock/reference_manifest.json").read_text()
+        )
+        stock = compare_annual_daylight(
+            annual_output,
+            reference_manifest["project"],
+            model=model_path,
+            foton_seconds=annual.timings["cold_end_to_end_seconds"],
+            radiance_seconds=reference_manifest["elapsed_seconds"],
+            output_folder=output / "stock_comparison",
+            oracle="stock",
+        )
+        stock["reference_sky_density"] = 1  # Stock recipe fixes MF:1 internally.
+        stock["candidate_sky_density"] = density
+    gpu = all(
+        not candidate["metadata"][stage].get("used_reference_fallback", True)
+        and candidate["metadata"][stage].get("transport_backend") == args.backend
+        for stage in ("direct", "full")
+    )
+    numerical = (
+        stable
+        and stages["passed"]
+        and annual_comparison["passed"]
+        and darkness["passed"]
+        and all(x["passed"] for x in controlled.values())
+    )
+    passed = numerical and loader["passed"]
+    status = (
+        "incomplete"
+        if args.smoke or not stable or not gpu
+        else "passed"
+        if passed
+        else "failed"
+    )
+    return {
+        "scene": identifier,
+        "scene_spec": metadata,
+        "model_summary": model_summary,
+        "sky_density": density,
+        "status": status,
+        "passed": status == "passed",
+        "model_sha256": digest(model_path),
+        "weather_sha256": digest(args.weather),
+        "gpu_executed": gpu,
+        "candidate": candidate["metadata"],
+        "sky_bin_audit": sky_audit,
+        "settings": {**preset, "maximum_bounces": DEFAULT_MAXIMUM_BOUNCES},
+        "direct_io": args.direct_io,
+        "oracle_stable": stable,
+        "reference_source": oracle["reference_source"],
+        "direct_stability": oracle["direct_stability"],
+        "depth_stability": oracle["depth_stability"],
+        "sample_stability": oracle["sample_stability"],
+        "oracle_levels": oracle["oracle_levels"],
+        "export_command": export_command,
+        "direct_oracles": oracle["direct_oracles"],
+        "coefficients": stages,
+        "one_bounce_diagnostic": one_bounce,
+        "controlled_skies": controlled,
+        "annual": annual_comparison,
+        "outcomes": {
+            "numerical_correctness": "incomplete"
+            if not stable
+            else "passed"
+            if numerical
+            else "failed",
+            "honeybee_compatibility": "passed" if loader["passed"] else "failed",
+            "performance": "measured",
+        },
+        "compatibility": {"official_loader": loader, "stock": stock},
+        "darkness": darkness,
+        "performance": {
+            "candidate_cold": annual.timings,
+            "candidate_cached": cached.timings,
+            "coefficient_stages_seconds": candidate["timings_seconds"],
+        },
+    }
+
+
+def load_reused_reference(
+    bundle_dir, identifier, density, model_path, model_summary, prepared, rows
+):
+    """Converged Radiance references exported by scripts/export_reference_bundle.py.
+
+    The references describe the scene, not the engine, so a GPU without the
+    cores to redo the oracle can be judged against them. The scene must be the
+    one they were made for: same sensor grid (hashed from the HBJSON) and the
+    same model summary. The HBJSON digest itself is recorded but not required,
+    because serialisation details differ between Honeybee versions while the
+    geometry does not.
+    """
+    case_dir = bundle_dir / identifier / ("mf%d" % density)
+    reference = json.loads((case_dir / "reference.json").read_text())
+    if (reference["scene"], reference["sky_density"]) != (identifier, density):
+        raise RuntimeError("reference bundle holds a different case")
+    if not summaries_match(reference["model_summary"], model_summary):
+        raise RuntimeError(
+            "reused reference was made for a different model: %r, now %r"
+            % (reference["model_summary"], model_summary)
+        )
+    grid_digest = sensor_grid_digest(model_path)
+    if reference["sensor_grid_sha256"] != grid_digest:
+        raise RuntimeError("reused reference was made for a different sensor grid")
+    arrays = {}
+    for name, expected in reference["arrays"].items():
+        path = case_dir / name
+        if digest(path) != expected:
+            raise RuntimeError("reused reference array %s does not match its digest" % name)
+        arrays[name] = np.load(path)
+        shape = (len(prepared.arrays["sensor_positions"]), rows, 3)
+        if arrays[name].shape != shape:
+            raise RuntimeError(
+                "reused reference array %s has shape %r, expected %r"
+                % (name, arrays[name].shape, shape)
+            )
+    return {
+        "direct": arrays["radiance_integrated_direct.npy"],
+        "one_bounce": arrays["radiance_one_bounce_full.npy"],
+        "converged": arrays["radiance_converged_full.npy"],
+        "stable": reference["oracle_stable"],
+        "direct_stability": reference["direct_stability"],
+        "depth_stability": reference["depth_stability"],
+        "sample_stability": reference["sample_stability"],
+        "oracle_levels": reference["oracle_levels"],
+        "direct_oracles": reference["direct_oracles"],
+        "reference_source": {
+            "bundle": str(bundle_dir),
+            "model_sha256": reference["model_sha256"],
+            "model_sha256_matches": reference["model_sha256"] == digest(model_path),
+            "sensor_grid_sha256": grid_digest,
+            "geometry_matches": True,
+            "one_bounce_replicates": reference.get("one_bounce_replicates"),
+        },
+    }
+
+
+def summaries_match(first, second):
+    if set(first) != set(second):
+        return False
+    for key, value in first.items():
+        other = second[key]
+        if isinstance(value, float) or isinstance(other, float):
+            if not np.isclose(value, other, rtol=1e-9, atol=1e-9):
+                return False
+        elif value != other:
+            return False
+    return True
+
+
+def run_oracle(args, prepared, octree, dome, density, output, stability_rms_gate):
+    """Independent Radiance oracle: integrated direct coefficients and
+    replicated rfluxmtx coefficient stages at increasing depth and sample
+    budgets, each judged for stability."""
+    direct_runs = []
     # Direct integration doubles its sample budget until two successive
     # levels agree (borrowed-light grids carry little direct energy and are
     # noisy at 1,024 samples per patch); the last level is the reference.
@@ -334,212 +651,15 @@ def run_scene(args, identifier, density, output):
         and sample_stability["passed"]
         and all(r["repeatability"]["oracle_stable"] for r in oracle_records[1:])
     )
-    stages = compare_coefficient_stages(
-        prepared,
-        foton_direct=candidate["direct"],
-        foton_full=candidate["full"],
-        radiance_direct=direct_runs[-1].coefficients,
-        radiance_full=references[-1],
-        output_folder=output,
-    )
-    one_bounce = compare_coefficient_stages(
-        prepared,
-        foton_direct=candidate["direct"],
-        foton_full=candidate["full"],
-        radiance_direct=direct_runs[-1].coefficients,
-        radiance_full=references[0],
-    )
-    for comparison in (stages, one_bounce):
-        for grid in comparison["grids"]:
-            for stage in grid["stages"].values():
-                worst = stage["worst"]
-                worst["position"] = prepared.arrays["sensor_positions"][
-                    worst["global_sensor_index"]
-                ].tolist()
-    np.save(output / "radiance_converged_full.npy", references[-1])
-
-    directions, _ = patch_samples(density, 1)
-    z = directions[:, 0, 2].clip(0)
-    skies = {
-        "uniform": np.ones(rows),
-        "overcast": (1 + 2 * z) / 3,
-        "horizon": (z < 0.15).astype(float),
-        "north": directions[:, 0, 1].clip(0),
-        "east": directions[:, 0, 0].clip(0),
-        "south": (-directions[:, 0, 1]).clip(0),
-        "west": (-directions[:, 0, 0]).clip(0),
-    }
-    controlled = {}
-    uniform_level = uniform_rms = None
-    for name, sky in skies.items():
-        sky[0] = 0
-        ref = np.einsum("spr,p,r->s", references[-1], sky, PHOTOPIC_WEIGHTS)
-        actual = np.einsum("spr,p,r->s", candidate["full"], sky, PHOTOPIC_WEIGHTS)
-        controlled[name] = difference(ref, actual)
-        if uniform_level is None:
-            uniform_level = float(np.mean(np.abs(ref)))
-            uniform_rms = float(np.sqrt(np.mean(np.square(ref))))
-        # A sky the room cannot see (north sky through a south window) leaves a
-        # reference of Radiance leakage only; relative error there is noise.
-        near_zero = float(np.mean(np.abs(ref))) <= max(1e-3 * uniform_level, 1e-3)
-        # Per-sensor scatter is judged against the uniform-sky level, so a
-        # component worth 0.3% of the light (horizon band into a rooflight)
-        # is weighed by its effect on the result; its bias is still gated.
-        rms_to_uniform = (
-            100.0
-            * float(np.sqrt(np.mean(np.square(actual - ref))))
-            / max(uniform_rms, 1e-20)
-        )
-        # A sky worth under 0.5 % of the uniform-sky light (north sky reaching
-        # a south room off its louvres) cannot move a metric; its bias is
-        # recorded but not gated, matching the indirect-stage waiver.
-        negligible = float(np.mean(np.abs(ref))) <= 0.005 * uniform_level
-        controlled[name]["physically_near_zero"] = near_zero
-        controlled[name]["negligible"] = bool(negligible and not near_zero)
-        controlled[name]["reference_mean"] = float(np.mean(ref))
-        controlled[name]["reference_fraction_of_uniform"] = float(
-            np.mean(np.abs(ref)) / max(uniform_level, 1e-20)
-        )
-        controlled[name]["rms_normalized_to_uniform_percent"] = rms_to_uniform
-        controlled[name]["passed"] = (
-            near_zero
-            or negligible
-            or (
-                abs(controlled[name].get("bias_percent", float("inf"))) < 5
-                and rms_to_uniform < 10
-            )
-        )
-    study = HoneybeeStudy(
-        model,
-        backend=args.backend,
-        radiance_bin=args.radiance_bin,
-        weather_cache=output.parent.parent / "weather_cache",
-    )
-    if identifier == "black_open":
-        # This fixture deliberately removes glazing in both independent exports.
-        study.prepared = prepared
-        study.scene = prepared.create_native_scene(study.engine)
-    annual_output = output / "annual"
-    annual = study.annual_daylight(
-        args.weather,
-        output_folder=annual_output,
-        export_illuminance=True,
-        quality="preview" if args.smoke else "final",
-        sky_density=density,
-    )
-    cached = study.annual_daylight(
-        args.weather,
-        output_folder=output / "annual_cached",
-        export_illuminance=True,
-        quality="preview" if args.smoke else "final",
-        sky_density=density,
-    )
-    weather = prepare_annual_weather(
-        args.weather,
-        sky_density=density,
-        radiance_bin=args.radiance_bin,
-        cache_directory=output.parent.parent / "weather_cache",
-    )
-    indices = np.asarray(weather.sun_up_hours, dtype=int)
-    annual_comparison = compare_converged_annual(
-        prepared,
-        foton_folder=annual_output,
-        radiance_coefficients=references[-1],
-        sky_matrix=weather.sky[:, indices],
-        sun_up_hours=weather.sun_up_hours,
-        schedule=honeybee_schedule(),
-        output_folder=output,
-    )
-    loader = verify_official_annual_daylight_loader(annual_output)
-    darkness = {
-        "required": identifier == "sealed",
-        "passed": True,
-        "maximum_lux": None,
-        "tolerance_lux": 1e-6,
-    }
-    if identifier == "sealed":
-        arrays = list((annual_output / "results").rglob("*.npy"))
-        darkness["maximum_lux"] = max(float(np.max(np.abs(np.load(p)))) for p in arrays)
-        darkness["passed"] = darkness["maximum_lux"] <= darkness["tolerance_lux"]
-    stock = {"status": "not_applicable", "passed": True}
-    if identifier == "acceptance":
-        command = [
-            sys.executable,
-            str(ROOT / "scripts/run_honeybee_annual_reference.py"),
-            "--model",
-            str(model_path),
-            "--wea",
-            str(args.weather),
-            "--output",
-            str(output / "stock"),
-            "--workers",
-            str(args.workers),
-        ]
-        if args.radiance_bin:
-            command += ["--radiance-bin", args.radiance_bin]
-        with (output / "stock.log").open("w") as log:
-            subprocess.run(command, stdout=log, stderr=subprocess.STDOUT, check=True)
-        reference_manifest = json.loads(
-            (output / "stock/reference_manifest.json").read_text()
-        )
-        stock = compare_annual_daylight(
-            annual_output,
-            reference_manifest["project"],
-            model=model_path,
-            foton_seconds=annual.timings["cold_end_to_end_seconds"],
-            radiance_seconds=reference_manifest["elapsed_seconds"],
-            output_folder=output / "stock_comparison",
-            oracle="stock",
-        )
-        stock["reference_sky_density"] = 1  # Stock recipe fixes MF:1 internally.
-        stock["candidate_sky_density"] = density
-    gpu = all(
-        not candidate["metadata"][stage].get("used_reference_fallback", True)
-        and candidate["metadata"][stage].get("transport_backend") == args.backend
-        for stage in ("direct", "full")
-    )
-    numerical = (
-        stable
-        and stages["passed"]
-        and annual_comparison["passed"]
-        and darkness["passed"]
-        and all(x["passed"] for x in controlled.values())
-    )
-    passed = numerical and loader["passed"]
-    status = (
-        "incomplete"
-        if args.smoke or not stable or not gpu
-        else "passed"
-        if passed
-        else "failed"
-    )
     return {
-        "scene": identifier,
-        "scene_spec": metadata,
-        "model_summary": {
-            "rooms": len(model.rooms),
-            "apertures": len(model.apertures),
-            "shades": len(model.shades),
-            "sensors": len(prepared.arrays["sensor_positions"]),
-            "floor_area": model.floor_area,
-            "aperture_area": sum(aperture.area for aperture in model.apertures),
-        },
-        "sky_density": density,
-        "status": status,
-        "passed": status == "passed",
-        "model_sha256": digest(model_path),
-        "weather_sha256": digest(args.weather),
-        "gpu_executed": gpu,
-        "candidate": candidate["metadata"],
-        "sky_bin_audit": sky_audit,
-        "settings": {**preset, "maximum_bounces": DEFAULT_MAXIMUM_BOUNCES},
-        "direct_io": args.direct_io,
-        "oracle_stable": stable,
+        "direct": direct_runs[-1].coefficients,
+        "one_bounce": references[0],
+        "converged": references[-1],
+        "stable": stable,
         "direct_stability": direct_stability,
         "depth_stability": depth_stability,
         "sample_stability": sample_stability,
         "oracle_levels": oracle_records,
-        "export_command": export_command,
         "direct_oracles": [
             {
                 "commands": r.commands,
@@ -551,26 +671,7 @@ def run_scene(args, identifier, density, output):
             }
             for r in direct_runs
         ],
-        "coefficients": stages,
-        "one_bounce_diagnostic": one_bounce,
-        "controlled_skies": controlled,
-        "annual": annual_comparison,
-        "outcomes": {
-            "numerical_correctness": "incomplete"
-            if not stable
-            else "passed"
-            if numerical
-            else "failed",
-            "honeybee_compatibility": "passed" if loader["passed"] else "failed",
-            "performance": "measured",
-        },
-        "compatibility": {"official_loader": loader, "stock": stock},
-        "darkness": darkness,
-        "performance": {
-            "candidate_cold": annual.timings,
-            "candidate_cached": cached.timings,
-            "coefficient_stages_seconds": candidate["timings_seconds"],
-        },
+        "reference_source": None,
     }
 
 
@@ -594,9 +695,34 @@ def main():
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--direct-io", choices=("binary", "ascii"), default="binary")
     parser.add_argument("--smoke", action="store_true")
+    parser.add_argument(
+        "--reuse-references",
+        type=Path,
+        help="Bundle written by scripts/export_reference_bundle.py: judge the "
+        "candidate against its converged Radiance references instead of "
+        "rerunning the Radiance oracle (Radiance is still needed for the scene "
+        "export, the sky audit, the weather and the stock recipe)",
+    )
     args = parser.parse_args()
     if args.workers < 1:
         parser.error("workers must be positive")
+    bundle = None
+    if args.reuse_references:
+        args.reuse_references = args.reuse_references.resolve()
+        try:
+            bundle = json.loads((args.reuse_references / "bundle.json").read_text())
+        except (OSError, ValueError) as error:
+            parser.error("cannot read reference bundle: %s" % error)
+        source = bundle.get("source") or {}
+        if (
+            source.get("suite_version") != SCENE_VERSION
+            or source.get("smoke") is not False
+            or source.get("dirty") is not False
+        ):
+            parser.error(
+                "reference bundle must come from a clean, final run of scene corpus %s"
+                % SCENE_VERSION
+            )
     scenes = tuple(
         spec.identifier
         for spec in SCENE_SPECS
@@ -649,6 +775,14 @@ def main():
         "wheel_sha256": digest(args.wheel) if args.wheel else None,
         "weather": str(args.weather),
         "weather_sha256": digest(args.weather) if args.weather.exists() else None,
+        "reference_source": {
+            **bundle["source"],
+            "bundle": str(args.reuse_references),
+            "bundle_schema_version": bundle.get("schema_version"),
+            "case_count": len(bundle.get("cases", [])),
+        }
+        if bundle
+        else None,
         "started_at": datetime.now(timezone.utc).isoformat(),
         "smoke": args.smoke,
         "status": "incomplete",

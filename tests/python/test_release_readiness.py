@@ -205,6 +205,19 @@ def test_release_gate_accepts_complete_evidence_and_rejects_stale_or_partial():
     assert not run_verify(
         manifest, files, commit="later", changed=["validation/results/x/suite.json", "CHANGELOG.md"]
     )
+    # So does one that only tightens the verifier, its tests or the workflows.
+    assert not run_verify(
+        manifest,
+        files,
+        commit="later",
+        changed=[
+            "scripts/verify_release_evidence.py",
+            "tests/python/test_release_readiness.py",
+            ".github/workflows/release.yml",
+        ],
+    )
+    # But the suite that produces the evidence is not exempt.
+    assert run_verify(manifest, files, commit="later", changed=["scripts/validate_release_suite.py"])
     # Any engine, scene or suite change between the two invalidates it.
     assert run_verify(manifest, files, commit="later", changed=["crates/daylight-core/src/lib.rs"])
     # Except the other backend's crate: a Vulkan fix leaves Metal evidence valid
@@ -217,6 +230,32 @@ def test_release_gate_accepts_complete_evidence_and_rejects_stale_or_partial():
     assert run_verify(manifest, files, version="0.4.0")
     files["metal/suite.json"]["scenes"][0]["gpu_executed"] = False
     assert run_verify(manifest, files)
+
+
+def test_release_gate_accepts_reused_references_only_from_a_clean_corpus_run():
+    from validation.scenes import SCENE_VERSION
+
+    manifest, files = release_evidence()
+    suite = files["vulkan/suite.json"]
+    suite["reference_source"] = {
+        "commit": "metal-campaign",
+        "suite_version": SCENE_VERSION,
+        "dirty": False,
+        "smoke": False,
+    }
+    for scene in suite["scenes"]:
+        scene["reference_source"] = {"geometry_matches": True}
+    assert not run_verify(manifest, files)
+    # Every case must have been checked against the geometry its reference describes.
+    suite["scenes"][0]["reference_source"] = None
+    assert run_verify(manifest, files)
+    suite["scenes"][0]["reference_source"] = {"geometry_matches": True}
+    # The source campaign itself must have been a clean final run of this corpus.
+    for field, value in (("smoke", True), ("dirty", True), ("suite_version", "old"), ("commit", None)):
+        source = dict(suite["reference_source"])
+        suite["reference_source"] = {**source, field: value}
+        assert run_verify(manifest, files), field
+        suite["reference_source"] = source
 
 
 def test_release_gate_requires_both_backends_and_rhino():
