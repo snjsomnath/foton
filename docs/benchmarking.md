@@ -1,35 +1,45 @@
 # Benchmarking and Validation
 
 The public-beta release gate is the [90-scene architectural validation suite](release-readiness.md).
-Historical README results are 0.1.0 measurements and exceed the annual accuracy
-thresholds. Re-run current code before making accuracy or performance claims.
+The README speed figures come from the hardware timing benchmark below; accuracy
+claims come from the validation suite. Re-run current code before making accuracy
+or performance claims.
 
-The benchmark suite keeps unlike transport stages separate. Direct visibility is
+The comparison scripts keep unlike transport stages separate. Direct visibility is
 binary; diffuse coefficients and annual illuminance use NMBE and CV(RMSE).
 
-## Full hardware benchmark
+## Hardware timing benchmark
 
 ```bash
-python scripts/benchmark_hardware.py \
-  --backend auto \
-  --radiance-bin /path/to/radiance/bin \
-  --append-readme
+python scripts/benchmark_hardware.py --backend auto
 ```
 
-The suite runs:
+The suite times cold annual daylight runs at Foton's shipped defaults (the
+`final` preset, MF:1 sky, default bounce depth) on four Honeybee models of
+increasing size:
 
-1. Honeybee shaded-shoebox direct visibility against Radiance.
-2. Multi-bounce diffuse and thin-glass coefficients against `rcontrib`.
-3. An 8,760-hour deterministic annual propagation with DA and area-weighted sDA.
-4. A cold 1,000-room/25,000-sensor resident-scene benchmark.
-5. A cached resident-scene rerun and cached Radiance-octree reference.
+1. `teaching_office`: a 1-room, 96-sensor corpus scene.
+2. `courtyard_rooms`: a 4-room, 112-sensor corpus scene with shading.
+3. `acceptance`: the 3-room, 2,020-sensor acceptance model.
+4. `office_floors`: a generated double-loaded office block, 4 storeys and 256
+   rooms, each with one 40 % glazed facade and a 1 m sensor grid (9,216 sensors).
 
-Each run writes `benchmark.json`, `benchmark.md`, command logs, coefficient artifacts,
-and Radiance scene files under `benchmarks/results/<run-id>/`. That folder is
-ignored by git. The one committed run,
-[`20260731T054146Z-CM-GHHXPN239T`](../benchmarks/results/20260731T054146Z-CM-GHHXPN239T/benchmark.md),
-is the source of the speed figure in the README. It was measured on 31 July 2026,
-before the 0.3.0 accuracy fixes, so use it for speed only.
+Each repeat builds a new `HoneybeeStudy` and runs `annual_daylight` to written
+DA/UDI results, so it includes model preparation, acceleration-structure build,
+GPU upload, tracing and metric reduction. One unrecorded warm-up run compiles
+GPU pipelines and fills the weather cache. The report gives the median, minimum
+and maximum of five repeats. Pass `--scenes` to choose other corpus scenes.
+
+Each run writes `benchmark.json` and `benchmark.md` under
+`benchmarks/results/<run-id>/`. That folder is ignored by git. The one committed run,
+[`20261103T153730Z-CM-GHHXPN239T`](../benchmarks/results/20261103T153730Z-CM-GHHXPN239T/benchmark.md),
+is the source of the speed figures in the README.
+
+The benchmark does not run Radiance. Speed against Radiance is recorded by the
+validation suite, which times Honeybee's stock annual-daylight recipe on the
+acceptance model (`compatibility.stock.performance` in each campaign's
+`suite.json`). `scripts/benchmark_large_scene.py` remains available for the
+instanced 1,000-room resident-scene stress test.
 
 ## Quick smoke run
 
@@ -37,8 +47,8 @@ before the 0.3.0 accuracy fixes, so use it for speed only.
 python scripts/benchmark_hardware.py --quick
 ```
 
-The quick mode keeps the fixture structure but lowers transport samples. Do not mix
-quick and default rows when comparing hardware.
+The quick mode uses the `preview` preset and a single repeat. Do not mix quick
+and default rows when comparing hardware.
 
 ## Interpreting accuracy
 
@@ -46,10 +56,6 @@ quick and default rows when comparing hardware.
 - Coefficients: NMBE and CV(RMSE) over the complete RGB coefficient matrix.
 - Annual: occupied-hour illuminance NMBE/CV(RMSE), DA difference, and sDA percentage
   point difference.
-- Large scene: performance only unless an explicit coefficient comparison is added.
-
-The deterministic annual sky is intended for repeatable hardware comparisons, not as
-a climate-specific LM-83 claim.
 
 ## Honeybee annual-daylight acceptance
 

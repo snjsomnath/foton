@@ -19,7 +19,7 @@
 # Local benchmark and comparison output (default --output of the scripts).
 # The one kept run backs the performance figure in the README.
 /benchmarks/results/*
-!/benchmarks/results/20260731T054146Z-CM-GHHXPN239T/
+!/benchmarks/results/20261103T153730Z-CM-GHHXPN239T/
 /simulation/
 # Raw sweep artifacts; summaries and READMEs stay tracked
 /validation/results/**/*.oct

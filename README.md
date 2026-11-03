@@ -148,15 +148,29 @@ accuracy for arbitrary models.
 
 ## Performance
 
-On an Apple M4 Pro, the 216-sensor / 146-patch full transport calculation
-took:
+We measured these times on 3 November 2026 on a MacBook Pro with an Apple M4 Pro
+(24 GB) and Metal, using Foton 0.3.0 with its shipped defaults. Those defaults
+are the `final` preset (256 direct samples, 65,536 indirect samples and 8 bounces)
+on the 146-patch sky with Gothenburg weather. Each time covers a full annual
+daylight run on a model Foton had not seen before: loading the Honeybee model,
+building the scene on the GPU, tracing, and writing DA and UDI for all 8,760
+hours. Each figure is the median of five runs.
 
-    Foton:      5.79 ms
-    rcontrib:   3574 ms
+| Model | Rooms | Sensors | Annual run |
+| --- | ---: | ---: | ---: |
+| Teaching office (corpus) | 1 | 96 | 0.16 s |
+| Courtyard with four rooms (corpus) | 4 | 112 | 0.20 s |
+| Acceptance model | 3 | 2,020 | 1.42 s |
+| Four-storey office block (generated) | 256 | 9,216 | 2.93 s |
 
-This was measured on 31 July 2026 at 4,096 samples and 2 bounces
-([run](https://github.com/snjsomnath/foton/blob/main/benchmarks/results/20260731T054146Z-CM-GHHXPN239T/benchmark.md)). Foton now defaults to 8 bounces; in the bounce sweep that
-took up to about 1.5 times as long as 2 bounces. It is a single benchmark configuration, not a general speedup claim.
+On the same Mac that morning, Honeybee's stock annual-daylight recipe took 21.5 s
+on the acceptance model, using Radiance 5.4 with 12 workers. Foton took 1.5 s
+on the same model in that run
+([campaign](https://github.com/snjsomnath/foton/blob/main/validation/results/2026-11-03-architectural-v4-metal-0.3.0-release/README.md)).
+Each tool ran at its own defaults, and the stock recipe uses 2 ambient bounces
+where Foton uses 8. Treat this as one comparison, not a general speedup claim.
+The full timing data is in the
+[benchmark run](https://github.com/snjsomnath/foton/blob/main/benchmarks/results/20261103T153730Z-CM-GHHXPN239T/benchmark.md).
 
 The purpose of the comparison is to show the potential of GPU transport for
 interactive daylight analysis. The Vulkan backend has so far run on one other
