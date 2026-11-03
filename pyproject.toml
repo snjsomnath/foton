@@ -4,10 +4,11 @@ build-backend = "maturin"
 
 [project]
 name = "foton-daylight"
-version = "0.1.0"
+version = "0.3.0"
 description = "Hardware-accelerated daylight coefficients and annual metrics with Metal, Vulkan, and deterministic CPU backends"
 readme = "README.md"
 requires-python = ">=3.10"
+license = { file = "LICENSE" }
 dependencies = ["numpy>=1.23"]
 keywords = [
     "daylight",
@@ -32,10 +33,18 @@ classifiers = [
     "Topic :: Scientific/Engineering",
 ]
 
+[project.urls]
+Documentation = "https://github.com/snjsomnath/foton/tree/main/docs"
+Issues = "https://github.com/snjsomnath/foton/issues"
+Repository = "https://github.com/snjsomnath/foton"
+
 [project.optional-dependencies]
 honeybee = [
     "honeybee-core>=1.64,<2",
     "honeybee-radiance>=1.66,<2",
+    "honeybee-radiance-postprocess>=0.5,<1",
+    "ladybug-core>=0.44,<1",
+    "platformdirs>=4.3,<5",
 ]
 viewer = [
     "fastapi>=0.115,<1",
@@ -52,9 +61,24 @@ test = [
 [project.scripts]
 foton-viewer = "foton.viewer.__main__:main"
 daylight-viewer = "foton.viewer.__main__:main"
+foton-honeybee = "foton.honeybee.__main__:main"
 
 [tool.maturin]
 manifest-path = "crates/daylight-python/Cargo.toml"
 python-source = "python"
+python-packages = ["foton", "daylight_engine", "honeybee_foton", "foton_bridge"]
 module-name = "daylight_engine._native"
+exclude = ["**/__pycache__/**", "**/*.pyc", "**/build_error.log"]
 features = ["extension-module"]
+include = [
+    { path = "LICENSE", format = "sdist" },
+    { path = "grasshopper_foton/**/*", format = "sdist" },
+    { path = "validation/**/*", format = "sdist" },
+    { path = "scripts/**/*", format = "sdist" },
+    { path = "test_models/*.hbjson", format = "sdist" },
+    { path = "test_models/architectural/**/*", format = "sdist" },
+    { path = "epw/*.epw", format = "sdist" },
+    { path = "CHANGELOG.md", format = "sdist" },
+    { path = "CONTRIBUTING.md", format = "sdist" },
+    { path = "docs/**/*", format = "sdist" },
+]

@@ -1,0 +1,78 @@
+{
+  "grids": [
+    {
+      "identifier": "teaching_depth10_grid",
+      "illuminance": {
+        "absolute_error_percentiles_lux": {
+          "p50": 1.8221473693847656,
+          "p90": 20.02052001953125,
+          "p95": 32.258062744140624,
+          "p99": 67.68584777832012
+        },
+        "cvrmse_percent": 1.659239362074726,
+        "maximum_absolute_error_lux": 282.33056640625,
+        "nmbe_percent": -0.09237694114179333,
+        "passed": true,
+        "physically_dark": false,
+        "worst": {
+          "foton_lux": 5381.212890625,
+          "hour_of_year": 2414.5,
+          "position": [
+            5.5,
+            1.5,
+            0.75
+          ],
+          "radiance_lux": 5663.54345703125,
+          "sensor_index": 58
+        }
+      },
+      "metrics": {
+        "cda": {
+          "maximum_error_percentage_points": 1.456133690337623,
+          "mean_absolute_error_percentage_points": 0.3316209052469031,
+          "passed": true
+        },
+        "da": {
+          "maximum_error_percentage_points": 1.7254794520547954,
+          "mean_absolute_error_percentage_points": 0.40816210045662077,
+          "passed": true
+        },
+        "udi": {
+          "maximum_error_percentage_points": 1.3695890410958853,
+          "mean_absolute_error_percentage_points": 0.2773652968036538,
+          "passed": true
+        },
+        "udi_lower": {
+          "maximum_error_percentage_points": 1.3695890410958853,
+          "mean_absolute_error_percentage_points": 0.2702762557077626,
+          "passed": true
+        },
+        "udi_upper": {
+          "maximum_error_percentage_points": 0.08260273972602761,
+          "mean_absolute_error_percentage_points": 0.015141552511415406,
+          "passed": true
+        }
+      },
+      "sda": {
+        "ambiguity_band_percentage_points": 5.0,
+        "ambiguous_sensor_count": 1,
+        "difference_percentage_points": 1.6666666666666643,
+        "foton_percent": 43.333333333333336,
+        "passed": true,
+        "radiance_percent": 45.0,
+        "tolerance_percentage_points": 2.0,
+        "unexplained_flip_percentage_points": 0.0
+      },
+      "sensor_count": 60
+    }
+  ],
+  "occupied_hours": 3650,
+  "oracle": "converged-coefficients",
+  "passed": true,
+  "schema_version": 1,
+  "structural": {
+    "grid_counts_match": true,
+    "grid_ids_match": true,
+    "sun_up_hours_match": true
+  }
+}

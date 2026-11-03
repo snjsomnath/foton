@@ -1,2 +1,0 @@
-ladybug-core>=1.45.0
-numpy>=1.23

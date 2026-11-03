@@ -40,6 +40,13 @@ _OUTPUT_NAMES = (
 class Recipe:
     """Execute a Foton recipe with the familiar LBT method surface."""
 
+    def __new__(cls, recipe_name):
+        if cls is Recipe and _normalize_name(recipe_name) == "annual_daylight":
+            from .annual import AnnualDaylightRecipe
+
+            return AnnualDaylightRecipe()
+        return super().__new__(cls)
+
     def __init__(self, recipe_name):
         normalized = _normalize_name(recipe_name)
         if normalized != "direct_visibility":

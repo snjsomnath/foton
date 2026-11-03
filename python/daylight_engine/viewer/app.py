@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, File, Form, UploadFile, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -22,9 +22,14 @@ def create_app(
     engine_factory: Any = None,
     weather_store: WeatherStore | None = None,
     frontend_directory: str | Path | None = None,
+    demo_weather_path: str | Path | None = None,
 ) -> FastAPI:
     factory = engine_factory or Engine
     store = weather_store or WeatherStore()
+    demo_epw = Path(demo_weather_path) if demo_weather_path else (
+        Path(__file__).resolve().parents[3] / "epw" / "gothenburg.epw"
+    )
+    demo_weather_lock = asyncio.Lock()
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -39,7 +44,7 @@ def create_app(
 
     app = FastAPI(
         title="Foton Viewer",
-        version="0.1.0",
+        version="0.3.0",
         lifespan=lifespan,
     )
 
@@ -73,6 +78,36 @@ def create_app(
         )
         return dataset.summary()
 
+    @app.post("/api/demo/weather")
+    async def demo_weather() -> dict[str, Any]:
+        # Fixed local asset, never a client-supplied filesystem path. Serialize
+        # ingestion so repeated mounts cannot race while creating weather caches.
+        async with demo_weather_lock:
+            try:
+                payload = await asyncio.to_thread(demo_epw.read_bytes)
+                dataset = await asyncio.to_thread(
+                    app.state.weather_store.ingest, payload, demo_epw.name, 0.0,
+                )
+            except FileNotFoundError as exc:
+                raise HTTPException(
+                    status_code=503,
+                    detail="Demo weather is missing. Run from a Foton checkout containing epw/gothenburg.epw.",
+                ) from exc
+            except (OSError, RuntimeError, ValueError) as exc:
+                raise HTTPException(status_code=503, detail=str(exc)) from exc
+        return dataset.summary()
+
+    @app.get("/api/demo/solar/{weather_id}")
+    async def demo_solar(weather_id: str) -> dict[str, Any]:
+        from .solar import solar_diagram
+        try:
+            dataset = app.state.weather_store.get(weather_id)
+            location = dataset.location
+            return await asyncio.to_thread(solar_diagram, float(location["latitude"]),
+                float(location["longitude"]), float(location.get("time_zone", 1)), dataset.north_rotation_degrees)
+        except (KeyError, ValueError, TypeError) as exc:
+            raise HTTPException(status_code=400, detail="Solar diagram requires a weather dataset with location metadata.") from exc
+
     @app.websocket("/api/session")
     async def session_socket(websocket: WebSocket) -> None:
         await websocket.accept()
@@ -104,6 +139,7 @@ def create_app(
                             int(message["client_revision"]),
                             message["parameters"],
                             send,
+                            demo=message.get("demo") is True,
                         )
                     elif message_type == "analyze":
                         await session.start_analysis(

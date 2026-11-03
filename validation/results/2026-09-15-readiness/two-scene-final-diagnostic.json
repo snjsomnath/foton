@@ -1,0 +1,3490 @@
+{
+  "backend": "metal",
+  "capabilities": {
+    "hardware_acceleration": true,
+    "name": "Metal device: Apple M4 Pro (GPU direct, diffuse, glass, and annual reduction)",
+    "supports_async_jobs": true,
+    "supports_ray_tracing": true
+  },
+  "commit": "d931af507757f977fe4d8356cc7dec62437fe081",
+  "dirty": true,
+  "elapsed_seconds": 185.72118500003126,
+  "engine_version": "0.2.0",
+  "hardware": {
+    "driver_diagnostics": [
+      {
+        "_name": "Apple M4 Pro",
+        "spdisplays_mtlgpufamilysupport": "spdisplays_metal4",
+        "spdisplays_vendor": "sppci_vendor_Apple",
+        "sppci_bus": "spdisplays_builtin",
+        "sppci_cores": "20",
+        "sppci_device_type": "spdisplays_gpu",
+        "sppci_model": "Apple M4 Pro"
+      }
+    ],
+    "machine": "arm64",
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "processor": "arm",
+    "system": "Darwin"
+  },
+  "passed": false,
+  "scenes": [
+    {
+      "annual": {
+        "grids": [
+          {
+            "identifier": "sealed_grid",
+            "illuminance": {
+              "cvrmse_percent": 857.5585600273465,
+              "nmbe_percent": -100.0,
+              "passed": false
+            },
+            "metrics": {
+              "cda": {
+                "maximum_error_percentage_points": 0.005488294367058188,
+                "mean_absolute_error_percentage_points": 0.00047518026638208963,
+                "passed": true
+              },
+              "da": {
+                "maximum_error_percentage_points": 0.0,
+                "mean_absolute_error_percentage_points": 0.0,
+                "passed": true
+              },
+              "udi": {
+                "maximum_error_percentage_points": 0.0,
+                "mean_absolute_error_percentage_points": 0.0,
+                "passed": true
+              },
+              "udi_lower": {
+                "maximum_error_percentage_points": 0.0,
+                "mean_absolute_error_percentage_points": 0.0,
+                "passed": true
+              },
+              "udi_upper": {
+                "maximum_error_percentage_points": 0.0,
+                "mean_absolute_error_percentage_points": 0.0,
+                "passed": true
+              }
+            },
+            "sda": {
+              "difference_percentage_points": 0.0,
+              "foton_percent": 0.0,
+              "passed": true,
+              "radiance_percent": 0.0
+            },
+            "sensor_count": 36
+          }
+        ],
+        "occupied_hours": 3650,
+        "oracle": "converged-coefficients",
+        "passed": false,
+        "schema_version": 1,
+        "structural": {
+          "grid_counts_match": true,
+          "grid_ids_match": true,
+          "sun_up_hours_match": true
+        }
+      },
+      "candidate": {
+        "capabilities": {
+          "hardware_acceleration": true,
+          "name": "Metal device: Apple M4 Pro (GPU direct, diffuse, glass, and annual reduction)",
+          "supports_async_jobs": true,
+          "supports_ray_tracing": true
+        },
+        "direct": {
+          "basis": "Tregenza",
+          "convergence": 1.0,
+          "direct_sample_count": 64,
+          "glazing_model": "radiance_thin_glass_non_refracting",
+          "metric_label": "static_sDA300_50",
+          "quality": "Final",
+          "scene_fingerprint": 2671202268135675676,
+          "schedule_timestep_count": 1,
+          "solver_version": "0.2.0",
+          "transport_backend": "metal",
+          "used_reference_fallback": false
+        },
+        "full": {
+          "basis": "Tregenza",
+          "convergence": 1.0,
+          "direct_sample_count": 64,
+          "glazing_model": "radiance_thin_glass_non_refracting",
+          "metric_label": "static_sDA300_50",
+          "quality": "Final",
+          "scene_fingerprint": 2671202268135675676,
+          "schedule_timestep_count": 1,
+          "solver_version": "0.2.0",
+          "transport_backend": "metal",
+          "used_reference_fallback": false
+        }
+      },
+      "coefficients": {
+        "gates": {
+          "direct": {
+            "absolute_nmbe_percent": 2.0,
+            "rms_normalized_rmse_percent": 5.0
+          },
+          "full": {
+            "absolute_nmbe_percent": 5.0,
+            "rms_normalized_rmse_percent": 10.0
+          },
+          "indirect": {
+            "absolute_nmbe_percent": 3.0,
+            "rms_normalized_rmse_percent": 10.0
+          }
+        },
+        "grids": [
+          {
+            "full_identifier": "sealed_grid",
+            "identifier": "sealed_grid",
+            "sensor_count": 36,
+            "stages": {
+              "direct": {
+                "absolute_error": {
+                  "maximum": 0.0,
+                  "p50": 0.0,
+                  "p90": 0.0,
+                  "p95": 0.0,
+                  "p99": 0.0
+                },
+                "candidate_energy": 0.0,
+                "cvrmse_percent": 0.0,
+                "nmbe_percent": 0.0,
+                "passed": true,
+                "physically_near_zero": true,
+                "reference_energy": 0.0,
+                "relative_energy_error_percent": 0.0,
+                "rms_normalized_rmse_percent": 0.0,
+                "worst": {
+                  "candidate": 0.0,
+                  "global_sensor_index": 0,
+                  "local_sensor_index": 0,
+                  "reference": 0.0,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 0
+                }
+              },
+              "full": {
+                "absolute_error": {
+                  "maximum": 3.754076260520378e-06,
+                  "p50": 0.0,
+                  "p90": 0.0,
+                  "p95": 0.0,
+                  "p99": 0.0
+                },
+                "candidate_energy": 0.0,
+                "cvrmse_percent": 0.0,
+                "nmbe_percent": 0.0,
+                "passed": true,
+                "physically_near_zero": true,
+                "reference_energy": 4.9131621160825034e-05,
+                "relative_energy_error_percent": 0.0,
+                "rms_normalized_rmse_percent": 0.0,
+                "worst": {
+                  "candidate": 0.0,
+                  "global_sensor_index": 26,
+                  "local_sensor_index": 26,
+                  "reference": 3.754076260520378e-06,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 0
+                }
+              },
+              "indirect": {
+                "absolute_error": {
+                  "maximum": 3.754076260520378e-06,
+                  "p50": 0.0,
+                  "p90": 0.0,
+                  "p95": 0.0,
+                  "p99": 0.0
+                },
+                "candidate_energy": 0.0,
+                "cvrmse_percent": 0.0,
+                "nmbe_percent": 0.0,
+                "passed": true,
+                "physically_near_zero": true,
+                "reference_energy": 4.9131621160825034e-05,
+                "relative_energy_error_percent": 0.0,
+                "rms_normalized_rmse_percent": 0.0,
+                "worst": {
+                  "candidate": 0.0,
+                  "global_sensor_index": 26,
+                  "local_sensor_index": 26,
+                  "reference": 3.754076260520378e-06,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 0
+                }
+              }
+            },
+            "start_sensor_index": 0
+          }
+        ],
+        "matrix_shape": [
+          36,
+          146,
+          3
+        ],
+        "passed": true,
+        "schema_version": 1
+      },
+      "compatibility": {
+        "official_loader": {
+          "maximum_error_percentage_points": 3.545802942514029e-39,
+          "metrics": {
+            "cda": [
+              {
+                "identifier": "sealed_grid",
+                "maximum_error_percentage_points": 3.545802942514029e-39,
+                "passed": true
+              }
+            ],
+            "da": [
+              {
+                "identifier": "sealed_grid",
+                "maximum_error_percentage_points": 0.0,
+                "passed": true
+              }
+            ],
+            "udi": [
+              {
+                "identifier": "sealed_grid",
+                "maximum_error_percentage_points": 0.0,
+                "passed": true
+              }
+            ],
+            "udi_lower": [
+              {
+                "identifier": "sealed_grid",
+                "maximum_error_percentage_points": 0.0,
+                "passed": true
+              }
+            ],
+            "udi_upper": [
+              {
+                "identifier": "sealed_grid",
+                "maximum_error_percentage_points": 0.0,
+                "passed": true
+              }
+            ]
+          },
+          "passed": true,
+          "tolerance_percentage_points": 0.05
+        },
+        "stock": {
+          "passed": true,
+          "status": "not_applicable"
+        }
+      },
+      "controlled_skies": {
+        "horizon": {
+          "absolute_error": {
+            "maximum": 0.00010971098530296016,
+            "p95": 3.4284676547817496e-06,
+            "p99": 7.611199516361841e-05
+          },
+          "bias_percent": -100.0,
+          "passed": false,
+          "rms_normalized_error_percent": 100.0,
+          "worst_index": [
+            28
+          ]
+        },
+        "overcast": {
+          "absolute_error": {
+            "maximum": 8.417262142756954e-05,
+            "p95": 7.775240010232665e-05,
+            "p99": 8.300347144540865e-05
+          },
+          "bias_percent": -99.99999999999999,
+          "passed": false,
+          "rms_normalized_error_percent": 100.0,
+          "worst_index": [
+            9
+          ]
+        },
+        "uniform": {
+          "absolute_error": {
+            "maximum": 0.00011418598540293916,
+            "p95": 0.00010971098530296016,
+            "p99": 0.0001126197353679465
+          },
+          "bias_percent": -100.0,
+          "passed": false,
+          "rms_normalized_error_percent": 100.0,
+          "worst_index": [
+            28
+          ]
+        }
+      },
+      "darkness": {
+        "maximum_lux": 1.1754943508222875e-38,
+        "passed": true,
+        "required": true,
+        "tolerance_lux": 1e-06
+      },
+      "depth_stability": {
+        "grids": [
+          {
+            "absolute_error": {
+              "maximum": 4.908737537334673e-06,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "bias_percent": 37.98021417980555,
+            "identifier": "sealed_grid",
+            "passed": false,
+            "rms_normalized_error_percent": 95.49577282487262,
+            "worst_index": [
+              4,
+              0,
+              0
+            ]
+          }
+        ],
+        "passed": false
+      },
+      "direct_oracles": [
+        {
+          "commands": [
+            [
+              "/private/tmp/foton-radiance-6/radiance/bin/oconv",
+              "-i",
+              "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct",
+              "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome"
+            ],
+            [
+              "/private/tmp/foton-radiance-6/radiance/bin/rcontrib",
+              "-h",
+              "-w",
+              "-ab",
+              "0",
+              "-M",
+              "/private/tmp/foton-metal-final/sealed/mf1/direct_256/sky_modifiers.txt",
+              "-n",
+              "4",
+              "/private/tmp/foton-metal-final/sealed/mf1/direct_256/direct_scene.oct"
+            ]
+          ],
+          "sample_count": 256,
+          "versions": {
+            "oconv": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+            "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/private/tmp/foton-radiance-6/radiance/bin/oconv",
+              "-i",
+              "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct",
+              "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome"
+            ],
+            [
+              "/private/tmp/foton-radiance-6/radiance/bin/rcontrib",
+              "-h",
+              "-w",
+              "-ab",
+              "0",
+              "-M",
+              "/private/tmp/foton-metal-final/sealed/mf1/direct_1024/sky_modifiers.txt",
+              "-n",
+              "4",
+              "/private/tmp/foton-metal-final/sealed/mf1/direct_1024/direct_scene.oct"
+            ]
+          ],
+          "sample_count": 1024,
+          "versions": {
+            "oconv": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+            "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+          }
+        }
+      ],
+      "direct_stability": {
+        "grids": [
+          {
+            "absolute_error": {
+              "maximum": 0.0,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "bias_percent": 0.0,
+            "identifier": "sealed_grid",
+            "passed": true,
+            "rms_normalized_error_percent": 0.0,
+            "worst_index": [
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "passed": true
+      },
+      "export_command": [
+        "/private/tmp/foton-radiance-6/radiance/bin/oconv",
+        "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.rad"
+      ],
+      "gpu_executed": true,
+      "model_sha256": "9ca6594eede957c002147f53a141ce80b0c5627c2de78cf47dd6e351cedbc725",
+      "one_bounce_diagnostic": {
+        "gates": {
+          "direct": {
+            "absolute_nmbe_percent": 2.0,
+            "rms_normalized_rmse_percent": 5.0
+          },
+          "full": {
+            "absolute_nmbe_percent": 5.0,
+            "rms_normalized_rmse_percent": 10.0
+          },
+          "indirect": {
+            "absolute_nmbe_percent": 3.0,
+            "rms_normalized_rmse_percent": 10.0
+          }
+        },
+        "grids": [
+          {
+            "full_identifier": "sealed_grid",
+            "identifier": "sealed_grid",
+            "sensor_count": 36,
+            "stages": {
+              "direct": {
+                "absolute_error": {
+                  "maximum": 0.0,
+                  "p50": 0.0,
+                  "p90": 0.0,
+                  "p95": 0.0,
+                  "p99": 0.0
+                },
+                "candidate_energy": 0.0,
+                "cvrmse_percent": 0.0,
+                "nmbe_percent": 0.0,
+                "passed": true,
+                "physically_near_zero": true,
+                "reference_energy": 0.0,
+                "relative_energy_error_percent": 0.0,
+                "rms_normalized_rmse_percent": 0.0,
+                "worst": {
+                  "candidate": 0.0,
+                  "global_sensor_index": 0,
+                  "local_sensor_index": 0,
+                  "reference": 0.0,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 0
+                }
+              },
+              "full": {
+                "absolute_error": {
+                  "maximum": 1.975248051167e-05,
+                  "p50": 0.0,
+                  "p90": 0.0,
+                  "p95": 0.0,
+                  "p99": 0.0
+                },
+                "candidate_energy": 0.0,
+                "cvrmse_percent": 0.0,
+                "nmbe_percent": 0.0,
+                "passed": true,
+                "physically_near_zero": true,
+                "reference_energy": 5.925744153501e-05,
+                "relative_energy_error_percent": 0.0,
+                "rms_normalized_rmse_percent": 0.0,
+                "worst": {
+                  "candidate": 0.0,
+                  "global_sensor_index": 10,
+                  "local_sensor_index": 10,
+                  "reference": 1.975248051167e-05,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 0
+                }
+              },
+              "indirect": {
+                "absolute_error": {
+                  "maximum": 1.975248051167e-05,
+                  "p50": 0.0,
+                  "p90": 0.0,
+                  "p95": 0.0,
+                  "p99": 0.0
+                },
+                "candidate_energy": 0.0,
+                "cvrmse_percent": 0.0,
+                "nmbe_percent": 0.0,
+                "passed": true,
+                "physically_near_zero": true,
+                "reference_energy": 5.925744153501e-05,
+                "relative_energy_error_percent": 0.0,
+                "rms_normalized_rmse_percent": 0.0,
+                "worst": {
+                  "candidate": 0.0,
+                  "global_sensor_index": 10,
+                  "local_sensor_index": 10,
+                  "reference": 1.975248051167e-05,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 0
+                }
+              }
+            },
+            "start_sensor_index": 0
+          }
+        ],
+        "matrix_shape": [
+          36,
+          146,
+          3
+        ],
+        "passed": true,
+        "schema_version": 1
+      },
+      "oracle_levels": [
+        {
+          "material_bounces": 1,
+          "repeatability": {
+            "gates": {
+              "absolute_energy_bias_percent": 1.0,
+              "rms_normalized_rmse_percent": 5.0
+            },
+            "grids": [
+              {
+                "identifier": "sealed_grid",
+                "sensor_count": 36,
+                "stages": {
+                  "direct": {
+                    "absolute_error": {
+                      "maximum": 0.0,
+                      "p50": 0.0,
+                      "p90": 0.0,
+                      "p95": 0.0,
+                      "p99": 0.0
+                    },
+                    "candidate_energy": 0.0,
+                    "cvrmse_percent": 0.0,
+                    "nmbe_percent": 0.0,
+                    "passed": true,
+                    "physically_near_zero": true,
+                    "reference_energy": 0.0,
+                    "relative_energy_error_percent": 0.0,
+                    "rms_normalized_rmse_percent": 0.0,
+                    "worst": {
+                      "candidate": 0.0,
+                      "global_sensor_index": 0,
+                      "local_sensor_index": 0,
+                      "reference": 0.0,
+                      "rgb_channel": 0,
+                      "sky_patch_index": 0
+                    }
+                  },
+                  "indirect": {
+                    "absolute_error": {
+                      "maximum": 3.950496102334e-05,
+                      "p50": 0.0,
+                      "p90": 0.0,
+                      "p95": 0.0,
+                      "p99": 0.0
+                    },
+                    "candidate_energy": 0.0,
+                    "cvrmse_percent": 0.0,
+                    "nmbe_percent": 0.0,
+                    "passed": true,
+                    "physically_near_zero": true,
+                    "reference_energy": 0.00011851488307002,
+                    "relative_energy_error_percent": 0.0,
+                    "rms_normalized_rmse_percent": 0.0,
+                    "worst": {
+                      "candidate": 0.0,
+                      "global_sensor_index": 10,
+                      "local_sensor_index": 10,
+                      "reference": 3.950496102334e-05,
+                      "rgb_channel": 0,
+                      "sky_patch_index": 0
+                    }
+                  }
+                },
+                "start_sensor_index": 0
+              }
+            ],
+            "half_run_count": 2,
+            "oracle_stable": true,
+            "run_count": 4,
+            "schema_version": 1
+          },
+          "runs": [
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "20000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "2",
+                  "-ad",
+                  "20000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 60.110957943834364,
+                "full": 239.9849999928847
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            },
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "20000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "2",
+                  "-ad",
+                  "20000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 53.866166970692575,
+                "full": 235.55229103658348
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            },
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "20000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "2",
+                  "-ad",
+                  "20000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 57.99845908768475,
+                "full": 243.9569999696687
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            },
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "20000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "2",
+                  "-ad",
+                  "20000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 53.73841605614871,
+                "full": 241.60545808263123
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            }
+          ],
+          "samples": 20000
+        },
+        {
+          "material_bounces": 4,
+          "repeatability": {
+            "gates": {
+              "absolute_energy_bias_percent": 1.0,
+              "rms_normalized_rmse_percent": 5.0
+            },
+            "grids": [
+              {
+                "identifier": "sealed_grid",
+                "sensor_count": 36,
+                "stages": {
+                  "direct": {
+                    "absolute_error": {
+                      "maximum": 0.0,
+                      "p50": 0.0,
+                      "p90": 0.0,
+                      "p95": 0.0,
+                      "p99": 0.0
+                    },
+                    "candidate_energy": 0.0,
+                    "cvrmse_percent": 0.0,
+                    "nmbe_percent": 0.0,
+                    "passed": true,
+                    "physically_near_zero": true,
+                    "reference_energy": 0.0,
+                    "relative_energy_error_percent": 0.0,
+                    "rms_normalized_rmse_percent": 0.0,
+                    "worst": {
+                      "candidate": 0.0,
+                      "global_sensor_index": 0,
+                      "local_sensor_index": 0,
+                      "reference": 0.0,
+                      "rgb_channel": 0,
+                      "sky_patch_index": 0
+                    }
+                  },
+                  "indirect": {
+                    "absolute_error": {
+                      "maximum": 9.817475074669346e-06,
+                      "p50": 0.0,
+                      "p90": 0.0,
+                      "p95": 0.0,
+                      "p99": 0.0
+                    },
+                    "candidate_energy": 4.233786313534438e-05,
+                    "cvrmse_percent": 0.0,
+                    "nmbe_percent": 0.0,
+                    "passed": true,
+                    "physically_near_zero": true,
+                    "reference_energy": 3.681553357637313e-05,
+                    "relative_energy_error_percent": 0.0,
+                    "rms_normalized_rmse_percent": 0.0,
+                    "worst": {
+                      "candidate": 0.0,
+                      "global_sensor_index": 4,
+                      "local_sensor_index": 4,
+                      "reference": 9.817475074669346e-06,
+                      "rgb_channel": 0,
+                      "sky_patch_index": 0
+                    }
+                  }
+                },
+                "start_sensor_index": 0
+              }
+            ],
+            "half_run_count": 2,
+            "oracle_stable": true,
+            "run_count": 4,
+            "schema_version": 1
+          },
+          "runs": [
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "5",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 93.31841603852808,
+                "full": 1820.273332996294
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            },
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "5",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 91.95370809175074,
+                "full": 1814.7656250512227
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            },
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "5",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 89.4347089342773,
+                "full": 1834.255458903499
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            },
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "5",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 139.98195808380842,
+                "full": 1864.3534169532359
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            }
+          ],
+          "samples": 40000
+        },
+        {
+          "material_bounces": 8,
+          "repeatability": {
+            "gates": {
+              "absolute_energy_bias_percent": 1.0,
+              "rms_normalized_rmse_percent": 5.0
+            },
+            "grids": [
+              {
+                "identifier": "sealed_grid",
+                "sensor_count": 36,
+                "stages": {
+                  "direct": {
+                    "absolute_error": {
+                      "maximum": 0.0,
+                      "p50": 0.0,
+                      "p90": 0.0,
+                      "p95": 0.0,
+                      "p99": 0.0
+                    },
+                    "candidate_energy": 0.0,
+                    "cvrmse_percent": 0.0,
+                    "nmbe_percent": 0.0,
+                    "passed": true,
+                    "physically_near_zero": true,
+                    "reference_energy": 0.0,
+                    "relative_energy_error_percent": 0.0,
+                    "rms_normalized_rmse_percent": 0.0,
+                    "worst": {
+                      "candidate": 0.0,
+                      "global_sensor_index": 0,
+                      "local_sensor_index": 0,
+                      "reference": 0.0,
+                      "rgb_channel": 0,
+                      "sky_patch_index": 0
+                    }
+                  },
+                  "indirect": {
+                    "absolute_error": {
+                      "maximum": 9.357280816857383e-06,
+                      "p50": 0.0,
+                      "p90": 0.0,
+                      "p95": 0.0,
+                      "p99": 0.0
+                    },
+                    "candidate_energy": 1.9788352460636816e-05,
+                    "cvrmse_percent": 0.0,
+                    "nmbe_percent": 0.0,
+                    "passed": true,
+                    "physically_near_zero": true,
+                    "reference_energy": 8.942767368225191e-05,
+                    "relative_energy_error_percent": 0.0,
+                    "rms_normalized_rmse_percent": 0.0,
+                    "worst": {
+                      "candidate": 4.601942578119633e-07,
+                      "global_sensor_index": 21,
+                      "local_sensor_index": 21,
+                      "reference": 9.817475074669346e-06,
+                      "rgb_channel": 0,
+                      "sky_patch_index": 0
+                    }
+                  }
+                },
+                "start_sensor_index": 0
+              }
+            ],
+            "half_run_count": 2,
+            "oracle_stable": true,
+            "run_count": 4,
+            "schema_version": 1
+          },
+          "runs": [
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "9",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 87.25258300546557,
+                "full": 3837.4536250485107
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            },
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "9",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 93.79520802758634,
+                "full": 3880.306209088303
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            },
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "9",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 85.83241701126099,
+                "full": 3861.257000011392
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            },
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "9",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 91.91600000485778,
+                "full": 3817.420416045934
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            }
+          ],
+          "samples": 40000
+        },
+        {
+          "material_bounces": 8,
+          "repeatability": {
+            "gates": {
+              "absolute_energy_bias_percent": 1.0,
+              "rms_normalized_rmse_percent": 5.0
+            },
+            "grids": [
+              {
+                "identifier": "sealed_grid",
+                "sensor_count": 36,
+                "stages": {
+                  "direct": {
+                    "absolute_error": {
+                      "maximum": 0.0,
+                      "p50": 0.0,
+                      "p90": 0.0,
+                      "p95": 0.0,
+                      "p99": 0.0
+                    },
+                    "candidate_energy": 0.0,
+                    "cvrmse_percent": 0.0,
+                    "nmbe_percent": 0.0,
+                    "passed": true,
+                    "physically_near_zero": true,
+                    "reference_energy": 0.0,
+                    "relative_energy_error_percent": 0.0,
+                    "rms_normalized_rmse_percent": 0.0,
+                    "worst": {
+                      "candidate": 0.0,
+                      "global_sensor_index": 0,
+                      "local_sensor_index": 0,
+                      "reference": 0.0,
+                      "rgb_channel": 0,
+                      "sky_patch_index": 0
+                    }
+                  },
+                  "indirect": {
+                    "absolute_error": {
+                      "maximum": 7.201697343361957e-06,
+                      "p50": 0.0,
+                      "p90": 0.0,
+                      "p95": 0.0,
+                      "p99": 0.0
+                    },
+                    "candidate_energy": 2.2974460787139606e-05,
+                    "cvrmse_percent": 0.0,
+                    "nmbe_percent": 0.0,
+                    "passed": true,
+                    "physically_near_zero": true,
+                    "reference_energy": 7.528878148121976e-05,
+                    "relative_energy_error_percent": 0.0,
+                    "rms_normalized_rmse_percent": 0.0,
+                    "worst": {
+                      "candidate": 1.532276030502544e-07,
+                      "global_sensor_index": 26,
+                      "local_sensor_index": 26,
+                      "reference": 7.354924946412211e-06,
+                      "rgb_channel": 0,
+                      "sky_patch_index": 0
+                    }
+                  }
+                },
+                "start_sensor_index": 0
+              }
+            ],
+            "half_run_count": 2,
+            "oracle_stable": true,
+            "run_count": 4,
+            "schema_version": 1
+          },
+          "runs": [
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "80000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "9",
+                  "-ad",
+                  "80000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 165.0302920024842,
+                "full": 7093.902416992933
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            },
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "80000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "9",
+                  "-ad",
+                  "80000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 159.96462502516806,
+                "full": 7125.359458965249
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            },
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "80000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "9",
+                  "-ad",
+                  "80000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 163.89379103202373,
+                "full": 7117.1504580415785
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            },
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "80000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "9",
+                  "-ad",
+                  "80000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/sealed/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 158.31324993632734,
+                "full": 7119.845292065293
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            }
+          ],
+          "samples": 80000
+        }
+      ],
+      "oracle_stable": false,
+      "passed": false,
+      "performance": {
+        "candidate_cold": {
+          "coefficient_trace_seconds": 0.0017074999632313848,
+          "cold_end_to_end_seconds": 0.32260604097973555,
+          "engine_acceleration_structure_seconds": 0.0,
+          "engine_annual_reduction_seconds": 0.0013729999773204327,
+          "engine_snapshot_seconds": 0.0,
+          "engine_tracing_seconds": 0.0017074999632313848,
+          "engine_upload_seconds": 0.000154833,
+          "metric_reduction_seconds": 0.06320491700898856,
+          "raw_export_seconds": 0.02121270797215402,
+          "study_preparation_seconds": 0.012448249966837466,
+          "total_seconds": 0.3101577910128981,
+          "warm_study_seconds": null,
+          "weather_seconds": 0.20706329203676432,
+          "write_seconds": 0.03943029197398573
+        },
+        "coefficient_stages_seconds": {
+          "direct": 0.046553708030842245,
+          "full": 0.0028713750652968884
+        }
+      },
+      "sample_stability": {
+        "grids": [
+          {
+            "absolute_error": {
+              "maximum": 5.138834694662364e-06,
+              "p95": 0.0,
+              "p99": 0.0
+            },
+            "bias_percent": -10.028550169310803,
+            "identifier": "sealed_grid",
+            "passed": false,
+            "rms_normalized_error_percent": 130.37621120190633,
+            "worst_index": [
+              21,
+              0,
+              0
+            ]
+          }
+        ],
+        "passed": false
+      },
+      "scene": "sealed",
+      "settings": {
+        "direct_samples": 64,
+        "maximum_bounces": 1,
+        "maximum_samples": 4096
+      },
+      "sky_density": 1,
+      "status": "incomplete",
+      "weather_sha256": "98246499f5e0508387c41d22a6f492c76a8ec52c17ceb31712069871a196bcee"
+    },
+    {
+      "annual": {
+        "grids": [
+          {
+            "identifier": "coloured_glass_grid",
+            "illuminance": {
+              "cvrmse_percent": 19.409759451103596,
+              "nmbe_percent": -13.40346777925904,
+              "passed": false
+            },
+            "metrics": {
+              "cda": {
+                "maximum_error_percentage_points": 31.41169339538713,
+                "mean_absolute_error_percentage_points": 13.840562347967193,
+                "passed": false
+              },
+              "da": {
+                "maximum_error_percentage_points": 33.39753424657535,
+                "mean_absolute_error_percentage_points": 20.975768645357686,
+                "passed": false
+              },
+              "udi": {
+                "maximum_error_percentage_points": 38.275342465753425,
+                "mean_absolute_error_percentage_points": 9.702994672754947,
+                "passed": false
+              },
+              "udi_lower": {
+                "maximum_error_percentage_points": 38.40671232876713,
+                "mean_absolute_error_percentage_points": 9.99089802130898,
+                "passed": false
+              },
+              "udi_upper": {
+                "maximum_error_percentage_points": 1.6708219178082189,
+                "mean_absolute_error_percentage_points": 0.4870776255707761,
+                "passed": true
+              }
+            },
+            "sda": {
+              "difference_percentage_points": 27.77777777777778,
+              "foton_percent": 25.0,
+              "passed": false,
+              "radiance_percent": 52.77777777777778
+            },
+            "sensor_count": 36
+          }
+        ],
+        "occupied_hours": 3650,
+        "oracle": "converged-coefficients",
+        "passed": false,
+        "schema_version": 1,
+        "structural": {
+          "grid_counts_match": true,
+          "grid_ids_match": true,
+          "sun_up_hours_match": true
+        }
+      },
+      "candidate": {
+        "capabilities": {
+          "hardware_acceleration": true,
+          "name": "Metal device: Apple M4 Pro (GPU direct, diffuse, glass, and annual reduction)",
+          "supports_async_jobs": true,
+          "supports_ray_tracing": true
+        },
+        "direct": {
+          "basis": "Tregenza",
+          "convergence": 1.0,
+          "direct_sample_count": 64,
+          "glazing_model": "radiance_thin_glass_non_refracting",
+          "metric_label": "static_sDA300_50",
+          "quality": "Final",
+          "scene_fingerprint": 2440974090585274788,
+          "schedule_timestep_count": 1,
+          "solver_version": "0.2.0",
+          "transport_backend": "metal",
+          "used_reference_fallback": false
+        },
+        "full": {
+          "basis": "Tregenza",
+          "convergence": 1.0,
+          "direct_sample_count": 64,
+          "glazing_model": "radiance_thin_glass_non_refracting",
+          "metric_label": "static_sDA300_50",
+          "quality": "Final",
+          "scene_fingerprint": 2440974090585274788,
+          "schedule_timestep_count": 1,
+          "solver_version": "0.2.0",
+          "transport_backend": "metal",
+          "used_reference_fallback": false
+        }
+      },
+      "coefficients": {
+        "gates": {
+          "direct": {
+            "absolute_nmbe_percent": 2.0,
+            "rms_normalized_rmse_percent": 5.0
+          },
+          "full": {
+            "absolute_nmbe_percent": 5.0,
+            "rms_normalized_rmse_percent": 10.0
+          },
+          "indirect": {
+            "absolute_nmbe_percent": 3.0,
+            "rms_normalized_rmse_percent": 10.0
+          }
+        },
+        "grids": [
+          {
+            "full_identifier": "coloured_glass_grid",
+            "identifier": "coloured_glass_grid",
+            "sensor_count": 36,
+            "stages": {
+              "direct": {
+                "absolute_error": {
+                  "maximum": 0.00045849941670894623,
+                  "p50": 0.0,
+                  "p90": 0.0,
+                  "p95": 7.251277565956116e-06,
+                  "p99": 0.00010300023946911096
+                },
+                "candidate_energy": 5.463234355202076,
+                "cvrmse_percent": 6.416916841554287,
+                "nmbe_percent": -0.001618052073346941,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 5.46332275460918,
+                "relative_energy_error_percent": 0.001618052073346941,
+                "rms_normalized_rmse_percent": 1.2976790670693525,
+                "worst": {
+                  "candidate": 0.01479410845786333,
+                  "global_sensor_index": 17,
+                  "local_sensor_index": 17,
+                  "reference": 0.015252607874572277,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 134
+                }
+              },
+              "full": {
+                "absolute_error": {
+                  "maximum": 0.010750609450042248,
+                  "p50": 6.603044937492086e-07,
+                  "p90": 0.0002068801899440587,
+                  "p95": 0.0002738336537731811,
+                  "p99": 0.0005279676849022508
+                },
+                "candidate_energy": 7.330474813985347,
+                "cvrmse_percent": 100.68254034742284,
+                "nmbe_percent": -17.60424781289332,
+                "passed": false,
+                "physically_near_zero": false,
+                "reference_energy": 8.896665931684307,
+                "relative_energy_error_percent": 17.604247812893323,
+                "rms_normalized_rmse_percent": 22.329879470775182,
+                "worst": {
+                  "candidate": 0.014709879644215107,
+                  "global_sensor_index": 4,
+                  "local_sensor_index": 4,
+                  "reference": 0.025460489094257355,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 0
+                }
+              },
+              "indirect": {
+                "absolute_error": {
+                  "maximum": 0.010750609450042248,
+                  "p50": 6.621009163154667e-07,
+                  "p90": 0.00020658487628679727,
+                  "p95": 0.00027269493002677323,
+                  "p99": 0.0005063894006889314
+                },
+                "candidate_energy": 1.8672404587832716,
+                "cvrmse_percent": 260.7860821746766,
+                "nmbe_percent": -45.61451149855698,
+                "passed": false,
+                "physically_near_zero": false,
+                "reference_energy": 3.433343177075127,
+                "relative_energy_error_percent": 45.614511498556986,
+                "rms_normalized_rmse_percent": 31.04840116158283,
+                "worst": {
+                  "candidate": 0.014709879644215107,
+                  "global_sensor_index": 4,
+                  "local_sensor_index": 4,
+                  "reference": 0.025460489094257355,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 0
+                }
+              }
+            },
+            "start_sensor_index": 0
+          }
+        ],
+        "matrix_shape": [
+          36,
+          146,
+          3
+        ],
+        "passed": false,
+        "schema_version": 1
+      },
+      "compatibility": {
+        "official_loader": {
+          "maximum_error_percentage_points": 0.004938730736299135,
+          "metrics": {
+            "cda": [
+              {
+                "identifier": "coloured_glass_grid",
+                "maximum_error_percentage_points": 0.004938730736299135,
+                "passed": true
+              }
+            ],
+            "da": [
+              {
+                "identifier": "coloured_glass_grid",
+                "maximum_error_percentage_points": 0.004931506849313649,
+                "passed": true
+              }
+            ],
+            "udi": [
+              {
+                "identifier": "coloured_glass_grid",
+                "maximum_error_percentage_points": 0.004931506849310097,
+                "passed": true
+              }
+            ],
+            "udi_lower": [
+              {
+                "identifier": "coloured_glass_grid",
+                "maximum_error_percentage_points": 0.004383561643836131,
+                "passed": true
+              }
+            ],
+            "udi_upper": [
+              {
+                "identifier": "coloured_glass_grid",
+                "maximum_error_percentage_points": 0.004931506849314982,
+                "passed": true
+              }
+            ]
+          },
+          "passed": true,
+          "tolerance_percentage_points": 0.05
+        },
+        "stock": {
+          "passed": true,
+          "status": "not_applicable"
+        }
+      },
+      "controlled_skies": {
+        "horizon": {
+          "absolute_error": {
+            "maximum": 0.32852439359178476,
+            "p95": 0.30305054086609506,
+            "p99": 0.32288585146908205
+          },
+          "bias_percent": -20.099461226695066,
+          "passed": false,
+          "rms_normalized_error_percent": 19.14142544915206,
+          "worst_index": [
+            13
+          ]
+        },
+        "overcast": {
+          "absolute_error": {
+            "maximum": 1.0989189147949219,
+            "p95": 1.0594483017921448,
+            "p99": 1.0858395099639893
+          },
+          "bias_percent": -12.713446184041304,
+          "passed": false,
+          "rms_normalized_error_percent": 6.522978670724306,
+          "worst_index": [
+            16
+          ]
+        },
+        "uniform": {
+          "absolute_error": {
+            "maximum": 1.7176894948347732,
+            "p95": 1.6924086835659264,
+            "p99": 1.7104654097203738
+          },
+          "bias_percent": -13.137996758085794,
+          "passed": false,
+          "rms_normalized_error_percent": 7.436342629892778,
+          "worst_index": [
+            27
+          ]
+        }
+      },
+      "darkness": {
+        "maximum_lux": null,
+        "passed": true,
+        "required": false,
+        "tolerance_lux": 1e-06
+      },
+      "depth_stability": {
+        "grids": [
+          {
+            "absolute_error": {
+              "maximum": 0.001435035839676857,
+              "p95": 4.7562002146150915e-05,
+              "p99": 0.00017896675970405313
+            },
+            "bias_percent": 1.9779108474255798,
+            "identifier": "coloured_glass_grid",
+            "passed": false,
+            "rms_normalized_error_percent": 2.918681908993565,
+            "worst_index": [
+              33,
+              0,
+              0
+            ]
+          }
+        ],
+        "passed": false
+      },
+      "direct_oracles": [
+        {
+          "commands": [
+            [
+              "/private/tmp/foton-radiance-6/radiance/bin/oconv",
+              "-i",
+              "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct",
+              "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome"
+            ],
+            [
+              "/private/tmp/foton-radiance-6/radiance/bin/rcontrib",
+              "-h",
+              "-w",
+              "-ab",
+              "0",
+              "-M",
+              "/private/tmp/foton-metal-final/coloured_glass/mf1/direct_256/sky_modifiers.txt",
+              "-n",
+              "4",
+              "/private/tmp/foton-metal-final/coloured_glass/mf1/direct_256/direct_scene.oct"
+            ]
+          ],
+          "sample_count": 256,
+          "versions": {
+            "oconv": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+            "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/private/tmp/foton-radiance-6/radiance/bin/oconv",
+              "-i",
+              "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct",
+              "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome"
+            ],
+            [
+              "/private/tmp/foton-radiance-6/radiance/bin/rcontrib",
+              "-h",
+              "-w",
+              "-ab",
+              "0",
+              "-M",
+              "/private/tmp/foton-metal-final/coloured_glass/mf1/direct_1024/sky_modifiers.txt",
+              "-n",
+              "4",
+              "/private/tmp/foton-metal-final/coloured_glass/mf1/direct_1024/direct_scene.oct"
+            ]
+          ],
+          "sample_count": 1024,
+          "versions": {
+            "oconv": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+            "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+          }
+        }
+      ],
+      "direct_stability": {
+        "grids": [
+          {
+            "absolute_error": {
+              "maximum": 0.00034986017271876335,
+              "p95": 3.060291055589912e-06,
+              "p99": 8.318264735862613e-05
+            },
+            "bias_percent": -0.08032602149044779,
+            "identifier": "coloured_glass_grid",
+            "passed": true,
+            "rms_normalized_error_percent": 1.0754234201512167,
+            "worst_index": [
+              9,
+              72,
+              0
+            ]
+          }
+        ],
+        "passed": true
+      },
+      "export_command": [
+        "/private/tmp/foton-radiance-6/radiance/bin/oconv",
+        "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.rad"
+      ],
+      "gpu_executed": true,
+      "model_sha256": "61e555e2e91f6ee97d779670d31f50d94bac6df0b778434cd6dec011760b1bd0",
+      "one_bounce_diagnostic": {
+        "gates": {
+          "direct": {
+            "absolute_nmbe_percent": 2.0,
+            "rms_normalized_rmse_percent": 5.0
+          },
+          "full": {
+            "absolute_nmbe_percent": 5.0,
+            "rms_normalized_rmse_percent": 10.0
+          },
+          "indirect": {
+            "absolute_nmbe_percent": 3.0,
+            "rms_normalized_rmse_percent": 10.0
+          }
+        },
+        "grids": [
+          {
+            "full_identifier": "coloured_glass_grid",
+            "identifier": "coloured_glass_grid",
+            "sensor_count": 36,
+            "stages": {
+              "direct": {
+                "absolute_error": {
+                  "maximum": 0.00045849941670894623,
+                  "p50": 0.0,
+                  "p90": 0.0,
+                  "p95": 7.251277565956116e-06,
+                  "p99": 0.00010300023946911096
+                },
+                "candidate_energy": 5.463234355202076,
+                "cvrmse_percent": 6.416916841554287,
+                "nmbe_percent": -0.001618052073346941,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 5.46332275460918,
+                "relative_energy_error_percent": 0.001618052073346941,
+                "rms_normalized_rmse_percent": 1.2976790670693525,
+                "worst": {
+                  "candidate": 0.01479410845786333,
+                  "global_sensor_index": 17,
+                  "local_sensor_index": 17,
+                  "reference": 0.015252607874572277,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 134
+                }
+              },
+              "full": {
+                "absolute_error": {
+                  "maximum": 0.0047734640538692474,
+                  "p50": 0.0,
+                  "p90": 3.410553326830268e-05,
+                  "p95": 0.00012835013330914072,
+                  "p99": 0.00037402341607958053
+                },
+                "candidate_energy": 7.330474813985347,
+                "cvrmse_percent": 30.00073640075884,
+                "nmbe_percent": 0.15646248961539785,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 7.319023287933516,
+                "relative_energy_error_percent": 0.15646248961539788,
+                "rms_normalized_rmse_percent": 6.438743394666518,
+                "worst": {
+                  "candidate": 0.033358119428157806,
+                  "global_sensor_index": 16,
+                  "local_sensor_index": 16,
+                  "reference": 0.02858465537428856,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 0
+                }
+              },
+              "indirect": {
+                "absolute_error": {
+                  "maximum": 0.0047734640538692474,
+                  "p50": 0.0,
+                  "p90": 2.9524201090680512e-05,
+                  "p95": 0.00012006886099698019,
+                  "p99": 0.00036244746297597863
+                },
+                "candidate_energy": 1.8672404587832716,
+                "cvrmse_percent": 117.54892572570374,
+                "nmbe_percent": 0.6218635632045266,
+                "passed": false,
+                "physically_near_zero": false,
+                "reference_energy": 1.8557005333243355,
+                "relative_energy_error_percent": 0.6218635632045267,
+                "rms_normalized_rmse_percent": 10.639090747674329,
+                "worst": {
+                  "candidate": 0.033358119428157806,
+                  "global_sensor_index": 16,
+                  "local_sensor_index": 16,
+                  "reference": 0.02858465537428856,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 0
+                }
+              }
+            },
+            "start_sensor_index": 0
+          }
+        ],
+        "matrix_shape": [
+          36,
+          146,
+          3
+        ],
+        "passed": false,
+        "schema_version": 1
+      },
+      "oracle_levels": [
+        {
+          "material_bounces": 1,
+          "repeatability": {
+            "gates": {
+              "absolute_energy_bias_percent": 1.0,
+              "rms_normalized_rmse_percent": 5.0
+            },
+            "grids": [
+              {
+                "identifier": "coloured_glass_grid",
+                "sensor_count": 36,
+                "stages": {
+                  "direct": {
+                    "absolute_error": {
+                      "maximum": 0.00047888513654470444,
+                      "p50": 0.0,
+                      "p90": 0.0,
+                      "p95": 4.927888712700219e-05,
+                      "p99": 0.0001992341422010213
+                    },
+                    "candidate_energy": 5.471682295947176,
+                    "cvrmse_percent": 10.337185458063685,
+                    "nmbe_percent": 0.09648719835534798,
+                    "passed": true,
+                    "physically_near_zero": false,
+                    "reference_energy": 5.466407912102113,
+                    "relative_energy_error_percent": 0.09648719835534798,
+                    "rms_normalized_rmse_percent": 2.090743622472238,
+                    "worst": {
+                      "candidate": 0.016662899404764175,
+                      "global_sensor_index": 23,
+                      "local_sensor_index": 23,
+                      "reference": 0.01618401426821947,
+                      "rgb_channel": 0,
+                      "sky_patch_index": 96
+                    }
+                  },
+                  "indirect": {
+                    "absolute_error": {
+                      "maximum": 0.0008500502444803715,
+                      "p50": 0.0,
+                      "p90": 1.3804964419250615e-05,
+                      "p95": 9.786484733922406e-05,
+                      "p99": 0.0003468859812710434
+                    },
+                    "candidate_energy": 1.8443025106078181,
+                    "cvrmse_percent": 54.67616970080201,
+                    "nmbe_percent": -0.6117164332429541,
+                    "passed": true,
+                    "physically_near_zero": false,
+                    "reference_energy": 1.8556538501533115,
+                    "relative_energy_error_percent": 0.6117164332429541,
+                    "rms_normalized_rmse_percent": 4.9565055515609275,
+                    "worst": {
+                      "candidate": 0.00032950006425380707,
+                      "global_sensor_index": 29,
+                      "local_sensor_index": 29,
+                      "reference": -0.0005205501802265644,
+                      "rgb_channel": 0,
+                      "sky_patch_index": 101
+                    }
+                  }
+                },
+                "start_sensor_index": 0
+              }
+            ],
+            "half_run_count": 2,
+            "oracle_stable": true,
+            "run_count": 4,
+            "schema_version": 1
+          },
+          "runs": [
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "20000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "2",
+                  "-ad",
+                  "20000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 66.71675003599375,
+                "full": 274.41229100804776
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            },
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "20000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "2",
+                  "-ad",
+                  "20000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 65.28954196255654,
+                "full": 277.9853750253096
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            },
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "20000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "2",
+                  "-ad",
+                  "20000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 72.86729093175381,
+                "full": 271.9349159160629
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            },
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "20000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "2",
+                  "-ad",
+                  "20000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 67.26154196076095,
+                "full": 278.3727500354871
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            }
+          ],
+          "samples": 20000
+        },
+        {
+          "material_bounces": 4,
+          "repeatability": {
+            "gates": {
+              "absolute_energy_bias_percent": 1.0,
+              "rms_normalized_rmse_percent": 5.0
+            },
+            "grids": [
+              {
+                "identifier": "coloured_glass_grid",
+                "sensor_count": 36,
+                "stages": {
+                  "direct": {
+                    "absolute_error": {
+                      "maximum": 0.00036962004378437996,
+                      "p50": 0.0,
+                      "p90": 0.0,
+                      "p95": 4.2312056757509666e-05,
+                      "p99": 0.00014867847552523016
+                    },
+                    "candidate_energy": 5.459827633469104,
+                    "cvrmse_percent": 8.020363607686432,
+                    "nmbe_percent": -0.0832921472331344,
+                    "passed": true,
+                    "physically_near_zero": false,
+                    "reference_energy": 5.464379032097895,
+                    "relative_energy_error_percent": 0.0832921472331344,
+                    "rms_normalized_rmse_percent": 1.6228902521011026,
+                    "worst": {
+                      "candidate": 0.010573560371994972,
+                      "global_sensor_index": 22,
+                      "local_sensor_index": 22,
+                      "reference": 0.010943180415779352,
+                      "rgb_channel": 0,
+                      "sky_patch_index": 72
+                    }
+                  },
+                  "indirect": {
+                    "absolute_error": {
+                      "maximum": 0.000919160433113575,
+                      "p50": 2.0305497372419268e-07,
+                      "p90": 2.8766971081495352e-05,
+                      "p95": 8.280648034997283e-05,
+                      "p99": 0.0002540734142530709
+                    },
+                    "candidate_energy": 3.263777794421552,
+                    "cvrmse_percent": 24.183285790514297,
+                    "nmbe_percent": 0.016313714244831,
+                    "passed": true,
+                    "physically_near_zero": false,
+                    "reference_energy": 3.2632454378857076,
+                    "relative_energy_error_percent": 0.016313714244831,
+                    "rms_normalized_rmse_percent": 2.8354683698509846,
+                    "worst": {
+                      "candidate": 0.023986664600670338,
+                      "global_sensor_index": 4,
+                      "local_sensor_index": 4,
+                      "reference": 0.024905825033783913,
+                      "rgb_channel": 0,
+                      "sky_patch_index": 0
+                    }
+                  }
+                },
+                "start_sensor_index": 0
+              }
+            ],
+            "half_run_count": 2,
+            "oracle_stable": true,
+            "run_count": 4,
+            "schema_version": 1
+          },
+          "runs": [
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "5",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 116.0565409809351,
+                "full": 2115.323083009571
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            },
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "5",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 111.13333306275308,
+                "full": 2114.338458981365
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            },
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "5",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 113.92029200214893,
+                "full": 2109.7136669559404
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            },
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "5",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 111.83537496253848,
+                "full": 2110.702708014287
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            }
+          ],
+          "samples": 40000
+        },
+        {
+          "material_bounces": 8,
+          "repeatability": {
+            "gates": {
+              "absolute_energy_bias_percent": 1.0,
+              "rms_normalized_rmse_percent": 5.0
+            },
+            "grids": [
+              {
+                "identifier": "coloured_glass_grid",
+                "sensor_count": 36,
+                "stages": {
+                  "direct": {
+                    "absolute_error": {
+                      "maximum": 0.00041668955236673355,
+                      "p50": 0.0,
+                      "p90": 0.0,
+                      "p95": 4.42712069343542e-05,
+                      "p99": 0.00014978931576479221
+                    },
+                    "candidate_energy": 5.45771570359102,
+                    "cvrmse_percent": 8.056544817683005,
+                    "nmbe_percent": -0.06829059011091503,
+                    "passed": true,
+                    "physically_near_zero": false,
+                    "reference_energy": 5.461445356853801,
+                    "relative_energy_error_percent": 0.06829059011091503,
+                    "rms_normalized_rmse_percent": 1.6290719451604005,
+                    "worst": {
+                      "candidate": 0.005495742429047823,
+                      "global_sensor_index": 9,
+                      "local_sensor_index": 9,
+                      "reference": 0.0059124319814145565,
+                      "rgb_channel": 0,
+                      "sky_patch_index": 72
+                    }
+                  },
+                  "indirect": {
+                    "absolute_error": {
+                      "maximum": 0.0009058648720383644,
+                      "p50": 1.8280056224284635e-07,
+                      "p90": 2.756545945885594e-05,
+                      "p95": 7.762714249111013e-05,
+                      "p99": 0.00023605320951901375
+                    },
+                    "candidate_energy": 3.4413133261299595,
+                    "cvrmse_percent": 22.59673588135155,
+                    "nmbe_percent": 0.15681593611948993,
+                    "passed": true,
+                    "physically_near_zero": false,
+                    "reference_energy": 3.4359252477882745,
+                    "relative_energy_error_percent": 0.15681593611948996,
+                    "rms_normalized_rmse_percent": 2.692377422669207,
+                    "worst": {
+                      "candidate": 0.026928044855594635,
+                      "global_sensor_index": 29,
+                      "local_sensor_index": 29,
+                      "reference": 0.027833909727633,
+                      "rgb_channel": 0,
+                      "sky_patch_index": 0
+                    }
+                  }
+                },
+                "start_sensor_index": 0
+              }
+            ],
+            "half_run_count": 2,
+            "oracle_stable": true,
+            "run_count": 4,
+            "schema_version": 1
+          },
+          "runs": [
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "9",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 113.19845798425376,
+                "full": 4171.854416024871
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            },
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "9",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 117.61245806701481,
+                "full": 4234.22154202126
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            },
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "9",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 113.34479204379022,
+                "full": 4168.161667068489
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            },
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "9",
+                  "-ad",
+                  "40000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 114.67066605109721,
+                "full": 4182.995249982923
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            }
+          ],
+          "samples": 40000
+        },
+        {
+          "material_bounces": 8,
+          "repeatability": {
+            "gates": {
+              "absolute_energy_bias_percent": 1.0,
+              "rms_normalized_rmse_percent": 5.0
+            },
+            "grids": [
+              {
+                "identifier": "coloured_glass_grid",
+                "sensor_count": 36,
+                "stages": {
+                  "direct": {
+                    "absolute_error": {
+                      "maximum": 0.0002476014196872711,
+                      "p50": 0.0,
+                      "p90": 0.0,
+                      "p95": 2.1736271446570736e-05,
+                      "p99": 8.648798801004887e-05
+                    },
+                    "candidate_energy": 5.459648844017465,
+                    "cvrmse_percent": 4.658748502794418,
+                    "nmbe_percent": 0.011153453025961829,
+                    "passed": true,
+                    "physically_near_zero": false,
+                    "reference_energy": 5.4590399725584575,
+                    "relative_energy_error_percent": 0.011153453025961829,
+                    "rms_normalized_rmse_percent": 0.9420672756329528,
+                    "worst": {
+                      "candidate": 0.009250823874026537,
+                      "global_sensor_index": 15,
+                      "local_sensor_index": 15,
+                      "reference": 0.009003222454339266,
+                      "rgb_channel": 0,
+                      "sky_patch_index": 73
+                    }
+                  },
+                  "indirect": {
+                    "absolute_error": {
+                      "maximum": 0.0003860499709844589,
+                      "p50": 1.3959419931097727e-07,
+                      "p90": 1.8878481932915773e-05,
+                      "p95": 4.5543305895989746e-05,
+                      "p99": 0.00014441443257965145
+                    },
+                    "candidate_energy": 3.437351218689722,
+                    "cvrmse_percent": 13.068280929280949,
+                    "nmbe_percent": 0.001727299013519568,
+                    "passed": true,
+                    "physically_near_zero": false,
+                    "reference_energy": 3.4372918463815676,
+                    "relative_energy_error_percent": 0.001727299013519568,
+                    "rms_normalized_rmse_percent": 1.5583454495775584,
+                    "worst": {
+                      "candidate": 0.03175476938486099,
+                      "global_sensor_index": 10,
+                      "local_sensor_index": 10,
+                      "reference": 0.031368719413876534,
+                      "rgb_channel": 0,
+                      "sky_patch_index": 0
+                    }
+                  }
+                },
+                "start_sensor_index": 0
+              }
+            ],
+            "half_run_count": 2,
+            "oracle_stable": true,
+            "run_count": 4,
+            "schema_version": 1
+          },
+          "runs": [
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "80000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "9",
+                  "-ad",
+                  "80000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 214.11516703665257,
+                "full": 7680.347334011458
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            },
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "80000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "9",
+                  "-ad",
+                  "80000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 215.166708920151,
+                "full": 7722.419332945719
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            },
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "80000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "9",
+                  "-ad",
+                  "80000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 208.4686669986695,
+                "full": 7710.8079170575365
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            },
+            {
+              "commands": [
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "1",
+                  "-ad",
+                  "80000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ],
+                [
+                  "/private/tmp/foton-radiance-6/radiance/bin/rfluxmtx",
+                  "-I+",
+                  "-h",
+                  "-y",
+                  "36",
+                  "-ab",
+                  "9",
+                  "-ad",
+                  "80000",
+                  "-lw",
+                  "1e-7",
+                  "-dr",
+                  "0",
+                  "-n",
+                  "4",
+                  "-",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/sky.dome",
+                  "-i",
+                  "/private/tmp/foton-metal-final/coloured_glass/mf1/oracle/scene.oct"
+                ]
+              ],
+              "timings_ms": {
+                "direct": 205.66437498200685,
+                "full": 7638.87741707731
+              },
+              "versions": {
+                "rcontrib": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)",
+                "rfluxmtx": "RADIANCE 6.0.2 2026-02-02 LBNL (6.0.c1700d56cc)"
+              }
+            }
+          ],
+          "samples": 80000
+        }
+      ],
+      "oracle_stable": false,
+      "passed": false,
+      "performance": {
+        "candidate_cold": {
+          "coefficient_trace_seconds": 0.0022820000303909183,
+          "cold_end_to_end_seconds": 0.20193000009749085,
+          "engine_acceleration_structure_seconds": 0.0,
+          "engine_annual_reduction_seconds": 0.0018427915638312697,
+          "engine_snapshot_seconds": 0.0,
+          "engine_tracing_seconds": 0.0022820000303909183,
+          "engine_upload_seconds": 0.00018,
+          "metric_reduction_seconds": 0.07644404203165323,
+          "raw_export_seconds": 0.012567749945446849,
+          "study_preparation_seconds": 0.013890666072256863,
+          "total_seconds": 0.18803933402523398,
+          "warm_study_seconds": null,
+          "weather_seconds": 0.08866999996826053,
+          "write_seconds": 0.022695957915857434
+        },
+        "coefficient_stages_seconds": {
+          "direct": 0.010337915970012546,
+          "full": 0.003789458074606955
+        }
+      },
+      "sample_stability": {
+        "grids": [
+          {
+            "absolute_error": {
+              "maximum": 0.00038198381662368774,
+              "p95": 3.3720210194587703e-05,
+              "p99": 0.00010343302972614763
+            },
+            "bias_percent": -0.017238147814115444,
+            "identifier": "coloured_glass_grid",
+            "passed": true,
+            "rms_normalized_error_percent": 0.8226699734612354,
+            "worst_index": [
+              16,
+              0,
+              0
+            ]
+          }
+        ],
+        "passed": true
+      },
+      "scene": "coloured_glass",
+      "settings": {
+        "direct_samples": 64,
+        "maximum_bounces": 1,
+        "maximum_samples": 4096
+      },
+      "sky_density": 1,
+      "status": "incomplete",
+      "weather_sha256": "98246499f5e0508387c41d22a6f492c76a8ec52c17ceb31712069871a196bcee"
+    }
+  ],
+  "schema_version": 1,
+  "smoke": false,
+  "started_at": "2026-09-15T05:58:59.975153+00:00",
+  "status": "incomplete",
+  "suite_version": 1
+}

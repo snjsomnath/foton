@@ -1,0 +1,2573 @@
+# Foton report
+
+Status: **passed**
+
+```json
+{
+  "scene": "stacked_rooms",
+  "scene_spec": {
+    "suite_version": 4,
+    "identifier": "stacked_rooms",
+    "category": "connections",
+    "question": "Does an opaque shared slab isolate two storeys?",
+    "interactions": [
+      "stacked_zones",
+      "opaque_adjacency",
+      "room_isolation"
+    ],
+    "room_count": 2,
+    "include_glazing": true,
+    "footprint_family": null,
+    "window_profile": null
+  },
+  "model_summary": {
+    "rooms": 2,
+    "apertures": 2,
+    "shades": 0,
+    "sensors": 72,
+    "floor_area": 72.0,
+    "aperture_area": 5.999999999999997
+  },
+  "sky_density": 2,
+  "status": "passed",
+  "passed": true,
+  "model_sha256": "ac1b3ff823a1bbed0b38a1ddbbac327ef950b93b06ea1975eacf6a5f94c0f8d2",
+  "weather_sha256": "98246499f5e0508387c41d22a6f492c76a8ec52c17ceb31712069871a196bcee",
+  "gpu_executed": true,
+  "candidate": {
+    "capabilities": {
+      "name": "Vulkan device: Tesla T4",
+      "hardware_acceleration": true,
+      "supports_ray_tracing": true,
+      "supports_async_jobs": true
+    },
+    "direct": {
+      "metric_label": "static_sDA300_50",
+      "solver_version": "0.3.0",
+      "scene_fingerprint": 6348620744982744529,
+      "basis": "ReinhartMf2",
+      "quality": "Final",
+      "glazing_model": "radiance_thin_glass_non_refracting",
+      "schedule_timestep_count": 1,
+      "direct_sample_count": 256,
+      "convergence": 1.0,
+      "transport_backend": "vulkan",
+      "used_reference_fallback": false
+    },
+    "full": {
+      "metric_label": "static_sDA300_50",
+      "solver_version": "0.3.0",
+      "scene_fingerprint": 6348620744982744529,
+      "basis": "ReinhartMf2",
+      "quality": "Final",
+      "glazing_model": "radiance_thin_glass_non_refracting",
+      "schedule_timestep_count": 1,
+      "direct_sample_count": 256,
+      "convergence": 1.0,
+      "transport_backend": "vulkan",
+      "used_reference_fallback": false
+    }
+  },
+  "sky_bin_audit": {
+    "passed": true,
+    "ray_count": 9248,
+    "command": [
+      "/usr/local/radiance/bin/rcalc",
+      "-e",
+      "MF:2",
+      "-f",
+      "/usr/local/radiance/lib/reinhart.cal",
+      "-e",
+      "Dx=$1;Dy=$2;Dz=$3;$1=rbin"
+    ],
+    "calibration_sha256": "92b8c09984de7a551773530b3146ba79a51e1b003245f230b6e7b430eb6c26cd"
+  },
+  "settings": {
+    "direct_samples": 256,
+    "maximum_samples": 262144,
+    "maximum_bounces": 8
+  },
+  "direct_io": "binary",
+  "oracle_stable": true,
+  "reference_source": {
+    "bundle": "/content/bundle/foton-references-corpus4-2026-11-03",
+    "model_sha256": "4bfac668c37ffc604342292b499e2b090d664248f9834ac469cdbb2450989615",
+    "model_sha256_matches": false,
+    "sensor_grid_sha256": "2b608cd5602657572292d87b033fd5c28fb4057c61e72dafb0127ed46035037c",
+    "sensor_grid_sha256_matches": true,
+    "sensor_grid_max_difference": 0.0,
+    "geometry_matches": true,
+    "one_bounce_replicates": 4
+  },
+  "direct_stability": {
+    "grids": [
+      {
+        "absolute_error": {
+          "maximum": 0.00014028436271473765,
+          "p95": 3.259629011154175e-08,
+          "p99": 7.011898560449481e-06
+        },
+        "bias_percent": -0.02574736435175291,
+        "identifier": "stacked_rooms_0_grid",
+        "passed": true,
+        "rms_normalized_error_percent": 0.7597631247218805,
+        "worst_index": [
+          17,
+          543,
+          0
+        ]
+      },
+      {
+        "absolute_error": {
+          "maximum": 0.00014028436271473765,
+          "p95": 3.259629011154175e-08,
+          "p99": 7.011898560449481e-06
+        },
+        "bias_percent": -0.02575210823513647,
+        "identifier": "stacked_rooms_1_grid",
+        "passed": true,
+        "rms_normalized_error_percent": 0.7597635803020724,
+        "worst_index": [
+          17,
+          543,
+          0
+        ]
+      }
+    ],
+    "passed": true,
+    "samples_per_patch": [
+      256,
+      1024
+    ]
+  },
+  "depth_stability": {
+    "grids": [
+      {
+        "absolute_error": {
+          "maximum": 0.0005105752497911453,
+          "p95": 2.0654406398534775e-05,
+          "p99": 0.00010097899939864874
+        },
+        "bias_percent": 0.056851179140817346,
+        "identifier": "stacked_rooms_0_grid",
+        "passed": true,
+        "rms_normalized_error_percent": 1.7250598697334545,
+        "worst_index": [
+          14,
+          0,
+          0
+        ]
+      },
+      {
+        "absolute_error": {
+          "maximum": 0.0003206904511898756,
+          "p95": 2.1077808924019337e-05,
+          "p99": 0.00010604807175695896
+        },
+        "bias_percent": 0.08826729836398464,
+        "identifier": "stacked_rooms_1_grid",
+        "passed": true,
+        "rms_normalized_error_percent": 1.7059307492124838,
+        "worst_index": [
+          16,
+          212,
+          0
+        ]
+      }
+    ],
+    "passed": true
+  },
+  "sample_stability": {
+    "grids": [
+      {
+        "absolute_error": {
+          "maximum": 0.0005003772675991058,
+          "p95": 1.726584741845727e-05,
+          "p99": 7.937522605061531e-05
+        },
+        "bias_percent": -0.03125615521826078,
+        "identifier": "stacked_rooms_0_grid",
+        "passed": true,
+        "rms_normalized_error_percent": 1.4111707443632402,
+        "worst_index": [
+          22,
+          0,
+          0
+        ]
+      },
+      {
+        "absolute_error": {
+          "maximum": 0.0003219805657863617,
+          "p95": 1.8320984963793308e-05,
+          "p99": 8.138734847307205e-05
+        },
+        "bias_percent": -0.032344802902103086,
+        "identifier": "stacked_rooms_1_grid",
+        "passed": true,
+        "rms_normalized_error_percent": 1.417501824418293,
+        "worst_index": [
+          9,
+          0,
+          0
+        ]
+      }
+    ],
+    "passed": true
+  },
+  "oracle_levels": [
+    {
+      "material_bounces": 1,
+      "repeatability": {
+        "gates": {
+          "absolute_energy_bias_percent": 1.0,
+          "rms_normalized_rmse_percent": 10.0
+        },
+        "grids": [
+          {
+            "identifier": "stacked_rooms_0_grid",
+            "sensor_count": 36,
+            "stages": {
+              "direct": {
+                "absolute_error": {
+                  "maximum": 0.0007735990220680833,
+                  "p50": 0.0,
+                  "p90": 0.0,
+                  "p95": 4.463200457394123e-05,
+                  "p99": 0.00026280595920979977
+                },
+                "candidate_energy": 6.015738618734758,
+                "cvrmse_percent": 50.24571413373553,
+                "energy_difference_negligible": false,
+                "nmbe_percent": -0.10503137026927324,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 6.022063674730816,
+                "relative_energy_error_percent": 0.10503137026927326,
+                "rms_normalized_rmse_percent": 9.6832826654551,
+                "rms_normalized_to": "stage",
+                "worst": {
+                  "candidate": 0.004311142954975367,
+                  "global_sensor_index": 22,
+                  "local_sensor_index": 22,
+                  "reference": 0.0035375439329072833,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 318
+                }
+              },
+              "indirect": {
+                "absolute_error": {
+                  "maximum": 0.0012180487683508545,
+                  "p50": 0.0,
+                  "p90": 5.6237908211187565e-06,
+                  "p95": 5.568329288507812e-05,
+                  "p99": 0.00037117768079042435
+                },
+                "candidate_energy": 2.084703906633642,
+                "cvrmse_percent": 210.26533785934393,
+                "energy_difference_negligible": false,
+                "negligible_relative_to_direct": false,
+                "nmbe_percent": 0.9691836956279491,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 2.064693236421512,
+                "relative_energy_error_percent": 0.9691836956279494,
+                "rms_normalized_rmse_percent": 7.869687089057912,
+                "rms_normalized_to": "full",
+                "worst": {
+                  "candidate": -0.0005148310447111726,
+                  "global_sensor_index": 16,
+                  "local_sensor_index": 16,
+                  "reference": 0.0007032177236396819,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 88
+                }
+              }
+            },
+            "start_sensor_index": 0
+          },
+          {
+            "identifier": "stacked_rooms_1_grid",
+            "sensor_count": 36,
+            "stages": {
+              "direct": {
+                "absolute_error": {
+                  "maximum": 0.000595927587710321,
+                  "p50": 0.0,
+                  "p90": 0.0,
+                  "p95": 4.383050327305682e-05,
+                  "p99": 0.00023420143406838179
+                },
+                "candidate_energy": 6.017676652580121,
+                "cvrmse_percent": 44.06449132174838,
+                "energy_difference_negligible": false,
+                "nmbe_percent": 0.10434306967952306,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 6.011404168939407,
+                "relative_energy_error_percent": 0.10434306967952306,
+                "rms_normalized_rmse_percent": 8.484605827983584,
+                "rms_normalized_to": "stage",
+                "worst": {
+                  "candidate": 0.00385775207541883,
+                  "global_sensor_index": 59,
+                  "local_sensor_index": 23,
+                  "reference": 0.003261824487708509,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 267
+                }
+              },
+              "indirect": {
+                "absolute_error": {
+                  "maximum": 0.001136135309934616,
+                  "p50": 0.0,
+                  "p90": 5.618767045234566e-06,
+                  "p95": 5.325862730387598e-05,
+                  "p99": 0.0003380808739166241
+                },
+                "candidate_energy": 2.0807293920102197,
+                "cvrmse_percent": 182.47500633843177,
+                "energy_difference_negligible": false,
+                "negligible_relative_to_direct": false,
+                "nmbe_percent": -0.6486780235054177,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 2.094314751546534,
+                "relative_energy_error_percent": 0.6486780235054177,
+                "rms_normalized_rmse_percent": 6.8724373614726915,
+                "rms_normalized_to": "full",
+                "worst": {
+                  "candidate": 0.02713913470506668,
+                  "global_sensor_index": 58,
+                  "local_sensor_index": 22,
+                  "reference": 0.028275270015001297,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 0
+                }
+              }
+            },
+            "start_sensor_index": 36
+          }
+        ],
+        "half_run_count": 2,
+        "oracle_stable": true,
+        "run_count": 4,
+        "schema_version": 1
+      },
+      "runs": [
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "1",
+              "-ad",
+              "20000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "2",
+              "-ad",
+              "20000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 189.2996249953285,
+            "full": 436.30595807917416
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "1",
+              "-ad",
+              "20000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "2",
+              "-ad",
+              "20000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 161.11691703554243,
+            "full": 416.95929097477347
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "1",
+              "-ad",
+              "20000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "2",
+              "-ad",
+              "20000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 155.83016606979072,
+            "full": 428.220291971229
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "1",
+              "-ad",
+              "20000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "2",
+              "-ad",
+              "20000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 166.93691606633365,
+            "full": 426.63929203990847
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        }
+      ],
+      "samples": 20000
+    },
+    {
+      "material_bounces": 8,
+      "repeatability": {
+        "gates": {
+          "absolute_energy_bias_percent": 1.0,
+          "rms_normalized_rmse_percent": 10.0
+        },
+        "grids": [
+          {
+            "identifier": "stacked_rooms_0_grid",
+            "sensor_count": 36,
+            "stages": {
+              "direct": {
+                "absolute_error": {
+                  "maximum": 0.0003795101074501872,
+                  "p50": 0.0,
+                  "p90": 0.0,
+                  "p95": 2.2553896997123957e-05,
+                  "p99": 0.00013767342898063362
+                },
+                "candidate_energy": 6.0130447728702165,
+                "cvrmse_percent": 25.237741546575098,
+                "energy_difference_negligible": true,
+                "nmbe_percent": -0.05096138622622892,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 6.016110666262648,
+                "relative_energy_error_percent": 0.05096138622622893,
+                "rms_normalized_rmse_percent": 4.864269351478906,
+                "rms_normalized_to": "stage",
+                "worst": {
+                  "candidate": 0.003943818621337414,
+                  "global_sensor_index": 10,
+                  "local_sensor_index": 10,
+                  "reference": 0.0035643085138872266,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 310
+                }
+              },
+              "indirect": {
+                "absolute_error": {
+                  "maximum": 0.0006774095818400383,
+                  "p50": 1.4564079720003065e-08,
+                  "p90": 1.3364655387704345e-05,
+                  "p95": 3.697240026667714e-05,
+                  "p99": 0.00020164193119853735
+                },
+                "candidate_energy": 3.8226343525377118,
+                "cvrmse_percent": 60.85528596332696,
+                "energy_difference_negligible": false,
+                "negligible_relative_to_direct": false,
+                "nmbe_percent": 0.22031188814494287,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 3.81423114787761,
+                "relative_energy_error_percent": 0.22031188814494293,
+                "rms_normalized_rmse_percent": 3.2650174084638106,
+                "rms_normalized_to": "full",
+                "worst": {
+                  "candidate": 0.0252809701487422,
+                  "global_sensor_index": 29,
+                  "local_sensor_index": 29,
+                  "reference": 0.025958379730582237,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 0
+                }
+              }
+            },
+            "start_sensor_index": 0
+          },
+          {
+            "identifier": "stacked_rooms_1_grid",
+            "sensor_count": 36,
+            "stages": {
+              "direct": {
+                "absolute_error": {
+                  "maximum": 0.0004682451253756881,
+                  "p50": 0.0,
+                  "p90": 0.0,
+                  "p95": 2.255065192002803e-05,
+                  "p99": 0.00013913004659116268
+                },
+                "candidate_energy": 6.012079124407137,
+                "cvrmse_percent": 26.813206188368994,
+                "energy_difference_negligible": true,
+                "nmbe_percent": -0.059189586716957066,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 6.015639756717519,
+                "relative_energy_error_percent": 0.05918958671695707,
+                "rms_normalized_rmse_percent": 5.172848526559833,
+                "rms_normalized_to": "stage",
+                "worst": {
+                  "candidate": 0.0012634865124709904,
+                  "global_sensor_index": 49,
+                  "local_sensor_index": 13,
+                  "reference": 0.0007952413870953023,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 89
+                }
+              },
+              "indirect": {
+                "absolute_error": {
+                  "maximum": 0.0007088091224431992,
+                  "p50": 2.366908802287071e-08,
+                  "p90": 1.334927310381318e-05,
+                  "p95": 3.674966865219176e-05,
+                  "p99": 0.0002066462766379118
+                },
+                "candidate_energy": 3.8234098503058256,
+                "cvrmse_percent": 63.53356146789333,
+                "energy_difference_negligible": true,
+                "negligible_relative_to_direct": false,
+                "nmbe_percent": 0.08761055085195822,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 3.8200630720055493,
+                "relative_energy_error_percent": 0.08761055085195821,
+                "rms_normalized_rmse_percent": 3.408492614860266,
+                "rms_normalized_to": "full",
+                "worst": {
+                  "candidate": 0.020575295202434063,
+                  "global_sensor_index": 43,
+                  "local_sensor_index": 7,
+                  "reference": 0.021284104324877262,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 0
+                }
+              }
+            },
+            "start_sensor_index": 36
+          }
+        ],
+        "half_run_count": 2,
+        "oracle_stable": true,
+        "run_count": 4,
+        "schema_version": 1
+      },
+      "runs": [
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "1",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "9",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 226.973665994592,
+            "full": 5127.430583001114
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "1",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "9",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 225.60220793820918,
+            "full": 4958.138665999286
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "1",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "9",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 222.4714590702206,
+            "full": 4879.717999952845
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "1",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "9",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 219.20520905405283,
+            "full": 4913.423583959229
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        }
+      ],
+      "samples": 40000
+    },
+    {
+      "material_bounces": 12,
+      "repeatability": {
+        "gates": {
+          "absolute_energy_bias_percent": 1.0,
+          "rms_normalized_rmse_percent": 10.0
+        },
+        "grids": [
+          {
+            "identifier": "stacked_rooms_0_grid",
+            "sensor_count": 36,
+            "stages": {
+              "direct": {
+                "absolute_error": {
+                  "maximum": 0.0003725888964254409,
+                  "p50": 0.0,
+                  "p90": 0.0,
+                  "p95": 2.166602644138038e-05,
+                  "p99": 0.0001343139447271824
+                },
+                "candidate_energy": 6.012431422662303,
+                "cvrmse_percent": 23.38462310470287,
+                "energy_difference_negligible": true,
+                "nmbe_percent": -0.028267823575158103,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 6.014131486740553,
+                "relative_energy_error_percent": 0.0282678235751581,
+                "rms_normalized_rmse_percent": 4.510725600666004,
+                "rms_normalized_to": "stage",
+                "worst": {
+                  "candidate": 0.0009078670700546354,
+                  "global_sensor_index": 23,
+                  "local_sensor_index": 23,
+                  "reference": 0.0012804559664800763,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 88
+                }
+              },
+              "indirect": {
+                "absolute_error": {
+                  "maximum": 0.0005817357450723648,
+                  "p50": 2.1897038848806005e-08,
+                  "p90": 1.3094685436954085e-05,
+                  "p95": 3.4127209801226854e-05,
+                  "p99": 0.00018855600501410663
+                },
+                "candidate_energy": 3.8295748384162174,
+                "cvrmse_percent": 57.21642333016022,
+                "energy_difference_negligible": false,
+                "negligible_relative_to_direct": false,
+                "nmbe_percent": 0.22274547070333053,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 3.8210635923316048,
+                "relative_energy_error_percent": 0.2227454707033305,
+                "rms_normalized_rmse_percent": 3.0703806000919367,
+                "rms_normalized_to": "full",
+                "worst": {
+                  "candidate": 0.02919313032180071,
+                  "global_sensor_index": 23,
+                  "local_sensor_index": 23,
+                  "reference": 0.028611394576728344,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 0
+                }
+              }
+            },
+            "start_sensor_index": 0
+          },
+          {
+            "identifier": "stacked_rooms_1_grid",
+            "sensor_count": 36,
+            "stages": {
+              "direct": {
+                "absolute_error": {
+                  "maximum": 0.0003956813598051667,
+                  "p50": 0.0,
+                  "p90": 0.0,
+                  "p95": 2.2556450858246535e-05,
+                  "p99": 0.00012913299724459648
+                },
+                "candidate_energy": 6.018987090825249,
+                "cvrmse_percent": 23.993450635756627,
+                "energy_difference_negligible": false,
+                "nmbe_percent": 0.06700424718501687,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 6.014956814293328,
+                "relative_energy_error_percent": 0.06700424718501688,
+                "rms_normalized_rmse_percent": 4.623454987678183,
+                "rms_normalized_to": "stage",
+                "worst": {
+                  "candidate": 0.0013266995083540678,
+                  "global_sensor_index": 59,
+                  "local_sensor_index": 23,
+                  "reference": 0.0009310181485489011,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 88
+                }
+              },
+              "indirect": {
+                "absolute_error": {
+                  "maximum": 0.0007696999236941338,
+                  "p50": 2.3295797291211784e-08,
+                  "p90": 1.3174070409149876e-05,
+                  "p95": 3.3423901186324656e-05,
+                  "p99": 0.00019591848831623793
+                },
+                "candidate_energy": 3.8234410548339817,
+                "cvrmse_percent": 58.46948041538442,
+                "energy_difference_negligible": false,
+                "negligible_relative_to_direct": false,
+                "nmbe_percent": -0.20173941488155117,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 3.831170034845396,
+                "relative_energy_error_percent": 0.20173941488155114,
+                "rms_normalized_rmse_percent": 3.1422936886059794,
+                "rms_normalized_to": "full",
+                "worst": {
+                  "candidate": 0.02535767015069723,
+                  "global_sensor_index": 47,
+                  "local_sensor_index": 11,
+                  "reference": 0.026127370074391365,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 0
+                }
+              }
+            },
+            "start_sensor_index": 36
+          }
+        ],
+        "half_run_count": 2,
+        "oracle_stable": true,
+        "run_count": 4,
+        "schema_version": 1
+      },
+      "runs": [
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "1",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "13",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 214.6420000353828,
+            "full": 5244.2854170221835
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "1",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "13",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 221.02145897224545,
+            "full": 5296.327791991644
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "1",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "13",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 220.3502079937607,
+            "full": 5228.216041927226
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "1",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "13",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 212.76383404619992,
+            "full": 5270.456874975935
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        }
+      ],
+      "samples": 40000
+    },
+    {
+      "material_bounces": 12,
+      "repeatability": {
+        "gates": {
+          "absolute_energy_bias_percent": 1.0,
+          "rms_normalized_rmse_percent": 10.0
+        },
+        "grids": [
+          {
+            "identifier": "stacked_rooms_0_grid",
+            "sensor_count": 36,
+            "stages": {
+              "direct": {
+                "absolute_error": {
+                  "maximum": 0.00020145997405052185,
+                  "p50": 0.0,
+                  "p90": 0.0,
+                  "p95": 1.1495430953800678e-05,
+                  "p99": 7.030559936538339e-05
+                },
+                "candidate_energy": 6.016791976204786,
+                "cvrmse_percent": 13.905725897804603,
+                "energy_difference_negligible": true,
+                "nmbe_percent": 0.03115382030592102,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 6.014918099428542,
+                "relative_energy_error_percent": 0.03115382030592102,
+                "rms_normalized_rmse_percent": 2.6822767434045502,
+                "rms_normalized_to": "stage",
+                "worst": {
+                  "candidate": 0.0017665624618530273,
+                  "global_sensor_index": 2,
+                  "local_sensor_index": 2,
+                  "reference": 0.0015651024878025055,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 145
+                }
+              },
+              "indirect": {
+                "absolute_error": {
+                  "maximum": 0.0004177801311016083,
+                  "p50": 2.5776927259357763e-08,
+                  "p90": 9.150956248049632e-06,
+                  "p95": 2.3787682948750444e-05,
+                  "p99": 0.00011280993930995464
+                },
+                "candidate_energy": 3.8179744423295645,
+                "cvrmse_percent": 35.14374407416041,
+                "energy_difference_negligible": true,
+                "negligible_relative_to_direct": false,
+                "nmbe_percent": -0.0887644166848391,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 3.8213664559735996,
+                "relative_energy_error_percent": 0.0887644166848391,
+                "rms_normalized_rmse_percent": 1.8863952550495895,
+                "rms_normalized_to": "full",
+                "worst": {
+                  "candidate": 0.03393073007464409,
+                  "global_sensor_index": 16,
+                  "local_sensor_index": 16,
+                  "reference": 0.0343485102057457,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 0
+                }
+              }
+            },
+            "start_sensor_index": 0
+          },
+          {
+            "identifier": "stacked_rooms_1_grid",
+            "sensor_count": 36,
+            "stages": {
+              "direct": {
+                "absolute_error": {
+                  "maximum": 0.00020741898333653808,
+                  "p50": 0.0,
+                  "p90": 0.0,
+                  "p95": 1.1503463611006737e-05,
+                  "p99": 7.104664109647274e-05
+                },
+                "candidate_energy": 6.016145641086496,
+                "cvrmse_percent": 13.730979617795589,
+                "energy_difference_negligible": true,
+                "nmbe_percent": 0.031524227057295004,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 6.014249695356739,
+                "relative_energy_error_percent": 0.031524227057295004,
+                "rms_normalized_rmse_percent": 2.647932763693954,
+                "rms_normalized_to": "stage",
+                "worst": {
+                  "candidate": 0.0013805089984089136,
+                  "global_sensor_index": 44,
+                  "local_sensor_index": 8,
+                  "reference": 0.0015879279817454517,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 208
+                }
+              },
+              "indirect": {
+                "absolute_error": {
+                  "maximum": 0.000492519699037075,
+                  "p50": 2.4524069885956123e-08,
+                  "p90": 9.43587347137516e-06,
+                  "p95": 2.2953499865252525e-05,
+                  "p99": 0.00011368724517524242
+                },
+                "candidate_energy": 3.824543048190378,
+                "cvrmse_percent": 34.81169895941436,
+                "energy_difference_negligible": true,
+                "negligible_relative_to_direct": false,
+                "nmbe_percent": -0.07068696347873761,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 3.8272484138789373,
+                "relative_energy_error_percent": 0.07068696347873762,
+                "rms_normalized_rmse_percent": 1.8695551895061706,
+                "rms_normalized_to": "full",
+                "worst": {
+                  "candidate": 0.029387230053544044,
+                  "global_sensor_index": 53,
+                  "local_sensor_index": 17,
+                  "reference": 0.02889471035450697,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 0
+                }
+              }
+            },
+            "start_sensor_index": 36
+          }
+        ],
+        "half_run_count": 2,
+        "oracle_stable": true,
+        "run_count": 4,
+        "schema_version": 1
+      },
+      "runs": [
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "1",
+              "-ad",
+              "80000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "13",
+              "-ad",
+              "80000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 347.25895803421736,
+            "full": 9422.60254197754
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "1",
+              "-ad",
+              "80000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "13",
+              "-ad",
+              "80000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 355.18600000068545,
+            "full": 9632.536333054304
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "1",
+              "-ad",
+              "80000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "13",
+              "-ad",
+              "80000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 367.2434160253033,
+            "full": 9496.275874902494
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "1",
+              "-ad",
+              "80000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "72",
+              "-ab",
+              "13",
+              "-ad",
+              "80000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 381.5317079424858,
+            "full": 9894.39058303833
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        }
+      ],
+      "samples": 80000
+    }
+  ],
+  "export_command": [
+    "/usr/local/radiance/bin/oconv",
+    "/content/foton-run/validation/results/2026-11-03-architectural-v4-vulkan-t4/stacked_rooms/mf2/oracle/scene.rad"
+  ],
+  "direct_oracles": [
+    {
+      "commands": [
+        [
+          "/usr/local/radiance/bin/oconv",
+          "-i",
+          "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct",
+          "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome"
+        ],
+        [
+          "/usr/local/radiance/bin/rcontrib",
+          "-h",
+          "-w",
+          "-ab",
+          "0",
+          "-M",
+          "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/direct_256/sky_modifiers.txt",
+          "-n",
+          "1",
+          "-fdd",
+          "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/direct_256/direct_scene.oct"
+        ]
+      ],
+      "elapsed_ms": 11896.264374954626,
+      "invocation_count": 5,
+      "sample_count": 256,
+      "versions": {
+        "oconv": "/usr/local/radiance/bin/oconv: fatal - unknown option: '-version'",
+        "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)"
+      },
+      "worker_pool_size": 12
+    },
+    {
+      "commands": [
+        [
+          "/usr/local/radiance/bin/oconv",
+          "-i",
+          "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/scene.oct",
+          "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/oracle/sky.dome"
+        ],
+        [
+          "/usr/local/radiance/bin/rcontrib",
+          "-h",
+          "-w",
+          "-ab",
+          "0",
+          "-M",
+          "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/direct_1024/sky_modifiers.txt",
+          "-n",
+          "1",
+          "-fdd",
+          "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/stacked_rooms/mf2/direct_1024/direct_scene.oct"
+        ]
+      ],
+      "elapsed_ms": 47293.08237496298,
+      "invocation_count": 5,
+      "sample_count": 1024,
+      "versions": {
+        "oconv": "/usr/local/radiance/bin/oconv: fatal - unknown option: '-version'",
+        "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)"
+      },
+      "worker_pool_size": 12
+    }
+  ],
+  "coefficients": {
+    "schema_version": 1,
+    "passed": true,
+    "matrix_shape": [
+      72,
+      578,
+      3
+    ],
+    "gates": {
+      "direct": {
+        "absolute_nmbe_percent": 2.0,
+        "rms_normalized_rmse_percent": 5.0
+      },
+      "indirect": {
+        "absolute_nmbe_percent": 3.0,
+        "rms_normalized_rmse_percent": 10.0
+      },
+      "full": {
+        "absolute_nmbe_percent": 5.0,
+        "rms_normalized_rmse_percent": 10.0
+      }
+    },
+    "grids": [
+      {
+        "identifier": "stacked_rooms_0_grid",
+        "full_identifier": "stacked_rooms_0_grid",
+        "start_sensor_index": 0,
+        "sensor_count": 36,
+        "stages": {
+          "direct": {
+            "nmbe_percent": -0.025461117730995884,
+            "cvrmse_percent": 2.186222441579374,
+            "rms_normalized_rmse_percent": 0.42172699914116524,
+            "reference_energy": 6.016160269848569,
+            "candidate_energy": 6.014628488199378,
+            "relative_energy_error_percent": 0.02546111773099588,
+            "physically_near_zero": false,
+            "rms_normalized_to": "stage",
+            "absolute_error": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 2.1525920601561666e-08,
+              "p99": 6.1278988141566515e-06,
+              "maximum": 5.949428305029869e-05
+            },
+            "worst": {
+              "global_sensor_index": 10,
+              "local_sensor_index": 10,
+              "sky_patch_index": 307,
+              "rgb_channel": 0,
+              "reference": 0.0027457945980131626,
+              "candidate": 0.0028052888810634613,
+              "position": [
+                1.5,
+                1.5,
+                0.75
+              ]
+            },
+            "passed": true
+          },
+          "indirect": {
+            "nmbe_percent": -0.9514392860790374,
+            "cvrmse_percent": 39.91065346206919,
+            "rms_normalized_rmse_percent": 2.1425905062696287,
+            "reference_energy": 3.8193652305465893,
+            "candidate_energy": 3.783026289264326,
+            "relative_energy_error_percent": 0.9514392860790374,
+            "physically_near_zero": false,
+            "rms_normalized_to": "full",
+            "absolute_error": {
+              "p50": 2.5000000292152436e-08,
+              "p90": 1.0028544693341266e-05,
+              "p95": 1.63012882694602e-05,
+              "p99": 4.860933404415846e-05,
+              "maximum": 0.0008931495249271393
+            },
+            "worst": {
+              "global_sensor_index": 9,
+              "local_sensor_index": 9,
+              "sky_patch_index": 0,
+              "rgb_channel": 0,
+              "reference": 0.02861863002181053,
+              "candidate": 0.027725480496883392,
+              "position": [
+                1.5,
+                2.5,
+                0.75
+              ]
+            },
+            "passed": true,
+            "negligible_relative_to_direct": false
+          },
+          "full": {
+            "nmbe_percent": -0.38504015804680164,
+            "cvrmse_percent": 15.477421026652697,
+            "rms_normalized_rmse_percent": 2.139711953475203,
+            "reference_energy": 9.835525500395159,
+            "candidate_energy": 9.797654777463704,
+            "relative_energy_error_percent": 0.3850401580468016,
+            "physically_near_zero": false,
+            "rms_normalized_to": "stage",
+            "absolute_error": {
+              "p50": 2.5000000292152436e-08,
+              "p90": 1.000580068648561e-05,
+              "p95": 1.6163656255230308e-05,
+              "p99": 4.7686509788036346e-05,
+              "maximum": 0.0008931495249271393
+            },
+            "worst": {
+              "global_sensor_index": 9,
+              "local_sensor_index": 9,
+              "sky_patch_index": 0,
+              "rgb_channel": 0,
+              "reference": 0.02861863002181053,
+              "candidate": 0.027725480496883392,
+              "position": [
+                1.5,
+                2.5,
+                0.75
+              ]
+            },
+            "passed": true
+          }
+        }
+      },
+      {
+        "identifier": "stacked_rooms_1_grid",
+        "full_identifier": "stacked_rooms_1_grid",
+        "start_sensor_index": 36,
+        "sensor_count": 36,
+        "stages": {
+          "direct": {
+            "nmbe_percent": -0.025441762545737167,
+            "cvrmse_percent": 2.1862274438839027,
+            "rms_normalized_rmse_percent": 0.4217278929056504,
+            "reference_energy": 6.016159105113275,
+            "candidate_energy": 6.014628488199378,
+            "relative_energy_error_percent": 0.025441762545737164,
+            "physically_near_zero": false,
+            "rms_normalized_to": "stage",
+            "absolute_error": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 2.1525920601561666e-08,
+              "p99": 6.1278988141566515e-06,
+              "maximum": 5.949428305029869e-05
+            },
+            "worst": {
+              "global_sensor_index": 46,
+              "local_sensor_index": 10,
+              "sky_patch_index": 307,
+              "rgb_channel": 0,
+              "reference": 0.0027457945980131626,
+              "candidate": 0.0028052888810634613,
+              "position": [
+                1.5,
+                1.5,
+                3.75
+              ]
+            },
+            "passed": true
+          },
+          "indirect": {
+            "nmbe_percent": -0.959542753895095,
+            "cvrmse_percent": 39.82351968137505,
+            "rms_normalized_rmse_percent": 2.1376869943416743,
+            "reference_energy": 3.8249343018421165,
+            "candidate_energy": 3.7882324219075425,
+            "relative_energy_error_percent": 0.9595427538950949,
+            "physically_near_zero": false,
+            "rms_normalized_to": "full",
+            "absolute_error": {
+              "p50": 2.5000000292152436e-08,
+              "p90": 1.0045020280813342e-05,
+              "p95": 1.643858922761865e-05,
+              "p99": 4.5200344175100327e-05,
+              "maximum": 0.0011569038033485413
+            },
+            "worst": {
+              "global_sensor_index": 56,
+              "local_sensor_index": 20,
+              "sky_patch_index": 0,
+              "rgb_channel": 0,
+              "reference": 0.026592154055833817,
+              "candidate": 0.025435250252485275,
+              "position": [
+                3.5,
+                3.5,
+                3.75
+              ]
+            },
+            "passed": true,
+            "negligible_relative_to_direct": false
+          },
+          "full": {
+            "nmbe_percent": -0.3884984652360788,
+            "cvrmse_percent": 15.462084583463964,
+            "rms_normalized_rmse_percent": 2.1354622202468123,
+            "reference_energy": 9.841093406955391,
+            "candidate_energy": 9.80286091010692,
+            "relative_energy_error_percent": 0.3884984652360788,
+            "physically_near_zero": false,
+            "rms_normalized_to": "stage",
+            "absolute_error": {
+              "p50": 2.5000000292152436e-08,
+              "p90": 1.0039083099400167e-05,
+              "p95": 1.6522593796253204e-05,
+              "p99": 4.481369978748262e-05,
+              "maximum": 0.0011569038033485413
+            },
+            "worst": {
+              "global_sensor_index": 56,
+              "local_sensor_index": 20,
+              "sky_patch_index": 0,
+              "rgb_channel": 0,
+              "reference": 0.026592154055833817,
+              "candidate": 0.025435250252485275,
+              "position": [
+                3.5,
+                3.5,
+                3.75
+              ]
+            },
+            "passed": true
+          }
+        }
+      }
+    ]
+  },
+  "one_bounce_diagnostic": {
+    "schema_version": 1,
+    "passed": false,
+    "matrix_shape": [
+      72,
+      578,
+      3
+    ],
+    "gates": {
+      "direct": {
+        "absolute_nmbe_percent": 2.0,
+        "rms_normalized_rmse_percent": 5.0
+      },
+      "indirect": {
+        "absolute_nmbe_percent": 3.0,
+        "rms_normalized_rmse_percent": 10.0
+      },
+      "full": {
+        "absolute_nmbe_percent": 5.0,
+        "rms_normalized_rmse_percent": 10.0
+      }
+    },
+    "grids": [
+      {
+        "identifier": "stacked_rooms_0_grid",
+        "full_identifier": "stacked_rooms_0_grid",
+        "start_sensor_index": 0,
+        "sensor_count": 36,
+        "stages": {
+          "direct": {
+            "nmbe_percent": -0.025461117730995884,
+            "cvrmse_percent": 2.186222441579374,
+            "rms_normalized_rmse_percent": 0.42172699914116524,
+            "reference_energy": 6.016160269848569,
+            "candidate_energy": 6.014628488199378,
+            "relative_energy_error_percent": 0.02546111773099588,
+            "physically_near_zero": false,
+            "rms_normalized_to": "stage",
+            "absolute_error": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 2.1525920601561666e-08,
+              "p99": 6.1278988141566515e-06,
+              "maximum": 5.949428305029869e-05
+            },
+            "worst": {
+              "global_sensor_index": 10,
+              "local_sensor_index": 10,
+              "sky_patch_index": 307,
+              "rgb_channel": 0,
+              "reference": 0.0027457945980131626,
+              "candidate": 0.0028052888810634613,
+              "position": [
+                1.5,
+                1.5,
+                0.75
+              ]
+            },
+            "passed": true
+          },
+          "indirect": {
+            "nmbe_percent": 82.10043453848307,
+            "cvrmse_percent": 862.7211760803345,
+            "rms_normalized_rmse_percent": 32.424585920786825,
+            "reference_energy": 2.077439462927181,
+            "candidate_energy": 3.783026289264326,
+            "relative_energy_error_percent": 82.10043453848309,
+            "physically_near_zero": false,
+            "rms_normalized_to": "full",
+            "absolute_error": {
+              "p50": 0.0,
+              "p90": 5.6262536008944225e-05,
+              "p95": 7.750000077066943e-05,
+              "p99": 0.00016860151663422585,
+              "maximum": 0.00786150898784399
+            },
+            "worst": {
+              "global_sensor_index": 18,
+              "local_sensor_index": 18,
+              "sky_patch_index": 0,
+              "rgb_channel": 0,
+              "reference": 0.010613310150802135,
+              "candidate": 0.018474819138646126,
+              "position": [
+                3.5,
+                5.5,
+                0.75
+              ]
+            },
+            "passed": false,
+            "negligible_relative_to_direct": false
+          },
+          "full": {
+            "nmbe_percent": 21.054352833724046,
+            "cvrmse_percent": 221.4366153999265,
+            "rms_normalized_rmse_percent": 32.424012681848424,
+            "reference_energy": 8.09359973277575,
+            "candidate_energy": 9.797654777463704,
+            "relative_energy_error_percent": 21.05435283372405,
+            "physically_near_zero": false,
+            "rms_normalized_to": "stage",
+            "absolute_error": {
+              "p50": 0.0,
+              "p90": 5.6243200015160335e-05,
+              "p95": 7.762000313960016e-05,
+              "p99": 0.00016844389028847218,
+              "maximum": 0.00786150898784399
+            },
+            "worst": {
+              "global_sensor_index": 18,
+              "local_sensor_index": 18,
+              "sky_patch_index": 0,
+              "rgb_channel": 0,
+              "reference": 0.010613310150802135,
+              "candidate": 0.018474819138646126,
+              "position": [
+                3.5,
+                5.5,
+                0.75
+              ]
+            },
+            "passed": false
+          }
+        }
+      },
+      {
+        "identifier": "stacked_rooms_1_grid",
+        "full_identifier": "stacked_rooms_1_grid",
+        "start_sensor_index": 36,
+        "sensor_count": 36,
+        "stages": {
+          "direct": {
+            "nmbe_percent": -0.025441762545737167,
+            "cvrmse_percent": 2.1862274438839027,
+            "rms_normalized_rmse_percent": 0.4217278929056504,
+            "reference_energy": 6.016159105113275,
+            "candidate_energy": 6.014628488199378,
+            "relative_energy_error_percent": 0.025441762545737164,
+            "physically_near_zero": false,
+            "rms_normalized_to": "stage",
+            "absolute_error": {
+              "p50": 0.0,
+              "p90": 0.0,
+              "p95": 2.1525920601561666e-08,
+              "p99": 6.1278988141566515e-06,
+              "maximum": 5.949428305029869e-05
+            },
+            "worst": {
+              "global_sensor_index": 46,
+              "local_sensor_index": 10,
+              "sky_patch_index": 307,
+              "rgb_channel": 0,
+              "reference": 0.0027457945980131626,
+              "candidate": 0.0028052888810634613,
+              "position": [
+                1.5,
+                1.5,
+                3.75
+              ]
+            },
+            "passed": true
+          },
+          "indirect": {
+            "nmbe_percent": 81.61111555459469,
+            "cvrmse_percent": 855.1318716127681,
+            "rms_normalized_rmse_percent": 32.19035555610504,
+            "reference_energy": 2.0859033932693123,
+            "candidate_energy": 3.7882324219075425,
+            "relative_energy_error_percent": 81.61111555459469,
+            "physically_near_zero": false,
+            "rms_normalized_to": "full",
+            "absolute_error": {
+              "p50": 0.0,
+              "p90": 5.583099919022074e-05,
+              "p95": 7.773999823257327e-05,
+              "p99": 0.0001587884034961462,
+              "maximum": 0.007748018950223923
+            },
+            "worst": {
+              "global_sensor_index": 71,
+              "local_sensor_index": 35,
+              "sky_patch_index": 0,
+              "rgb_channel": 0,
+              "reference": 0.011388860642910004,
+              "candidate": 0.019136879593133926,
+              "position": [
+                5.5,
+                0.5,
+                3.75
+              ]
+            },
+            "passed": false,
+            "negligible_relative_to_direct": false
+          },
+          "full": {
+            "nmbe_percent": 20.992166032585697,
+            "cvrmse_percent": 220.15128864518832,
+            "rms_normalized_rmse_percent": 32.18958003426631,
+            "reference_energy": 8.102062498382587,
+            "candidate_energy": 9.80286091010692,
+            "relative_energy_error_percent": 20.992166032585697,
+            "physically_near_zero": false,
+            "rms_normalized_to": "stage",
+            "absolute_error": {
+              "p50": 0.0,
+              "p90": 5.5774000793462706e-05,
+              "p95": 7.757999992463738e-05,
+              "p99": 0.00015863659791648388,
+              "maximum": 0.007748018950223923
+            },
+            "worst": {
+              "global_sensor_index": 71,
+              "local_sensor_index": 35,
+              "sky_patch_index": 0,
+              "rgb_channel": 0,
+              "reference": 0.011388860642910004,
+              "candidate": 0.019136879593133926,
+              "position": [
+                5.5,
+                0.5,
+                3.75
+              ]
+            },
+            "passed": false
+          }
+        }
+      }
+    ]
+  },
+  "controlled_skies": {
+    "uniform": {
+      "bias_percent": 0.1426988745899733,
+      "rms_normalized_error_percent": 0.16722250708245032,
+      "absolute_error": {
+        "p95": 0.07486436778573614,
+        "p99": 0.10969586597341763,
+        "maximum": 0.11899641955767626
+      },
+      "worst_index": [
+        18
+      ],
+      "passed": true,
+      "physically_near_zero": false,
+      "negligible": false,
+      "reference_mean": 12.029651182307711,
+      "reference_fraction_of_uniform": 1.0,
+      "rms_normalized_to_uniform_percent": 0.16722250708245032
+    },
+    "overcast": {
+      "bias_percent": 0.09409331564461908,
+      "rms_normalized_error_percent": 0.11764044641493149,
+      "absolute_error": {
+        "p95": 0.03747438192367555,
+        "p99": 0.051186509132385254,
+        "maximum": 0.0514373779296875
+      },
+      "worst_index": [
+        17
+      ],
+      "passed": true,
+      "physically_near_zero": false,
+      "negligible": false,
+      "reference_mean": 7.699350357055664,
+      "reference_fraction_of_uniform": 0.6400310397148132,
+      "rms_normalized_to_uniform_percent": 0.08365609036110641
+    },
+    "horizon": {
+      "bias_percent": 1.1060713364768762,
+      "rms_normalized_error_percent": 1.880757038556692,
+      "absolute_error": {
+        "p95": 0.060435510209816294,
+        "p99": 0.09010686970777584,
+        "maximum": 0.10253816372712565
+      },
+      "worst_index": [
+        60
+      ],
+      "passed": true,
+      "physically_near_zero": false,
+      "negligible": false,
+      "reference_mean": 1.442004392005786,
+      "reference_fraction_of_uniform": 0.11987083998965617,
+      "rms_normalized_to_uniform_percent": 0.1321802331311785
+    },
+    "north": {
+      "bias_percent": -86.42344248902447,
+      "rms_normalized_error_percent": 99.52705489867795,
+      "absolute_error": {
+        "p95": 4.709764780272965e-05,
+        "p99": 0.0002391346902390981,
+        "maximum": 0.0002675560256193421
+      },
+      "worst_index": [
+        46
+      ],
+      "passed": true,
+      "physically_near_zero": true,
+      "negligible": false,
+      "reference_mean": 1.329709903075127e-05,
+      "reference_fraction_of_uniform": 1.1053602975152899e-06,
+      "rms_normalized_to_uniform_percent": 0.0002068901214835672
+    },
+    "east": {
+      "bias_percent": 0.07075953413885755,
+      "rms_normalized_error_percent": 0.20384735750941602,
+      "absolute_error": {
+        "p95": 0.01770477294921875,
+        "p99": 0.028767242431640687,
+        "maximum": 0.03578615188598633
+      },
+      "worst_index": [
+        5
+      ],
+      "passed": true,
+      "physically_near_zero": false,
+      "negligible": false,
+      "reference_mean": 2.2756550312042236,
+      "reference_fraction_of_uniform": 0.1891704797744751,
+      "rms_normalized_to_uniform_percent": 0.04098286263428157
+    },
+    "south": {
+      "bias_percent": 0.18960708878846655,
+      "rms_normalized_error_percent": 0.23044485388794883,
+      "absolute_error": {
+        "p95": 0.0702612638473511,
+        "p99": 0.10560060977935797,
+        "maximum": 0.11245870590209961
+      },
+      "worst_index": [
+        18
+      ],
+      "passed": true,
+      "physically_near_zero": false,
+      "negligible": false,
+      "reference_mean": 8.368454933166504,
+      "reference_fraction_of_uniform": 0.6956523060798645,
+      "rms_normalized_to_uniform_percent": 0.1505623149964841
+    },
+    "west": {
+      "bias_percent": 0.07906313061657393,
+      "rms_normalized_error_percent": 0.1988128716257201,
+      "absolute_error": {
+        "p95": 0.016614723205566416,
+        "p99": 0.019568831920623787,
+        "maximum": 0.02052474021911621
+      },
+      "worst_index": [
+        33
+      ],
+      "passed": true,
+      "physically_near_zero": false,
+      "negligible": false,
+      "reference_mean": 2.3026347160339355,
+      "reference_fraction_of_uniform": 0.1914132535457611,
+      "rms_normalized_to_uniform_percent": 0.04027923653259872
+    }
+  },
+  "annual": {
+    "schema_version": 1,
+    "oracle": "converged-coefficients",
+    "passed": true,
+    "occupied_hours": 3650,
+    "structural": {
+      "sun_up_hours_match": true,
+      "grid_ids_match": true,
+      "grid_counts_match": true
+    },
+    "grids": [
+      {
+        "identifier": "stacked_rooms_0_grid",
+        "sensor_count": 36,
+        "illuminance": {
+          "nmbe_percent": 0.02238085720244928,
+          "cvrmse_percent": 1.7755715314032605,
+          "absolute_error_percentiles_lux": {
+            "p50": 1.9018592834472656,
+            "p90": 23.170422363281272,
+            "p95": 36.6607284545898,
+            "p99": 80.52425781249997
+          },
+          "maximum_absolute_error_lux": 542.154296875,
+          "worst": {
+            "sensor_index": 10,
+            "position": [
+              1.5,
+              1.5,
+              0.75
+            ],
+            "hour_of_year": 2674.5,
+            "foton_lux": 18489.26171875,
+            "radiance_lux": 19031.416015625
+          },
+          "physically_dark": false,
+          "passed": true
+        },
+        "metrics": {
+          "da": {
+            "mean_absolute_error_percentage_points": 0.26862633181126305,
+            "maximum_error_percentage_points": 1.2352054794520555,
+            "passed": true
+          },
+          "cda": {
+            "mean_absolute_error_percentage_points": 0.09888358606974022,
+            "maximum_error_percentage_points": 0.5887752002722095,
+            "passed": true
+          },
+          "udi_lower": {
+            "mean_absolute_error_percentage_points": 0.08866438356164391,
+            "maximum_error_percentage_points": 0.4639726027397266,
+            "passed": true
+          },
+          "udi": {
+            "mean_absolute_error_percentage_points": 0.09762557077625583,
+            "maximum_error_percentage_points": 0.46630136986301807,
+            "passed": true
+          },
+          "udi_upper": {
+            "mean_absolute_error_percentage_points": 0.022519025875190432,
+            "maximum_error_percentage_points": 0.0871232876712329,
+            "passed": true
+          }
+        },
+        "sda": {
+          "foton_percent": 55.55555555555556,
+          "radiance_percent": 55.55555555555556,
+          "difference_percentage_points": 0.0,
+          "tolerance_percentage_points": 2.7777777777777777,
+          "ambiguous_sensor_count": 0,
+          "ambiguity_band_percentage_points": 5.0,
+          "unexplained_flip_percentage_points": 0.0,
+          "passed": true
+        }
+      },
+      {
+        "identifier": "stacked_rooms_1_grid",
+        "sensor_count": 36,
+        "illuminance": {
+          "nmbe_percent": 0.045334293641216813,
+          "cvrmse_percent": 1.725348311956256,
+          "absolute_error_percentiles_lux": {
+            "p50": 1.9395065307617188,
+            "p90": 22.820483398437503,
+            "p95": 35.603454589843736,
+            "p99": 78.15620361328052
+          },
+          "maximum_absolute_error_lux": 384.892578125,
+          "worst": {
+            "sensor_index": 16,
+            "position": [
+              2.5,
+              1.5,
+              3.75
+            ],
+            "hour_of_year": 2868.5,
+            "foton_lux": 12596.4990234375,
+            "radiance_lux": 12981.3916015625
+          },
+          "physically_dark": false,
+          "passed": true
+        },
+        "metrics": {
+          "da": {
+            "mean_absolute_error_percentage_points": 0.3027777777777779,
+            "maximum_error_percentage_points": 1.0649315068493195,
+            "passed": true
+          },
+          "cda": {
+            "mean_absolute_error_percentage_points": 0.11159185017958745,
+            "maximum_error_percentage_points": 0.39886756026589865,
+            "passed": true
+          },
+          "udi_lower": {
+            "mean_absolute_error_percentage_points": 0.07882800608828013,
+            "maximum_error_percentage_points": 0.3310958904109569,
+            "passed": true
+          },
+          "udi": {
+            "mean_absolute_error_percentage_points": 0.08708143074581444,
+            "maximum_error_percentage_points": 0.32684931506848613,
+            "passed": true
+          },
+          "udi_upper": {
+            "mean_absolute_error_percentage_points": 0.02514079147640795,
+            "maximum_error_percentage_points": 0.08287671232876725,
+            "passed": true
+          }
+        },
+        "sda": {
+          "foton_percent": 55.55555555555556,
+          "radiance_percent": 55.55555555555556,
+          "difference_percentage_points": 0.0,
+          "tolerance_percentage_points": 2.7777777777777777,
+          "ambiguous_sensor_count": 0,
+          "ambiguity_band_percentage_points": 5.0,
+          "unexplained_flip_percentage_points": 0.0,
+          "passed": true
+        }
+      }
+    ]
+  },
+  "outcomes": {
+    "numerical_correctness": "passed",
+    "honeybee_compatibility": "passed",
+    "performance": "measured"
+  },
+  "compatibility": {
+    "official_loader": {
+      "passed": true,
+      "tolerance_percentage_points": 0.05,
+      "maximum_error_percentage_points": 0.004931506849317202,
+      "metrics": {
+        "da": [
+          {
+            "identifier": "stacked_rooms_0_grid",
+            "maximum_error_percentage_points": 0.004931506849317202,
+            "passed": true
+          },
+          {
+            "identifier": "stacked_rooms_1_grid",
+            "maximum_error_percentage_points": 0.004931506849317202,
+            "passed": true
+          }
+        ],
+        "cda": [
+          {
+            "identifier": "stacked_rooms_0_grid",
+            "maximum_error_percentage_points": 0.004924282962321058,
+            "passed": true
+          },
+          {
+            "identifier": "stacked_rooms_1_grid",
+            "maximum_error_percentage_points": 0.004739137414375705,
+            "passed": true
+          }
+        ],
+        "udi": [
+          {
+            "identifier": "stacked_rooms_0_grid",
+            "maximum_error_percentage_points": 0.004931506849317202,
+            "passed": true
+          },
+          {
+            "identifier": "stacked_rooms_1_grid",
+            "maximum_error_percentage_points": 0.004931506849317202,
+            "passed": true
+          }
+        ],
+        "udi_lower": [
+          {
+            "identifier": "stacked_rooms_0_grid",
+            "maximum_error_percentage_points": 0.004931506849313649,
+            "passed": true
+          },
+          {
+            "identifier": "stacked_rooms_1_grid",
+            "maximum_error_percentage_points": 0.004931506849313649,
+            "passed": true
+          }
+        ],
+        "udi_upper": [
+          {
+            "identifier": "stacked_rooms_0_grid",
+            "maximum_error_percentage_points": 0.004931506849315426,
+            "passed": true
+          },
+          {
+            "identifier": "stacked_rooms_1_grid",
+            "maximum_error_percentage_points": 0.004931506849315426,
+            "passed": true
+          }
+        ]
+      }
+    },
+    "stock": {
+      "status": "not_applicable",
+      "passed": true
+    }
+  },
+  "darkness": {
+    "required": false,
+    "passed": true,
+    "maximum_lux": null,
+    "tolerance_lux": 1e-06
+  },
+  "performance": {
+    "candidate_cold": {
+      "study_preparation_seconds": 0.36752241299836896,
+      "weather_seconds": 0.2542718610020529,
+      "metric_reduction_seconds": 3.1979123010023613,
+      "write_seconds": 0.04380594900067081,
+      "total_seconds": 3.4963732329997583,
+      "cold_end_to_end_seconds": 3.8638956459981273,
+      "warm_study_seconds": null,
+      "raw_export_seconds": 0.017607170000701444,
+      "engine_upload_seconds": 0.045183599,
+      "engine_acceleration_structure_seconds": 0.0,
+      "engine_tracing_seconds": 0.062830054,
+      "engine_annual_reduction_seconds": 0.03362979,
+      "engine_snapshot_seconds": 0.0,
+      "coefficient_trace_seconds": 0.062830054
+    },
+    "candidate_cached": {
+      "study_preparation_seconds": 0.36752241299836896,
+      "weather_seconds": 0.25177329100188217,
+      "metric_reduction_seconds": 1.8910897909991036,
+      "write_seconds": 0.02870459899713751,
+      "total_seconds": 2.171876576001523,
+      "cold_end_to_end_seconds": null,
+      "warm_study_seconds": 2.171876576001523,
+      "raw_export_seconds": 0.014535481001075823,
+      "engine_upload_seconds": 0.045621045,
+      "engine_acceleration_structure_seconds": 0.0,
+      "engine_tracing_seconds": 5e-08,
+      "engine_annual_reduction_seconds": 0.034101979,
+      "engine_snapshot_seconds": 0.0,
+      "coefficient_trace_seconds": 0.0
+    },
+    "coefficient_stages_seconds": {
+      "direct": 0.024027052000747062,
+      "full": 0.10889553300148691
+    }
+  },
+  "elapsed_seconds": 9.13504112299779,
+  "result_class": "passed"
+}
+```

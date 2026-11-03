@@ -12,12 +12,14 @@ import numpy as np
 
 from honeybee.model import Model
 from honeybee.room import Room
+from ladybug_geometry.geometry3d import Vector3D
 
 from foton.honeybee.adapter import (
     _append_geometry,
     prepare_honeybee_scene,
 )
 from foton.honeybee.radiance import (
+    _glow_modifiers,
     _parse_rcontrib_visibility,
     _radiance_subprocess_environment,
     _write_honeybee_radiance_scene,
@@ -28,9 +30,23 @@ from foton.honeybee.recipe import (
     _coefficients_to_visibility,
 )
 from foton.honeybee.settings import RecipeSettings
+from foton.honeybee.validation import compare_coefficient_repeatability
+from foton.honeybee.validation import compare_coefficient_convergence
+from scripts.validate_honeybee_coefficients import _ray_is_on_triangle_edge
 
 
 class HoneybeeAdapterTests(unittest.TestCase):
+    def test_overlapping_rooms_remain_a_recorded_warning(self):
+        model = Model(
+            "Overlap",
+            [Room.from_box("RoomA", 2, 2, 2), Room.from_box("RoomB", 2, 2, 2)],
+        )
+        prepared = prepare_honeybee_scene(model)
+        self.assertEqual(
+            {str(item.get("code")) for item in prepared.validation_warnings},
+            {"000108"},
+        )
+
     def test_conversion_does_not_mutate_model_units(self):
         room = Room.from_box("Room", 20, 30, 10)
         model = Model("Imperial", [room], units="Feet")
@@ -39,8 +55,35 @@ class HoneybeeAdapterTests(unittest.TestCase):
         )
         self.assertEqual(model.units, "Feet")
         self.assertEqual(prepared.model.units, "Meters")
-        self.assertEqual(prepared.arrays["vertices"].dtype, np.float32)
+        self.assertEqual(prepared.arrays["vertices"].dtype, np.float64)
         self.assertTrue(prepared.arrays["vertices"].flags.c_contiguous)
+        native = prepared.native_arrays()
+        self.assertEqual(native["vertices"].dtype, np.float32)
+        self.assertEqual(native["sensor_positions"].dtype, np.float32)
+
+    def test_distant_model_is_recentred_before_the_float32_cast(self):
+        # A room at a SWEREF99-scale northing must trace like the same room at the
+        # origin; without recentring float32 spacing there is 0.5 m.
+        near = Model("Near", [Room.from_box("Room", 6, 6, 3)])
+        far_room = Room.from_box("Room", 6, 6, 3)
+        far_room.move(Vector3D(150_000.0, 6_400_000.0, 0.0))
+        far = Model("Far", [far_room])
+        for model in (near, far):
+            model.rooms[0][3].apertures_by_ratio(0.4)
+        prepared_near = prepare_honeybee_scene(near, grid_size=1.0)
+        prepared_far = prepare_honeybee_scene(far, grid_size=1.0)
+        np.testing.assert_array_equal(
+            prepared_far.arrays["scene_origin"], [150_003.0, 6_400_003.0, 2.0]
+        )
+        np.testing.assert_allclose(
+            prepared_far.native_arrays()["vertices"],
+            prepared_near.native_arrays()["vertices"],
+            atol=1e-6,
+        )
+        self.assertEqual(
+            prepared_far.geometry_info["scene_origin_m"],
+            [150_003.0, 6_400_003.0, 2.0],
+        )
 
     def test_punched_geometry_preserves_opening_area(self):
         room = Room.from_box("Room", 6, 9, 3)
@@ -97,13 +140,93 @@ class HoneybeeAdapterTests(unittest.TestCase):
 
 
 class RecipeContractTests(unittest.TestCase):
+    def test_converged_oracle_compares_replicate_half_means(self):
+        prepared = SimpleNamespace(
+            grid_info=[
+                {
+                    "identifier": "grid",
+                    "start_sensor_index": 0,
+                    "sensor_count": 1,
+                }
+            ]
+        )
+        direct = np.ones((1, 2, 3), dtype=np.float32)
+        full = direct * 1.5
+        stable = compare_coefficient_convergence(
+            prepared,
+            radiance_direct_runs=[direct.copy() for _ in range(4)],
+            radiance_full_runs=[full.copy() for _ in range(4)],
+        )
+        self.assertTrue(stable["oracle_stable"])
+        unstable = compare_coefficient_convergence(
+            prepared,
+            radiance_direct_runs=[direct, direct, direct * 1.2, direct * 1.2],
+            radiance_full_runs=[full, full, full * 1.2, full * 1.2],
+        )
+        self.assertFalse(unstable["oracle_stable"])
+
+    def test_sky_dome_glow_modifiers_are_discovered(self):
+        with TemporaryDirectory() as folder:
+            path = Path(folder, "sky.dome")
+            path.write_text(
+                "void glow sky_glow\n0\n0\n4 1 1 1 0\n\n"
+                "sky_glow source sky\n0\n0\n4 0 0 1 180\n",
+                encoding="ascii",
+            )
+            self.assertEqual(_glow_modifiers(path), ["sky_glow"])
+
+    def test_exact_edge_ray_classification(self):
+        vertices = np.asarray(
+            [[0, 0, 1], [1, 0, 1], [0, 1, 1]], dtype=np.float64
+        )
+        triangles = np.asarray([[0, 1, 2]], dtype=np.uint32)
+        self.assertTrue(
+            _ray_is_on_triangle_edge(
+                [0.5, 0, 0], [0, 0, 1], vertices, triangles
+            )
+        )
+        self.assertFalse(
+            _ray_is_on_triangle_edge(
+                [0.25, 0.25, 0], [0, 0, 1], vertices, triangles
+            )
+        )
+
+    def test_radiance_repeatability_detects_stable_and_unstable_oracles(self):
+        prepared = SimpleNamespace(
+            grid_info=[
+                {
+                    "identifier": "grid",
+                    "start_sensor_index": 0,
+                    "sensor_count": 1,
+                }
+            ]
+        )
+        direct = np.ones((1, 2, 3), dtype=np.float32)
+        full = direct * 1.5
+        stable = compare_coefficient_repeatability(
+            prepared,
+            radiance_direct_runs=[direct, direct.copy()],
+            radiance_full_runs=[full, full.copy()],
+        )
+        self.assertTrue(stable["oracle_stable_at_release_gates"])
+        unstable = compare_coefficient_repeatability(
+            prepared,
+            radiance_direct_runs=[direct, direct * 1.2],
+            radiance_full_runs=[full, full * 1.2],
+        )
+        self.assertFalse(unstable["oracle_stable_at_release_gates"])
+
     def test_recipe_accepts_lbt_style_names(self):
         recipe = Recipe("direct-visibility")
         recipe.input_value_by_name("sky basis", "reinhart_mf2")
         self.assertEqual(recipe.name, "direct_visibility")
         self.assertEqual(recipe.inputs["sky_basis"], "reinhart-mf2")
-        with self.assertRaises(ValueError):
-            Recipe("annual_daylight")
+        annual = Recipe("annual_daylight")
+        self.assertEqual(annual.name, "annual_daylight")
+        self.assertTrue(annual.inputs["export_illuminance"])
+        self.assertEqual(annual.inputs["sky_density"], 1)
+        self.assertIsNone(annual.inputs["direct_samples"])
+        self.assertIsNone(annual.inputs["maximum_samples"])
 
     def test_recipe_settings_validate_workers(self):
         with self.assertRaises(ValueError):

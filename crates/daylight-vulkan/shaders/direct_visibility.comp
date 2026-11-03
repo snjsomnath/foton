@@ -6,8 +6,10 @@ layout(local_size_x = 8, local_size_y = 8) in;
 layout(push_constant, scalar) uniform Uniforms {
     uint sensor_count;
     uint patch_count;
+    uint direct_sample_count;
     uint active_mask;
     uint max_transparent;
+    uvec3 padding;
 } uniforms;
 layout(set=0,binding=0,scalar) readonly buffer Sensors { Sensor values[]; } sensors;
 layout(set=0,binding=1,scalar) readonly buffer Directions { vec3 values[]; } directions;
@@ -32,40 +34,51 @@ void main() {
     uint sensor_index = gl_GlobalInvocationID.y;
     if (patch_index >= uniforms.patch_count || sensor_index >= uniforms.sensor_count) return;
     Sensor sensor = sensors.values[sensor_index];
-    vec3 direction = normalize(directions.values[patch_index]);
-    float cosine = max(dot(sensor.normal, direction), 0.0);
-    if (cosine == 0.0) {
-        coefficients.values[sensor_index * uniforms.patch_count + patch_index] = vec3(0);
-        return;
-    }
-    vec3 origin = sensor.position + sensor.normal * 1e-4;
-    vec3 transmission = vec3(1);
-    for (uint transparent = 0; transparent <= uniforms.max_transparent; ++transparent) {
-        rayQueryEXT query;
-        rayQueryInitializeEXT(
-            query, scene_as,
-            gl_RayFlagsOpaqueEXT | gl_RayFlagsTerminateOnFirstHitEXT,
-            uniforms.active_mask, origin, 1e-4, direction, 1e30);
-        while (rayQueryProceedEXT(query)) {}
-        if (rayQueryGetIntersectionTypeEXT(query, true)
-            == gl_RayQueryCommittedIntersectionNoneEXT) break;
-        uint instance_index = rayQueryGetIntersectionInstanceCustomIndexEXT(query, true);
-        uint triangle = metadata.values[instance_index].material_offset
-            + rayQueryGetIntersectionPrimitiveIndexEXT(query, true);
-        Material material = materials.values[triangle_materials.values[triangle]];
-        if (material.kind != 1 || transparent == uniforms.max_transparent) {
-            transmission = vec3(0);
-            break;
+    vec3 integrated = vec3(0);
+    for (uint sample_index = 0;
+         sample_index < uniforms.direct_sample_count;
+         ++sample_index) {
+        vec3 direction = normalize(directions.values[
+            patch_index * uniforms.direct_sample_count + sample_index]);
+        float cosine = max(dot(sensor.normal, direction), 0.0);
+        if (cosine == 0.0) continue;
+        vec3 origin = sensor.position + sensor.normal * 1e-4;
+        vec3 transmission = vec3(1);
+        for (uint transparent = 0;
+             transparent <= uniforms.max_transparent;
+             ++transparent) {
+            rayQueryEXT query;
+            rayQueryInitializeEXT(
+                query, scene_as,
+                gl_RayFlagsOpaqueEXT,
+                uniforms.active_mask, origin, 1e-4, direction, 1e30);
+            while (rayQueryProceedEXT(query)) {}
+            if (rayQueryGetIntersectionTypeEXT(query, true)
+                == gl_RayQueryCommittedIntersectionNoneEXT) break;
+            uint instance_index =
+                rayQueryGetIntersectionInstanceCustomIndexEXT(query, true);
+            uint triangle = metadata.values[instance_index].material_offset
+                + rayQueryGetIntersectionPrimitiveIndexEXT(query, true);
+            Material material =
+                materials.values[triangle_materials.values[triangle]];
+            if (material.kind != 1 || transparent == uniforms.max_transparent) {
+                transmission = vec3(0);
+                break;
+            }
+            vec3 normal = hit_normal(instance_index, triangle, direction);
+            transmission *= thin_glass_transmission(
+                material.internal_transmissivity_rgb,
+                abs(dot(direction, normal)));
+            if (all(lessThanEqual(transmission, vec3(1e-6)))) {
+                transmission = vec3(0);
+                break;
+            }
+            origin += direction
+                * (rayQueryGetIntersectionTEXT(query, true) + 1e-4);
         }
-        vec3 normal = hit_normal(instance_index, triangle, direction);
-        transmission *= thin_glass_transmission(
-            material.internal_transmissivity_rgb, abs(dot(direction, normal)));
-        if (all(lessThanEqual(transmission, vec3(1e-6)))) {
-            transmission = vec3(0);
-            break;
-        }
-        origin += direction * (rayQueryGetIntersectionTEXT(query, true) + 1e-4);
+        integrated += transmission * cosine;
     }
     coefficients.values[sensor_index * uniforms.patch_count + patch_index] =
-        transmission * cosine * angles.values[patch_index];
+        integrated * (
+            angles.values[patch_index] / float(uniforms.direct_sample_count));
 }

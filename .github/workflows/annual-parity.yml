@@ -1,0 +1,58 @@
+name: Public beta acceptance
+
+# Runs the full numerical suite on a trusted GPU runner, when one is
+# registered. Release qualification itself reads the evidence committed under
+# validation/results/ (see release.yml and scripts/verify_release_evidence.py);
+# this workflow is how such evidence can be produced on CI hardware.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validation:
+    name: ${{ matrix.backend }} / Radiance
+    # Trusted runners with real GPUs and Radiance. Never run untrusted PRs here.
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 1440
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: [self-hosted, macOS, ARM64, foton-metal]
+            backend: metal
+          - runner: [self-hosted, Windows, X64, foton-vulkan]
+            backend: vulkan
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.85"
+      - name: Build and install the current wheel
+        run: python -m pip install --upgrade '.[honeybee,test]' 'lbt-recipes==0.28.8' setuptools
+      - name: Verify package version
+        run: python -c "import foton,tomllib; assert foton.__version__ == tomllib.load(open('pyproject.toml','rb'))['project']['version']"
+      - name: Require actual GPU integration tests
+        env:
+          DAYLIGHT_ENGINE_METAL_TEST: '1'
+          DAYLIGHT_ENGINE_VULKAN_TEST: '1'
+        run: cargo test -p daylight-${{ matrix.backend }} --test reference_validation
+      - name: Validate the complete architectural corpus in both sky bases
+        run: python scripts/validate_release_suite.py --backend ${{ matrix.backend }} --workers 8 --output artifacts
+      - name: Preserve validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beta-validation-${{ matrix.backend }}-${{ github.sha }}
+          path: |
+            artifacts/suite.json
+            artifacts/suite.md
+            artifacts/**/report.md
+            artifacts/**/coefficient_comparison.*
+            artifacts/**/converged_annual.json
+          if-no-files-found: error
+          retention-days: 90

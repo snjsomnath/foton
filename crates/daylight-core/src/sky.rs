@@ -222,6 +222,79 @@ pub fn patch_solid_angles(basis: SkyBasis) -> Vec<f32> {
     solid_angles
 }
 
+/// Return deterministic directions uniformly distributed in solid angle within
+/// each Radiance sky patch.
+///
+/// The result is patch-major: the `samples_per_patch` directions for patch zero
+/// are followed by those for patch one. A single sample preserves the canonical
+/// patch-center directions used by the binary visibility diagnostic.
+pub fn patch_sample_directions(basis: SkyBasis, samples_per_patch: u32) -> Vec<Vec3> {
+    assert!(samples_per_patch > 0, "samples_per_patch must be positive");
+    if samples_per_patch == 1 {
+        return patch_directions(basis);
+    }
+    let mut directions = Vec::with_capacity(basis.row_count() * samples_per_patch as usize);
+    for patch_index in 0..basis.row_count() {
+        let (lower_z, upper_z, azimuth_center, azimuth_width) =
+            patch_solid_angle_bounds(basis, patch_index);
+        for sample_index in 0..samples_per_patch {
+            let altitude_fraction = (sample_index as f32 + 0.5) / samples_per_patch as f32;
+            let azimuth_fraction = ((sample_index as f32 + 0.5) * 0.618_034
+                + patch_index as f32 * 0.754_877_7)
+                .fract();
+            let z = lower_z + (upper_z - lower_z) * altitude_fraction;
+            let azimuth = azimuth_center + (azimuth_fraction - 0.5) * azimuth_width;
+            let horizontal = (1.0 - z * z).max(0.0).sqrt();
+            directions.push(Vec3::new(
+                horizontal * azimuth.sin(),
+                horizontal * azimuth.cos(),
+                z,
+            ));
+        }
+    }
+    directions
+}
+
+fn patch_solid_angle_bounds(basis: SkyBasis, patch_index: usize) -> (f32, f32, f32, f32) {
+    assert!(patch_index < basis.row_count(), "patch index out of range");
+    if patch_index == 0 {
+        return (-1.0, 0.0, 0.0, std::f32::consts::TAU);
+    }
+    if patch_index == basis.row_count() - 1 {
+        let cap_lower = match basis {
+            SkyBasis::Tregenza => 84.0_f32,
+            SkyBasis::ReinhartMf2 => 14.0_f32 * (90.0_f32 / 14.5_f32),
+        }
+        .to_radians()
+        .sin();
+        return (cap_lower, 1.0, 0.0, std::f32::consts::TAU);
+    }
+
+    let multiplier = match basis {
+        SkyBasis::Tregenza => 1,
+        SkyBasis::ReinhartMf2 => 2,
+    };
+    let regular_rows = TREGENZA_RING_COUNTS.len() * multiplier;
+    let altitude_increment = 90.0_f32.to_radians() / (regular_rows as f32 + 0.5);
+    let mut offset = 1;
+    for row in 0..regular_rows {
+        let parent_ring = ((row as f32 + 0.5) / multiplier as f32).floor() as usize;
+        let row_patch_count = TREGENZA_RING_COUNTS[parent_ring] * multiplier;
+        if patch_index < offset + row_patch_count {
+            let azimuth_index = patch_index - offset;
+            let azimuth_width = std::f32::consts::TAU / row_patch_count as f32;
+            return (
+                (row as f32 * altitude_increment).sin(),
+                ((row + 1) as f32 * altitude_increment).sin(),
+                azimuth_index as f32 * azimuth_width,
+                azimuth_width,
+            );
+        }
+        offset += row_patch_count;
+    }
+    unreachable!("regular patch index did not map to a Radiance row")
+}
+
 pub fn closest_patch(basis: SkyBasis, direction: Vec3) -> usize {
     if direction.z < 0.0 {
         return 0;

@@ -23,6 +23,9 @@ export interface RoomParameters {
 }
 
 export interface GeometryPayload {
+  sensor_cells?: number[][][];
+  zone_bounds?: number[][]; zone_offsets?: number[][]; context_present?: boolean;
+  room_count?: number;
   vertices: number[][];
   triangles: number[][];
   triangle_materials: number[];

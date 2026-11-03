@@ -1,2 +1,0 @@
-numpy>=1.23
-pyradiance>=0.3.0

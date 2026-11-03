@@ -1,0 +1,20 @@
+{
+  "artifacts": {
+    "Foton Annual Daylight.ghuser": "41fdaa33d34487a30b2547bd10a74509eb7b20563cbee5375ef38635d7396484",
+    "Foton Annual Results.ghuser": "e4a2452c8b53ebe88737cf40e831b6d74110e116e8581a7d1efd8e9d86118e52",
+    "Foton First Analysis.gh": "4266e3dedd989fae1c790470a8a581535d2a1dbf28ffd9ce2c65deeab50693d2",
+    "Foton First Analysis.ghx": "2dc5a849fbe031648851e49fc302b9fa9d553ce24aaebf56700c844faec4c946",
+    "Foton Settings.ghuser": "60d0a1cd4b1d7c67bc18bb4907b8e79a24776b14ae010b64fa9fc03aabc474e6"
+  },
+  "rhino_version": "8.35.26251.13002",
+  "round_trip_passed": true,
+  "schema_version": 1,
+  "sources": {
+    "grasshopper_foton/components/Foton Annual Daylight.py": "10aada01be057e26016f7ae7aea48b34b6f9334ce8cf4ec35f61608d40834239",
+    "grasshopper_foton/components/Foton Annual Results.py": "9a17393962ab171c40792491a66e3e292168b9f741a374d7ff9d64b6beeb09ea",
+    "grasshopper_foton/components/Foton Settings.py": "cebaa9ad9138c304449d3647d35a524708e1412aa94bb8b832ec9032cadd0639",
+    "grasshopper_foton/foton_gh.py": "091e5dec60c969876a064d94372951751cd253635e2aa7404f5ca7ed1a26107c",
+    "python/foton_bridge/__init__.py": "f9d2445845745d58812a0e965949cd3cdb85c61a6ba4a07fa5ba27137376355f",
+    "scripts/build_grasshopper.py": "ebf678060747054553b6a1bf0e183969e00feef441925b079a149f36bd3b07ae"
+  }
+}
