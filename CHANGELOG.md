@@ -34,10 +34,16 @@ Radiance as the correctness reference ([purpose and plan](docs/purpose-and-plan.
   tooling, public-beta acceptance workflow, hardened Honeybee bridge with
   binary Radiance I/O, `--radiance-parameters` on the stock-recipe script.
 - Cinematic viewer demo with procedural geometry and a solar path.
-
-Vulkan is built and unit-tested but not validated on hardware; publication
-of this version waits on the acceptance gate described in
-[release readiness](docs/release-readiness.md).
+- Vulkan: the first run on hardware (an NVIDIA T4) found and fixed two
+  backend bugs, a dropped `ash::Entry` that unloaded the loader and crashed
+  on Linux, and an acceleration-structure descriptor written without a
+  count, which left every ray missing.
+- Release evidence lives in the repository and is checked by
+  `scripts/verify_release_evidence.py` on every tag; no self-hosted runners.
+  A campaign's converged Radiance references can be exported as a bundle and
+  reused by another backend or machine with
+  `validate_release_suite.py --reuse-references`; the corpus-4 bundle is
+  published as the `references-corpus4-2026-11-03` pre-release.
 
 ## 0.2.0 - 2026-08-12
 
