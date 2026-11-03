@@ -1,8 +1,12 @@
-# Public beta release readiness
+# Release readiness
 
-Current status: **implementation available for testing; validated launch blocked**.
-See the [15 September diagnostics](../validation/results/2026-09-15-readiness/README.md)
-for live Rhino results and unresolved numerical evidence.
+Foton 0.3.0 was released on 3 November 2026. This page covers what a release
+supports, how the accuracy evidence is produced and checked, and what to tick
+off before the next release. The platforms tested for 0.3.0 are listed under
+[Tested platforms for 0.3.0](#tested-platforms-for-030).
+
+The [15 September diagnostics](../validation/results/2026-09-15-readiness/README.md)
+are kept for history. They were taken before the fixes that went into 0.3.0.
 
 ## Supported scope
 
@@ -211,5 +215,5 @@ any GPU other than the two above.
 - `scripts/verify_release_evidence.py` passes for the release commit and version.
 - Downloadable components open and run without script editing in the Rhino 8
   that the evidence names.
-- Historical 0.1.0 benchmarks clearly labelled; no unverified accuracy or speed claims.
+- Older benchmark figures are labelled with their date and settings; no unverified accuracy or speed claims.
 - Known limitations, tested hardware, installation guidance, and reporting instructions published.
