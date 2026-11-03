@@ -30,7 +30,7 @@ use objc2_metal::{
     MTLCommandEncoder, MTLCommandQueue, MTLComputeCommandEncoder, MTLComputePipelineState,
     MTLCreateSystemDefaultDevice, MTLDevice, MTLIndexType,
     MTLInstanceAccelerationStructureDescriptor, MTLLibrary, MTLPackedFloat3, MTLPackedFloat4x3,
-    MTLPrimitiveAccelerationStructureDescriptor, MTLResourceOptions, MTLSize,
+    MTLPrimitiveAccelerationStructureDescriptor, MTLResourceOptions, MTLResourceUsage, MTLSize,
 };
 
 use crate::reference::compute_daylight_factor;
@@ -130,7 +130,25 @@ struct NormalTransform {
 
 struct AccelerationResources {
     top_level: Retained<ProtocolObject<dyn MTLAccelerationStructure>>,
-    _bottom_levels: Vec<Retained<ProtocolObject<dyn MTLAccelerationStructure>>>,
+    bottom_levels: Vec<Retained<ProtocolObject<dyn MTLAccelerationStructure>>>,
+}
+
+impl AccelerationResources {
+    /// Bind the top level and make every per-mesh structure it instances
+    /// resident. Metal only tracks resources an encoder names, and the
+    /// bottom-level structures are reached through the instance structure
+    /// alone, so without `useResource` rays can miss whole meshes.
+    fn bind(&self, encoder: &ProtocolObject<dyn MTLComputeCommandEncoder>, index: usize) {
+        unsafe {
+            encoder.setAccelerationStructure_atBufferIndex(Some(&self.top_level), index);
+        }
+        for bottom_level in &self.bottom_levels {
+            encoder.useResource_usage(
+                ProtocolObject::from_ref(&**bottom_level),
+                MTLResourceUsage::Read,
+            );
+        }
+    }
 }
 
 struct GpuCoefficientOutput {
@@ -585,7 +603,7 @@ impl MetalBackend {
             encoder.setBuffer_offset_atIndex(Some(&triangle_normal_buffer), 0, 7);
             encoder.setBuffer_offset_atIndex(Some(&normal_transform_buffer), 0, 8);
             encoder.setBuffer_offset_atIndex(Some(&output_buffer), 0, 9);
-            encoder.setAccelerationStructure_atBufferIndex(Some(&acceleration.top_level), 10);
+            acceleration.bind(&encoder, 10);
         }
         encoder.dispatchThreads_threadsPerThreadgroup(
             MTLSize {
@@ -664,8 +682,7 @@ impl MetalBackend {
                     encoder.setBuffer_offset_atIndex(Some(&triangle_normal_buffer), 0, 6);
                     encoder.setBuffer_offset_atIndex(Some(&normal_transform_buffer), 0, 7);
                     encoder.setBuffer_offset_atIndex(Some(&indirect_buffer), 0, 8);
-                    encoder
-                        .setAccelerationStructure_atBufferIndex(Some(&acceleration.top_level), 9);
+                    acceleration.bind(&encoder, 9);
                 }
                 encoder.dispatchThreads_threadsPerThreadgroup(
                     MTLSize {
@@ -798,7 +815,7 @@ impl MetalBackend {
         let top_level = self.build_acceleration_structure(&descriptor)?;
         Ok(AccelerationResources {
             top_level,
-            _bottom_levels: bottom_levels,
+            bottom_levels,
         })
     }
 
