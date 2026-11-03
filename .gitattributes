@@ -6,3 +6,6 @@ scripts/build_grasshopper.py text eol=lf
 grasshopper_foton/distribution/*.ghuser binary
 grasshopper_foton/distribution/*.gh binary
 grasshopper_foton/distribution/*.ghx -text
+
+# Fixture hashes are checked byte for byte, so keep LF endings on Windows too.
+test_models/**/*.hbjson text eol=lf
