@@ -1,6 +1,6 @@
 {
   "commit": "FULL_COMMIT_SHA_TESTED",
-  "engine_version": "0.2.0",
+  "engine_version": "0.3.0",
   "rhino_version": "8.REPLACE_WITH_TESTED_VERSION",
   "system": "Darwin",
   "backend": "metal",

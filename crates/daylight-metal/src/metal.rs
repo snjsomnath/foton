@@ -644,12 +644,11 @@ impl MetalBackend {
                     padding_two: 0,
                 };
                 let command_buffer = self.command_buffer("diffuse transport")?;
-                let encoder =
-                    command_buffer
-                        .computeCommandEncoder()
-                        .ok_or_else(|| DaylightError::Backend {
-                            detail: "failed to create diffuse transport encoder".into(),
-                        })?;
+                let encoder = command_buffer.computeCommandEncoder().ok_or_else(|| {
+                    DaylightError::Backend {
+                        detail: "failed to create diffuse transport encoder".into(),
+                    }
+                })?;
                 encoder.setComputePipelineState(&self.diffuse_pipeline);
                 unsafe {
                     encoder.setBytes_length_atIndex(
@@ -665,7 +664,8 @@ impl MetalBackend {
                     encoder.setBuffer_offset_atIndex(Some(&triangle_normal_buffer), 0, 6);
                     encoder.setBuffer_offset_atIndex(Some(&normal_transform_buffer), 0, 7);
                     encoder.setBuffer_offset_atIndex(Some(&indirect_buffer), 0, 8);
-                    encoder.setAccelerationStructure_atBufferIndex(Some(&acceleration.top_level), 9);
+                    encoder
+                        .setAccelerationStructure_atBufferIndex(Some(&acceleration.top_level), 9);
                 }
                 encoder.dispatchThreads_threadsPerThreadgroup(
                     MTLSize {

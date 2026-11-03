@@ -39,8 +39,8 @@ PyPI token is required.
 5. Push an annotated tag matching the package version:
 
    ```bash
-   git tag -a v0.2.0 -m "Foton 0.2.0"
-   git push origin v0.2.0
+   git tag -a v0.3.0 -m "Foton 0.3.0"
+   git push origin v0.3.0
    ```
 
 The tag starts the wheel matrix and public-beta acceptance workflow. Publication

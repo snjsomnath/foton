@@ -484,7 +484,11 @@ fn sealed_room_stays_dark_under_deep_diffuse_sampling() {
         let cpu = ReferenceBackend
             .analyze(&sealed, &request, 1, &AtomicBool::new(false), &|_| {})
             .unwrap();
-        assert_eq!(coefficient_energy(&cpu), 0.0, "reference leaked at seed {seed}");
+        assert_eq!(
+            coefficient_energy(&cpu),
+            0.0,
+            "reference leaked at seed {seed}"
+        );
         #[cfg(target_os = "macos")]
         if let Some(metal) = enabled_metal() {
             let gpu = metal
