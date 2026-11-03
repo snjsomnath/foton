@@ -58,6 +58,15 @@ BACKEND_ONLY_PATHS = {
     "metal": ("crates/daylight-vulkan/",),
     "vulkan": ("crates/daylight-metal/",),
 }
+# The Rhino checklist exercises the Grasshopper bundle and the engine; it never
+# runs the numerical suite, its scene generator or its oracle.
+RHINO_IGNORED_PATHS = (
+    "validation/",
+    "scripts/validate_release_suite.py",
+    "scripts/export_reference_bundle.py",
+    "scripts/run_honeybee_annual_reference.py",
+    "benchmarks/",
+)
 
 
 def git_changed_paths(evidence_commit, release_commit, root=ROOT):
@@ -82,13 +91,13 @@ def git_changed_paths(evidence_commit, release_commit, root=ROOT):
     return [line for line in output.splitlines() if line]
 
 
-def _commit_error(label, evidence_commit, release_commit, changed_paths, backend=None):
+def _commit_error(label, evidence_commit, release_commit, changed_paths, backend=None, also_ignored=()):
     if not evidence_commit:
         return f"{label} records no commit"
     changed = changed_paths(evidence_commit, release_commit)
     if changed is None:
         return f"{label} was produced on {evidence_commit[:12]}, which is not the release commit or one of its ancestors"
-    ignored = EVIDENCE_ONLY_PATHS + BACKEND_ONLY_PATHS.get(backend, ())
+    ignored = EVIDENCE_ONLY_PATHS + BACKEND_ONLY_PATHS.get(backend, ()) + tuple(also_ignored)
     foreign = [p for p in changed if not p.startswith(ignored)]
     if foreign:
         return (
@@ -203,7 +212,12 @@ def verify_rhino(rhino, release_commit, version, changed_paths):
             errors.append(f"{label}: {message}")
 
     commit_error = _commit_error(
-        label, rhino.get("commit"), release_commit, changed_paths, rhino.get("backend")
+        label,
+        rhino.get("commit"),
+        release_commit,
+        changed_paths,
+        rhino.get("backend"),
+        RHINO_IGNORED_PATHS,
     )
     if commit_error:
         errors.append(commit_error)

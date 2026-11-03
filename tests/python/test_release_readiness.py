@@ -216,8 +216,13 @@ def test_release_gate_accepts_complete_evidence_and_rejects_stale_or_partial():
             ".github/workflows/release.yml",
         ],
     )
-    # But the suite that produces the evidence is not exempt.
-    assert run_verify(manifest, files, commit="later", changed=["scripts/validate_release_suite.py"])
+    # But the suite that produces the numerical evidence is not exempt for the
+    # suites, while the Rhino checklist, which never runs it, keeps its evidence.
+    errors = run_verify(
+        manifest, files, commit="later", changed=["scripts/validate_release_suite.py", "validation/scenes.py"]
+    )
+    assert errors and {e.split(" suite")[0] for e in errors} == {"metal", "vulkan"}
+    assert not any(e.startswith("Rhino evidence") for e in errors)
     # Any engine, scene or suite change between the two invalidates it.
     assert run_verify(manifest, files, commit="later", changed=["crates/daylight-core/src/lib.rs"])
     # Except the other backend's crate: a Vulkan fix leaves Metal evidence valid

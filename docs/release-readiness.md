@@ -51,6 +51,31 @@ sensor grid or model summary differs from the reference's. `suite.json` and
 every report name the source campaign and commit under `reference_source`, and
 the release verifier prints it.
 
+The bundles live as GitHub release assets, one per scene corpus version, since
+the repository cannot hold the arrays. For corpus version 4:
+
+```bash
+gh release download references-corpus4-2026-11-03 --repo snjsomnath/foton --pattern '*.zip'
+```
+
+```bash
+shasum -a 256 foton-references-corpus4-2026-11-03.zip  # de4be5a59e4b694d0c9f8f5ef697649527e45dd231d9794b23ff7a9f8038417b
+```
+
+```bash
+unzip foton-references-corpus4-2026-11-03.zip -d ../references
+```
+
+```bash
+python scripts/validate_release_suite.py --backend vulkan --workers 2 --reuse-references ../references/foton-references-corpus4-2026-11-03 --output validation/results/<date>-architectural-v4-vulkan-<machine>
+```
+
+The bundle was exported from the Metal campaign of 3 November 2026 at commit
+f65030f (its [README](../validation/results/2026-11-03-architectural-v4-metal-0.3.0/README.md)
+names the eight open cases a reusing run should expect). Keep it outside the
+checkout so the run stays clean. When the corpus changes, the first campaign
+pays for Radiance once and a new bundle is published next to it.
+
 The [106 architectural scenes](../validation/architectural-scenes.md) cover controls,
 room form, orientation, openings, shading, context, materials, room connections,
 and the original acceptance HBJSON. The original ten identifiers remain, with
