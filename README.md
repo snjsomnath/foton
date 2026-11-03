@@ -17,6 +17,10 @@ It is not a replacement for Radiance or Honeybee. Instead, it explores whether
 the expensive ray-traced transport step in a Radiance-style daylight workflow
 can be moved to the GPU and made fast enough for interactive use.
 
+![Daylight autonomy of a shaded shoebox computed by Foton in Grasshopper and drawn by Ladybug's spatial heatmap](docs/images/grasshopper-heatmap-viewport.png)
+
+*The shipped Grasshopper example: Foton computes the annual metrics on the GPU in about a second; Honeybee's own metrics component and Ladybug's heatmap read the result folder as if Radiance had written it ([quickstart](docs/grasshopper-quickstart.md)).*
+
 ## Where Foton fits
 
 A simplified Radiance matrix workflow looks like:

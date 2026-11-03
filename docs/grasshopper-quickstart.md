@@ -37,9 +37,18 @@ completed easy-install release.
 5. Save the result folder. **Foton Annual Results** reloads its `run_manifest.json`
    without running a simulation. New result folders can be moved as a unit.
 
-Use `quality_ = final` when evaluating accuracy. This preset is still under
-validation; current diagnostics do not establish passing full-transport accuracy.
-Preview is visibly labelled. Changing
+![The example definition with Foton's three components feeding HB Annual Daylight Metrics and LB Spatial Heatmap](images/grasshopper-canvas.png)
+
+![Daylight autonomy of the shaded shoebox drawn by LB Spatial Heatmap in the Rhino viewport](images/grasshopper-heatmap-viewport.png)
+
+The canvas above is the shipped example plus the two Ladybug Tools components
+from step 4 and three Custom Preview components for the room; Honeybee's own
+metrics component returns the same DA as Foton's `DA` output because Foton
+writes a standard annual-daylight results folder.
+
+Use `quality_ = final` when evaluating accuracy; it is the preset the
+[release campaigns](../validation/results/2026-11-02-architectural-v4-metal-run2/README.md)
+validated against converged Radiance. Preview is visibly labelled. Changing
 inputs, quality defaults, solver versions, backend, or Radiance version invalidates
 automatic reuse. Missing/corrupt metric files also cause a new run in a numbered folder.
 
