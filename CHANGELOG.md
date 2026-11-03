@@ -15,9 +15,7 @@ All notable Foton changes are recorded here.
   and every result file are bit-identical to before on all 106 architectural
   scenes and `test.hbjson`, and on the 9,216-sensor office block once the
   room fix below is applied.
-- Metal: models with many rooms (about 256 or more) could miss whole rooms
-  while tracing, so results were wrong and changed between runs. Fixed in
-  0.3.1; models up to 128 rooms and all validation scenes were unaffected.
+- Includes the 0.3.1 fix for Metal models with many rooms (see below).
 - The first trace that uses a newly built scene now reports the
   acceleration-structure build time in `acceleration_structure_ms`; it was
   always 0 for committed scenes.
@@ -46,6 +44,18 @@ All notable Foton changes are recorded here.
   the viewer's compiled config files. `tsc -b` no longer writes them into the
   source tree.
 - Docs updated for the 0.3.0 release.
+
+## 0.3.1 - 2026-11-03
+
+A fix-only release.
+
+- Metal: on models with many rooms (about 256 or more), the GPU could skip
+  whole rooms while tracing, so rays passed through their walls. Results were
+  wrong and changed from run to run; on a 256-room, 9,216-sensor office block
+  mean DA moved between 0.47 and 0.89 where the correct value is 0.68.
+  Every room's geometry is now kept resident for the whole trace. Models up to
+  128 rooms, all validation scenes and the acceptance model were unaffected
+  and give bit-identical results to 0.3.0.
 
 ## 0.3.0 - 2026-11-03
 

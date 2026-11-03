@@ -1,0 +1,24 @@
+{
+  "scope": "automated_existing_Rhino_profile",
+  "checks": {
+    "run": true,
+    "reload_results": true,
+    "reuse": true,
+    "upgrade_invalidates_reuse": true,
+    "changed_inputs_new_folder": true,
+    "moved_results": true,
+    "cancel_external_process": true
+  },
+  "output": "/var/folders/81/qfpv0x1960ld1mtj3mzsvycr0000gn/T/foton-rhino-check-ccesjf3m",
+  "backend": "metal",
+  "engine_version": "0.3.1",
+  "reuse_report": [
+    "reused\nReused compatible results."
+  ],
+  "reuse_paths": [
+    "/var/folders/81/qfpv0x1960ld1mtj3mzsvycr0000gn/T/foton-rhino-check-ccesjf3m/annual/run_manifest.json",
+    "/var/folders/81/qfpv0x1960ld1mtj3mzsvycr0000gn/T/foton-rhino-check-ccesjf3m/annual/run_manifest.json"
+  ],
+  "rhino_version": "8.35.26251.13002",
+  "passed": true
+}
