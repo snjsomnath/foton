@@ -32,7 +32,7 @@ and maximum of five repeats. Pass `--scenes` to choose other corpus scenes.
 
 Each run writes `benchmark.json` and `benchmark.md` under
 `benchmarks/results/<run-id>/`. That folder is ignored by git. The one committed run,
-[`20261103T153730Z-CM-GHHXPN239T`](../benchmarks/results/20261103T153730Z-CM-GHHXPN239T/benchmark.md),
+[`20261103T195604Z-CM-GHHXPN239T`](../benchmarks/results/20261103T195604Z-CM-GHHXPN239T/benchmark.md),
 is the source of the speed figures in the README.
 
 The benchmark does not run Radiance. Speed against Radiance is recorded by the

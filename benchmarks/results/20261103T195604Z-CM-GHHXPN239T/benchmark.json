@@ -1,0 +1,274 @@
+{
+  "cases": [
+    {
+      "last_timings": {
+        "coefficient_trace_seconds": 0.0379873332567513,
+        "cold_end_to_end_seconds": 0.14127125008963048,
+        "engine_acceleration_structure_seconds": 0.000457042,
+        "engine_annual_reduction_seconds": 0.002104458282701671,
+        "engine_snapshot_seconds": 0.0,
+        "engine_tracing_seconds": 0.0379873332567513,
+        "engine_upload_seconds": 0.0002445,
+        "metric_reduction_seconds": 0.049518165993504226,
+        "raw_export_seconds": 0.0,
+        "study_preparation_seconds": 0.0038133340422064066,
+        "total_seconds": 0.13745791604742408,
+        "warm_study_seconds": null,
+        "weather_seconds": 0.07268808304797858,
+        "write_seconds": 0.015127624967135489
+      },
+      "model": "test_models/architectural/teaching_office.hbjson",
+      "preparation_seconds": {
+        "maximum": 0.006926249945536256,
+        "median": 0.00430679100099951,
+        "minimum": 0.0037622080417349935,
+        "values": [
+          0.006926249945536256,
+          0.00430679100099951,
+          0.0037622080417349935,
+          0.005969375022687018,
+          0.0038133340422064066
+        ]
+      },
+      "rooms": 1,
+      "scene": "teaching_office",
+      "sensors": 96,
+      "tracing_seconds": {
+        "maximum": 0.03808783332351595,
+        "median": 0.03731829160824418,
+        "minimum": 0.03578558342996985,
+        "values": [
+          0.03578558342996985,
+          0.03731829160824418,
+          0.03808783332351595,
+          0.03678054176270962,
+          0.0379873332567513
+        ]
+      },
+      "wall_seconds": {
+        "maximum": 0.14646495808847249,
+        "median": 0.14409458404406905,
+        "minimum": 0.13696274999529123,
+        "values": [
+          0.14480429096147418,
+          0.14294191601220518,
+          0.13696274999529123,
+          0.14646495808847249,
+          0.14409458404406905
+        ]
+      }
+    },
+    {
+      "last_timings": {
+        "coefficient_trace_seconds": 0.05239537509623915,
+        "cold_end_to_end_seconds": 0.16781762498430908,
+        "engine_acceleration_structure_seconds": 0.000871667,
+        "engine_annual_reduction_seconds": 0.002116624964401126,
+        "engine_snapshot_seconds": 0.0,
+        "engine_tracing_seconds": 0.05239537509623915,
+        "engine_upload_seconds": 0.000279458,
+        "metric_reduction_seconds": 0.0636199590517208,
+        "raw_export_seconds": 0.0,
+        "study_preparation_seconds": 0.007134416955523193,
+        "total_seconds": 0.16068320802878588,
+        "warm_study_seconds": null,
+        "weather_seconds": 0.07263125001918525,
+        "write_seconds": 0.02427516703028232
+      },
+      "model": "test_models/architectural/courtyard_rooms.hbjson",
+      "preparation_seconds": {
+        "maximum": 0.015453999978490174,
+        "median": 0.007134416955523193,
+        "minimum": 0.006820624927058816,
+        "values": [
+          0.015453999978490174,
+          0.012706959038041532,
+          0.0070660419296473265,
+          0.006820624927058816,
+          0.007134416955523193
+        ]
+      },
+      "rooms": 4,
+      "scene": "courtyard_rooms",
+      "sensors": 112,
+      "tracing_seconds": {
+        "maximum": 0.05239537509623915,
+        "median": 0.0523306664545089,
+        "minimum": 0.04813066660426557,
+        "values": [
+          0.04813066660426557,
+          0.052376999985426664,
+          0.0523306664545089,
+          0.05031129182316363,
+          0.05239537509623915
+        ]
+      },
+      "wall_seconds": {
+        "maximum": 0.1866320000262931,
+        "median": 0.17323124990798533,
+        "minimum": 0.16994479100685567,
+        "values": [
+          0.1866320000262931,
+          0.17859187489375472,
+          0.17323124990798533,
+          0.16994479100685567,
+          0.17151762498542666
+        ]
+      }
+    },
+    {
+      "last_timings": {
+        "coefficient_trace_seconds": 0.8954886250430718,
+        "cold_end_to_end_seconds": 1.0593219590373337,
+        "engine_acceleration_structure_seconds": 0.00063575,
+        "engine_annual_reduction_seconds": 0.017893333570100367,
+        "engine_snapshot_seconds": 0.0,
+        "engine_tracing_seconds": 0.8954886250430718,
+        "engine_upload_seconds": 0.000442667,
+        "metric_reduction_seconds": 0.9324798750458285,
+        "raw_export_seconds": 0.0,
+        "study_preparation_seconds": 0.03336029197089374,
+        "total_seconds": 1.02596166706644,
+        "warm_study_seconds": null,
+        "weather_seconds": 0.0725514170480892,
+        "write_seconds": 0.020749667077325284
+      },
+      "model": "test_models/architectural/acceptance.hbjson",
+      "preparation_seconds": {
+        "maximum": 0.041329249972477555,
+        "median": 0.032160333008505404,
+        "minimum": 0.030583249987103045,
+        "values": [
+          0.041329249972477555,
+          0.03156504197977483,
+          0.032160333008505404,
+          0.030583249987103045,
+          0.03336029197089374
+        ]
+      },
+      "rooms": 3,
+      "scene": "acceptance",
+      "sensors": 2020,
+      "tracing_seconds": {
+        "maximum": 0.9019266247050837,
+        "median": 0.8981260831933469,
+        "minimum": 0.8452957917470485,
+        "values": [
+          0.8452957917470485,
+          0.8981260831933469,
+          0.9019266247050837,
+          0.9010632917052135,
+          0.8954886250430718
+        ]
+      },
+      "wall_seconds": {
+        "maximum": 1.0704922090517357,
+        "median": 1.0691977079259232,
+        "minimum": 1.0354063749546185,
+        "values": [
+          1.0354063749546185,
+          1.068935832940042,
+          1.0700648749480024,
+          1.0704922090517357,
+          1.0691977079259232
+        ]
+      }
+    },
+    {
+      "last_timings": {
+        "coefficient_trace_seconds": 4.257881749072112,
+        "cold_end_to_end_seconds": 5.261037791962735,
+        "engine_acceleration_structure_seconds": 0.003734917,
+        "engine_annual_reduction_seconds": 0.06673558324109763,
+        "engine_snapshot_seconds": 0.0,
+        "engine_tracing_seconds": 4.257881749072112,
+        "engine_upload_seconds": 0.001126875,
+        "metric_reduction_seconds": 4.381753208930604,
+        "raw_export_seconds": 0.0,
+        "study_preparation_seconds": 0.49558587500359863,
+        "total_seconds": 4.765451916959137,
+        "warm_study_seconds": null,
+        "weather_seconds": 0.07442112499848008,
+        "write_seconds": 0.30782683298457414
+      },
+      "model": "office_floors.hbjson",
+      "preparation_seconds": {
+        "maximum": 0.5811889170436189,
+        "median": 0.49558587500359863,
+        "minimum": 0.4417945829918608,
+        "values": [
+          0.4417945829918608,
+          0.46190658293198794,
+          0.5113088749349117,
+          0.5811889170436189,
+          0.49558587500359863
+        ]
+      },
+      "rooms": 256,
+      "scene": "office_floors",
+      "sensors": 9216,
+      "tracing_seconds": {
+        "maximum": 5.135898917680606,
+        "median": 4.682290500262752,
+        "minimum": 4.257881749072112,
+        "values": [
+          4.682290500262752,
+          5.135898917680606,
+          5.108600166859105,
+          4.3005292498273775,
+          4.257881749072112
+        ]
+      },
+      "wall_seconds": {
+        "maximum": 6.201946250046603,
+        "median": 5.771837166976184,
+        "minimum": 5.269650249974802,
+        "values": [
+          5.771837166976184,
+          6.172431166050956,
+          6.201946250046603,
+          5.43841920804698,
+          5.269650249974802
+        ]
+      }
+    }
+  ],
+  "engine": {
+    "capabilities": {
+      "hardware_acceleration": true,
+      "name": "Metal device: Apple M4 Pro (GPU direct, diffuse, glass, and annual reduction)",
+      "supports_async_jobs": true,
+      "supports_ray_tracing": true
+    },
+    "requested_backend": "auto",
+    "selected_backend": "metal",
+    "version": "0.3.0"
+  },
+  "host": {
+    "cpu": "Apple M4 Pro",
+    "cpu_core_description": "14 (10 Performance and 4 Efficiency)",
+    "cpu_count": 14,
+    "gpu": "Apple M4 Pro",
+    "hostname": "CM-GHHXPN239T",
+    "machine": "arm64",
+    "memory": "24 GB",
+    "model": "MacBook Pro",
+    "model_identifier": "Mac16,7",
+    "python": "3.13.5",
+    "release": "26.6.2",
+    "system": "Darwin"
+  },
+  "label": null,
+  "quality": "final",
+  "recorded_at_utc": "2026-11-03 19:56:42Z",
+  "repeats": 5,
+  "run_id": "20261103T195604Z-CM-GHHXPN239T",
+  "schema_version": 2,
+  "settings": {
+    "direct_samples": 256,
+    "maximum_bounces": 8,
+    "maximum_samples": 65536,
+    "sky_density": 1
+  },
+  "weather": "gothenburg.epw"
+}

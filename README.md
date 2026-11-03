@@ -149,7 +149,8 @@ accuracy for arbitrary models.
 ## Performance
 
 We measured these times on 3 November 2026 on a MacBook Pro with an Apple M4 Pro
-(24 GB) and Metal, using Foton 0.3.0 with its shipped defaults. Those defaults
+(24 GB) and Metal, using Foton from `main` after 0.3.0 (commit `42b95eb`, which
+includes the many-room Metal fix) with its shipped defaults. Those defaults
 are the `final` preset (256 direct samples, 65,536 indirect samples and 8 bounces)
 on the 146-patch sky with Gothenburg weather. Each time covers a full annual
 daylight run on a model Foton had not seen before: loading the Honeybee model,
@@ -158,19 +159,25 @@ hours. Each figure is the median of five runs.
 
 | Model | Rooms | Sensors | Annual run |
 | --- | ---: | ---: | ---: |
-| Teaching office (corpus) | 1 | 96 | 0.16 s |
-| Courtyard with four rooms (corpus) | 4 | 112 | 0.20 s |
-| Acceptance model | 3 | 2,020 | 1.42 s |
-| Four-storey office block (generated) | 256 | 9,216 | 2.93 s |
+| Teaching office (corpus) | 1 | 96 | 0.14 s |
+| Courtyard with four rooms (corpus) | 4 | 112 | 0.17 s |
+| Acceptance model | 3 | 2,020 | 1.07 s |
+| Four-storey office block (generated) | 256 | 9,216 | 5.77 s |
 
 On the same Mac that morning, Honeybee's stock annual-daylight recipe took 21.5 s
-on the acceptance model, using Radiance 5.4 with 12 workers. Foton took 1.5 s
-on the same model in that run
+on the acceptance model, using Radiance 5.4 with 12 workers. Foton 0.3.0 took 1.5 s
+on the same model in that run, and the current code takes 1.07 s
 ([campaign](https://github.com/snjsomnath/foton/blob/main/validation/results/2026-11-03-architectural-v4-metal-0.3.0-release/README.md)).
 Each tool ran at its own defaults, and the stock recipe uses 2 ambient bounces
 where Foton uses 8. Treat this as one comparison, not a general speedup claim.
 The full timing data is in the
-[benchmark run](https://github.com/snjsomnath/foton/blob/main/benchmarks/results/20261103T153730Z-CM-GHHXPN239T/benchmark.md).
+[benchmark run](https://github.com/snjsomnath/foton/blob/main/benchmarks/results/20261103T195604Z-CM-GHHXPN239T/benchmark.md).
+
+Inside Grasshopper the same run also pays for writing the HBJSON, starting the
+`foton-honeybee` process and reading the results back. Measured through the
+component's code path (without Rhino itself), the round trip took 0.49 s for the
+teaching office, 1.37 s for the acceptance model and 6.39 s for the office block
+([stage breakdown](https://github.com/snjsomnath/foton/blob/main/benchmarks/results/20261103T195642Z-grasshopper/benchmark.md)).
 
 The purpose of the comparison is to show the potential of GPU transport for
 interactive daylight analysis. The Vulkan backend has so far run on one other

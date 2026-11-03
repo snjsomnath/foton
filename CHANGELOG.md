@@ -24,8 +24,9 @@ All notable Foton changes are recorded here.
 - `scripts/benchmark_hardware.py` now times cold end-to-end annual daylight
   runs at the shipped defaults on four Honeybee models of increasing size,
   replacing the July 2026 fixtures that used 4,096 samples and 2 bounces.
-  The README speed figures come from a new run on 3 November 2026; the old
-  July results were removed.
+  `scripts/benchmark_grasshopper.py` times the Grasshopper component's round
+  trip stage by stage. The README speed figures come from new runs on
+  3 November 2026; the old July results were removed.
 - Foton computes its own annual sky matrix. `daylight_core::sky::perez`
   implements the Perez all-weather model (Perez, Seals and Michalsky 1993,
   with the Perez et al. 1990 luminous-efficacy fits) over the Tregenza 1987
