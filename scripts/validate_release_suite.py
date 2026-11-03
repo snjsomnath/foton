@@ -43,7 +43,7 @@ from foton.honeybee.validation import (
     verify_official_annual_daylight_loader,
 )
 from foton.honeybee.weather import prepare_annual_weather
-from scripts.export_reference_bundle import sensor_grid_digest
+from scripts.export_reference_bundle import sensor_grid_array, sensor_grid_digest
 from scripts.validate_honeybee_coefficients import trace_coefficients
 from validation.scenes import (
     SCENE_CATEGORIES,
@@ -473,10 +473,11 @@ def load_reused_reference(
 
     The references describe the scene, not the engine, so a GPU without the
     cores to redo the oracle can be judged against them. The scene must be the
-    one they were made for: same sensor grid (hashed from the HBJSON) and the
-    same model summary. The HBJSON digest itself is recorded but not required,
-    because serialisation details differ between Honeybee versions while the
-    geometry does not.
+    one they were made for: the same sensor grid, sensor for sensor in model
+    order, within a micrometre (libm implementations differ in the last bit
+    of rotated coordinates), and the same model summary. The HBJSON digest is
+    recorded but not required, because serialisation details differ between
+    Honeybee versions while the geometry does not.
     """
     case_dir = bundle_dir / identifier / ("mf%d" % density)
     reference = json.loads((case_dir / "reference.json").read_text())
@@ -487,9 +488,22 @@ def load_reused_reference(
             "reused reference was made for a different model: %r, now %r"
             % (reference["model_summary"], model_summary)
         )
+    grid = sensor_grid_array(model_path)
+    reference_grid = np.load(case_dir / reference["sensor_grid_file"])
+    if grid.shape != reference_grid.shape or not np.allclose(
+        grid, reference_grid, rtol=0, atol=1e-6
+    ):
+        raise RuntimeError(
+            "reused reference was made for a different sensor grid (%d sensors, "
+            "largest difference %s)"
+            % (
+                len(reference_grid),
+                np.abs(grid - reference_grid).max()
+                if grid.shape == reference_grid.shape
+                else "n/a",
+            )
+        )
     grid_digest = sensor_grid_digest(model_path)
-    if reference["sensor_grid_sha256"] != grid_digest:
-        raise RuntimeError("reused reference was made for a different sensor grid")
     arrays = {}
     for name, expected in reference["arrays"].items():
         path = case_dir / name
@@ -517,6 +531,8 @@ def load_reused_reference(
             "model_sha256": reference["model_sha256"],
             "model_sha256_matches": reference["model_sha256"] == digest(model_path),
             "sensor_grid_sha256": grid_digest,
+            "sensor_grid_sha256_matches": reference["sensor_grid_sha256"] == grid_digest,
+            "sensor_grid_max_difference": float(np.abs(grid - reference_grid).max()),
             "geometry_matches": True,
             "one_bounce_replicates": reference.get("one_bounce_replicates"),
         },

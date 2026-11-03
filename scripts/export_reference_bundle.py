@@ -52,18 +52,26 @@ def sha256(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def sensor_grid_digest(hbjson_path):
-    """SHA-256 of the sensor positions and directions in model order, as the
-    HBJSON stores them: the geometry the coefficients index, independent of
-    Honeybee's other serialisation details."""
+def sensor_grid_array(hbjson_path):
+    """Sensor positions and directions in model order, as the HBJSON stores
+    them: the geometry the coefficients index, independent of Honeybee's other
+    serialisation details. Shape (sensors, 6)."""
     model = json.loads(Path(hbjson_path).read_text())
     radiance = (model.get("properties") or {}).get("radiance") or {}
     grids = radiance.get("sensor_grids") or []
-    payload = json.dumps(
-        [[[s.get("pos"), s.get("dir")] for s in g.get("sensors", [])] for g in grids],
-        separators=(",", ":"),
-    )
-    return hashlib.sha256(payload.encode()).hexdigest()
+    rows = [
+        list(sensor.get("pos", ())) + list(sensor.get("dir", ()))
+        for grid in grids
+        for sensor in grid.get("sensors", [])
+    ]
+    return np.asarray(rows, dtype=np.float64).reshape(-1, 6)
+
+
+def sensor_grid_digest(hbjson_path):
+    """SHA-256 of the sensor grid array's bytes. Informational: libm
+    implementations differ in the last bit of rotated coordinates, so the
+    consuming suite compares the array numerically."""
+    return hashlib.sha256(sensor_grid_array(hbjson_path).tobytes()).hexdigest()
 
 
 def export_case(case_dir, destination):
@@ -99,6 +107,8 @@ def export_case(case_dir, destination):
         np.mean([np.load(p) for p in replicates], axis=0).astype(np.float32),
     )
     reference = {field: report[field] for field in CARRIED_FIELDS}
+    np.save(destination / "sensor_grid.npy", sensor_grid_array(model_path))
+    reference["sensor_grid_file"] = "sensor_grid.npy"
     reference["sensor_grid_sha256"] = sensor_grid_digest(model_path)
     reference["arrays"] = {name: sha256(destination / name) for name in ARRAYS}
     reference["one_bounce_replicates"] = len(replicates)

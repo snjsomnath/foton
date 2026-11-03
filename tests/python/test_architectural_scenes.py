@@ -350,6 +350,10 @@ def canonical_geometry(value):
         return result
     if isinstance(value, list):
         return [canonical_geometry(item) for item in value]
+    if isinstance(value, float):
+        # tan(30 deg) and friends differ in their last bit between libm
+        # implementations; a nanometre is not a geometry change.
+        return round(value, 9)
     return value
 
 
@@ -367,11 +371,11 @@ def test_saved_sample_corpus_matches_current_generator_and_manifest():
         saved = json.loads(path.read_text())
         generated = scene_dict(make_scene(record["identifier"]))
         assert canonical_geometry(saved) == canonical_geometry(generated)
-        # The sensor grids must match exactly, in order: the coefficients index them.
-        assert (
+        # The sensor grids must match sensor for sensor, in order: the
+        # coefficients index them.
+        assert canonical_geometry(
             saved["properties"]["radiance"].get("sensor_grids")
-            == generated["properties"]["radiance"].get("sensor_grids")
-        )
+        ) == canonical_geometry(generated["properties"]["radiance"].get("sensor_grids"))
 
 
 def test_model_hashes_are_reproducible_across_python_hash_seeds():
