@@ -7,7 +7,7 @@
   "tested_at": "",
   "notes": "",
   "scenarios": {
-    "fresh_install": false,
+    "install": false,
     "open_example": false,
     "run": false,
     "cancel": false,

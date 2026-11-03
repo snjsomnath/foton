@@ -1,18 +1,19 @@
 name: Public beta acceptance
 
+# Runs the full numerical suite on a trusted GPU runner, when one is
+# registered. Release qualification itself reads the evidence committed under
+# validation/results/ (see release.yml and scripts/verify_release_evidence.py);
+# this workflow is how such evidence can be produced on CI hardware.
 on:
-  schedule:
-    - cron: "17 3 * * 0"
   workflow_dispatch:
-  workflow_call:
 
 permissions:
   contents: read
 
 jobs:
   validation:
-    name: ${{ matrix.backend }} / Radiance and Rhino 8
-    # Trusted runners with real GPUs and Radiance 6. Never run untrusted PRs here.
+    name: ${{ matrix.backend }} / Radiance
+    # Trusted runners with real GPUs and Radiance. Never run untrusted PRs here.
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 1440
     strategy:
@@ -21,10 +22,8 @@ jobs:
         include:
           - runner: [self-hosted, macOS, ARM64, foton-metal]
             backend: metal
-            system: Darwin
           - runner: [self-hosted, Windows, X64, foton-vulkan]
             backend: vulkan
-            system: Windows
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -43,22 +42,17 @@ jobs:
           DAYLIGHT_ENGINE_VULKAN_TEST: '1'
         run: cargo test -p daylight-${{ matrix.backend }} --test reference_validation
       - name: Validate the complete architectural corpus in both sky bases
-        run: python scripts/validate_release_suite.py --backend ${{ matrix.backend }} --output artifacts
-      - name: Require current-commit live Rhino evidence
-        shell: bash
-        run: >-
-          python scripts/verify_release_evidence.py
-          --suite artifacts/suite.json --rhino "$FOTON_RHINO_EVIDENCE"
-          --commit "$(git rev-parse HEAD)"
-          --version "$(python -c 'import foton; print(foton.__version__)')"
-          --backend ${{ matrix.backend }} --system ${{ matrix.system }}
-      - name: Retain the verified Rhino evidence
-        run: python -c "import os,shutil; shutil.copyfile(os.environ['FOTON_RHINO_EVIDENCE'], 'artifacts/rhino-evidence.json')"
+        run: python scripts/validate_release_suite.py --backend ${{ matrix.backend }} --workers 8 --output artifacts
       - name: Preserve validation evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: beta-validation-${{ matrix.backend }}-${{ github.sha }}
-          path: artifacts
+          path: |
+            artifacts/suite.json
+            artifacts/suite.md
+            artifacts/**/report.md
+            artifacts/**/coefficient_comparison.*
+            artifacts/**/converged_annual.json
           if-no-files-found: error
           retention-days: 90

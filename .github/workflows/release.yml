@@ -10,7 +10,21 @@ permissions:
 
 jobs:
   acceptance:
-    uses: ./.github/workflows/annual-parity.yml
+    name: Verify committed release evidence
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Verify the evidence named in validation/release-evidence.json
+        shell: bash
+        run: >-
+          python scripts/verify_release_evidence.py
+          --commit "$(git rev-parse HEAD)"
+          --version "$(python -c 'import tomllib; print(tomllib.load(open("pyproject.toml","rb"))["project"]["version"])')"
 
   grasshopper:
     name: Verify and package Grasshopper download

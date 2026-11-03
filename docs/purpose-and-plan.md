@@ -219,7 +219,11 @@ answered against a traced sun under step 4.
 ### 6. Vulkan and Linux
 
 Repeat step 3 on a Windows or Linux machine with a Vulkan 1.3 GPU. Until then
-Vulkan is "built and unit-tested", not "validated".
+Vulkan is "built and unit-tested", not "validated". The release gate
+(3 November 2026) reads committed evidence rather than demanding self-hosted
+runners, so a full-corpus Vulkan run from any machine with Radiance and the
+GPU, committed under `validation/results/`, is what closes this step; a Colab
+T4 run is in progress.
 
 ## Smaller known issues
 

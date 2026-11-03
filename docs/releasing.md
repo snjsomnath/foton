@@ -43,9 +43,14 @@ PyPI token is required.
    git push origin v0.3.0
    ```
 
-The tag starts the wheel matrix and public-beta acceptance workflow. Publication
-requires all distributions, the Grasshopper package, and both platform acceptance
-gates to pass.
+The tag starts the wheel matrix, the Grasshopper packaging and the evidence
+check. Publication requires all distributions, the Grasshopper package and
+`scripts/verify_release_evidence.py` to pass for the tagged commit; run it
+locally first:
+
+   ```bash
+   python scripts/verify_release_evidence.py --commit "$(git rev-parse HEAD)" --version 0.3.0
+   ```
 
 ## Name ownership
 
@@ -54,7 +59,10 @@ project under that name unless ownership has been formally transferred on PyPI.
 
 ## Public-beta acceptance gate
 
-Read [release readiness](release-readiness.md) before tagging. Publishing now
-requires current-commit Metal and Windows Vulkan numerical suites, complete live
-Rhino 8 evidence on both platforms, and a source-matched Grasshopper download.
-Configure the documented trusted GPU runners; absent evidence blocks publication.
+Read [release readiness](release-readiness.md) before tagging. Publishing
+requires committed, release-commit numerical suites for Metal and Vulkan, a
+live Rhino 8 checklist, a named list of any cases outside the gates, and a
+source-matched Grasshopper download. Produce the suites with
+`scripts/validate_release_suite.py` on the release commit after the version
+bump, commit their reports under `validation/results/`, name them in
+`validation/release-evidence.json`, then tag the commit that adds them.

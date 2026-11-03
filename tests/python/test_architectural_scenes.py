@@ -426,17 +426,19 @@ def test_comparison_runner_counts_cases_and_cannot_qualify_a_subset(
 
 
 def test_release_evidence_rejects_a_truncated_or_duplicated_corpus():
-    from scripts.verify_release_evidence import verify
+    from scripts.verify_release_evidence import verify_suite
 
     def errors(records):
-        return verify({"scenes": records}, {}, "abc", "metal", "Darwin", "0.2.0")
+        return verify_suite(
+            {"scenes": records}, "abc", "0.2.0", "metal", {}, lambda a, b: None
+        )[0]
 
     complete = [
         {"scene": identifier, "sky_density": density}
         for identifier in SCENE_IDS
         for density in (1, 2)
     ]
-    message = f"{len(SCENE_IDS)} scenes in both sky bases are required"
+    message = f"metal suite: {len(SCENE_IDS)} scenes in both sky bases are required"
     assert message not in errors(complete)
     assert message in errors(complete[:-1])
     assert message in errors(complete[:-1] + [complete[0]])

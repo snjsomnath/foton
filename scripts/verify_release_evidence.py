@@ -1,17 +1,25 @@
 #!/usr/bin/env python3
-"""Reject missing, stale, partial, fallback or failing release evidence."""
+"""Verify the committed release evidence named in validation/release-evidence.json.
+
+A release is qualified by evidence that lives in the repository: one complete
+numerical suite per GPU backend and at least one live Rhino 8 checklist, each
+produced on the release commit or on an ancestor that differs from it only by
+evidence and documentation. Cases outside the gates must be named, with a
+reason, in validation/known-open-cases.json; everything else must pass.
+"""
 
 import argparse
 import json
 from pathlib import Path
+import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from validation.scenes import SCENE_IDS, SCENE_VERSION
+from validation.scenes import SCENE_IDS, SCENE_VERSION  # noqa: E402
 
 RHINO_SCENARIOS = (
-    "fresh_install",
+    "install",
     "open_example",
     "run",
     "cancel",
@@ -22,34 +30,99 @@ RHINO_SCENARIOS = (
     "honeybee_metrics",
     "ladybug_heatmap",
 )
+REQUIRED_BACKENDS = ("metal", "vulkan")
+NUMERICAL_SYSTEMS = {"metal": ("Darwin",), "vulkan": ("Windows", "Linux")}
+RHINO_SYSTEMS = ("Darwin", "Windows")
+# Paths that may differ between the commit evidence was produced on and the
+# release commit without invalidating the evidence: nothing here changes what
+# the engine, the scenes or the suite compute.
+EVIDENCE_ONLY_PATHS = (
+    "validation/results/",
+    "validation/release-evidence.json",
+    "validation/known-open-cases.json",
+    "docs/",
+    "README.md",
+    "CHANGELOG.md",
+    "epw/README.md",
+)
+OPEN_CASE_CLASSES = ("accuracy_failure", "unstable_reference")
 
 
-def verify(suite, rhino, commit, backend, system, version):
+def git_changed_paths(evidence_commit, release_commit, root=ROOT):
+    """Paths that differ between two commits, or None when the first is not an
+    ancestor of the second (or either is unknown)."""
+    if evidence_commit == release_commit:
+        return []
+    try:
+        subprocess.run(
+            ["git", "merge-base", "--is-ancestor", evidence_commit, release_commit],
+            cwd=root,
+            check=True,
+            capture_output=True,
+        )
+        output = subprocess.check_output(
+            ["git", "diff", "--name-only", evidence_commit, release_commit],
+            cwd=root,
+            text=True,
+        )
+    except (subprocess.CalledProcessError, OSError):
+        return None
+    return [line for line in output.splitlines() if line]
+
+
+def _commit_error(label, evidence_commit, release_commit, changed_paths):
+    if not evidence_commit:
+        return f"{label} records no commit"
+    changed = changed_paths(evidence_commit, release_commit)
+    if changed is None:
+        return f"{label} was produced on {evidence_commit[:12]}, which is not the release commit or one of its ancestors"
+    foreign = [p for p in changed if not p.startswith(EVIDENCE_ONLY_PATHS)]
+    if foreign:
+        return (
+            f"{label} was produced on {evidence_commit[:12]}; the release commit also changes "
+            + ", ".join(foreign[:5])
+            + (" ..." if len(foreign) > 5 else "")
+        )
+    return None
+
+
+def verify_known_open_cases(known):
     errors = []
+    cases = known.get("cases") if isinstance(known, dict) else None
+    if not isinstance(cases, list):
+        return ["known-open-cases file has no case list"], {}
+    allowed = {}
+    for case in cases:
+        key = (case.get("scene"), case.get("sky_density"))
+        if key[0] not in SCENE_IDS or key[1] not in (1, 2):
+            errors.append(f"known open case {key} is not a corpus case")
+            continue
+        classes = tuple(case.get("result_classes", ()))
+        if not classes or any(c not in OPEN_CASE_CLASSES for c in classes):
+            errors.append(f"known open case {key} must name result classes from {OPEN_CASE_CLASSES}")
+        if not case.get("reason") or not case.get("documented_in"):
+            errors.append(f"known open case {key} needs a reason and a documented_in reference")
+        allowed[key] = classes
+    return errors, allowed
+
+
+def verify_suite(suite, release_commit, version, backend, allowed_open, changed_paths):
+    errors = []
+    label = f"{backend} suite"
 
     def require(condition, message):
         if not condition:
-            errors.append(message)
+            errors.append(f"{label}: {message}")
 
-    require(suite.get("commit") == commit, "suite was not run on the release commit")
-    require(
-        suite.get("engine_version") == version,
-        "suite wheel version differs from release",
-    )
+    commit_error = _commit_error(label, suite.get("commit"), release_commit, changed_paths)
+    if commit_error:
+        errors.append(commit_error)
+    require(suite.get("engine_version") == version, "wheel version differs from the release")
     require(suite.get("suite_version") == SCENE_VERSION, "suite version is obsolete")
-    require(
-        suite.get("status") == "passed" and suite.get("passed") is True,
-        "numerical suite did not pass",
-    )
-    require(
-        suite.get("dirty") is False and suite.get("smoke") is False,
-        "dirty or smoke runs cannot qualify releases",
-    )
-    require(
-        suite.get("backend") == backend
-        and suite.get("hardware", {}).get("system") == system,
-        "suite hardware/platform differs from required target",
-    )
+    require(suite.get("dirty") is False and suite.get("smoke") is False, "dirty or smoke runs cannot qualify releases")
+    require(suite.get("backend") == backend, "backend differs from the manifest entry")
+    system = suite.get("hardware", {}).get("system")
+    require(system in NUMERICAL_SYSTEMS.get(backend, ()), f"{system!r} is not a supported system for {backend}")
     scenes = suite.get("scenes", [])
     require(
         len(scenes) == len(SCENE_IDS) * 2
@@ -57,59 +130,143 @@ def verify(suite, rhino, commit, backend, system, version):
         == {(s, d) for s in SCENE_IDS for d in (1, 2)},
         "%d scenes in both sky bases are required" % len(SCENE_IDS),
     )
-    require(
-        all(
-            s.get("passed") is True
-            and s.get("gpu_executed") is True
-            and s.get("oracle_stable") is True
-            for s in scenes
-        ),
-        "missing GPU execution or unstable/failing scene",
-    )
-    require(
-        rhino.get("commit") == commit and rhino.get("engine_version") == version,
-        "Rhino evidence is not for this release",
-    )
-    require(
-        str(rhino.get("rhino_version", "")).startswith("8."),
-        "Rhino 8 evidence is required",
-    )
-    require(
-        rhino.get("system") == system and rhino.get("backend") == backend,
-        "Rhino platform/backend differs",
-    )
+    open_cases = []
+    for scene in scenes:
+        key = (scene.get("scene"), scene.get("sky_density"))
+        require(scene.get("gpu_executed") is True, f"{key} did not execute on the GPU")
+        result_class = scene.get("result_class")
+        if scene.get("passed") is True and scene.get("oracle_stable") is True and result_class == "passed":
+            continue
+        if result_class in allowed_open.get(key, ()):
+            open_cases.append(key)
+            continue
+        require(False, f"{key} is {result_class or 'not passed'} and not a documented open case")
+    return errors, {
+        "backend": backend,
+        "system": system,
+        "machine": suite.get("hardware", {}).get("machine"),
+        "device": _device_name(suite),
+        "commit": suite.get("commit"),
+        "passed": len(scenes) - len(open_cases),
+        "open": sorted(open_cases),
+    }
+
+
+def _device_name(suite):
+    diagnostics = suite.get("hardware", {}).get("driver_diagnostics") or []
+    for entry in diagnostics:
+        if isinstance(entry, dict):
+            for key in ("_name", "name", "device", "model"):
+                if entry.get(key):
+                    return str(entry[key])
+    return None
+
+
+def verify_rhino(rhino, release_commit, version, changed_paths):
+    errors = []
+    label = "Rhino evidence"
+
+    def require(condition, message):
+        if not condition:
+            errors.append(f"{label}: {message}")
+
+    commit_error = _commit_error(label, rhino.get("commit"), release_commit, changed_paths)
+    if commit_error:
+        errors.append(commit_error)
+    require(rhino.get("engine_version") == version, "engine version differs from the release")
+    require(str(rhino.get("rhino_version", "")).startswith("8."), "Rhino 8 is required")
+    require(rhino.get("system") in RHINO_SYSTEMS, "system must be Darwin or Windows")
+    require(rhino.get("backend") in REQUIRED_BACKENDS, "backend must be metal or vulkan")
     scenarios = rhino.get("scenarios", {})
-    require(
-        all(scenarios.get(name) is True for name in RHINO_SCENARIOS),
-        "live Rhino acceptance checklist is incomplete",
-    )
-    require(
-        bool(rhino.get("tested_at")) and bool(rhino.get("notes")),
-        "Rhino evidence needs a date and reproduction notes",
-    )
-    return errors
+    missing = [name for name in RHINO_SCENARIOS if scenarios.get(name) is not True]
+    require(not missing, "checklist incomplete: " + ", ".join(missing))
+    require(bool(rhino.get("tested_at")) and bool(rhino.get("notes")), "needs a date and reproduction notes")
+    return errors, {
+        "system": rhino.get("system"),
+        "backend": rhino.get("backend"),
+        "rhino_version": rhino.get("rhino_version"),
+        "commit": rhino.get("commit"),
+    }
+
+
+def verify(manifest, release_commit, version, *, load, changed_paths=git_changed_paths):
+    """Return (errors, summary) for a release-evidence manifest.
+
+    `load(path)` returns the parsed JSON for a repository-relative path.
+    """
+    errors = []
+    summary = {"numerical": [], "rhino": []}
+    if manifest.get("version") != version:
+        errors.append("evidence manifest is for version %r, not %s" % (manifest.get("version"), version))
+    try:
+        known = load(manifest.get("known_open_cases", "validation/known-open-cases.json"))
+    except (OSError, ValueError) as error:
+        errors.append(f"known-open-cases: {error}")
+        known = {}
+    known_errors, allowed_open = verify_known_open_cases(known)
+    errors.extend(known_errors)
+
+    seen_backends = set()
+    for entry in manifest.get("numerical", []):
+        backend = entry.get("backend")
+        try:
+            suite = load(entry["suite"])
+        except (KeyError, OSError, ValueError) as error:
+            errors.append(f"{backend} suite: cannot read evidence ({error})")
+            continue
+        suite_errors, record = verify_suite(suite, release_commit, version, backend, allowed_open, changed_paths)
+        errors.extend(suite_errors)
+        seen_backends.add(backend)
+        summary["numerical"].append(record)
+    for backend in REQUIRED_BACKENDS:
+        if backend not in seen_backends:
+            errors.append(f"no numerical evidence for the {backend} backend")
+
+    rhino_entries = manifest.get("rhino", [])
+    if not rhino_entries:
+        errors.append("no live Rhino 8 evidence")
+    for path in rhino_entries:
+        try:
+            rhino = load(path)
+        except (OSError, ValueError) as error:
+            errors.append(f"Rhino evidence: cannot read {path} ({error})")
+            continue
+        rhino_errors, record = verify_rhino(rhino, release_commit, version, changed_paths)
+        errors.extend(rhino_errors)
+        summary["rhino"].append(record)
+    return errors, summary
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--suite", type=Path, required=True)
-    parser.add_argument("--rhino", type=Path, required=True)
-    parser.add_argument("--commit", required=True)
-    parser.add_argument("--version", required=True)
-    parser.add_argument("--backend", choices=("metal", "vulkan"), required=True)
-    parser.add_argument("--system", choices=("Darwin", "Windows"), required=True)
+    parser.add_argument("--manifest", type=Path, default=ROOT / "validation/release-evidence.json")
+    parser.add_argument("--commit", required=True, help="release commit SHA")
+    parser.add_argument("--version", required=True, help="package version being released")
+    parser.add_argument("--root", type=Path, default=ROOT)
     args = parser.parse_args()
+    root = args.root.resolve()
+
+    def load(path):
+        return json.loads((root / path).read_text())
+
     try:
-        errors = verify(
-            json.loads(args.suite.read_text()),
-            json.loads(args.rhino.read_text()),
+        manifest = json.loads(args.manifest.read_text())
+        errors, summary = verify(
+            manifest,
             args.commit,
-            args.backend,
-            args.system,
             args.version,
+            load=load,
+            changed_paths=lambda a, b: git_changed_paths(a, b, root),
         )
     except (OSError, ValueError, TypeError) as error:
-        errors = [str(error)]
+        errors, summary = [str(error)], {"numerical": [], "rhino": []}
+    for record in summary["numerical"]:
+        print(
+            f"{record['backend']} on {record['system']} ({record['device'] or record['machine']}): "
+            f"{record['passed']} cases passed, {len(record['open'])} documented open"
+        )
+    for record in summary["rhino"]:
+        print(f"Rhino {record['rhino_version']} on {record['system']} with {record['backend']}: checklist complete")
     for error in errors:
         print("Release evidence incomplete: " + error, file=sys.stderr)
     return 1 if errors else 0

@@ -128,46 +128,138 @@ def test_darkness_and_nonfinite_values_cannot_pass_convergence():
     assert not difference(np.zeros(4), np.full(4, np.nan))["passed"]
 
 
-def test_release_gate_rejects_missing_or_stale_evidence():
-    from scripts.verify_release_evidence import verify, RHINO_SCENARIOS
+def release_evidence(version="0.3.0", commit="abc"):
+    """A complete, passing evidence set keyed by repository path."""
+    from scripts.verify_release_evidence import RHINO_SCENARIOS
 
-    suite = {
-        "commit": "abc",
-        "engine_version": "0.2.0",
-        "suite_version": SCENE_VERSION,
-        "status": "passed",
-        "passed": True,
-        "dirty": False,
-        "smoke": False,
-        "backend": "metal",
-        "hardware": {"system": "Darwin"},
-        "scenes": [
-            {
-                "scene": name,
-                "sky_density": d,
-                "passed": True,
-                "gpu_executed": True,
-                "oracle_stable": True,
-            }
-            for name in SCENE_IDS
-            for d in (1, 2)
+    def suite(backend, system):
+        return {
+            "commit": commit,
+            "engine_version": version,
+            "suite_version": SCENE_VERSION,
+            "status": "passed",
+            "passed": True,
+            "dirty": False,
+            "smoke": False,
+            "backend": backend,
+            "hardware": {"system": system, "machine": "arm64"},
+            "scenes": [
+                {
+                    "scene": name,
+                    "sky_density": d,
+                    "passed": True,
+                    "gpu_executed": True,
+                    "oracle_stable": True,
+                    "result_class": "passed",
+                }
+                for name in SCENE_IDS
+                for d in (1, 2)
+            ],
+        }
+
+    files = {
+        "metal/suite.json": suite("metal", "Darwin"),
+        "vulkan/suite.json": suite("vulkan", "Linux"),
+        "rhino.json": {
+            "commit": commit,
+            "engine_version": version,
+            "rhino_version": "8.35",
+            "backend": "metal",
+            "system": "Darwin",
+            "tested_at": "2026-11-03",
+            "notes": "existing Rhino profile on the build machine",
+            "scenarios": dict.fromkeys(RHINO_SCENARIOS, True),
+        },
+        "open.json": {"cases": []},
+    }
+    manifest = {
+        "version": version,
+        "numerical": [
+            {"backend": "metal", "suite": "metal/suite.json"},
+            {"backend": "vulkan", "suite": "vulkan/suite.json"},
         ],
+        "rhino": ["rhino.json"],
+        "known_open_cases": "open.json",
     }
-    rhino = {
-        "commit": "abc",
-        "engine_version": "0.2.0",
-        "rhino_version": "8.35",
-        "backend": "metal",
-        "system": "Darwin",
-        "tested_at": "2026-09-15",
-        "notes": "isolated test environment",
-        "scenarios": dict.fromkeys(RHINO_SCENARIOS, True),
-    }
-    assert not verify(suite, rhino, "abc", "metal", "Darwin", "0.2.0")
-    assert verify(suite, rhino, "new", "metal", "Darwin", "0.2.0")
-    assert verify(suite, {}, "abc", "metal", "Darwin", "0.2.0")
-    suite["scenes"][0]["gpu_executed"] = False
-    assert verify(suite, rhino, "abc", "metal", "Darwin", "0.2.0")
+    return manifest, files
+
+
+def run_verify(manifest, files, commit="abc", version="0.3.0", changed=None):
+    from scripts.verify_release_evidence import verify
+
+    def changed_paths(evidence, release):
+        if evidence == release:
+            return []
+        return None if changed is None else changed
+
+    errors, summary = verify(
+        manifest, commit, version, load=files.__getitem__, changed_paths=changed_paths
+    )
+    return errors
+
+
+def test_release_gate_accepts_complete_evidence_and_rejects_stale_or_partial():
+    manifest, files = release_evidence()
+    assert not run_verify(manifest, files)
+    # A release commit that only adds evidence and documentation keeps the evidence.
+    assert not run_verify(
+        manifest, files, commit="later", changed=["validation/results/x/suite.json", "CHANGELOG.md"]
+    )
+    # Any engine, scene or suite change between the two invalidates it.
+    assert run_verify(manifest, files, commit="later", changed=["crates/daylight-core/src/lib.rs"])
+    assert run_verify(manifest, files, commit="unrelated", changed=None)
+    assert run_verify(manifest, files, version="0.4.0")
+    files["metal/suite.json"]["scenes"][0]["gpu_executed"] = False
+    assert run_verify(manifest, files)
+
+
+def test_release_gate_requires_both_backends_and_rhino():
+    manifest, files = release_evidence()
+    manifest["numerical"] = manifest["numerical"][:1]
+    assert any("vulkan" in e for e in run_verify(manifest, files))
+    manifest, files = release_evidence()
+    manifest["rhino"] = []
+    assert any("Rhino" in e for e in run_verify(manifest, files))
+    manifest, files = release_evidence()
+    files["rhino.json"]["scenarios"]["ladybug_heatmap"] = False
+    assert any("ladybug_heatmap" in e for e in run_verify(manifest, files))
+    files["vulkan/suite.json"]["hardware"]["system"] = "Darwin"
+    assert any("not a supported system for vulkan" in e for e in run_verify(manifest, files))
+
+
+def test_release_gate_allows_only_documented_open_cases():
+    manifest, files = release_evidence()
+    failing = files["metal/suite.json"]["scenes"][0]
+    failing.update({"passed": False, "result_class": "accuracy_failure"})
+    assert any("not a documented open case" in e for e in run_verify(manifest, files))
+    files["open.json"]["cases"].append(
+        {
+            "scene": failing["scene"],
+            "sky_density": failing["sky_density"],
+            "result_classes": ["accuracy_failure"],
+            "reason": "borrowed light",
+            "documented_in": "docs/purpose-and-plan.md",
+        }
+    )
+    assert not run_verify(manifest, files)
+    # An execution error is never an open case, and an entry needs a reason.
+    failing["result_class"] = "execution_error"
+    assert run_verify(manifest, files)
+    failing["result_class"] = "accuracy_failure"
+    files["open.json"]["cases"][0]["reason"] = ""
+    assert run_verify(manifest, files)
+
+
+def test_repository_release_evidence_files_are_well_formed():
+    from scripts.verify_release_evidence import verify_known_open_cases
+
+    known = json.loads((ROOT / "validation/known-open-cases.json").read_text())
+    errors, allowed = verify_known_open_cases(known)
+    assert not errors
+    assert all(scene in SCENE_IDS for scene, _ in allowed)
+    manifest = json.loads((ROOT / "validation/release-evidence.json").read_text())
+    assert {entry["backend"] for entry in manifest["numerical"]} == {"metal", "vulkan"}
+    assert manifest["rhino"]
 
 
 def test_invalid_process_output_reaps_child(tmp_path):

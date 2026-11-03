@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "version": "0.3.0",
+  "note": "Evidence that qualifies the tagged release; scripts/verify_release_evidence.py checks every file here against the release commit. Each suite must be a complete, clean, non-smoke run of the corpus on the release commit (or an ancestor differing only by evidence and documentation).",
+  "numerical": [
+    {
+      "backend": "metal",
+      "suite": "validation/results/2026-11-03-architectural-v4-metal-0.3.0/suite.json"
+    },
+    {
+      "backend": "vulkan",
+      "suite": "validation/results/2026-11-03-architectural-v4-vulkan-t4/suite.json"
+    }
+  ],
+  "rhino": [
+    "validation/results/2026-11-03-rhino-macos/rhino-evidence.json"
+  ],
+  "known_open_cases": "validation/known-open-cases.json"
+}

@@ -113,25 +113,41 @@ The packager refuses missing or stale components. Rebuild them after changing
 component, bridge, or builder sources. Commit the generated artifacts with their
 manifest before a release; upload the resulting versioned ZIP as the release asset.
 
-## Required live acceptance
+## Release evidence lives in the repository
 
-Use a fresh CPython environment and Rhino 8 profile on each target OS. Record the
-exact commit, wheel, Rhino version, OS, device/driver, date, and reproduction notes.
-Copy `validation/rhino-evidence.example.json` outside the checkout and mark only
-scenarios actually verified: install, open example, run, cancel, rerun, change
-inputs, upgrade/reuse invalidation, move/reload results, HB metrics, and LB heatmap.
+Publication is gated on evidence committed under `validation/results/` and
+named in `validation/release-evidence.json`, which
+`scripts/verify_release_evidence.py` checks on every release tag (the
+`acceptance` job of `release.yml`, on a hosted runner, needs no GPU). It
+requires:
 
-The acceptance workflow requires trusted self-hosted runners labelled
-`foton-metal` (macOS ARM64) and `foton-vulkan` (Windows X64), with Radiance 6 on PATH.
-Set `FOTON_RHINO_EVIDENCE` in each runner environment to its current-commit live
-acceptance JSON. GPU tests fail when explicitly requested hardware is unavailable.
-Publishing waits for both targets and the source-matched Grasshopper package.
-Missing runners or missing evidence block the release; they do not justify bypassing it.
+- one complete, clean, non-smoke run of the corpus for the **Metal** backend
+  on macOS and one for the **Vulkan** backend on Windows or Linux, each
+  recording the wheel version being released and GPU execution on every case;
+- every case outside the gates to be named in
+  `validation/known-open-cases.json` with its result class, a reason and a
+  pointer to where it is documented; an execution error is never an open case;
+- at least one live Rhino 8 checklist (`validation/rhino-evidence.example.json`
+  filled in): install the user objects, open the example, run, cancel, rerun,
+  change inputs, upgrade invalidates reuse, reload moved results, Honeybee
+  metrics, Ladybug heatmap, with a date and reproduction notes;
+- each evidence file to carry the release commit, or an ancestor of it whose
+  difference to the release commit touches only `validation/results/`, the two
+  evidence manifests, `docs/`, `README.md`, `CHANGELOG.md` and `epw/README.md`.
+  Anything that changes the engine, the scenes or the suite invalidates the
+  evidence and the suite must run again.
+
+The verifier prints which backend ran on which system and device and which
+Rhino version was exercised; the release notes state exactly those
+combinations as tested and everything else as unverified. The
+`Public beta acceptance` workflow (`workflow_dispatch`) can produce a suite on
+a registered self-hosted GPU runner, but a run on any machine with Radiance
+and the GPU, committed under `validation/results/`, is equally valid evidence.
 
 ## Launch checklist
 
-- Current-commit complete passing reports for both GPU platforms.
-- Downloadable components open and run without script editing on both Rhino targets.
-- All live acceptance scenarios completed with retained evidence.
+- `scripts/verify_release_evidence.py` passes for the release commit and version.
+- Downloadable components open and run without script editing in the Rhino 8
+  that the evidence names.
 - Historical 0.1.0 benchmarks clearly labelled; no unverified accuracy or speed claims.
 - Known limitations, tested hardware, installation guidance, and reporting instructions published.
