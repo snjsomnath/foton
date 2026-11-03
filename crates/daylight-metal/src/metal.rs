@@ -30,7 +30,7 @@ use objc2_metal::{
     MTLCommandEncoder, MTLCommandQueue, MTLComputeCommandEncoder, MTLComputePipelineState,
     MTLCreateSystemDefaultDevice, MTLDevice, MTLIndexType,
     MTLInstanceAccelerationStructureDescriptor, MTLLibrary, MTLPackedFloat3, MTLPackedFloat4x3,
-    MTLPrimitiveAccelerationStructureDescriptor, MTLResourceOptions, MTLSize,
+    MTLPrimitiveAccelerationStructureDescriptor, MTLResourceOptions, MTLResourceUsage, MTLSize,
 };
 
 use crate::reference::compute_daylight_factor;
@@ -130,7 +130,28 @@ struct NormalTransform {
 
 struct AccelerationResources {
     top_level: Retained<ProtocolObject<dyn MTLAccelerationStructure>>,
-    _bottom_levels: Vec<Retained<ProtocolObject<dyn MTLAccelerationStructure>>>,
+    bottom_levels: Vec<Retained<ProtocolObject<dyn MTLAccelerationStructure>>>,
+    /// Wall time of the build, reported by the first trace that uses it.
+    build_ms: f64,
+    build_reported: AtomicBool,
+}
+
+impl AccelerationResources {
+    /// Bind the top level and make every per-mesh structure it instances
+    /// resident. Metal only tracks resources an encoder names, and the
+    /// bottom-level structures are reached through the instance structure
+    /// alone, so without `useResource` rays can miss whole meshes.
+    fn bind(&self, encoder: &ProtocolObject<dyn MTLComputeCommandEncoder>, index: usize) {
+        unsafe {
+            encoder.setAccelerationStructure_atBufferIndex(Some(&self.top_level), index);
+        }
+        for bottom_level in &self.bottom_levels {
+            encoder.useResource_usage(
+                ProtocolObject::from_ref(&**bottom_level),
+                MTLResourceUsage::Read,
+            );
+        }
+    }
 }
 
 struct GpuCoefficientOutput {
@@ -416,6 +437,7 @@ impl MetalBackend {
         coefficient_buffer: &ProtocolObject<dyn MTLBuffer>,
     ) -> Result<AnnualIlluminance> {
         let sky_buffer = self.buffer_with_data(&request.sky.values)?;
+        let lit_buffer = self.buffer_with_data(&lit_timesteps(&request.sky))?;
         let value_count = sensor_count * request.sky.timestep_count;
         let output = self
             .device
@@ -452,6 +474,7 @@ impl MetalBackend {
             encoder.setBuffer_offset_atIndex(Some(coefficient_buffer), 0, 1);
             encoder.setBuffer_offset_atIndex(Some(&sky_buffer), 0, 2);
             encoder.setBuffer_offset_atIndex(Some(&output), 0, 3);
+            encoder.setBuffer_offset_atIndex(Some(&lit_buffer), 0, 4);
         }
         encoder.dispatchThreads_threadsPerThreadgroup(
             MTLSize {
@@ -489,7 +512,6 @@ impl MetalBackend {
         resident: Option<&AccelerationResources>,
         cancelled: &AtomicBool,
     ) -> Result<GpuCoefficientOutput> {
-        let acceleration_started = Instant::now();
         let built_acceleration = if resident.is_none() {
             Some(self.build_acceleration_structures(scene)?)
         } else {
@@ -501,10 +523,11 @@ impl MetalBackend {
                 .ok_or_else(|| DaylightError::Backend {
                     detail: "resident acceleration structure is unavailable".into(),
                 })?;
-        let acceleration_structure_ms = if built_acceleration.is_some() {
-            acceleration_started.elapsed().as_secs_f64() * 1_000.0
-        } else {
+        let acceleration_structure_ms = if acceleration.build_reported.swap(true, Ordering::SeqCst)
+        {
             0.0
+        } else {
+            acceleration.build_ms
         };
 
         let upload_started = Instant::now();
@@ -585,7 +608,7 @@ impl MetalBackend {
             encoder.setBuffer_offset_atIndex(Some(&triangle_normal_buffer), 0, 7);
             encoder.setBuffer_offset_atIndex(Some(&normal_transform_buffer), 0, 8);
             encoder.setBuffer_offset_atIndex(Some(&output_buffer), 0, 9);
-            encoder.setAccelerationStructure_atBufferIndex(Some(&acceleration.top_level), 10);
+            acceleration.bind(&encoder, 10);
         }
         encoder.dispatchThreads_threadsPerThreadgroup(
             MTLSize {
@@ -664,8 +687,7 @@ impl MetalBackend {
                     encoder.setBuffer_offset_atIndex(Some(&triangle_normal_buffer), 0, 6);
                     encoder.setBuffer_offset_atIndex(Some(&normal_transform_buffer), 0, 7);
                     encoder.setBuffer_offset_atIndex(Some(&indirect_buffer), 0, 8);
-                    encoder
-                        .setAccelerationStructure_atBufferIndex(Some(&acceleration.top_level), 9);
+                    acceleration.bind(&encoder, 9);
                 }
                 encoder.dispatchThreads_threadsPerThreadgroup(
                     MTLSize {
@@ -739,8 +761,14 @@ impl MetalBackend {
     }
 
     fn build_acceleration_structures(&self, scene: &SceneData) -> Result<AccelerationResources> {
+        let started = Instant::now();
         let vertex_buffer = self.buffer_with_data(&scene.vertices)?;
         let mut bottom_levels = Vec::with_capacity(scene.meshes.len());
+        // Every build goes into one command buffer, so a model with hundreds of
+        // rooms waits for the GPU once rather than once per room.
+        let command_buffer = self.command_buffer("acceleration-structure build")?;
+        let mut scratch_buffers = Vec::with_capacity(scene.meshes.len() + 1);
+        let encoder = acceleration_encoder(&command_buffer)?;
         for mesh in &scene.meshes {
             let triangle_start = mesh.first_triangle as usize;
             let triangle_end = triangle_start + mesh.triangle_count as usize;
@@ -758,8 +786,13 @@ impl MetalBackend {
             let geometries = NSArray::from_retained_slice(&[geometry]);
             let descriptor = MTLPrimitiveAccelerationStructureDescriptor::descriptor();
             descriptor.setGeometryDescriptors(Some(&geometries));
-            bottom_levels.push(self.build_acceleration_structure(&descriptor)?);
+            bottom_levels.push(self.encode_acceleration_structure_build(
+                &encoder,
+                &descriptor,
+                &mut scratch_buffers,
+            )?);
         }
+        encoder.endEncoding();
 
         let instance_descriptors = scene
             .instances
@@ -795,16 +828,26 @@ impl MetalBackend {
             >());
         }
         descriptor.setInstancedAccelerationStructures(Some(&acceleration_array));
-        let top_level = self.build_acceleration_structure(&descriptor)?;
+        // A second encoder orders the instance build after the per-mesh builds.
+        let encoder = acceleration_encoder(&command_buffer)?;
+        let top_level =
+            self.encode_acceleration_structure_build(&encoder, &descriptor, &mut scratch_buffers)?;
+        encoder.endEncoding();
+        complete(command_buffer, "acceleration-structure build")?;
+        drop(scratch_buffers);
         Ok(AccelerationResources {
             top_level,
-            _bottom_levels: bottom_levels,
+            bottom_levels,
+            build_ms: started.elapsed().as_secs_f64() * 1_000.0,
+            build_reported: AtomicBool::new(false),
         })
     }
 
-    fn build_acceleration_structure(
+    fn encode_acceleration_structure_build(
         &self,
+        encoder: &ProtocolObject<dyn MTLAccelerationStructureCommandEncoder>,
         descriptor: &MTLAccelerationStructureDescriptor,
+        scratch_buffers: &mut Vec<Retained<ProtocolObject<dyn MTLBuffer>>>,
     ) -> Result<Retained<ProtocolObject<dyn MTLAccelerationStructure>>> {
         let sizes = self
             .device
@@ -824,20 +867,13 @@ impl MetalBackend {
             .ok_or_else(|| DaylightError::Backend {
                 detail: "failed to allocate acceleration-structure scratch memory".into(),
             })?;
-        let command_buffer = self.command_buffer("acceleration-structure build")?;
-        let encoder = command_buffer
-            .accelerationStructureCommandEncoder()
-            .ok_or_else(|| DaylightError::Backend {
-                detail: "failed to create acceleration-structure encoder".into(),
-            })?;
         encoder.buildAccelerationStructure_descriptor_scratchBuffer_scratchBufferOffset(
             &acceleration,
             descriptor,
             &scratch,
             0,
         );
-        encoder.endEncoding();
-        complete(command_buffer, "acceleration-structure build")?;
+        scratch_buffers.push(scratch);
         Ok(acceleration)
     }
 
@@ -1115,6 +1151,28 @@ fn complete(
         }
         Ok((command_buffer.GPUEndTime() - command_buffer.GPUStartTime()).max(0.0) * 1_000.0)
     })
+}
+
+/// One flag per timestep: 1 when any sky patch is non-zero. The hourly
+/// illuminance kernel skips the patch sum for dark hours, which is exactly zero.
+fn lit_timesteps(sky: &daylight_core::SkyMatrix) -> Vec<u32> {
+    let mut lit = vec![0u32; sky.timestep_count];
+    for (index, rgb) in sky.values.iter().enumerate() {
+        if rgb.iter().any(|value| *value != 0.0) {
+            lit[index % sky.timestep_count] = 1;
+        }
+    }
+    lit
+}
+
+fn acceleration_encoder(
+    command_buffer: &ProtocolObject<dyn MTLCommandBuffer>,
+) -> Result<Retained<ProtocolObject<dyn MTLAccelerationStructureCommandEncoder>>> {
+    command_buffer
+        .accelerationStructureCommandEncoder()
+        .ok_or_else(|| DaylightError::Backend {
+            detail: "failed to create acceleration-structure encoder".into(),
+        })
 }
 
 fn check_cancelled(cancelled: &AtomicBool) -> Result<()> {

@@ -370,7 +370,8 @@ fn committed_metal_scene_reuses_resident_acceleration_structures() {
         .unwrap();
     assert_eq!(first.solver_revision, 1);
     assert_eq!(second.solver_revision, 1);
-    assert_eq!(first.timings.acceleration_structure_ms, 0.0);
+    // The build happens at commit and is reported once, by the first trace.
+    assert!(first.timings.acceleration_structure_ms > 0.0);
     assert_eq!(second.timings.acceleration_structure_ms, 0.0);
     assert_eq!(first.coefficients, second.coefficients);
 
@@ -389,8 +390,60 @@ fn committed_metal_scene_reuses_resident_acceleration_structures() {
         .unwrap();
     assert_eq!(revision, 2);
     assert_eq!(updated.solver_revision, 2);
-    assert_eq!(updated.timings.acceleration_structure_ms, 0.0);
+    assert!(updated.timings.acceleration_structure_ms > 0.0);
     assert_eq!(first.coefficients, updated.coefficients);
+}
+
+#[cfg(target_os = "macos")]
+#[test]
+fn metal_traces_every_mesh_of_a_many_room_scene() {
+    // Each Honeybee room becomes its own mesh and bottom-level acceleration
+    // structure. With a few hundred of them, structures the encoder never
+    // declared resident were skipped, so rays crossed walls and the result
+    // changed between runs. A scene with one mesh per room must trace exactly
+    // like the same rooms instancing one shared mesh.
+    let Some(metal) = enabled_metal() else {
+        return;
+    };
+    let shared = shoebox_scene(ShoeboxOptions {
+        room_count: 256,
+        sensors_per_room: 36,
+        glazing_transmittance: Some([0.6; 3]),
+    })
+    .unwrap();
+    let mut separate = shared.clone();
+    let mesh = shared.meshes[0];
+    let first = mesh.first_triangle as usize;
+    let last = first + mesh.triangle_count as usize;
+    separate.meshes.clear();
+    separate.triangles.clear();
+    separate.triangle_materials.clear();
+    for (index, instance) in separate.instances.iter_mut().enumerate() {
+        separate.meshes.push(daylight_core::MeshRange {
+            first_triangle: separate.triangles.len() as u32,
+            triangle_count: mesh.triangle_count,
+        });
+        separate
+            .triangles
+            .extend_from_slice(&shared.triangles[first..last]);
+        separate
+            .triangle_materials
+            .extend_from_slice(&shared.triangle_materials[first..last]);
+        instance.mesh_index = index as u32;
+    }
+    let mut request = request();
+    request.maximum_samples = 16384;
+    request.maximum_bounces = 4;
+    let expected = metal
+        .analyze(&shared, &request, 1, &AtomicBool::new(false), &|_| {})
+        .unwrap();
+    let handle = metal.commit_scene(separate).unwrap();
+    for _ in 0..3 {
+        let traced = metal
+            .analyze_committed(&handle, &request, &AtomicBool::new(false), &|_| {})
+            .unwrap();
+        assert_eq!(traced.coefficients, expected.coefficients);
+    }
 }
 
 #[cfg(target_os = "macos")]

@@ -848,10 +848,13 @@ def _write_run(
         folder.mkdir(parents=True, exist_ok=True)
         (folder / "grids_info.json").write_text(encoded_info, encoding="utf-8")
         for grid in grids:
-            np.savetxt(
-                folder / f"{grid.full_identifier}.{extension}",
-                getattr(grid, metric_name),
-                fmt="%.2f",
+            # Same bytes as np.savetxt(fmt="%.2f"), without its per-call
+            # overhead, which adds up over thousands of small grid files.
+            values = np.asarray(getattr(grid, metric_name)).reshape(-1).tolist()
+            (folder / f"{grid.full_identifier}.{extension}").write_text(
+                "".join("%.2f\n" % value for value in values),
+                encoding="latin-1",
+                newline="\n",
             )
 
     if export_illuminance:
@@ -869,21 +872,19 @@ def _write_run(
         for grid in grids:
             start = int(grid.sensor_indices[0])
             end = start + grid.sensor_count
-            grid_values = annual_illuminance[start:end][:, sun_up_indices]
-            target = np.lib.format.open_memmap(
-                raw_folder / f"{grid.full_identifier}.npy",
-                mode="w+",
+            grid_values = np.ascontiguousarray(
+                np.take(annual_illuminance[start:end], sun_up_indices, axis=1),
                 dtype=np.float32,
-                shape=(grid.sensor_count, len(weather.sun_up_hours)),
             )
-            target[:] = grid_values
             if not np.any(grid_values):
                 # The official loader skips metric calculation for an exactly
                 # zero matrix. A positive subnormal remains physically zero at
                 # daylight thresholds while preserving UDI-low evaluation.
-                target[:] = np.finfo(np.float32).tiny
-            target.flush()
-            del target
+                grid_values[:] = np.finfo(np.float32).tiny
+            # A plain write, not a memory map: on macOS Python forces a full
+            # disk sync each time it creates a memory map, which made this
+            # loop several times slower than the data copy itself.
+            np.save(raw_folder / f"{grid.full_identifier}.npy", grid_values)
         raw_export_seconds = time.perf_counter() - raw_started
 
     with (output / "grid_summary.csv").open(

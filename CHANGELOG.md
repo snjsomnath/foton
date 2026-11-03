@@ -4,6 +4,23 @@ All notable Foton changes are recorded here.
 
 ## Unreleased
 
+- Faster annual runs with identical results. On an M4 Pro the diffuse trace is
+  about 36 % faster (2,020 sensors: 1.18 s to 0.76 s; 9,216 sensors: 6.58 s to
+  4.26 s), mostly because the GPU's random-number loop now stops at the
+  highest set bit of the sample index. Large models also build their scene
+  structures in one GPU submission (0.093 s to 0.007 s for 256 rooms), the
+  hourly illuminance export skips dark hours and one 323 MB copy, and result
+  folders are written with `np.save` instead of memory maps (2.86 s to 0.58 s
+  for 9,216 sensors on macOS). Coefficients, hourly illuminance, every metric
+  and every result file are bit-identical to before on all 106 architectural
+  scenes and `test.hbjson`, and on the 9,216-sensor office block once the
+  room fix below is applied.
+- Metal: models with many rooms (about 256 or more) could miss whole rooms
+  while tracing, so results were wrong and changed between runs. Fixed in
+  0.3.1; models up to 128 rooms and all validation scenes were unaffected.
+- The first trace that uses a newly built scene now reports the
+  acceleration-structure build time in `acceleration_structure_ms`; it was
+  always 0 for committed scenes.
 - `scripts/benchmark_hardware.py` now times cold end-to-end annual daylight
   runs at the shipped defaults on four Honeybee models of increasing size,
   replacing the July 2026 fixtures that used 4,096 samples and 2 bounces.
