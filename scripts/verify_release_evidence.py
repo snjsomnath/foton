@@ -4,7 +4,8 @@
 A release is qualified by evidence that lives in the repository: one complete
 numerical suite per GPU backend and at least one live Rhino 8 checklist, each
 produced on the release commit or on an ancestor that differs from it only by
-evidence and documentation. Cases outside the gates must be named, with a
+evidence, documentation, tests, workflows and this verifier. Cases outside the
+gates must be named, with a
 reason, in validation/known-open-cases.json; everything else must pass.
 """
 
@@ -35,15 +36,21 @@ NUMERICAL_SYSTEMS = {"metal": ("Darwin",), "vulkan": ("Windows", "Linux")}
 RHINO_SYSTEMS = ("Darwin", "Windows")
 # Paths that may differ between the commit evidence was produced on and the
 # release commit without invalidating the evidence: nothing here changes what
-# the engine, the scenes or the suite compute.
+# the engine, the scenes or the suite compute. The verifier, the tests and the
+# workflows only read results; they are listed so that tightening the gate
+# after a campaign does not force the campaign to be rerun.
 EVIDENCE_ONLY_PATHS = (
     "validation/results/",
     "validation/release-evidence.json",
     "validation/known-open-cases.json",
+    "validation/rhino-evidence.example.json",
     "docs/",
     "README.md",
     "CHANGELOG.md",
     "epw/README.md",
+    "scripts/verify_release_evidence.py",
+    "tests/",
+    ".github/",
 )
 OPEN_CASE_CLASSES = ("accuracy_failure", "unstable_reference")
 # Each backend's evidence is also indifferent to the other backend's crate.
@@ -129,6 +136,19 @@ def verify_suite(suite, release_commit, version, backend, allowed_open, changed_
     require(suite.get("backend") == backend, "backend differs from the manifest entry")
     system = suite.get("hardware", {}).get("system")
     require(system in NUMERICAL_SYSTEMS.get(backend, ()), f"{system!r} is not a supported system for {backend}")
+    # A suite may be judged against the converged Radiance references of an
+    # earlier clean campaign on this corpus (scripts/export_reference_bundle.py);
+    # the references describe the scenes, not the engine under test.
+    source = suite.get("reference_source")
+    if source is not None:
+        require(
+            isinstance(source, dict)
+            and source.get("suite_version") == SCENE_VERSION
+            and source.get("dirty") is False
+            and source.get("smoke") is False
+            and bool(source.get("commit")),
+            "reused references must come from a clean final run of this corpus and name its commit",
+        )
     scenes = suite.get("scenes", [])
     require(
         len(scenes) == len(SCENE_IDS) * 2
@@ -140,6 +160,11 @@ def verify_suite(suite, release_commit, version, backend, allowed_open, changed_
     for scene in scenes:
         key = (scene.get("scene"), scene.get("sky_density"))
         require(scene.get("gpu_executed") is True, f"{key} did not execute on the GPU")
+        if source is not None:
+            require(
+                (scene.get("reference_source") or {}).get("geometry_matches") is True,
+                f"{key} was not checked against the geometry of its reused reference",
+            )
         result_class = scene.get("result_class")
         if scene.get("passed") is True and scene.get("oracle_stable") is True and result_class == "passed":
             continue
@@ -153,6 +178,7 @@ def verify_suite(suite, release_commit, version, backend, allowed_open, changed_
         "machine": suite.get("hardware", {}).get("machine"),
         "device": _device_name(suite),
         "commit": suite.get("commit"),
+        "references": source.get("commit") if isinstance(source, dict) else None,
         "passed": len(scenes) - len(open_cases),
         "open": sorted(open_cases),
     }
@@ -272,6 +298,11 @@ def main():
         print(
             f"{record['backend']} on {record['system']} ({record['device'] or record['machine']}): "
             f"{record['passed']} cases passed, {len(record['open'])} documented open"
+            + (
+                f" (Radiance references reused from {record['references'][:12]})"
+                if record.get("references")
+                else ""
+            )
         )
     for record in summary["rhino"]:
         print(f"Rhino {record['rhino_version']} on {record['system']} with {record['backend']}: checklist complete")
