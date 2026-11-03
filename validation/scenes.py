@@ -1157,7 +1157,7 @@ def export_scenes(output, identifiers=SCENE_IDS, repository=None):
             raise ValueError("Invalid scene %s: %s" % (identifier, errors))
         path = output / (identifier + ".hbjson")
         payload = json.dumps(scene_dict(model), sort_keys=True, indent=2) + "\n"
-        path.write_text(payload, encoding="utf-8")
+        path.write_bytes(payload.encode("utf-8"))
         records.append(
             {
                 **scene_metadata(identifier),
