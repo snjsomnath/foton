@@ -8,12 +8,18 @@ layout(push_constant, scalar) uniform Uniforms {
     uint timestep_count;
     uint sensor_offset;
     float threshold_lux;
+    float udi_lower_lux;
+    float udi_upper_lux;
 } uniforms;
 layout(set=0,binding=0,scalar) readonly buffer Coefficients { vec3 values[]; } coefficients;
 layout(set=0,binding=1,scalar) readonly buffer Sky { vec3 values[]; } sky;
 layout(set=0,binding=2,scalar) readonly buffer Occupancy { float values[]; } occupancy;
 layout(set=0,binding=3,scalar) buffer Occupied { uint values[]; } occupied_out;
 layout(set=0,binding=4,scalar) buffer Threshold { uint values[]; } threshold_out;
+layout(set=0,binding=5,scalar) buffer Continuous { uint values[]; } continuous_out;
+layout(set=0,binding=6,scalar) buffer UdiLower { uint values[]; } udi_lower_out;
+layout(set=0,binding=7,scalar) buffer Udi { uint values[]; } udi_out;
+layout(set=0,binding=8,scalar) buffer UdiUpper { uint values[]; } udi_upper_out;
 
 void main() {
     uint timestep = gl_GlobalInvocationID.x;
@@ -27,6 +33,17 @@ void main() {
             * sky.values[patch_index*uniforms.timestep_count+timestep];
     uint ticks = uint(round(occupied * 100000.0));
     atomicAdd(occupied_out.values[sensor], ticks);
-    if (dot(response, vec3(47.435,119.93,11.635)) >= uniforms.threshold_lux)
+    float illuminance = dot(response, vec3(47.435,119.93,11.635));
+    if (illuminance >= uniforms.threshold_lux)
         atomicAdd(threshold_out.values[sensor], ticks);
+    uint continuous_ticks = uint(round(
+        occupied * clamp(illuminance / uniforms.threshold_lux, 0.0, 1.0)
+        * 100000.0));
+    atomicAdd(continuous_out.values[sensor], continuous_ticks);
+    if (illuminance < uniforms.udi_lower_lux)
+        atomicAdd(udi_lower_out.values[sensor], ticks);
+    else if (illuminance <= uniforms.udi_upper_lux)
+        atomicAdd(udi_out.values[sensor], ticks);
+    else
+        atomicAdd(udi_upper_out.values[sensor], ticks);
 }

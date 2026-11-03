@@ -9,3 +9,40 @@
 .DS_Store
 /viewer/dist/
 /viewer/node_modules/
+/dist/
+
+# Compiled extension modules and tool caches
+*.so
+*.pyd
+*.tsbuildinfo
+
+# Regenerable Radiance scene exports and logs inside result folders
+/benchmarks/results/**/*.oct
+/benchmarks/results/**/*.rad
+/benchmarks/results/**/*.pts
+/benchmarks/results/**/*.log
+/simulation/**/*.oct
+/simulation/**/*.rad
+# Raw sweep artifacts; summaries and READMEs stay tracked
+/validation/results/**/*.oct
+/validation/results/**/*.rad
+/validation/results/**/*.pts
+/validation/results/**/*.dome
+/validation/results/**/*.npy
+/validation/results/*.log
+# Campaign raw stages: only report/suite/comparison JSON and Markdown are tracked
+/validation/results/**/direct_*/
+/validation/results/**/ad*_b*_r*/
+/validation/results/**/annual/
+/validation/results/**/annual_cached/
+/validation/results/**/oracle/
+/validation/results/**/center_visibility/
+/validation/results/**/stock/
+/validation/results/**/*.bin
+# Per-case inputs and duplicates: models are regenerated from validation/scenes.py
+# and hashed in the report; suite.json carries every case's report.json.
+/validation/results/**/weather_cache/
+/validation/results/**/model.hbjson
+/validation/results/**/stock.log
+/validation/results/*/*/mf*/report.json
+/validation/results/**/*.tar.zst

@@ -26,9 +26,12 @@ job = scene.analyze(
     sky,                 # float32[146, timestep, 3] preview
     occupancy,           # float32[timestep]
     quality="preview",
-    metrics=["df", "da", "static_sda300_50"],
+    metrics=[
+        "df", "da", "cda", "udi_lower", "udi", "udi_upper",
+        "static_sda300_50",
+    ],
     maximum_samples=64,
-    maximum_bounces=1,
+    maximum_bounces=8,   # default; 1 bounce under-predicts glazed rooms by ~18 %
     export_coefficients=False,
 )
 snapshot = job.poll()
@@ -57,6 +60,101 @@ coefficients = result.coefficients()  # NumPy float32[sensor, patch, 3]
 
 `result.has_coefficients()` reports whether export was requested. `metadata_json()`
 serializes only solver metadata and never embeds the coefficient matrix.
+
+## Honeybee annual daylight
+
+Install the Honeybee extra and ensure Radiance `gendaymtx` is available:
+
+```bash
+python -m pip install -e '.[honeybee]'
+export RADIANCE_BIN=/path/to/radiance/bin
+```
+
+Use a study when running more than one weather, schedule, or threshold analysis.
+The prepared model, native scene, acceleration structures, and compatible
+coefficient tensor stay resident:
+
+```python
+from foton.honeybee import HoneybeeStudy
+
+study = HoneybeeStudy(
+    "test_models/test.hbjson",
+    backend="auto",
+    grid_filter="*",
+)
+run = study.annual_daylight(
+    "epw/gothenburg.epw",
+    schedule=None,
+    north=0,
+    quality="final",
+    sky_density=1,
+)
+
+office = run.grid("office_01")
+print(office.da, office.cda, office.udi, office.sda)
+print(run.timings, run.results_folder)
+```
+
+For a one-shot run:
+
+```python
+from foton.honeybee import run_annual_daylight
+
+run = run_annual_daylight(
+    model="test_models/test.hbjson",
+    wea="epw/gothenburg.epw",
+    output_folder="simulation/foton-annual",
+    export_illuminance=True,
+)
+```
+
+The default schedule follows Honeybee Radiance: 08:00–18:00 exclusive, with
+3,650 occupied hours. Supplied schedule values are occupied at `>=0.1`.
+DA, cDA, UDI-low, UDI, UDI-high, and area-weighted sDA are returned in the
+original HBJSON SensorGrid and sensor order.
+
+`sky_density=1` is the Honeybee-compatible Tregenza MF:1 default (146 rows).
+Use `sky_density=2` for Reinhart MF:2 (578 rows). Final quality uses 256
+deterministic solid-angle samples per sky patch, 65,536 indirect samples at
+MF:1 (262,144 at MF:2, so that each sky patch keeps the same number of paths),
+eight diffuse bounces, and seed 0; a 2,020-sensor model traces in about 1.3 s
+at MF:1 and 5 s at MF:2 on an M4 Pro. `quality_preset(quality, sky_density)`
+returns the budget. `direct_samples`, `maximum_samples` and `maximum_bounces`
+are available as overrides. Re-running only weather, schedule, thresholds, or raw export on the
+same study reuses compatible coefficients and reports zero tracing time.
+
+With `export_illuminance=True`, the `results` folder is directly loadable by
+`honeybee_radiance_postprocess.results.AnnualDaylight`. Raw export is opt-in for
+the convenience API and on by default for `Recipe("annual_daylight")` and the
+CLI:
+
+```bash
+python -m foton.honeybee annual-daylight \
+  --jsonl \
+  --model test_models/test.hbjson \
+  --wea epw/gothenburg.epw \
+  --output simulation/foton-annual
+```
+
+With `--jsonl`, the CLI streams versioned `started`, `progress`, and `complete`
+events. The final event embeds the same manifest written to
+`run_manifest.json`, including grid-grouped metric paths, timings, warnings,
+cache status, versions, and an input-content fingerprint. Without `--jsonl`,
+the CLI prints only the final manifest for backwards compatibility.
+
+Use `foton-honeybee capabilities` for the protocol/engine handshake. The
+`honeybee_foton` package supplies a cancelable subprocess client plus controllers
+for the initial Foton Settings, Annual Daylight, and Annual Results components.
+It discovers `foton-honeybee` from `PATH` or an explicit user setting and never
+generates runner source or embeds a Python executable path. Metric results are
+returned as one already ordered branch per SensorGrid.
+
+Copy-ready IronPython component sources are available in
+[`grasshopper_foton`](../grasshopper_foton). They provide Foton Settings, Foton
+Annual Daylight, and Foton Annual Results scripts with documented GhPython node
+names. Their `results` output is a one-item Honeybee-compatible result-folder
+list, and each metric output is already grouped into one DataTree branch per
+SensorGrid for Ladybug spatial visualization components.
 
 ## Honeybee direct-visibility recipe
 

@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import argparse
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 import importlib.util
 import json
 import os
@@ -60,7 +60,7 @@ def _safe_identifier(value):
 
 
 def _default_output():
-    timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     return ROOT / "benchmarks" / "results" / f"{timestamp}-{_safe_identifier(socket.gethostname())}"
 
 
@@ -500,7 +500,7 @@ def main():
     report = {
         "schema_version": 2,
         "run_id": output.name,
-        "recorded_at_utc": datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%SZ"),
+        "recorded_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%SZ"),
         "label": args.label,
         "host": _host_record(engine),
         "engine": {"version": __version__, **engine},

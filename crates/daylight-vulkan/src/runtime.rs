@@ -19,6 +19,9 @@ pub(crate) struct Context {
     pub command_pool: vk::CommandPool,
     pub memory: vk::PhysicalDeviceMemoryProperties,
     pub queue_lock: Mutex<()>,
+    // Owns the loaded Vulkan loader; dropping it unloads the library under
+    // the instance on Linux, so it must outlive every Vulkan call.
+    _entry: Entry,
 }
 
 impl Context {
@@ -100,6 +103,7 @@ impl Context {
             command_pool,
             memory,
             queue_lock: Mutex::new(()),
+            _entry: entry,
         }))
     }
 
@@ -318,6 +322,7 @@ impl Pipeline {
                     .dst_set(set)
                     .dst_binding(buffers.len() as u32)
                     .descriptor_type(vk::DescriptorType::ACCELERATION_STRUCTURE_KHR)
+                    .descriptor_count(1)
                     .push_next(info),
             );
         }

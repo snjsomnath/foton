@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { fetchStatus, sessionSocketUrl, uploadWeather } from "./api";
+import { fetchStatus, normalizeAnalysisResult, sessionSocketUrl, uploadWeather } from "./api";
 import { METRICS } from "./metrics";
 import { SceneView } from "./SceneView";
 import type {
@@ -211,10 +211,11 @@ export default function App() {
       } else if (message.type === "analysis_progress") {
         setProgress(message.progress);
       } else if (message.type === "analysis_result") {
-        setAnalysis(message);
-        setPhase(message.quality === "final" ? "Final" : "Preview");
+        const normalized = normalizeAnalysisResult(message);
+        setAnalysis(normalized);
+        setPhase(normalized.quality === "final" ? "Final" : "Preview");
         setProgress(1);
-        if (message.selected_timestep !== selectedTimestepRef.current) {
+        if (normalized.selected_timestep !== selectedTimestepRef.current) {
           send({
             type: "select_timestep",
             client_revision: revisionRef.current,

@@ -8,6 +8,7 @@ from daylight_engine import (
     Snapshot,
     __version__,
     sky_patch_directions,
+    sky_patch_sample_directions,
     sky_patch_solid_angles,
 )
 
@@ -19,5 +20,6 @@ __all__ = [
     "Snapshot",
     "__version__",
     "sky_patch_directions",
+    "sky_patch_sample_directions",
     "sky_patch_solid_angles",
 ]

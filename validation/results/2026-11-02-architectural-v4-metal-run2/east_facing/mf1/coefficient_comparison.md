@@ -1,0 +1,9 @@
+# Foton / Radiance coefficient-stage comparison
+
+Overall: **PASS**
+
+| Grid | Stage | NMBE | RMS-normalized RMSE | Energy error | Gate |
+|---|---|---:|---:|---:|:---:|
+| east_facing_grid | direct | 0.056% | 0.683% | 0.056% | PASS |
+| east_facing_grid | indirect | 0.051% | 1.372% | 0.051% | PASS |
+| east_facing_grid | full | 0.054% | 1.338% | 0.054% | PASS |

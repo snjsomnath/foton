@@ -7,7 +7,9 @@ use daylight_core::{
 #[cfg(target_os = "macos")]
 use daylight_metal::MetalBackend;
 use daylight_metal::ReferenceBackend;
-use daylight_vulkan::{VulkanBackend, is_apple_gpu};
+use daylight_vulkan::VulkanBackend;
+#[cfg(target_os = "macos")]
+use daylight_vulkan::is_apple_gpu;
 
 #[derive(Parser)]
 #[command(version, about = "GPU daylight engine diagnostics and fixtures")]
@@ -97,11 +99,16 @@ fn benchmark(
         occupancy_weights: vec![1.0],
         quality: AnalysisQuality::Preview,
         threshold_lux: 300.0,
+        udi_lower_lux: 100.0,
+        udi_upper_lux: 3000.0,
         time_fraction: 0.5,
+        direct_samples: 1,
         maximum_samples: samples,
         maximum_bounces: bounces,
         scene_seed: 0,
         export_coefficients: false,
+        export_illuminance: false,
+        coefficient_override: None,
     };
     let backend = auto_backend();
     let started = Instant::now();
