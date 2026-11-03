@@ -1,9 +1,10 @@
 # Purpose and plan
 
-Last revised 2 November 2026. This page states what Foton is for and what has to
-happen next. Where it disagrees with [release readiness](release-readiness.md),
-this page wins; that document describes a public-release qualification process
-that is heavier than the current goal.
+Last revised 3 November 2026. This page says what Foton is for, where it
+stands and what comes next. Steps 1 to 6 of the plan below are done; they were
+the work that went into 0.3.0, released on 3 November 2026. They are kept here
+as a record. For how a release is checked, see
+[release readiness](release-readiness.md).
 
 ## Purpose
 
@@ -37,7 +38,8 @@ at 4,096 samples and 2 bounces, against about 3.5 s for Radiance. Raising the
 bounce count to what accuracy needs stays well under 100 ms.
 
 Accuracy is established on the teaching scenes and on the corpus, with two
-named exceptions. Two archived campaigns on 2 November 2026 (step 3) took the
+named exceptions, on both GPU backends. The Vulkan backend gave the same
+204 of 212 result on an NVIDIA T4 (step 6). Two archived campaigns on 2 November 2026 (step 3) took the
 suite from 176 to 204 of 212 cases: the first diagnosed its 36 failures, the
 second, on the quadrupled `final` budget and two corrected gates, passed every
 case but eight. All 32 teaching cases, all 94 room-form cases and every
@@ -51,7 +53,15 @@ eight-bounce reference, which is why the September comparison read 17.6% low.
 
 ## Plan
 
-Steps are in order; each should be finished before the next starts.
+Steps 1 to 6 are done. Next, in order:
+
+- A direct-sun pass, so DA, UDI and sDA in sunny climates no longer rely on
+  the sun being spread over its sky patch (see step 4).
+- The rooms lit only through internal glazing and the other items under
+  [Smaller known issues](#smaller-known-issues).
+- Testing on Windows and on more GPUs. Nothing has been run there yet.
+
+The steps that led to 0.3.0 follow, in the order they were done.
 
 ### 1. Make the bounce count match the physics
 
@@ -217,6 +227,11 @@ parity under peaky and flat sky matrices; the direct-sun question itself is
 answered against a traced sun under step 4.
 
 ### 6. Vulkan and Linux
+
+**Done 3 November 2026.** The full corpus on an NVIDIA Tesla T4 (Linux) passed
+the same 204 of 212 cases as Metal
+([evidence](../validation/results/2026-11-03-architectural-v4-vulkan-t4/README.md)).
+The original plan follows.
 
 Repeat step 3 on a Windows or Linux machine with a Vulkan 1.3 GPU. Until then
 Vulkan is "built and unit-tested", not "validated". The release gate

@@ -47,7 +47,7 @@ metrics component returns the same DA as Foton's `DA` output because Foton
 writes a standard annual-daylight results folder.
 
 Use `quality_ = final` when evaluating accuracy; it is the preset the
-[release campaigns](../validation/results/2026-11-02-architectural-v4-metal-run2/README.md)
+[0.3.0 release evidence](release-readiness.md#tested-platforms-for-030)
 validated against converged Radiance. Preview is visibly labelled. Changing
 inputs, quality defaults, solver versions, backend, or sky model version invalidates
 automatic reuse. Missing/corrupt metric files also cause a new run in a numbered folder.

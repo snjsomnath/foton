@@ -20,6 +20,15 @@ All notable Foton changes are recorded here.
   `pip install foton-daylight[honeybee]` is the whole run-time requirement
   for an annual study; Radiance 5.4a is needed only to reproduce validation
   evidence (the "Radiance 6" wording in the docs was never required).
+- README: a table of headline accuracy figures against Radiance from the
+  0.3.0 release runs, install notes for the viewer, the command-line tool and
+  Grasshopper, and full GitHub links so images and links work on PyPI.
+- The source distribution no longer bundles `validation/results/` (20.9 MB
+  down to about 2 MB).
+- Removed old output folders (`simulation/` and four July benchmark runs) and
+  the viewer's compiled config files. `tsc -b` no longer writes them into the
+  source tree.
+- Docs updated for the 0.3.0 release.
 
 ## 0.3.0 - 2026-11-03
 

@@ -73,7 +73,7 @@ features = ["extension-module"]
 include = [
     { path = "LICENSE", format = "sdist" },
     { path = "grasshopper_foton/**/*", format = "sdist" },
-    { path = "validation/**/*", format = "sdist" },
+    { path = "validation/*", format = "sdist" },
     { path = "scripts/**/*", format = "sdist" },
     { path = "test_models/*.hbjson", format = "sdist" },
     { path = "test_models/architectural/**/*", format = "sdist" },

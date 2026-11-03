@@ -25,7 +25,11 @@ The suite runs:
 5. A cached resident-scene rerun and cached Radiance-octree reference.
 
 Each run writes `benchmark.json`, `benchmark.md`, command logs, coefficient artifacts,
-and Radiance scene files under `benchmarks/results/<run-id>/`.
+and Radiance scene files under `benchmarks/results/<run-id>/`. That folder is
+ignored by git. The one committed run,
+[`20260731T054146Z-CM-GHHXPN239T`](../benchmarks/results/20260731T054146Z-CM-GHHXPN239T/benchmark.md),
+is the source of the speed figure in the README. It was measured on 31 July 2026,
+before the 0.3.0 accuracy fixes, so use it for speed only.
 
 ## Quick smoke run
 
