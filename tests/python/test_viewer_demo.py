@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import numpy as np
 import unittest
@@ -15,12 +16,25 @@ ROOT = Path(__file__).resolve().parents[2]
 
 async def request(app, method, path):
     messages = []
+    finished = asyncio.Event()
+    delivered = False
 
     async def receive():
-        return {"type": "http.request", "body": b"", "more_body": False}
+        nonlocal delivered
+        if not delivered:
+            delivered = True
+            return {"type": "http.request", "body": b"", "more_body": False}
+        # Behave like a real client: disconnect only once the response is
+        # complete. Starlette 1.10 listens for the disconnect while it streams
+        # a file, and a receive() that kept answering with the request would
+        # spin that listener forever (the Python 3.13 CI jobs hung on this).
+        await finished.wait()
+        return {"type": "http.disconnect"}
 
     async def send(message):
         messages.append(message)
+        if message["type"] == "http.response.body" and not message.get("more_body", False):
+            finished.set()
 
     async with app.router.lifespan_context(app):
         await app({
