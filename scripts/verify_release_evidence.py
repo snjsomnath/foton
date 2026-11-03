@@ -46,6 +46,11 @@ EVIDENCE_ONLY_PATHS = (
     "epw/README.md",
 )
 OPEN_CASE_CLASSES = ("accuracy_failure", "unstable_reference")
+# Each backend's evidence is also indifferent to the other backend's crate.
+BACKEND_ONLY_PATHS = {
+    "metal": ("crates/daylight-vulkan/",),
+    "vulkan": ("crates/daylight-metal/",),
+}
 
 
 def git_changed_paths(evidence_commit, release_commit, root=ROOT):
@@ -70,13 +75,14 @@ def git_changed_paths(evidence_commit, release_commit, root=ROOT):
     return [line for line in output.splitlines() if line]
 
 
-def _commit_error(label, evidence_commit, release_commit, changed_paths):
+def _commit_error(label, evidence_commit, release_commit, changed_paths, backend=None):
     if not evidence_commit:
         return f"{label} records no commit"
     changed = changed_paths(evidence_commit, release_commit)
     if changed is None:
         return f"{label} was produced on {evidence_commit[:12]}, which is not the release commit or one of its ancestors"
-    foreign = [p for p in changed if not p.startswith(EVIDENCE_ONLY_PATHS)]
+    ignored = EVIDENCE_ONLY_PATHS + BACKEND_ONLY_PATHS.get(backend, ())
+    foreign = [p for p in changed if not p.startswith(ignored)]
     if foreign:
         return (
             f"{label} was produced on {evidence_commit[:12]}; the release commit also changes "
@@ -114,7 +120,7 @@ def verify_suite(suite, release_commit, version, backend, allowed_open, changed_
         if not condition:
             errors.append(f"{label}: {message}")
 
-    commit_error = _commit_error(label, suite.get("commit"), release_commit, changed_paths)
+    commit_error = _commit_error(label, suite.get("commit"), release_commit, changed_paths, backend)
     if commit_error:
         errors.append(commit_error)
     require(suite.get("engine_version") == version, "wheel version differs from the release")
@@ -170,7 +176,9 @@ def verify_rhino(rhino, release_commit, version, changed_paths):
         if not condition:
             errors.append(f"{label}: {message}")
 
-    commit_error = _commit_error(label, rhino.get("commit"), release_commit, changed_paths)
+    commit_error = _commit_error(
+        label, rhino.get("commit"), release_commit, changed_paths, rhino.get("backend")
+    )
     if commit_error:
         errors.append(commit_error)
     require(rhino.get("engine_version") == version, "engine version differs from the release")

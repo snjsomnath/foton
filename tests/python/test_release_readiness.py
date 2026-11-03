@@ -207,6 +207,12 @@ def test_release_gate_accepts_complete_evidence_and_rejects_stale_or_partial():
     )
     # Any engine, scene or suite change between the two invalidates it.
     assert run_verify(manifest, files, commit="later", changed=["crates/daylight-core/src/lib.rs"])
+    # Except the other backend's crate: a Vulkan fix leaves Metal evidence valid
+    # (and the Rhino checklist ran through Metal), but not Vulkan evidence.
+    errors = run_verify(manifest, files, commit="later", changed=["crates/daylight-vulkan/src/runtime.rs"])
+    assert errors and all(e.startswith("vulkan suite") for e in errors)
+    errors = run_verify(manifest, files, commit="later", changed=["crates/daylight-metal/src/metal.rs"])
+    assert errors and all(e.startswith("metal suite") or e.startswith("Rhino evidence") for e in errors)
     assert run_verify(manifest, files, commit="unrelated", changed=None)
     assert run_verify(manifest, files, version="0.4.0")
     files["metal/suite.json"]["scenes"][0]["gpu_executed"] = False
