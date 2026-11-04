@@ -88,6 +88,9 @@ BACKEND_ONLY_PATHS = {
 # runs the numerical suite, its scene generator or its oracle.
 RHINO_IGNORED_PATHS = (
     "validation/",
+    # Copies the Rhino-built files that verify_build has hash-checked; it
+    # changes nothing a Rhino check exercises.
+    "scripts/package_yak.py",
     "scripts/validate_release_suite.py",
     "scripts/export_reference_bundle.py",
     "scripts/run_honeybee_annual_reference.py",
@@ -198,7 +201,10 @@ def verify_suite(
         if not condition:
             errors.append(f"{label}: {message}")
 
-    reused = suite.get("engine_version") != version and _engine_unchanged(
+    # The engine is unchanged since the suite ran: only evidence, version
+    # numbers, Grasshopper, packaging, viewer or docs differ. That holds for a
+    # suite from this version and from an earlier one alike.
+    reused = _engine_unchanged(
         suite.get("commit"), release_commit, changed_paths, version_only, backend
     )
     if not reused:

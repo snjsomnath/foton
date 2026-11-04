@@ -81,7 +81,7 @@ def stage(folder, root=ROOT):
     shutil.copy2(root / "epw/gothenburg.epw", folder / "examples/gothenburg.epw")
     shutil.copy2(root / "LICENSE", folder / "LICENSE")
     shutil.copy2(root / "NOTICE", folder / "NOTICE")
-    return sorted(str(p.relative_to(folder)) for p in folder.rglob("*") if p.is_file())
+    return sorted(p.relative_to(folder).as_posix() for p in folder.rglob("*") if p.is_file())
 
 
 def main():

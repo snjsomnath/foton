@@ -230,6 +230,15 @@ def test_release_gate_reuses_gpu_suites_when_the_engine_is_unchanged():
     )
 
 
+def test_release_gate_keeps_this_versions_suites_after_a_packaging_fix():
+    manifest, files = release_evidence()
+    # A fix to the Yak packaging after the evidence ran leaves the GPU suites
+    # and the Rhino checklist valid; an engine change does not.
+    assert not run_verify(manifest, files, commit="later", changed=["scripts/package_yak.py"])
+    errors = run_verify(manifest, files, commit="later", changed=["python/daylight_engine/honeybee/annual.py"])
+    assert {"metal", "vulkan", "Rhino"} <= {e.split(" ")[0] for e in errors}
+
+
 def test_release_gate_accepts_complete_evidence_and_rejects_stale_or_partial():
     manifest, files = release_evidence()
     assert not run_verify(manifest, files)
