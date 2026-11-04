@@ -47,12 +47,36 @@ EVIDENCE_ONLY_PATHS = (
     "docs/",
     "README.md",
     "CHANGELOG.md",
+    "CITATION.cff",
     "epw/README.md",
     "scripts/verify_release_evidence.py",
     "tests/",
     ".github/",
     ".gitattributes",
     ".gitignore",
+)
+# A numerical suite from an earlier version still qualifies a release when the
+# engine is unchanged since: only these paths changed, and the version files
+# changed only on their version lines. None of them is imported by the suite.
+ENGINE_UNCHANGED_PATHS = (
+    "grasshopper_foton/",
+    "scripts/build_grasshopper.py",
+    "scripts/package_grasshopper.py",
+    "scripts/check_grasshopper.py",
+    "scripts/package_yak.py",
+    "scripts/make_grasshopper_icons.py",
+    "viewer/",
+    "CONTRIBUTING.md",
+    "benchmarks/",
+)
+VERSION_FILES = (
+    "Cargo.toml",
+    "Cargo.lock",
+    "pyproject.toml",
+    "python/daylight_engine/viewer/app.py",
+    "viewer/package.json",
+    "viewer/package-lock.json",
+    "grasshopper_foton/yak/manifest.yml",
 )
 OPEN_CASE_CLASSES = ("accuracy_failure", "unstable_reference")
 # Each backend's evidence is also indifferent to the other backend's crate.
@@ -64,6 +88,9 @@ BACKEND_ONLY_PATHS = {
 # runs the numerical suite, its scene generator or its oracle.
 RHINO_IGNORED_PATHS = (
     "validation/",
+    # Copies the Rhino-built files that verify_build has hash-checked; it
+    # changes nothing a Rhino check exercises.
+    "scripts/package_yak.py",
     "scripts/validate_release_suite.py",
     "scripts/export_reference_bundle.py",
     "scripts/run_honeybee_annual_reference.py",
@@ -91,6 +118,40 @@ def git_changed_paths(evidence_commit, release_commit, root=ROOT):
     except (subprocess.CalledProcessError, OSError):
         return None
     return [line for line in output.splitlines() if line]
+
+
+def git_version_only(evidence_commit, release_commit, paths, root=ROOT):
+    """True when every changed line of ``paths`` between the commits mentions a version."""
+    if not paths:
+        return True
+    try:
+        output = subprocess.check_output(
+            ["git", "diff", "-U0", evidence_commit, release_commit, "--", *paths],
+            cwd=root,
+            text=True,
+        )
+    except (subprocess.CalledProcessError, OSError):
+        return False
+    for line in output.splitlines():
+        if line.startswith(("+++", "---")) or not line.startswith(("+", "-")):
+            continue
+        if "version" not in line.lower():
+            return False
+    return True
+
+
+def _engine_unchanged(evidence_commit, release_commit, changed_paths, version_only, backend):
+    """True when only non-engine paths and version numbers changed since the evidence."""
+    if not evidence_commit:
+        return False
+    changed = changed_paths(evidence_commit, release_commit)
+    if changed is None:
+        return False
+    allowed = EVIDENCE_ONLY_PATHS + BACKEND_ONLY_PATHS.get(backend, ()) + ENGINE_UNCHANGED_PATHS
+    versions = [p for p in changed if p in VERSION_FILES]
+    if any(p not in VERSION_FILES and not p.startswith(allowed) for p in changed):
+        return False
+    return version_only(evidence_commit, release_commit, versions)
 
 
 def _commit_error(label, evidence_commit, release_commit, changed_paths, backend=None, also_ignored=()):
@@ -130,7 +191,9 @@ def verify_known_open_cases(known):
     return errors, allowed
 
 
-def verify_suite(suite, release_commit, version, backend, allowed_open, changed_paths):
+def verify_suite(
+    suite, release_commit, version, backend, allowed_open, changed_paths, version_only=git_version_only
+):
     errors = []
     label = f"{backend} suite"
 
@@ -138,10 +201,20 @@ def verify_suite(suite, release_commit, version, backend, allowed_open, changed_
         if not condition:
             errors.append(f"{label}: {message}")
 
-    commit_error = _commit_error(label, suite.get("commit"), release_commit, changed_paths, backend)
-    if commit_error:
-        errors.append(commit_error)
-    require(suite.get("engine_version") == version, "wheel version differs from the release")
+    # The engine is unchanged since the suite ran: only evidence, version
+    # numbers, Grasshopper, packaging, viewer or docs differ. That holds for a
+    # suite from this version and from an earlier one alike.
+    reused = _engine_unchanged(
+        suite.get("commit"), release_commit, changed_paths, version_only, backend
+    )
+    if not reused:
+        commit_error = _commit_error(label, suite.get("commit"), release_commit, changed_paths, backend)
+        if commit_error:
+            errors.append(commit_error)
+        require(
+            suite.get("engine_version") == version,
+            "wheel version differs from the release, and the engine changed since",
+        )
     require(suite.get("suite_version") == SCENE_VERSION, "suite version is obsolete")
     require(suite.get("dirty") is False and suite.get("smoke") is False, "dirty or smoke runs cannot qualify releases")
     require(suite.get("backend") == backend, "backend differs from the manifest entry")
@@ -189,6 +262,8 @@ def verify_suite(suite, release_commit, version, backend, allowed_open, changed_
         "machine": suite.get("hardware", {}).get("machine"),
         "device": _device_name(suite),
         "commit": suite.get("commit"),
+        "engine_version": suite.get("engine_version"),
+        "reused": bool(reused),
         "references": source.get("commit") if isinstance(source, dict) else None,
         "passed": len(scenes) - len(open_cases),
         "open": sorted(open_cases),
@@ -239,7 +314,9 @@ def verify_rhino(rhino, release_commit, version, changed_paths):
     }
 
 
-def verify(manifest, release_commit, version, *, load, changed_paths=git_changed_paths):
+def verify(
+    manifest, release_commit, version, *, load, changed_paths=git_changed_paths, version_only=git_version_only
+):
     """Return (errors, summary) for a release-evidence manifest.
 
     `load(path)` returns the parsed JSON for a repository-relative path.
@@ -264,7 +341,9 @@ def verify(manifest, release_commit, version, *, load, changed_paths=git_changed
         except (KeyError, OSError, ValueError) as error:
             errors.append(f"{backend} suite: cannot read evidence ({error})")
             continue
-        suite_errors, record = verify_suite(suite, release_commit, version, backend, allowed_open, changed_paths)
+        suite_errors, record = verify_suite(
+            suite, release_commit, version, backend, allowed_open, changed_paths, version_only
+        )
         errors.extend(suite_errors)
         seen_backends.add(backend)
         summary["numerical"].append(record)
@@ -307,6 +386,7 @@ def main():
             args.version,
             load=load,
             changed_paths=lambda a, b: git_changed_paths(a, b, root),
+            version_only=lambda a, b, paths: git_version_only(a, b, paths, root),
         )
     except (OSError, ValueError, TypeError) as error:
         errors, summary = [str(error)], {"numerical": [], "rhino": []}
@@ -317,6 +397,11 @@ def main():
             + (
                 f" (Radiance references reused from {record['references'][:12]})"
                 if record.get("references")
+                else ""
+            )
+            + (
+                f"; engine unchanged since {record['engine_version']}, so that run still applies"
+                if record.get("reused")
                 else ""
             )
         )

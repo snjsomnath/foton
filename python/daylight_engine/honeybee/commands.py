@@ -68,7 +68,7 @@ def _options(defaults, options):
     return merged
 
 
-def new_study(options) -> HoneybeeStudy:
+def new_study(options, weather_memo=None) -> HoneybeeStudy:
     """Create a ``HoneybeeStudy`` from command options."""
     return HoneybeeStudy(
         options["model"],
@@ -76,6 +76,7 @@ def new_study(options) -> HoneybeeStudy:
         grid_filter=options.get("grid_filter", "*"),
         radiance_bin=options.get("radiance_bin"),
         sky_source=options.get("sky_source", "foton"),
+        weather_memo=weather_memo,
     )
 
 

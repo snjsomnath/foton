@@ -7,6 +7,7 @@ from __future__ import print_function
 import json
 import os
 import shutil
+import sys
 import tempfile
 import traceback
 
@@ -21,6 +22,9 @@ def main():
     from Grasshopper.Kernel.Special import GH_BooleanToggle
     from GH_IO.Serialization import GH_Archive
     root = os.environ["FOTON_GH_BUNDLE"]
+    # The cancel check imports the bridge directly; a fresh Rhino has no path to it.
+    if root not in sys.path:
+        sys.path.insert(0, root)
     executable = os.environ["FOTON_HONEYBEE_EXE"]
     output = tempfile.mkdtemp(prefix="foton-rhino-check-")
     report = {"scope": "automated_existing_Rhino_profile", "checks": {}, "output": output}

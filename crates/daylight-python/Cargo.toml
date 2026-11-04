@@ -18,6 +18,7 @@ doctest = false
 [features]
 default = []
 extension-module = ["pyo3/extension-module"]
+abi3 = ["pyo3/abi3-py310"]
 
 [dependencies]
 daylight-core = { path = "../daylight-core" }

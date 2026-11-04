@@ -43,6 +43,9 @@ class Worker:
 
     def __init__(self) -> None:
         self.studies: OrderedDict[tuple, Any] = OrderedDict()
+        # Weather outlives studies: a geometry change makes a new study, but
+        # the sky matrix for the same weather file is reused from memory.
+        self.weather_memo: dict = {}
 
     def study(self, options: dict[str, Any]):
         """Return ``(study, reused)`` for these options, creating the study when it is not already held."""
@@ -50,7 +53,7 @@ class Worker:
         study = self.studies.pop(key, None)
         reused = study is not None
         if study is None:
-            study = new_study(options)
+            study = new_study(options, weather_memo=self.weather_memo)
         self.studies[key] = study
         while len(self.studies) > MAXIMUM_STUDIES:
             self.studies.popitem(last=False)

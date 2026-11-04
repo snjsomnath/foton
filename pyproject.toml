@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "foton-daylight"
-version = "0.3.2"
+version = "0.3.3"
 description = "Fast annual daylight simulation on the GPU for Honeybee models, checked against Radiance"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -80,7 +80,8 @@ python-source = "python"
 python-packages = ["foton", "daylight_engine", "honeybee_foton", "foton_bridge"]
 module-name = "daylight_engine._native"
 exclude = ["**/__pycache__/**", "**/*.pyc", "**/build_error.log"]
-features = ["extension-module"]
+# abi3: one wheel per platform works on every Python from 3.10 on.
+features = ["extension-module", "abi3"]
 include = [
     { path = "LICENSE", format = "sdist" },
     { path = "NOTICE", format = "sdist" },

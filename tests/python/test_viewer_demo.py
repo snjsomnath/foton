@@ -80,7 +80,7 @@ class ViewerDemoTests(unittest.IsolatedAsyncioTestCase):
             app = create_app(engine_factory=Mock, weather_store=store, demo_weather_path=path)
             status, body = await request(app, "POST", "/api/demo/weather")
             self.assertEqual(status, 503)
-            self.assertIn("epw/gothenburg.epw", json.loads(body)["detail"])
+            self.assertIn("viewer/data/gothenburg.epw", json.loads(body)["detail"])
             store.ingest.assert_not_called()
             path.write_bytes(b"weather")
             store.ingest.side_effect = RuntimeError("gendaymtx is unavailable; install Radiance or set RADIANCE_BIN")
@@ -100,3 +100,14 @@ class ViewerDemoTests(unittest.IsolatedAsyncioTestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_demo_weather_ships_inside_the_package():
+    import hashlib
+
+    from daylight_engine.viewer import app as viewer_app
+
+    root = Path(__file__).resolve().parents[2]
+    packaged = Path(viewer_app.__file__).resolve().parent / "data" / "gothenburg.epw"
+    checkout = root / "epw" / "gothenburg.epw"
+    assert hashlib.sha256(packaged.read_bytes()).digest() == hashlib.sha256(checkout.read_bytes()).digest()

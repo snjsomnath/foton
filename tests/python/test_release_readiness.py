@@ -184,7 +184,7 @@ def release_evidence(version="0.3.0", commit="abc"):
     return manifest, files
 
 
-def run_verify(manifest, files, commit="abc", version="0.3.0", changed=None):
+def run_verify(manifest, files, commit="abc", version="0.3.0", changed=None, version_lines_only=True):
     from scripts.verify_release_evidence import verify
 
     def changed_paths(evidence, release):
@@ -193,9 +193,50 @@ def run_verify(manifest, files, commit="abc", version="0.3.0", changed=None):
         return None if changed is None else changed
 
     errors, summary = verify(
-        manifest, commit, version, load=files.__getitem__, changed_paths=changed_paths
+        manifest,
+        commit,
+        version,
+        load=files.__getitem__,
+        changed_paths=changed_paths,
+        version_only=lambda a, b, paths: version_lines_only,
     )
     return errors
+
+
+def test_release_gate_reuses_gpu_suites_when_the_engine_is_unchanged():
+    manifest, files = release_evidence()
+    manifest["version"] = "0.3.1"
+    files["rhino.json"]["engine_version"] = "0.3.1"
+    files["rhino.json"]["commit"] = "later"
+    bump = ["Cargo.toml", "Cargo.lock", "pyproject.toml", "grasshopper_foton/yak/manifest.yml"]
+    grasshopper = ["grasshopper_foton/foton_gh.py", "scripts/build_grasshopper.py", "viewer/src/app.tsx"]
+    # 0.3.0's suites qualify 0.3.1 when only the version and Grasshopper changed.
+    assert not run_verify(manifest, files, commit="later", version="0.3.1", changed=bump + grasshopper)
+    # Not when a version file changed more than its version line.
+    assert run_verify(
+        manifest, files, commit="later", version="0.3.1", changed=bump, version_lines_only=False
+    )
+    # Not when the engine changed.
+    errors = run_verify(
+        manifest, files, commit="later", version="0.3.1",
+        changed=bump + ["python/daylight_engine/honeybee/annual.py"],
+    )
+    assert {e.split(" suite")[0] for e in errors} == {"metal", "vulkan"}
+    # The Rhino checklist always reports the release's own version.
+    files["rhino.json"]["engine_version"] = "0.3.0"
+    assert any(
+        e.startswith("Rhino evidence")
+        for e in run_verify(manifest, files, commit="later", version="0.3.1", changed=bump)
+    )
+
+
+def test_release_gate_keeps_this_versions_suites_after_a_packaging_fix():
+    manifest, files = release_evidence()
+    # A fix to the Yak packaging after the evidence ran leaves the GPU suites
+    # and the Rhino checklist valid; an engine change does not.
+    assert not run_verify(manifest, files, commit="later", changed=["scripts/package_yak.py"])
+    errors = run_verify(manifest, files, commit="later", changed=["python/daylight_engine/honeybee/annual.py"])
+    assert {"metal", "vulkan", "Rhino"} <= {e.split(" ")[0] for e in errors}
 
 
 def test_release_gate_accepts_complete_evidence_and_rejects_stale_or_partial():

@@ -83,10 +83,10 @@ def test_engine_version_range_matches_this_release():
     assert foton_gh._version_tuple(version)[:2] == foton_gh.ENGINE_MINIMUM[:2]
     if foton_gh._version_tuple(version) >= foton_gh.ENGINE_MINIMUM:
         assert foton_gh.engine_version_supported(version)
-    assert not foton_gh.engine_version_supported("0.3.1")
+    assert not foton_gh.engine_version_supported("0.3.2")
     assert not foton_gh.engine_version_supported("0.4.0")
-    assert foton_gh.engine_version_supported("0.3.2.dev1")
-    assert ">=0.3.2,<0.4" in foton_gh.ENGINE_REQUIREMENT
+    assert foton_gh.engine_version_supported("0.3.3.dev1")
+    assert ">=0.3.3,<0.4" in foton_gh.ENGINE_REQUIREMENT
 
 
 def test_find_base_python_accepts_a_supported_interpreter():
@@ -107,7 +107,7 @@ def test_find_base_python_rejects_an_old_interpreter(tmp_path, monkeypatch):
 def test_install_is_skipped_when_a_supported_engine_is_present(tmp_path, monkeypatch):
     monkeypatch.setenv("FOTON_HOME", str(tmp_path))
     _make_executable(Path(foton_gh.environment_executable()), "#!/bin/sh\n")
-    with patch.object(foton_gh, "capabilities", return_value={"engine_version": "0.3.2"}), \
+    with patch.object(foton_gh, "capabilities", return_value={"engine_version": "0.3.3"}), \
             patch.object(foton_gh, "_stream_command") as run:
         assert foton_gh.install_foton() == foton_gh.environment_executable()
     run.assert_not_called()
@@ -131,6 +131,82 @@ def test_install_creates_environment_then_pip_installs(tmp_path, monkeypatch):
     assert commands[0] == ["/fake/python3", "-m", "venv", foton_gh.environment_folder()]
     assert commands[1][1:4] == ["-m", "pip", "install"]
     assert commands[1][-1] == foton_gh.ENGINE_REQUIREMENT
+
+
+def test_install_uses_uv_when_no_python_is_found(tmp_path, monkeypatch):
+    monkeypatch.setenv("FOTON_HOME", str(tmp_path))
+    calls = []
+
+    def fake(command, on_line=None, cancel=None, timeout=None, extra_env=None):
+        calls.append((command, extra_env))
+        if command[1:2] == ["venv"]:
+            _make_executable(Path(foton_gh._environment_file(command[-1], "python")), "")
+        if "pip" in command:
+            _make_executable(Path(foton_gh.environment_executable()), "")
+        return 0, []
+
+    missing = foton_gh.FotonError("Foton needs Python 3.10 to 3.13")
+    with patch.object(foton_gh, "find_base_python", side_effect=missing), \
+            patch.object(foton_gh, "ensure_uv", return_value="/fake/uv"), \
+            patch.object(foton_gh, "_stream_command", side_effect=fake):
+        assert foton_gh.install_foton() == foton_gh.environment_executable()
+    venv, environment = calls[0]
+    assert venv == ["/fake/uv", "venv", "--seed", "--python", foton_gh.UV_PYTHON,
+                    foton_gh.environment_folder()]
+    # uv's Python and cache stay inside Foton's folder.
+    assert environment["UV_PYTHON_INSTALL_DIR"].startswith(str(tmp_path))
+    assert environment["UV_CACHE_DIR"].startswith(str(tmp_path))
+    assert calls[1][0][1:4] == ["-m", "pip", "install"]
+
+
+def test_install_does_not_swap_a_python_the_user_chose(tmp_path, monkeypatch):
+    monkeypatch.setenv("FOTON_HOME", str(tmp_path))
+    missing = foton_gh.FotonError("Foton needs Python 3.10 to 3.13")
+    with patch.object(foton_gh, "find_base_python", side_effect=missing), \
+            patch.object(foton_gh, "ensure_uv") as uv:
+        with pytest.raises(foton_gh.FotonError):
+            foton_gh.install_foton(python="/opt/python3.9")
+    uv.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    "system, machine, asset",
+    [
+        ("macos", "arm64", "uv-aarch64-apple-darwin.tar.gz"),
+        ("macos", "x86_64", "uv-x86_64-apple-darwin.tar.gz"),
+        ("windows", "x86_64", "uv-x86_64-pc-windows-msvc.zip"),
+        ("windows", "arm64", "uv-aarch64-pc-windows-msvc.zip"),
+    ],
+)
+def test_uv_download_matches_the_computer(monkeypatch, system, machine, asset):
+    monkeypatch.setattr(foton_gh, "_system", lambda: system)
+    monkeypatch.setattr(foton_gh, "_machine", lambda: machine)
+    assert foton_gh.uv_asset() == asset
+
+
+def test_ensure_uv_unpacks_the_binary_into_fotons_folder(tmp_path, monkeypatch):
+    if os.name == "nt":
+        pytest.skip("POSIX tar stand-in")
+    monkeypatch.setenv("FOTON_HOME", str(tmp_path))
+    import tarfile
+
+    source = tmp_path / "src" / "uv-aarch64-apple-darwin"
+    _make_executable(source / "uv", "#!/bin/sh\necho uv\n")
+    built = tmp_path / "uv.tar.gz"
+    with tarfile.open(built, "w:gz") as archive:
+        archive.add(source, arcname=source.name)
+
+    def fake(command, on_line=None, cancel=None, timeout=None, extra_env=None):
+        if command[1] == "-fsSL":
+            Path(command[command.index("-o") + 1]).write_bytes(built.read_bytes())
+            return 0, []
+        return foton_gh.subprocess.call(["tar"] + command[1:]), []
+
+    with patch.object(foton_gh, "_stream_command", side_effect=fake):
+        path = foton_gh.ensure_uv()
+    assert path == foton_gh.uv_executable()
+    assert os.access(path, os.X_OK)
+    assert [p.name for p in tmp_path.iterdir() if p.name.startswith("uv-")] == []
 
 
 # Bounce default ---------------------------------------------------------------
@@ -266,3 +342,142 @@ def test_worker_protocol_keeps_library_output_off_stdout():
     events = [json.loads(line) for line in replies.getvalue().splitlines()]
     assert [e["event"] for e in events] == ["ready", "complete", "failed", "complete"]
     assert events[1]["request_id"] == "a" and events[3]["request_id"] == "b"
+
+
+def test_worker_keeps_weather_in_memory_across_studies_with_identical_results(tmp_path):
+    import shutil
+    from daylight_engine.honeybee.weather import prepare_annual_weather
+    from daylight_engine.honeybee.worker import Worker
+
+    # The bridge copies the EPW to a new temporary path on every request.
+    first_copy = tmp_path / "a" / "weather.epw"
+    second_copy = tmp_path / "b" / "weather.epw"
+    for copy in (first_copy, second_copy):
+        copy.parent.mkdir()
+        shutil.copy2(WEATHER, copy)
+    memo = {}
+    cache = tmp_path / "cache"
+    first = prepare_annual_weather(first_copy, cache_directory=cache, memo=memo)
+    second = prepare_annual_weather(second_copy, cache_directory=cache, memo=memo)
+    assert second.sky is first.sky and not second.sky.flags.writeable
+    assert second.source == str(second_copy.resolve()) and second.cache_hit
+    assert second.weather_id == first.weather_id
+    assert prepare_annual_weather(first_copy, north=10, cache_directory=cache, memo=memo).sky is not first.sky
+
+    class Collect:
+        def __init__(self):
+            self.events = []
+
+        def emit(self, event, **fields):
+            self.events.append(dict(fields, event=event))
+
+    def live(worker, model, weather):
+        writer = Collect()
+        options = {"model": str(model), "wea": str(weather), "backend": "reference",
+                   "quality": "preview"}
+        worker.handle({"id": "1", "command": "annual-daylight", "options": options}, writer)
+        return writer.events[-1]["manifest"]
+
+    other = ROOT / "test_models" / "architectural" / "teaching_depth6.hbjson"
+    warm = Worker()
+    live(warm, other, first_copy)
+    reused = live(warm, MODEL, second_copy)
+    assert len(warm.weather_memo) == 1
+    fresh = live(Worker(), MODEL, first_copy)
+    assert reused["grids"] == fresh["grids"]
+
+
+def _wait_for(state, seconds=5.0):
+    import time
+
+    deadline = time.time() + seconds
+    while state["running"] and time.time() < deadline:
+        time.sleep(0.01)
+    assert not state["running"]
+
+
+def test_background_install_keeps_rhino_free_and_reports_once(monkeypatch, tmp_path):
+    import threading
+
+    monkeypatch.setenv("FOTON_HOME", str(tmp_path))
+    release = threading.Event()
+    calls = []
+
+    def fake_install(python=None, progress=None, cancel=None, upgrade=False):
+        calls.append(python)
+        progress("Installing foton-daylight")
+        release.wait(5)
+        return "/fake/foton-honeybee"
+
+    monkeypatch.setattr(foton_gh, "install_foton", fake_install)
+    foton_gh.reset_install()
+    state = foton_gh.background_install("python3")
+    # The call returns at once while the install is still running.
+    assert state["running"]
+    assert foton_gh.background_install() is state
+    assert foton_gh.install_status() is state
+    release.set()
+    _wait_for(state)
+    assert state["executable"] == "/fake/foton-honeybee"
+    assert state["error"] is None
+    assert state["log"] == ["Installing foton-daylight"]
+    # A finished install is kept until install_ is turned off, so a toggle left
+    # on does not start the install again on every solution.
+    assert foton_gh.background_install() is state
+    assert calls == ["python3"]
+    foton_gh.reset_install()
+    assert foton_gh.install_status() is None
+
+
+def test_background_install_reports_errors_and_can_be_cancelled(monkeypatch, tmp_path):
+    import time
+
+    monkeypatch.setenv("FOTON_HOME", str(tmp_path))
+
+    def failing(python=None, progress=None, cancel=None, upgrade=False):
+        raise foton_gh.FotonError("pip could not install Foton")
+
+    monkeypatch.setattr(foton_gh, "install_foton", failing)
+    foton_gh.reset_install()
+    state = foton_gh.background_install()
+    _wait_for(state)
+    assert state["error"] == "pip could not install Foton"
+    foton_gh.reset_install()
+
+    def slow(python=None, progress=None, cancel=None, upgrade=False):
+        while not cancel():
+            time.sleep(0.01)
+        raise foton_gh.FotonCancelled("Foton was cancelled")
+
+    monkeypatch.setattr(foton_gh, "install_foton", slow)
+    state = foton_gh.background_install()
+    assert state["running"]
+    foton_gh.cancel_install()
+    _wait_for(state)
+    assert state["error"] == "Foton was cancelled"
+    foton_gh.reset_install()
+
+
+def test_install_starts_again_after_it_was_stopped(monkeypatch, tmp_path):
+    import time
+
+    monkeypatch.setenv("FOTON_HOME", str(tmp_path))
+
+    def slow(python=None, progress=None, cancel=None, upgrade=False):
+        while not cancel():
+            time.sleep(0.01)
+        raise foton_gh.FotonCancelled("Foton was cancelled")
+
+    monkeypatch.setattr(foton_gh, "install_foton", slow)
+    foton_gh.reset_install()
+    first = foton_gh.background_install()
+    foton_gh.cancel_install()
+    _wait_for(first)
+    # install_ back on: a new install, not the stopped one reported as failed.
+    monkeypatch.setattr(foton_gh, "install_foton", lambda *a, **k: "/fake/foton-honeybee")
+    second = foton_gh.background_install()
+    assert second is not first
+    _wait_for(second)
+    assert second["executable"] == "/fake/foton-honeybee"
+    assert second["error"] is None
+    foton_gh.reset_install()
