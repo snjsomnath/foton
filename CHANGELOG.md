@@ -4,6 +4,10 @@ All notable Foton changes are recorded here.
 
 ## Unreleased
 
+- The browser demo (`npm run dev:demo`) is a shorter 54.5-second cut that follows
+  one room. It holds the daylight metric explanations longer, drops the
+  1,024-zone ending and the header affiliation, labels each result as live
+  preview or final quality, and closes on the Grasshopper and Python install routes.
 - Faster annual runs with identical results. On an M4 Pro the diffuse trace is
   about 36 % faster (2,020 sensors: 1.18 s to 0.76 s; 9,216 sensors: 6.58 s to
   4.26 s), mostly because the GPU's random-number loop now stops at the

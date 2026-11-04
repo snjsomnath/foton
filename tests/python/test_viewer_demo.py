@@ -59,7 +59,7 @@ class ViewerDemoTests(unittest.IsolatedAsyncioTestCase):
                 if shot.get("overview"):
                     vertices = np.asarray(scene.geometry_payload["vertices"])
                     np.testing.assert_allclose(shot["overview"]["from"], [vertices.min(axis=0), vertices.max(axis=0)], atol=1e-5)
-        self.assertAlmostEqual(sum(shot["duration"] for shot in storyboard), 72)
+        self.assertAlmostEqual(sum(shot["duration"] for shot in storyboard), 54.5)
 
     async def test_demo_weather_uses_fixed_asset_and_existing_weather_store(self):
         store = Mock()

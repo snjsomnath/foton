@@ -1,9 +1,9 @@
 [
   {
     "chapter": "Foton",
-    "duration": 2,
+    "duration": 1.5,
     "title": "Foton",
-    "caption": "GPU light transport for daylight teaching.",
+    "caption": "Annual daylight analysis on the GPU.",
     "detail": "",
     "overview": null,
     "camera": [
@@ -12,8 +12,8 @@
       1.8
     ],
     "cameraEnd": [
-      12,
-      32,
+      -10,
+      30,
       1.8
     ],
     "focus": "facade",
@@ -28,14 +28,14 @@
   },
   {
     "chapter": "Foton",
-    "duration": 3,
+    "duration": 2.5,
     "title": "Interactive daylight analysis",
-    "caption": "Fast GPU calculations support parametric exploration.",
+    "caption": "Change the design and the whole year is recalculated.",
     "detail": "",
     "overview": null,
     "camera": [
-      12,
-      32,
+      -10,
+      30,
       1.8
     ],
     "cameraEnd": [
@@ -815,7 +815,7 @@
   },
   {
     "chapter": "Parameters",
-    "duration": 1,
+    "duration": 1.5,
     "title": "Multiple windows",
     "caption": "Add openings to the fa\u00e7ade.",
     "detail": "",
@@ -855,7 +855,7 @@
   },
   {
     "chapter": "Parameters",
-    "duration": 0.3,
+    "duration": 0.25,
     "title": "Material properties",
     "caption": "Vary glazing transmittance and surface reflectance.",
     "detail": "",
@@ -900,7 +900,7 @@
   },
   {
     "chapter": "Parameters",
-    "duration": 0.3,
+    "duration": 0.25,
     "title": "Material properties",
     "caption": "Vary glazing transmittance and surface reflectance.",
     "detail": "",
@@ -945,7 +945,7 @@
   },
   {
     "chapter": "Parameters",
-    "duration": 0.3,
+    "duration": 0.25,
     "title": "Material properties",
     "caption": "Vary glazing transmittance and surface reflectance.",
     "detail": "",
@@ -990,7 +990,7 @@
   },
   {
     "chapter": "Parameters",
-    "duration": 0.3,
+    "duration": 0.25,
     "title": "Material properties",
     "caption": "Vary glazing transmittance and surface reflectance.",
     "detail": "",
@@ -1035,7 +1035,7 @@
   },
   {
     "chapter": "Parameters",
-    "duration": 0.3,
+    "duration": 0.25,
     "title": "Material properties",
     "caption": "Vary glazing transmittance and surface reflectance.",
     "detail": "",
@@ -1080,7 +1080,7 @@
   },
   {
     "chapter": "Parameters",
-    "duration": 0.3,
+    "duration": 0.25,
     "title": "Material properties",
     "caption": "Vary glazing transmittance and surface reflectance.",
     "detail": "",
@@ -1125,7 +1125,7 @@
   },
   {
     "chapter": "Parameters",
-    "duration": 0.3,
+    "duration": 0.25,
     "title": "Material properties",
     "caption": "Vary glazing transmittance and surface reflectance.",
     "detail": "",
@@ -1170,7 +1170,7 @@
   },
   {
     "chapter": "Parameters",
-    "duration": 0.3,
+    "duration": 0.25,
     "title": "Material properties",
     "caption": "Vary glazing transmittance and surface reflectance.",
     "detail": "",
@@ -1215,7 +1215,7 @@
   },
   {
     "chapter": "Parameters",
-    "duration": 0.3,
+    "duration": 0.25,
     "title": "Material properties",
     "caption": "Vary glazing transmittance and surface reflectance.",
     "detail": "",
@@ -1260,7 +1260,7 @@
   },
   {
     "chapter": "Parameters",
-    "duration": 0.3,
+    "duration": 0.25,
     "title": "Material properties",
     "caption": "Vary glazing transmittance and surface reflectance.",
     "detail": "",
@@ -2448,7 +2448,7 @@
       1.8
     ],
     "cameraEnd": [
-      -70.5,
+      -71.5,
       46.2,
       1.8
     ],
@@ -2478,12 +2478,12 @@
     "detail": "",
     "overview": null,
     "camera": [
-      -70.5,
+      -71.5,
       46.2,
       1.8
     ],
     "cameraEnd": [
-      -76.0,
+      -78.0,
       46.4,
       1.8
     ],
@@ -2513,12 +2513,12 @@
     "detail": "",
     "overview": null,
     "camera": [
-      -76.0,
+      -78.0,
       46.4,
       1.8
     ],
     "cameraEnd": [
-      -81.5,
+      -84.5,
       46.6,
       1.8
     ],
@@ -2548,12 +2548,12 @@
     "detail": "",
     "overview": null,
     "camera": [
-      -81.5,
+      -84.5,
       46.6,
       1.8
     ],
     "cameraEnd": [
-      -87.0,
+      -91.0,
       46.8,
       1.8
     ],
@@ -2583,12 +2583,12 @@
     "detail": "",
     "overview": null,
     "camera": [
-      -87.0,
+      -91.0,
       46.8,
       1.8
     ],
     "cameraEnd": [
-      -92.5,
+      -97.5,
       47.0,
       1.8
     ],
@@ -2618,12 +2618,12 @@
     "detail": "",
     "overview": null,
     "camera": [
-      -92.5,
+      -97.5,
       47.0,
       1.8
     ],
     "cameraEnd": [
-      -98.0,
+      -104.0,
       47.2,
       1.8
     ],
@@ -2653,12 +2653,12 @@
     "detail": "",
     "overview": null,
     "camera": [
-      -98.0,
+      -104.0,
       47.2,
       1.8
     ],
     "cameraEnd": [
-      -103.5,
+      -110.5,
       47.4,
       1.8
     ],
@@ -2688,12 +2688,12 @@
     "detail": "",
     "overview": null,
     "camera": [
-      -103.5,
+      -110.5,
       47.4,
       1.8
     ],
     "cameraEnd": [
-      -109.0,
+      -117.0,
       47.6,
       1.8
     ],
@@ -2723,12 +2723,12 @@
     "detail": "",
     "overview": null,
     "camera": [
-      -109.0,
+      -117.0,
       47.6,
       1.8
     ],
     "cameraEnd": [
-      -114.5,
+      -123.5,
       47.8,
       1.8
     ],
@@ -2758,12 +2758,12 @@
     "detail": "",
     "overview": null,
     "camera": [
-      -114.5,
+      -123.5,
       47.8,
       1.8
     ],
     "cameraEnd": [
-      -120.0,
+      -130.0,
       48.0,
       1.8
     ],
@@ -2788,90 +2788,18 @@
   {
     "chapter": "Context shading",
     "duration": 0.3,
-    "title": "Obstruction position",
-    "caption": "Move the neighbouring building relative to the windows.",
+    "title": "Combined shading",
+    "caption": "Move the building and adjust its height and the overhang.",
     "detail": "",
     "overview": null,
     "camera": [
-      -120.0,
+      -130.0,
       48.0,
       1.8
     ],
     "cameraEnd": [
-      -127.0,
-      48.7,
-      1.8
-    ],
-    "focus": "scene",
-    "focusEnd": "scene",
-    "solar": "off",
-    "sliders": [
-      "context_height",
-      "context_offset",
-      "overhang_depth"
-    ],
-    "metric": "illuminance",
-    "quality": "preview",
-    "hour": 12,
-    "timestep": 4116,
-    "parameters": {
-      "context_distance": 1.5,
-      "context_offset": -3.6,
-      "context_height": 6.0,
-      "overhang_depth": 0.675
-    }
-  },
-  {
-    "chapter": "Context shading",
-    "duration": 0.3,
-    "title": "Obstruction position",
-    "caption": "Move the neighbouring building relative to the windows.",
-    "detail": "",
-    "overview": null,
-    "camera": [
-      -127.0,
-      48.7,
-      1.8
-    ],
-    "cameraEnd": [
-      -134.0,
-      49.4,
-      1.8
-    ],
-    "focus": "scene",
-    "focusEnd": "scene",
-    "solar": "off",
-    "sliders": [
-      "context_height",
-      "context_offset",
-      "overhang_depth"
-    ],
-    "metric": "illuminance",
-    "quality": "preview",
-    "hour": 12,
-    "timestep": 4116,
-    "parameters": {
-      "context_distance": 1.5,
-      "context_offset": -3.2,
-      "context_height": 6.0,
-      "overhang_depth": 0.6
-    }
-  },
-  {
-    "chapter": "Context shading",
-    "duration": 0.3,
-    "title": "Obstruction position",
-    "caption": "Move the neighbouring building relative to the windows.",
-    "detail": "",
-    "overview": null,
-    "camera": [
-      -134.0,
-      49.4,
-      1.8
-    ],
-    "cameraEnd": [
-      -141.0,
-      50.1,
+      -140.5,
+      47.6,
       1.8
     ],
     "focus": "scene",
@@ -2889,97 +2817,25 @@
     "parameters": {
       "context_distance": 1.5,
       "context_offset": -2.8,
-      "context_height": 6.0,
-      "overhang_depth": 0.525
+      "context_height": 5.7,
+      "overhang_depth": 0.855
     }
   },
   {
     "chapter": "Context shading",
     "duration": 0.3,
-    "title": "Obstruction position",
-    "caption": "Move the neighbouring building relative to the windows.",
+    "title": "Combined shading",
+    "caption": "Move the building and adjust its height and the overhang.",
     "detail": "",
     "overview": null,
     "camera": [
-      -141.0,
-      50.1,
+      -140.5,
+      47.6,
       1.8
     ],
     "cameraEnd": [
-      -148.0,
-      50.8,
-      1.8
-    ],
-    "focus": "scene",
-    "focusEnd": "scene",
-    "solar": "off",
-    "sliders": [
-      "context_height",
-      "context_offset",
-      "overhang_depth"
-    ],
-    "metric": "illuminance",
-    "quality": "preview",
-    "hour": 12,
-    "timestep": 4116,
-    "parameters": {
-      "context_distance": 1.5,
-      "context_offset": -2.4,
-      "context_height": 6.0,
-      "overhang_depth": 0.45
-    }
-  },
-  {
-    "chapter": "Context shading",
-    "duration": 0.3,
-    "title": "Obstruction position",
-    "caption": "Move the neighbouring building relative to the windows.",
-    "detail": "",
-    "overview": null,
-    "camera": [
-      -148.0,
-      50.8,
-      1.8
-    ],
-    "cameraEnd": [
-      -155.0,
-      51.5,
-      1.8
-    ],
-    "focus": "scene",
-    "focusEnd": "scene",
-    "solar": "off",
-    "sliders": [
-      "context_height",
-      "context_offset",
-      "overhang_depth"
-    ],
-    "metric": "illuminance",
-    "quality": "preview",
-    "hour": 12,
-    "timestep": 4116,
-    "parameters": {
-      "context_distance": 1.5,
-      "context_offset": -2.0,
-      "context_height": 6.0,
-      "overhang_depth": 0.375
-    }
-  },
-  {
-    "chapter": "Context shading",
-    "duration": 0.3,
-    "title": "Obstruction position",
-    "caption": "Move the neighbouring building relative to the windows.",
-    "detail": "",
-    "overview": null,
-    "camera": [
-      -155.0,
-      51.5,
-      1.8
-    ],
-    "cameraEnd": [
-      -162.0,
-      52.2,
+      -151.0,
+      47.2,
       1.8
     ],
     "focus": "scene",
@@ -2997,97 +2853,25 @@
     "parameters": {
       "context_distance": 1.5,
       "context_offset": -1.6,
-      "context_height": 6.0,
-      "overhang_depth": 0.3
+      "context_height": 5.4,
+      "overhang_depth": 0.96
     }
   },
   {
     "chapter": "Context shading",
     "duration": 0.3,
-    "title": "Obstruction position",
-    "caption": "Move the neighbouring building relative to the windows.",
+    "title": "Combined shading",
+    "caption": "Move the building and adjust its height and the overhang.",
     "detail": "",
     "overview": null,
     "camera": [
-      -162.0,
-      52.2,
+      -151.0,
+      47.2,
       1.8
     ],
     "cameraEnd": [
-      -169.0,
-      52.9,
-      1.8
-    ],
-    "focus": "scene",
-    "focusEnd": "scene",
-    "solar": "off",
-    "sliders": [
-      "context_height",
-      "context_offset",
-      "overhang_depth"
-    ],
-    "metric": "illuminance",
-    "quality": "preview",
-    "hour": 12,
-    "timestep": 4116,
-    "parameters": {
-      "context_distance": 1.5,
-      "context_offset": -1.2,
-      "context_height": 6.0,
-      "overhang_depth": 0.225
-    }
-  },
-  {
-    "chapter": "Context shading",
-    "duration": 0.3,
-    "title": "Obstruction position",
-    "caption": "Move the neighbouring building relative to the windows.",
-    "detail": "",
-    "overview": null,
-    "camera": [
-      -169.0,
-      52.9,
-      1.8
-    ],
-    "cameraEnd": [
-      -176.0,
-      53.6,
-      1.8
-    ],
-    "focus": "scene",
-    "focusEnd": "scene",
-    "solar": "off",
-    "sliders": [
-      "context_height",
-      "context_offset",
-      "overhang_depth"
-    ],
-    "metric": "illuminance",
-    "quality": "preview",
-    "hour": 12,
-    "timestep": 4116,
-    "parameters": {
-      "context_distance": 1.5,
-      "context_offset": -0.8,
-      "context_height": 6.0,
-      "overhang_depth": 0.15
-    }
-  },
-  {
-    "chapter": "Context shading",
-    "duration": 0.3,
-    "title": "Obstruction position",
-    "caption": "Move the neighbouring building relative to the windows.",
-    "detail": "",
-    "overview": null,
-    "camera": [
-      -176.0,
-      53.6,
-      1.8
-    ],
-    "cameraEnd": [
-      -183.0,
-      54.3,
+      -161.5,
+      46.8,
       1.8
     ],
     "focus": "scene",
@@ -3105,61 +2889,25 @@
     "parameters": {
       "context_distance": 1.5,
       "context_offset": -0.4,
-      "context_height": 6.0,
-      "overhang_depth": 0.075
-    }
-  },
-  {
-    "chapter": "Context shading",
-    "duration": 0.3,
-    "title": "Obstruction position",
-    "caption": "Move the neighbouring building relative to the windows.",
-    "detail": "",
-    "overview": null,
-    "camera": [
-      -183.0,
-      54.3,
-      1.8
-    ],
-    "cameraEnd": [
-      -190.0,
-      55.0,
-      1.8
-    ],
-    "focus": "scene",
-    "focusEnd": "scene",
-    "solar": "off",
-    "sliders": [
-      "context_height",
-      "context_offset",
-      "overhang_depth"
-    ],
-    "metric": "illuminance",
-    "quality": "preview",
-    "hour": 12,
-    "timestep": 4116,
-    "parameters": {
-      "context_distance": 1.5,
-      "context_offset": 0.0,
-      "context_height": 6.0,
-      "overhang_depth": 0.0
+      "context_height": 5.1,
+      "overhang_depth": 1.065
     }
   },
   {
     "chapter": "Context shading",
     "duration": 0.3,
     "title": "Combined shading",
-    "caption": "Adjust the building height, position and overhang.",
+    "caption": "Move the building and adjust its height and the overhang.",
     "detail": "",
     "overview": null,
     "camera": [
-      -190.0,
-      55.0,
+      -161.5,
+      46.8,
       1.8
     ],
     "cameraEnd": [
-      -194.5,
-      53.9,
+      -172.0,
+      46.4,
       1.8
     ],
     "focus": "scene",
@@ -3177,25 +2925,25 @@
     "parameters": {
       "context_distance": 1.5,
       "context_offset": 0.8,
-      "context_height": 5.7,
-      "overhang_depth": 0.18
+      "context_height": 4.8,
+      "overhang_depth": 1.17
     }
   },
   {
     "chapter": "Context shading",
     "duration": 0.3,
     "title": "Combined shading",
-    "caption": "Adjust the building height, position and overhang.",
+    "caption": "Move the building and adjust its height and the overhang.",
     "detail": "",
     "overview": null,
     "camera": [
-      -194.5,
-      53.9,
+      -172.0,
+      46.4,
       1.8
     ],
     "cameraEnd": [
-      -199.0,
-      52.8,
+      -182.5,
+      46.0,
       1.8
     ],
     "focus": "scene",
@@ -3212,62 +2960,26 @@
     "timestep": 4116,
     "parameters": {
       "context_distance": 1.5,
-      "context_offset": 1.6,
-      "context_height": 5.4,
-      "overhang_depth": 0.36
+      "context_offset": 2.0,
+      "context_height": 4.5,
+      "overhang_depth": 1.275
     }
   },
   {
     "chapter": "Context shading",
     "duration": 0.3,
     "title": "Combined shading",
-    "caption": "Adjust the building height, position and overhang.",
+    "caption": "Move the building and adjust its height and the overhang.",
     "detail": "",
     "overview": null,
     "camera": [
-      -199.0,
-      52.8,
+      -182.5,
+      46.0,
       1.8
     ],
     "cameraEnd": [
-      -203.5,
-      51.7,
-      1.8
-    ],
-    "focus": "scene",
-    "focusEnd": "scene",
-    "solar": "off",
-    "sliders": [
-      "context_height",
-      "context_offset",
-      "overhang_depth"
-    ],
-    "metric": "illuminance",
-    "quality": "preview",
-    "hour": 12,
-    "timestep": 4116,
-    "parameters": {
-      "context_distance": 1.5,
-      "context_offset": 2.4,
-      "context_height": 5.1,
-      "overhang_depth": 0.54
-    }
-  },
-  {
-    "chapter": "Context shading",
-    "duration": 0.3,
-    "title": "Combined shading",
-    "caption": "Adjust the building height, position and overhang.",
-    "detail": "",
-    "overview": null,
-    "camera": [
-      -203.5,
-      51.7,
-      1.8
-    ],
-    "cameraEnd": [
-      -208.0,
-      50.6,
+      -193.0,
+      45.6,
       1.8
     ],
     "focus": "scene",
@@ -3285,97 +2997,61 @@
     "parameters": {
       "context_distance": 1.5,
       "context_offset": 3.2,
-      "context_height": 4.8,
-      "overhang_depth": 0.72
-    }
-  },
-  {
-    "chapter": "Context shading",
-    "duration": 0.3,
-    "title": "Combined shading",
-    "caption": "Adjust the building height, position and overhang.",
-    "detail": "",
-    "overview": null,
-    "camera": [
-      -208.0,
-      50.6,
-      1.8
-    ],
-    "cameraEnd": [
-      -212.5,
-      49.5,
-      1.8
-    ],
-    "focus": "scene",
-    "focusEnd": "scene",
-    "solar": "off",
-    "sliders": [
-      "context_height",
-      "context_offset",
-      "overhang_depth"
-    ],
-    "metric": "illuminance",
-    "quality": "preview",
-    "hour": 12,
-    "timestep": 4116,
-    "parameters": {
-      "context_distance": 1.5,
-      "context_offset": 4.0,
-      "context_height": 4.5,
-      "overhang_depth": 0.9
-    }
-  },
-  {
-    "chapter": "Context shading",
-    "duration": 0.3,
-    "title": "Combined shading",
-    "caption": "Adjust the building height, position and overhang.",
-    "detail": "",
-    "overview": null,
-    "camera": [
-      -212.5,
-      49.5,
-      1.8
-    ],
-    "cameraEnd": [
-      -217.0,
-      48.4,
-      1.8
-    ],
-    "focus": "scene",
-    "focusEnd": "scene",
-    "solar": "off",
-    "sliders": [
-      "context_height",
-      "context_offset",
-      "overhang_depth"
-    ],
-    "metric": "illuminance",
-    "quality": "preview",
-    "hour": 12,
-    "timestep": 4116,
-    "parameters": {
-      "context_distance": 1.5,
-      "context_offset": 4.8,
       "context_height": 4.2,
-      "overhang_depth": 1.08
+      "overhang_depth": 1.38
     }
   },
   {
     "chapter": "Context shading",
     "duration": 0.3,
     "title": "Combined shading",
-    "caption": "Adjust the building height, position and overhang.",
+    "caption": "Move the building and adjust its height and the overhang.",
     "detail": "",
     "overview": null,
     "camera": [
-      -217.0,
-      48.4,
+      -193.0,
+      45.6,
       1.8
     ],
     "cameraEnd": [
-      -221.5,
-      47.3,
+      -203.5,
+      45.2,
+      1.8
+    ],
+    "focus": "scene",
+    "focusEnd": "scene",
+    "solar": "off",
+    "sliders": [
+      "context_height",
+      "context_offset",
+      "overhang_depth"
+    ],
+    "metric": "illuminance",
+    "quality": "preview",
+    "hour": 12,
+    "timestep": 4116,
+    "parameters": {
+      "context_distance": 1.5,
+      "context_offset": 4.4,
+      "context_height": 3.9,
+      "overhang_depth": 1.485
+    }
+  },
+  {
+    "chapter": "Context shading",
+    "duration": 0.3,
+    "title": "Combined shading",
+    "caption": "Move the building and adjust its height and the overhang.",
+    "detail": "",
+    "overview": null,
+    "camera": [
+      -203.5,
+      45.2,
+      1.8
+    ],
+    "cameraEnd": [
+      -214.0,
+      44.8,
       1.8
     ],
     "focus": "scene",
@@ -3393,61 +3069,25 @@
     "parameters": {
       "context_distance": 1.5,
       "context_offset": 5.6,
-      "context_height": 3.9,
-      "overhang_depth": 1.26
-    }
-  },
-  {
-    "chapter": "Context shading",
-    "duration": 0.3,
-    "title": "Combined shading",
-    "caption": "Adjust the building height, position and overhang.",
-    "detail": "",
-    "overview": null,
-    "camera": [
-      -221.5,
-      47.3,
-      1.8
-    ],
-    "cameraEnd": [
-      -226.0,
-      46.2,
-      1.8
-    ],
-    "focus": "scene",
-    "focusEnd": "scene",
-    "solar": "off",
-    "sliders": [
-      "context_height",
-      "context_offset",
-      "overhang_depth"
-    ],
-    "metric": "illuminance",
-    "quality": "preview",
-    "hour": 12,
-    "timestep": 4116,
-    "parameters": {
-      "context_distance": 1.5,
-      "context_offset": 6.4,
       "context_height": 3.6,
-      "overhang_depth": 1.44
+      "overhang_depth": 1.59
     }
   },
   {
     "chapter": "Context shading",
     "duration": 0.3,
     "title": "Combined shading",
-    "caption": "Adjust the building height, position and overhang.",
+    "caption": "Move the building and adjust its height and the overhang.",
     "detail": "",
     "overview": null,
     "camera": [
-      -226.0,
-      46.2,
+      -214.0,
+      44.8,
       1.8
     ],
     "cameraEnd": [
-      -230.5,
-      45.1,
+      -224.5,
+      44.4,
       1.8
     ],
     "focus": "scene",
@@ -3464,21 +3104,21 @@
     "timestep": 4116,
     "parameters": {
       "context_distance": 1.5,
-      "context_offset": 7.2,
+      "context_offset": 6.8,
       "context_height": 3.3,
-      "overhang_depth": 1.62
+      "overhang_depth": 1.695
     }
   },
   {
     "chapter": "Context shading",
     "duration": 0.3,
     "title": "Combined shading",
-    "caption": "Adjust the building height, position and overhang.",
+    "caption": "Move the building and adjust its height and the overhang.",
     "detail": "",
     "overview": null,
     "camera": [
-      -230.5,
-      45.1,
+      -224.5,
+      44.4,
       1.8
     ],
     "cameraEnd": [
@@ -3507,7 +3147,7 @@
   },
   {
     "chapter": "Hourly analysis",
-    "duration": 0.6666666666666666,
+    "duration": 0.5,
     "title": "Hourly daylight",
     "caption": "Gothenburg weather \u00b7 21 June \u00b7 07:30\u201318:30",
     "detail": "",
@@ -3534,7 +3174,7 @@
   },
   {
     "chapter": "Hourly analysis",
-    "duration": 0.6666666666666666,
+    "duration": 0.5,
     "title": "Hourly daylight",
     "caption": "Gothenburg weather \u00b7 21 June \u00b7 07:30\u201318:30",
     "detail": "",
@@ -3561,7 +3201,7 @@
   },
   {
     "chapter": "Hourly analysis",
-    "duration": 0.6666666666666666,
+    "duration": 0.5,
     "title": "Hourly daylight",
     "caption": "Gothenburg weather \u00b7 21 June \u00b7 07:30\u201318:30",
     "detail": "",
@@ -3588,7 +3228,7 @@
   },
   {
     "chapter": "Hourly analysis",
-    "duration": 0.6666666666666666,
+    "duration": 0.5,
     "title": "Hourly daylight",
     "caption": "Gothenburg weather \u00b7 21 June \u00b7 07:30\u201318:30",
     "detail": "",
@@ -3615,7 +3255,7 @@
   },
   {
     "chapter": "Hourly analysis",
-    "duration": 0.6666666666666666,
+    "duration": 0.5,
     "title": "Hourly daylight",
     "caption": "Gothenburg weather \u00b7 21 June \u00b7 07:30\u201318:30",
     "detail": "",
@@ -3642,7 +3282,7 @@
   },
   {
     "chapter": "Hourly analysis",
-    "duration": 0.6666666666666666,
+    "duration": 0.5,
     "title": "Hourly daylight",
     "caption": "Gothenburg weather \u00b7 21 June \u00b7 07:30\u201318:30",
     "detail": "",
@@ -3669,7 +3309,7 @@
   },
   {
     "chapter": "Hourly analysis",
-    "duration": 0.6666666666666666,
+    "duration": 0.5,
     "title": "Hourly daylight",
     "caption": "Gothenburg weather \u00b7 21 June \u00b7 07:30\u201318:30",
     "detail": "",
@@ -3696,7 +3336,7 @@
   },
   {
     "chapter": "Hourly analysis",
-    "duration": 0.6666666666666666,
+    "duration": 0.5,
     "title": "Hourly daylight",
     "caption": "Gothenburg weather \u00b7 21 June \u00b7 07:30\u201318:30",
     "detail": "",
@@ -3723,7 +3363,7 @@
   },
   {
     "chapter": "Hourly analysis",
-    "duration": 0.6666666666666666,
+    "duration": 0.5,
     "title": "Hourly daylight",
     "caption": "Gothenburg weather \u00b7 21 June \u00b7 07:30\u201318:30",
     "detail": "",
@@ -3750,7 +3390,7 @@
   },
   {
     "chapter": "Hourly analysis",
-    "duration": 0.6666666666666666,
+    "duration": 0.5,
     "title": "Hourly daylight",
     "caption": "Gothenburg weather \u00b7 21 June \u00b7 07:30\u201318:30",
     "detail": "",
@@ -3777,7 +3417,7 @@
   },
   {
     "chapter": "Hourly analysis",
-    "duration": 0.6666666666666666,
+    "duration": 0.5,
     "title": "Hourly daylight",
     "caption": "Gothenburg weather \u00b7 21 June \u00b7 07:30\u201318:30",
     "detail": "",
@@ -3804,7 +3444,7 @@
   },
   {
     "chapter": "Hourly analysis",
-    "duration": 0.6666666666666666,
+    "duration": 0.5,
     "title": "Hourly daylight",
     "caption": "Gothenburg weather \u00b7 21 June \u00b7 07:30\u201318:30",
     "detail": "",
@@ -3831,7 +3471,7 @@
   },
   {
     "chapter": "Annual analysis",
-    "duration": 0.4,
+    "duration": 0.5,
     "title": "Seasonal sun paths",
     "caption": "Monthly paths and the sun\u2019s position at noon through the year.",
     "detail": "",
@@ -3858,7 +3498,7 @@
   },
   {
     "chapter": "Annual analysis",
-    "duration": 0.4,
+    "duration": 0.5,
     "title": "Seasonal sun paths",
     "caption": "Monthly paths and the sun\u2019s position at noon through the year.",
     "detail": "",
@@ -3885,7 +3525,7 @@
   },
   {
     "chapter": "Annual analysis",
-    "duration": 0.4,
+    "duration": 0.5,
     "title": "Seasonal sun paths",
     "caption": "Monthly paths and the sun\u2019s position at noon through the year.",
     "detail": "",
@@ -3912,7 +3552,7 @@
   },
   {
     "chapter": "Annual analysis",
-    "duration": 0.4,
+    "duration": 0.5,
     "title": "Seasonal sun paths",
     "caption": "Monthly paths and the sun\u2019s position at noon through the year.",
     "detail": "",
@@ -3939,7 +3579,7 @@
   },
   {
     "chapter": "Annual analysis",
-    "duration": 0.4,
+    "duration": 0.5,
     "title": "Seasonal sun paths",
     "caption": "Monthly paths and the sun\u2019s position at noon through the year.",
     "detail": "",
@@ -3966,7 +3606,7 @@
   },
   {
     "chapter": "Annual analysis",
-    "duration": 0.4,
+    "duration": 0.5,
     "title": "Seasonal sun paths",
     "caption": "Monthly paths and the sun\u2019s position at noon through the year.",
     "detail": "",
@@ -3993,7 +3633,7 @@
   },
   {
     "chapter": "Annual analysis",
-    "duration": 0.4,
+    "duration": 0.5,
     "title": "Seasonal sun paths",
     "caption": "Monthly paths and the sun\u2019s position at noon through the year.",
     "detail": "",
@@ -4020,7 +3660,7 @@
   },
   {
     "chapter": "Annual analysis",
-    "duration": 0.4,
+    "duration": 0.5,
     "title": "Seasonal sun paths",
     "caption": "Monthly paths and the sun\u2019s position at noon through the year.",
     "detail": "",
@@ -4047,7 +3687,7 @@
   },
   {
     "chapter": "Annual analysis",
-    "duration": 0.4,
+    "duration": 0.5,
     "title": "Seasonal sun paths",
     "caption": "Monthly paths and the sun\u2019s position at noon through the year.",
     "detail": "",
@@ -4074,7 +3714,7 @@
   },
   {
     "chapter": "Annual analysis",
-    "duration": 0.4,
+    "duration": 0.5,
     "title": "Seasonal sun paths",
     "caption": "Monthly paths and the sun\u2019s position at noon through the year.",
     "detail": "",
@@ -4101,7 +3741,7 @@
   },
   {
     "chapter": "Annual analysis",
-    "duration": 0.4,
+    "duration": 0.5,
     "title": "Seasonal sun paths",
     "caption": "Monthly paths and the sun\u2019s position at noon through the year.",
     "detail": "",
@@ -4128,7 +3768,7 @@
   },
   {
     "chapter": "Annual analysis",
-    "duration": 0.4,
+    "duration": 0.5,
     "title": "Seasonal sun paths",
     "caption": "Monthly paths and the sun\u2019s position at noon through the year.",
     "detail": "",
@@ -4155,7 +3795,7 @@
   },
   {
     "chapter": "Annual analysis",
-    "duration": 1.6,
+    "duration": 2.5,
     "title": "Daylight factor",
     "caption": "Indoor / outdoor illuminance under an overcast sky.",
     "detail": "",
@@ -4182,7 +3822,7 @@
   },
   {
     "chapter": "Annual analysis",
-    "duration": 1.8,
+    "duration": 3,
     "title": "Daylight autonomy",
     "caption": "Share of occupied hours with at least 300 lux at each sensor.",
     "detail": "",
@@ -4209,7 +3849,7 @@
   },
   {
     "chapter": "Annual analysis",
-    "duration": 1.8,
+    "duration": 3,
     "title": "Spatial daylight autonomy",
     "caption": "Area with at least 300 lux for half the occupied hours \u00b7 static shades.",
     "detail": "",
@@ -4235,312 +3875,30 @@
     "parameters": {}
   },
   {
-    "chapter": "Multiple zones",
-    "duration": 1.5,
-    "title": "Multiple-zone analysis",
-    "caption": "Increase the number of rooms in the model.",
-    "detail": "",
-    "overview": {
-      "from": [
-        [
-          0,
-          -0.75,
-          0
-        ],
-        [
-          6,
-          9.0,
-          3
-        ]
-      ],
-      "to": [
-        [
-          0,
-          -0.75,
-          0
-        ],
-        [
-          69,
-          21.75,
-          3
-        ]
-      ],
-      "leadIn": 0
-    },
+    "chapter": "Open source",
+    "duration": 5,
+    "title": "Daylight analysis for Grasshopper and Python",
+    "caption": "pip install foton-daylight \u00b7 or one toggle in Grasshopper",
+    "detail": "MIT licence \u00b7 Honeybee models in, Ladybug heatmaps out",
+    "overview": null,
     "camera": [
       -285.0,
       52,
       1.8
     ],
     "cameraEnd": [
-      -345.0,
-      48,
+      -260.0,
+      46,
       1.8
     ],
     "focus": "scene",
     "focusEnd": "scene",
     "solar": "off",
     "sliders": [],
-    "metric": "illuminance",
-    "quality": "preview",
+    "metric": "da",
+    "quality": "final",
     "hour": 12,
     "timestep": 4116,
-    "parameters": {
-      "sensor_spacing": 1.5
-    }
-  },
-  {
-    "chapter": "Multiple zones",
-    "duration": 1.5,
-    "title": "16 zones",
-    "caption": "GPU transport with independent sensor grids.",
-    "detail": "",
-    "overview": {
-      "from": [
-        [
-          0,
-          -0.75,
-          0
-        ],
-        [
-          69,
-          21.75,
-          3
-        ]
-      ],
-      "to": [
-        [
-          0,
-          -0.75,
-          0
-        ],
-        [
-          141,
-          47.25,
-          3
-        ]
-      ],
-      "leadIn": 0.5
-    },
-    "camera": [
-      -345.0,
-      48,
-      1.8
-    ],
-    "cameraEnd": [
-      -325.0,
-      62,
-      1.8
-    ],
-    "focus": "scene",
-    "focusEnd": "scene",
-    "solar": "off",
-    "sliders": [],
-    "metric": "illuminance",
-    "quality": "preview",
-    "hour": 12,
-    "timestep": 4116,
-    "parameters": {
-      "sensor_spacing": 1.5,
-      "room_count": 16
-    }
-  },
-  {
-    "chapter": "Multiple zones",
-    "duration": 1.5,
-    "title": "64 zones",
-    "caption": "GPU transport with independent sensor grids.",
-    "detail": "",
-    "overview": {
-      "from": [
-        [
-          0,
-          -0.75,
-          0
-        ],
-        [
-          141,
-          47.25,
-          3
-        ]
-      ],
-      "to": [
-        [
-          0,
-          -0.75,
-          0
-        ],
-        [
-          285,
-          98.25,
-          3
-        ]
-      ],
-      "leadIn": 0.5
-    },
-    "camera": [
-      -325.0,
-      62,
-      1.8
-    ],
-    "cameraEnd": [
-      -325.0,
-      62,
-      1.8
-    ],
-    "focus": "scene",
-    "focusEnd": "scene",
-    "solar": "off",
-    "sliders": [],
-    "metric": "illuminance",
-    "quality": "preview",
-    "hour": 12,
-    "timestep": 4116,
-    "parameters": {
-      "sensor_spacing": 1.5,
-      "room_count": 64
-    }
-  },
-  {
-    "chapter": "Multiple zones",
-    "duration": 1.5,
-    "title": "256 zones",
-    "caption": "GPU transport with independent sensor grids.",
-    "detail": "",
-    "overview": {
-      "from": [
-        [
-          0,
-          -0.75,
-          0
-        ],
-        [
-          285,
-          98.25,
-          3
-        ]
-      ],
-      "to": [
-        [
-          0,
-          -0.75,
-          0
-        ],
-        [
-          573,
-          200.25,
-          3
-        ]
-      ],
-      "leadIn": 0.5
-    },
-    "camera": [
-      -325.0,
-      62,
-      1.8
-    ],
-    "cameraEnd": [
-      -325.0,
-      62,
-      1.8
-    ],
-    "focus": "scene",
-    "focusEnd": "scene",
-    "solar": "off",
-    "sliders": [],
-    "metric": "illuminance",
-    "quality": "preview",
-    "hour": 12,
-    "timestep": 4116,
-    "parameters": {
-      "sensor_spacing": 1.5,
-      "room_count": 256
-    }
-  },
-  {
-    "chapter": "Multiple zones",
-    "duration": 8,
-    "title": "1,024 zones",
-    "caption": "24,576 sensor cells calculated on the GPU.",
-    "detail": "",
-    "overview": {
-      "from": [
-        [
-          0,
-          -0.75,
-          0
-        ],
-        [
-          573,
-          200.25,
-          3
-        ]
-      ],
-      "to": [
-        [
-          0,
-          -0.75,
-          0
-        ],
-        [
-          573,
-          200.25,
-          3
-        ]
-      ],
-      "leadIn": 0.5
-    },
-    "camera": [
-      -325.0,
-      62,
-      1.8
-    ],
-    "cameraEnd": [
-      -375.0,
-      62,
-      1.8
-    ],
-    "focus": "scene",
-    "focusEnd": "scene",
-    "solar": "off",
-    "sliders": [],
-    "metric": "illuminance",
-    "quality": "preview",
-    "hour": 12,
-    "timestep": 4116,
-    "parameters": {
-      "sensor_spacing": 1.5,
-      "room_count": 1024
-    }
-  },
-  {
-    "chapter": "Open source",
-    "duration": 7,
-    "title": "Open-source daylight simulation",
-    "caption": "Fast GPU light transport for parametric daylight teaching.",
-    "detail": "MIT licence \u00b7 Source code available on GitHub",
-    "overview": null,
-    "camera": [
-      -375.0,
-      62,
-      1.8
-    ],
-    "cameraEnd": [
-      -348.0,
-      48,
-      1.8
-    ],
-    "focus": "scene",
-    "focusEnd": "scene",
-    "solar": "off",
-    "sliders": [],
-    "metric": "illuminance",
-    "quality": "preview",
-    "hour": 12,
-    "timestep": 4116,
-    "parameters": {
-      "sensor_spacing": 1.5,
-      "room_count": 1024
-    }
+    "parameters": {}
   }
 ]

@@ -42,7 +42,7 @@ export default function DemoApp() {
       const status = await fetchStatus();
       if (disposed) return;
       if (!status.engine.available) throw new Error(status.engine.error ?? "The native GPU engine is unavailable.");
-      if (status.engine.capabilities?.hardware_acceleration === false) throw new Error("This teaser requires native Metal or Vulkan GPU transport. The service is using the CPU reference backend.");
+      if (status.engine.capabilities?.hardware_acceleration === false) throw new Error("This demo requires native Metal or Vulkan GPU transport. The service is using the CPU reference backend.");
       const response = await fetch("/api/demo/weather", { method: "POST", signal: abort.signal });
       if (!response.ok) {
         const body = await response.json().catch(() => null);
@@ -50,7 +50,7 @@ export default function DemoApp() {
       }
       const weather = await response.json() as WeatherSummary;
       if (disposed) return;
-      if (!weather.annual_metrics_available || weather.timestep_count !== 8760) throw new Error("The teaser requires a complete annual EPW dataset.");
+      if (!weather.annual_metrics_available || weather.timestep_count !== 8760) throw new Error("The demo requires a complete annual EPW dataset.");
       setSetup("Preparing solar paths");
       const solarResponse = await fetch(`/api/demo/solar/${encodeURIComponent(weather.weather_id)}`, { signal: abort.signal });
       if (!solarResponse.ok) throw new Error("Could not prepare the Gothenburg solar diagram. Retry weather setup.");
@@ -174,7 +174,7 @@ export default function DemoApp() {
   return <main className={`demo-shell format-${format} ${clean && !displayError ? "capture" : ""}`}>
     <div className="demo-stage" ref={stage}>
       <header className="demo-header">
-        <div className="demo-identity"><a className="demo-wordmark" href="/">foton<span> / </span><small>Daylight simulation</small></a><div className="demo-affiliation">SBE - Computational Sustainable Design Group<br /><strong>Chalmers - Department of Architecture and Civil Engineering</strong></div></div>
+        <div className="demo-identity"><a className="demo-wordmark" href="/">foton<span> / </span><small>Daylight simulation</small></a></div>
         <div className="demo-edition">GPU LIGHT TRANSPORT <span>—</span> OPEN SOURCE</div>
       </header>
       <DemoScene prepared={prepared.scene} shot={shot} playback={playback} solar={solar} onError={fail} />
@@ -198,7 +198,7 @@ export default function DemoApp() {
       <div className="demo-result-reading"><strong>{analysis ? stat.toFixed(displayMetric === "illuminance" ? 0 : 1) : "—"} {displayMetric === "illuminance" ? "lux" : "%"}</strong><span>{statLabel}</span></div>
       <div className="demo-map-label"><span>{metric.label}</span><div className={`demo-colorbar ${displayMetric === "sda" ? "binary" : ""}`} /><div className="demo-scale"><span>{displayMetric === "sda" ? "Below target" : `0 ${metric.unit}`}</span><span>{displayMetric === "sda" ? "Meets target" : `${metric.maximum} ${metric.unit}`}</span></div></div>
       <footer className="demo-footer"><span className="demo-live"><i className={!ready ? "busy" : ""} />{setup || (!ready ? (active?.ready && !prepared.ready ? "Preparing display" : active?.phase) ?? "Preparing" : "LIVE GPU")}</span>
-        <span>{analysis ? `${analysis.transport_backend.toUpperCase()} · ${analysis.sample_count.toLocaleString()} samples · ${analysis.bounce_count} ${analysis.bounce_count === 1 ? "bounce" : "bounces"}` : "Native Metal / Vulkan"}</span>
+        <span>{analysis ? `${analysis.transport_backend.toUpperCase()} · ${analysis.quality === "final" ? "Final quality" : "Live preview"} · ${analysis.sample_count.toLocaleString()} samples · ${analysis.bounce_count} ${analysis.bounce_count === 1 ? "bounce" : "bounces"}` : "Native Metal / Vulkan"}</span>
         <span>{analysis ? `${analysis.timings_ms.tracing_ms.toFixed(2)} ms transport${active?.operation === "hour" ? " · hour from cached coefficients" : ""}` : "Preparing live analysis"}</span>
       </footer>
       {(setup || (!frame && !displayError)) && <div className="demo-preparing" role="status"><span className="demo-spinner" /><strong>{setup || active?.phase}</strong><span>Preparing weather and live GPU calculations.</span></div>}

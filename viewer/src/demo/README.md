@@ -1,7 +1,9 @@
 # Foton cinematic demo
 
 ```sh
+pip install -e ".[viewer]"   # once, from the repository root
 cd viewer
+npm install                  # once
 npm run dev:demo
 ```
 
@@ -13,20 +15,18 @@ finish before playback is enabled.
 
 ## The film
 
-[The caption script](SCRIPT.md) describes the **72-second** edit. Live solver
-waits extend the duration. The story grows from one moving window into a
-1,024-zone campus, using 119 authored shots:
+[The caption script](SCRIPT.md) describes the **54.5-second** edit. Live solver
+waits extend the duration. The story follows one room through 104 authored shots:
 
 - Track an opening, pull back, and sweep the façade as visible sliders drive
   window position, size, multiple openings, glazing, shades, and reflectances.
 - Stretch the room and retract its north-east corner into a true L. Its floor,
   ceiling, boundary walls, and clipped sensor cells match the physical footprint.
-- Raise and reposition a nearby building. It is opaque native
+- Raise and move a nearby building. It is opaque native
   transport geometry and affects computed daylight.
 - Follow hourly Gothenburg sun positions, then monthly sun paths and the noon
   analemma. Inspect illuminance, daylight factor, daylight autonomy, and static sDA.
-- Grow 1 → 16 → 64 → 256 → **1,024 native zones / 24,576 sensor cells**. A sustained
-  aerial pullback reveals the campus. The closing card preserves this scale.
+- Close on the install line and the Grasshopper and Python routes.
 
 Captions use plain, descriptive language suitable for a research-group post.
 The square layout moves parameter tracks below the model and separates captions,
@@ -35,9 +35,9 @@ results, and refits the camera to the new scene area.
 
 The green number is measured **GPU transport time**, with elapsed change-to-result
 or cached hour-selection time below. These measurements include their stated
-scope only. Preview and final sample counts remain visible. The large campus
-uses preview quality to demonstrate interactive scaling; annual metric chapters
-use a refined single-zone result.
+scope only. Preview and final sample counts remain visible. The footer labels
+each result as live preview (64 samples, 1 bounce, used while sliders move) or
+final quality (262,144 samples, 8 bounces, used where a chapter settles).
 
 ## Recording and interaction
 
@@ -79,10 +79,8 @@ overrides against the original defaults. Camera tuples contain azimuth,
 elevation, and a distance factor relative to the measured perspective fit
 (1.8 means the fitted distance). Camera keyframes connect continuously and ease independently of geometry.
 Close-ups frame a façade or first zone; overview shots fit the full subject.
-The camera widens before each increase to 16, 64, 256 and 1,024 zones.
-Each group is visible as soon as its result appears. Authored overview bounds
-connect across shots and remain fixed during calculation waits. The wide campus arrangement
-uses the landscape composition. A shallow display platform grounds the context
+Shots may also carry authored overview bounds (used for multi-zone scenes),
+which stay fixed during calculation waits. A shallow display platform grounds the context
 model without participating in transport.
 Near/far clipping planes adapt to camera distance. The camera reads the playback
 clock on every animation frame, independently of React text updates. Short
@@ -99,7 +97,7 @@ the displayed frame. Playback waits for both the solver and display preparation.
 Requests are sequential, capped at **four scene changes per second**. Geometry
 and analysis publish atomically after revision, quality, timestep, sensor-ID, and
 backend checks. Settled chapter endpoints refine where specified: preview is
-64 samples / 1 bounce; final is 4,096 samples / 2 bounces. Selected hours reuse
+64 samples / 1 bounce; final is 262,144 indirect samples (the `final` preset at the MF:2 sky) / 8 bounces. Selected hours reuse
 completed coefficients through `select_timestep`. Solver holds preserve story
 progress and gentle camera motion. Superseded results cannot overwrite the frame.
 
