@@ -119,9 +119,6 @@ Measured on 4 November 2026 on a MacBook Pro (Apple M4 Pro, 24 GB), using Metal 
 Raw data: [apple-m4-pro-672fe35d](https://github.com/snjsomnath/foton/blob/main/benchmarks/machines/apple-m4-pro-672fe35d/20261104T081559Z.json). Other machines: [results by machine](https://github.com/snjsomnath/foton/blob/main/benchmarks/machines/README.md).
 <!-- speed-table:end -->
 
-On an NVIDIA Tesla T4 with Vulkan, a small model takes about 1.5 s against
-0.25 s on the M4 Pro.
-
 ## What it does
 
 - Annual DA, continuous DA, UDI (low, useful, high) and sDA, plus daylight factor
