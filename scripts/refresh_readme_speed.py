@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Rewrite the README speed table from a benchmark-suite result.
+"""Rewrite the README speed table from benchmark-suite results.
 
-Takes the newest full run under ``benchmarks/machines/`` (or the newest for
-``--machine``) and replaces everything between the ``speed-table`` markers in
-README.md with a plain-language summary: date, machine, settings and a table of
-annual-run and Grasshopper round-trip times. Text outside the markers is left
-alone, so comparisons and commentary stay hand-written.
+Replaces everything between the ``speed-table`` markers in README.md with a
+plain-language summary of the settings and tables of annual-run and Grasshopper
+round-trip times. By default it uses the newest full run of every machine under
+``benchmarks/machines/`` that ran the newest Foton version there, one column
+per machine; ``--machine`` (repeatable) picks machines instead. Text outside the
+markers is left alone, so comparisons and commentary stay hand-written.
 
     python scripts/benchmark_suite.py
     python scripts/refresh_readme_speed.py
@@ -16,6 +17,7 @@ from __future__ import annotations
 import argparse
 from datetime import datetime
 from pathlib import Path
+import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -37,13 +39,21 @@ SCENE_NAMES = {
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--machine", help="Machine ID; default is the newest result of any machine.")
+    parser.add_argument(
+        "--machine",
+        action="append",
+        help="Machine ID to include (repeatable); default is every machine on the newest Foton version.",
+    )
     parser.add_argument("--folder", default=str(MACHINES))
     parser.add_argument("--readme", default=str(ROOT / "README.md"))
     parser.add_argument(
         "--check", action="store_true", help="Exit 1 if the README is out of date; write nothing."
     )
     return parser.parse_args(argv)
+
+
+def _version_key(version):
+    return tuple(int(part) if part.isdigit() else 0 for part in version.split("."))
 
 
 def select_result(results, machine=None):
@@ -57,6 +67,16 @@ def select_result(results, machine=None):
     return max(candidates, key=lambda result: result["recorded_at_utc"])
 
 
+def select_results(results, machines=None):
+    """Newest result per machine, either for ``machines`` or for the newest Foton version."""
+    if machines:
+        return [select_result(results, machine) for machine in machines]
+    newest = max(_version_key(r["fingerprint"]["foton"]["version"]) for r in results)
+    current = [r for r in results if _version_key(r["fingerprint"]["foton"]["version"]) == newest]
+    chosen = [select_result(current, machine) for machine in sorted({r["fingerprint"]["machine_id"] for r in current})]
+    return sorted(chosen, key=lambda r: r["recorded_at_utc"])
+
+
 def _date(recorded):
     moment = datetime.strptime(recorded, "%Y-%m-%d %H:%M:%SZ")
     return f"{moment.day} {moment:%B %Y}"
@@ -64,11 +84,23 @@ def _date(recorded):
 
 def _machine(fingerprint):
     hardware, gpu = fingerprint["hardware"], fingerprint["gpu"]
-    parts = [hardware["cpu"], hardware["memory"]]
+    parts = [_tidy(hardware["cpu"]), hardware["memory"]]
     if gpu["name"] != hardware["cpu"]:
         parts.append(gpu["name"])
-    article = "an" if fingerprint["model_name"][:1].lower() in "aeiou" else "a"
-    return f"{article} {fingerprint['model_name']} ({', '.join(parts)})"
+    name = fingerprint["model_name"]
+    if name == hardware.get("machine", name + "?"):
+        # Linux reports only the architecture; say what kind of machine it is instead.
+        name = f"{hardware.get('system', 'Linux')} machine"
+    article = "an" if name[:1].lower() in "aeiou" else "a"
+    return f"{article} {name} ({', '.join(parts)})"
+
+
+def _tidy(name):
+    """Drop trademark marks, clock speeds and edition suffixes from hardware names."""
+    name = re.sub(r"\((R|TM)\)", "", name)
+    name = re.sub(r"\s+(CPU\s+)?@\s*[\d.]+\s*GHz", "", name)
+    name = re.sub(r"\s+Server Edition$", "", name)
+    return re.sub(r"\s+", " ", name).strip()
 
 
 def _seconds(value):
@@ -122,6 +154,89 @@ def speed_block(result, path):
     return "\n".join(lines)
 
 
+def _column(fingerprint):
+    backend = {"metal": "Metal", "vulkan": "Vulkan"}.get(fingerprint["backend"], fingerprint["backend"])
+    return f"{_tidy(fingerprint['gpu']['name'])} ({backend})"
+
+
+def _settings_text(annual):
+    settings = annual["settings"]
+    return (
+        f"default `{annual['quality']}` quality ({settings['maximum_bounces']} bounces, "
+        f"{settings['direct_samples']:,} direct and {settings['maximum_samples']:,} indirect "
+        f"samples, 146-patch sky, {Path(annual['weather']).stem.title()} weather)"
+    )
+
+
+def _scene_table(results, label, times):
+    scenes = []
+    for result in results:
+        for case in result["annual"]["cases"]:
+            if case["scene"] not in [scene["scene"] for scene in scenes]:
+                scenes.append(case)
+    columns = [_column(result["fingerprint"]) for result in results]
+    lines = [
+        f"| {label} | Rooms | Sensors | " + " | ".join(columns) + " |",
+        "| --- | ---: | ---: | " + " | ".join("---:" for _ in columns) + " |",
+    ]
+    for scene in scenes:
+        name = SCENE_NAMES.get(scene["scene"], scene["scene"].replace("_", " ").capitalize())
+        cells = [times(result).get(scene["scene"]) for result in results]
+        lines.append(
+            f"| {name} | {scene['rooms']:,} | {scene['sensors']:,} | "
+            + " | ".join(_seconds(cell) if cell is not None else "–" for cell in cells)
+            + " |"
+        )
+    return lines
+
+
+def speed_block_many(entries):
+    """Block for several machines: one column per machine in each table."""
+    results = [result for result, _ in entries]
+    settings = {_settings_text(result["annual"]) for result in results}
+    if len(settings) != 1:
+        raise SystemExit("the selected results used different settings; pick machines with --machine")
+    versions = sorted({result["fingerprint"]["foton"]["version"] for result in results}, key=_version_key)
+    dates = sorted({_date(result["recorded_at_utc"]) for result in results})
+    first = results[0]["annual"]
+    machines = "; ".join(
+        f"{_column(result['fingerprint'])} in {_machine(result['fingerprint'])}" for result in results
+    )
+    summary = (
+        f"Measured on {' and '.join(dates)} with Foton {' and '.join(versions)} at its "
+        f"{settings.pop()}, on {len(results)} machines: {machines}. An annual run starts from a "
+        "model Foton has not seen before: loading it, building the GPU scene, tracing, and "
+        "writing DA and UDI for all 8,760 hours. The Grasshopper round trip adds writing the "
+        "HBJSON, starting Foton and reading the results back, measured through the component's "
+        f"code path without Rhino. Annual times are the median of {first['repeats']} runs."
+    )
+    lines = [START, summary, ""]
+    lines += _scene_table(
+        results,
+        "Annual run",
+        lambda result: {case["scene"]: case["wall_seconds"]["median"] for case in result["annual"]["cases"]},
+    )
+    if any(result.get("grasshopper") for result in results):
+        lines += [""] + _scene_table(
+            results,
+            "Grasshopper round trip",
+            lambda result: {
+                case["scene"]: case["median_seconds"]["round_trip_total"]
+                for case in (result.get("grasshopper") or {}).get("cases", [])
+            },
+        )
+    links = ", ".join(
+        f"[{result['fingerprint']['machine_id']}]({REPOSITORY}/{path.resolve().relative_to(ROOT).as_posix()})"
+        for result, path in entries
+    )
+    lines += [
+        "",
+        f"Raw data: {links}. All machines: [results by machine]({REPOSITORY}/benchmarks/machines/README.md).",
+        END,
+    ]
+    return "\n".join(lines)
+
+
 def replace_block(text, block):
     if START not in text or END not in text:
         raise SystemExit(f"README has no speed-table markers; add\n{START}\n{END}\nwhere the table belongs")
@@ -135,18 +250,20 @@ def main():
     paths = sorted(Path(args.folder).glob("*/*.json"))
     loaded = [(json.loads(path.read_text(encoding="utf-8")), path) for path in paths]
     results = [entry for entry in loaded if not entry[0].get("quick")]
-    result = select_result([result for result, _ in results], args.machine)
-    path = next(path for candidate, path in results if candidate is result)
+    chosen = select_results([result for result, _ in results], args.machine)
+    entries = [next(entry for entry in results if entry[0] is result) for result in chosen]
+    block = speed_block(*entries[0]) if len(entries) == 1 else speed_block_many(entries)
     readme = Path(args.readme)
     text = readme.read_text(encoding="utf-8")
-    updated = replace_block(text, speed_block(result, path))
+    updated = replace_block(text, block)
     if args.check:
         if updated != text:
             print("README speed table is out of date; run scripts/refresh_readme_speed.py")
             return 1
         return 0
     readme.write_text(updated, encoding="utf-8")
-    print(f"Updated {readme} from {path.relative_to(ROOT)}")
+    sources = ", ".join(str(path) for _, path in entries)
+    print(f"Updated {readme} from {sources}")
     return 0
 
 

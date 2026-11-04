@@ -9,3 +9,4 @@ path from HBJSON to loaded results (median of three). Times are in seconds.
 | Machine | GPU | Backend | OS | Foton | Date | Annual: teaching_office | Annual: courtyard_rooms | Annual: acceptance | Annual: office_floors | Round trip: teaching_office | Round trip: acceptance | Round trip: office_floors |
 | --- | --- | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | MacBook Pro, Apple M4 Pro, 24 GB | Apple M4 Pro, 20 cores, driver macOS 26.6.2 | metal | macOS 26.6.2 | 0.3.0 `31b8b6b` | 2026-11-03 | 0.14 | 0.16 | 0.92 | 5.25 | 0.52 | 1.38 | 6.40 |
+| MacBook Pro, Apple M4 Pro, 24 GB | Apple M4 Pro, 20 cores, driver macOS 26.6.2 | metal | macOS 26.6.2 | 0.3.2 `a5ca9d7` | 2026-11-04 | 0.16 | 0.18 | 1.05 | 6.10 | 0.59 | 1.56 | 6.93 |

@@ -77,5 +77,51 @@ class RefreshReadmeSpeedTests(unittest.TestCase):
         self.assertIs(self.refresh.select_result([older, newer], "a"), older)
 
 
+    def test_default_selection_keeps_newest_run_per_machine_on_newest_version(self):
+        old_mac = _result("2026-11-01 08:00:00Z", "mac")
+        old_mac["fingerprint"]["foton"]["version"] = "0.3.0"
+        new_mac = _result("2026-11-05 08:00:00Z", "mac")
+        new_mac["fingerprint"]["foton"]["version"] = "0.3.10"
+        l4 = _result("2026-11-05 09:00:00Z", "l4")
+        l4["fingerprint"]["foton"]["version"] = "0.3.10"
+        self.assertEqual(self.refresh.select_results([old_mac, new_mac, l4]), [new_mac, l4])
+        self.assertEqual(self.refresh.select_results([old_mac, new_mac, l4], ["mac"]), [new_mac])
+
+    def test_many_machines_get_one_column_each(self):
+        mac, l4 = _result(machine="mac"), _result(machine="l4")
+        mac["fingerprint"]["gpu"] = {"name": "Apple M4 Pro"}
+        mac["fingerprint"]["backend"] = "metal"
+        l4["fingerprint"]["gpu"] = {"name": "NVIDIA L4"}
+        l4["grasshopper"] = None
+        l4["annual"]["cases"][0]["wall_seconds"] = {"median": 0.25}
+        root = self.refresh.ROOT / "benchmarks/machines"
+        block = self.refresh.speed_block_many([(mac, root / "mac/a.json"), (l4, root / "l4/b.json")])
+        self.assertIn("on 2 machines: Apple M4 Pro (Metal) in a Workstation", block)
+        self.assertIn("| Annual run | Rooms | Sensors | Apple M4 Pro (Metal) | NVIDIA L4 (Vulkan) |", block)
+        self.assertIn("| Acceptance model | 3 | 2,020 | 0.50 s | 0.25 s |", block)
+        self.assertIn("| Acceptance model | 3 | 2,020 | 0.75 s | – |", block)
+        self.assertIn("benchmarks/machines/l4/b.json", block)
+
+    def test_many_machines_must_share_settings(self):
+        mac, l4 = _result(machine="mac"), _result(machine="l4")
+        l4["annual"]["settings"] = {**l4["annual"]["settings"], "maximum_bounces": 2}
+        root = self.refresh.ROOT / "benchmarks/machines"
+        with self.assertRaises(SystemExit):
+            self.refresh.speed_block_many([(mac, root / "a.json"), (l4, root / "b.json")])
+
+    def test_linux_machine_without_a_model_name_is_described_plainly(self):
+        fingerprint = _result()["fingerprint"]
+        fingerprint["model_name"] = "x86_64"
+        fingerprint["hardware"].update(machine="x86_64", system="Linux")
+        self.assertEqual(
+            self.refresh._machine(fingerprint), "a Linux machine (AMD Ryzen 9, 64 GiB, NVIDIA RTX 4090)"
+        )
+
+    def test_hardware_names_are_tidied(self):
+        self.assertEqual(self.refresh._tidy("Intel(R) Xeon(R) CPU @ 2.20GHz"), "Intel Xeon")
+        self.assertEqual(
+            self.refresh._tidy("NVIDIA RTX PRO 6000 Blackwell Server Edition"), "NVIDIA RTX PRO 6000 Blackwell"
+        )
+
 if __name__ == "__main__":
     unittest.main()
