@@ -17,6 +17,11 @@ python -m pip install "foton-daylight[honeybee]"
 python -m pip install "foton-daylight[viewer]"
 ```
 
+The `honeybee` extra is what annual studies need. The `viewer` extra installs
+the viewer's local service, but the browser app itself is built from a clone
+of the repository (see [Build from source](#build-from-source) and the
+[demo guide](../viewer/src/demo/README.md)).
+
 Verify the installation:
 
 ```bash

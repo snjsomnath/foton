@@ -5,7 +5,13 @@ GhPython inputs
 ---------------
 executable_  Item, optional explicit ``foton-honeybee``/``.exe`` path
 backend_     Item, optional backend to inspect; default ``auto``
+python_      Item, optional Python 3.10-3.13 to install into; found automatically
+install_     Item, Boolean: install Foton into its own environment (~/.foton)
+             if it is missing or too old, then check it
 _check       Item, Boolean check toggle
+
+Without executable_, Foton is looked for in its own environment, on PATH and
+in the usual Python folders, so most users connect nothing.
 
 GhPython outputs
 ----------------
@@ -20,7 +26,7 @@ import os
 import sys
 
 try:
-    from grasshopper_foton.foton_gh import FotonError, capabilities as get_capabilities
+    from grasshopper_foton.foton_gh import FotonError, capabilities as get_capabilities, install_foton
 except ImportError:
     parent = os.environ.get("FOTON_GH_PARENT")
     if parent:
@@ -28,7 +34,7 @@ except ImportError:
         if parent not in sys.path:
             sys.path.insert(0, parent)
     try:
-        from grasshopper_foton.foton_gh import FotonError, capabilities as get_capabilities
+        from grasshopper_foton.foton_gh import FotonError, capabilities as get_capabilities, install_foton
     except ImportError:
         raise RuntimeError(
             "Cannot import grasshopper_foton. Add the repository parent directory "
@@ -55,25 +61,56 @@ capabilities = None
 cache_folder = None
 
 
-if globals().get("_check", False):
+def warn(message):
+    from Grasshopper.Kernel import GH_RuntimeMessageLevel
+
+    ghenv.Component.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, str(message))
+
+
+def cancelled():
     try:
-        data = get_capabilities(
-            globals().get("executable_"), globals().get("backend_") or "auto"
-        )
+        import scriptcontext
+
+        return bool(scriptcontext.escape_test(False))
+    except ImportError:
+        return False
+
+
+install_log = []
+
+
+def on_install(line):
+    install_log.append(line)
+    ghenv.Component.Message = "Installing"
+    try:
+        import Rhino
+
+        Rhino.RhinoApp.Wait()
+    except ImportError:
+        pass
+
+
+if globals().get("_check", False) or globals().get("install_", False):
+    try:
+        configured = globals().get("executable_")
+        if globals().get("install_", False) and not configured:
+            configured = install_foton(
+                globals().get("python_"), progress=on_install, cancel=cancelled
+            )
+        data = get_capabilities(configured, globals().get("backend_") or "auto")
         executable = data["executable"]
         engine_version = data["engine_version"]
         protocol_version = data["protocol_version"]
         backend = data.get("selected_backend", data.get("engine", {}).get("name"))
         capabilities = data
         cache_folder = data.get("weather_cache")
-        report = json.dumps(data, indent=2, sort_keys=True)
+        report = "\n".join(install_log + [json.dumps(data, indent=2, sort_keys=True)])
         ghenv.Component.Message = "{0} / {1}".format(engine_version, backend)
         if not data.get("ready", True):
             ghenv.Component.Message = "Setup required"
         for message in data.get("errors", []) + data.get("warnings", []):
-            from Grasshopper.Kernel import GH_RuntimeMessageLevel
-            ghenv.Component.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, str(message))
+            warn(message)
     except FotonError as error:
-        report = str(error)
+        report = "\n".join(install_log + [str(error)])
         ghenv.Component.Message = "Not found"
         raise RuntimeError(report)

@@ -5,17 +5,26 @@ passing release evidence should be described as validated.
 
 ## Install once
 
-1. Install CPython 3.13 and run `python -m pip install "foton-daylight[honeybee]"`.
-   That is the whole run-time requirement: the annual sky matrix is computed
-   by Foton's own Perez all-weather model, so Radiance is not needed. (Radiance
-   5.4a is used only to reproduce the validation evidence; if an installation
-   is present, Foton Settings reports it and a run can opt into its sky.)
-2. Download the versioned `foton-grasshopper-<version>.zip` release asset and extract
+1. Download the versioned `foton-grasshopper-<version>.zip` release asset and extract
    the entire archive into a permanent folder. Keep `examples` beside the `.gh` file.
-3. Open **Foton First Analysis.gh** in Rhino 8 Grasshopper. The components already
+2. Open **Foton First Analysis.gh** in Rhino 8 Grasshopper. The components already
    contain their scripts and bridge; no script editing or module search paths are needed.
-   To reuse them in other definitions, copy the three `.ghuser` files into the
+   To reuse them in other definitions, copy the four `.ghuser` files into the
    Grasshopper User Objects folder (available from Grasshopper's File / Special Folders menu).
+3. Set `install_` to True on **Foton Settings**. It finds a Python 3.10 to 3.13 on your
+   computer, creates Foton's own environment in `~/.foton`, and installs
+   `foton-daylight[honeybee]` into it. The download happens once, and the component
+   shows each step as it goes. Once Foton is installed, leaving the
+   toggle on costs only a quick check.
+
+If you have no Python 3.10 to 3.13, install one from python.org first. If you would
+rather install Foton yourself, run `python -m pip install "foton-daylight[honeybee]"`;
+Foton Settings looks in the usual pip, virtual-environment and pipx folders, so you
+normally don't need to connect a path.
+
+Radiance is not needed. The annual sky matrix is computed by Foton's own Perez
+all-weather model. Radiance 5.4a is used only to reproduce the validation evidence;
+if it is installed, Foton Settings reports it and a run can opt into its sky.
 
 The downloadable asset is produced only from a Rhino-generated, round-trip-tested
 build matching the current component sources. If no asset is published yet, the
@@ -25,9 +34,8 @@ completed easy-install release.
 ## Five-minute example
 
 1. Toggle **Check** on Foton Settings. Confirm the version, protocol, and selected
-   backend. If discovery fails, connect the full `foton-honeybee` path to `executable_`.
-   On Windows this is usually `Python313\Scripts\foton-honeybee.exe`, or the
-   corresponding virtual environment's `Scripts` folder. On macOS use its `bin` folder.
+   backend. If Foton is not found, set `install_` to True, or connect the full
+   `foton-honeybee` path to `executable_`.
 2. Read any setup warnings. Metal or Vulkan should be selected for GPU execution.
    CPU reference fallback is usable for diagnosis but does not demonstrate GPU performance.
 3. Toggle **Run** on Foton Annual Daylight. The example contains a shaded shoebox
@@ -52,11 +60,41 @@ validated against converged Radiance. Preview is visibly labelled. Changing
 inputs, quality defaults, solver versions, backend, or sky model version invalidates
 automatic reuse. Missing/corrupt metric files also cause a new run in a numbered folder.
 
+## Live mode for sliders
+
+Set `live_` to True on **Foton Annual Daylight** or **Foton Daylight Factor** when you
+want to drag a slider and see results straight away. Foton then keeps running in the
+background between runs, with the model, the GPU and the traced daylight
+coefficients ready.
+
+- Changing thresholds, the schedule or the weather reuses the traced coefficients, so
+  only the metrics are recomputed.
+- Changing geometry, the grid filter or the trace settings traces again, but skips
+  starting Foton and loading its libraries.
+- Live runs write no files, so `results` is empty and Honeybee's result components
+  have nothing to read. Turn `live_` off and run again to save a results folder.
+- Press ESC to stop a long live run. This also stops the background process; the next
+  live run starts a new one.
+
+The background process stops when Rhino closes.
+
+## Daylight factor
+
+**Foton Daylight Factor** needs only a Honeybee model. It returns the daylight factor
+for each sensor under a CIE overcast sky, in one branch per SensorGrid, ready for
+**LB Spatial Heatmap**. A saved run writes Honeybee's daylight-factor layout: one
+`.res` file per grid with `grids_info.json`.
+
+Daylight factor and annual daylight use the same traced coefficients. In live mode,
+running one after the other on the same model and settings traces only once.
+
 ## Troubleshooting
 
 | Symptom | Action |
 | --- | --- |
-| Executable not found | Supply its full path to Settings; check `python -m pip show foton-daylight`. |
+| Executable not found | Set `install_` to True on Settings, or connect the full path to `executable_`. |
+| Install says no Python was found | Install Python 3.10 to 3.13 from python.org, or connect a `python` executable to `python_`. |
+| Live run is no faster | The first live run starts Foton and traces as usual; only later runs on the same model are fast. |
 | Settings reports `gendaymtx` unavailable | Nothing to do: annual runs use Foton's built-in sky. Install Radiance 5.4a and set `RADIANCE_BIN` only to reproduce validation evidence or to opt into `gendaymtx`. |
 | Reference CPU selected | Update the GPU driver and inspect backend requirements; explicit Metal/Vulkan requests report errors instead of falling back. |
 | Output/cache not writable | Use a local writable output folder and inspect Settings' directory diagnostics. |

@@ -54,8 +54,9 @@ class ProtocolTests(unittest.TestCase):
                 )
             )
 
-    @patch("daylight_engine.honeybee.__main__.run_annual_daylight")
-    def test_cli_jsonl_emits_progress_and_complete_manifest(self, run):
+    @patch("daylight_engine.honeybee.commands.new_study")
+    def test_cli_jsonl_emits_progress_and_complete_manifest(self, new_study):
+        run = new_study.return_value.annual_daylight
         with TemporaryDirectory() as folder:
             root = Path(folder)
             model = root / "model.hbjson"

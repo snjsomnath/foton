@@ -4,6 +4,25 @@ All notable Foton changes are recorded here.
 
 ## Unreleased
 
+- Grasshopper now defaults to 8 diffuse bounces, the validated setting. The
+  Foton Annual Daylight component used to pass `bounces_ = 1` when nothing was
+  connected, which reads about 18 % low; scripted and command-line runs were
+  not affected.
+- Foton Settings finds `foton-honeybee` on its own: in Foton's environment in
+  `~/.foton`, on PATH, and in the usual pip, venv and pipx folders on Windows
+  and macOS. Its new `install_` toggle creates that environment from a Python
+  3.10 to 3.13 already on the computer and installs Foton into it.
+- Live mode: `live_` on the annual and daylight factor components sends runs to
+  a background worker (`foton-honeybee serve`) that keeps the scene, the GPU and
+  the traced coefficients between runs and writes no files. Changing
+  thresholds, schedule or weather then only recomputes the metrics.
+- Daylight factor: a new Foton Daylight Factor component, a
+  `foton-honeybee daylight-factor` command and `HoneybeeStudy.daylight_factor()`.
+  Results are written in Honeybee's daylight-factor layout (one `.res` file per
+  grid). Annual daylight and daylight factor share traced coefficients.
+- Annual-daylight result files and manifests are unchanged; the command now
+  shares its code with the worker.
+
 - The browser demo (`npm run dev:demo`) is a shorter 54.5-second cut that follows
   one room. It holds the daylight metric explanations longer, drops the
   1,024-zone ending and the header affiliation, labels each result as live
