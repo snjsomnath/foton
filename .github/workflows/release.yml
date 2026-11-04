@@ -45,6 +45,10 @@ jobs:
   yak:
     name: Build Rhino Package Manager (Yak) package
     runs-on: ubuntu-latest
+    # The Linux Yak tool is not always downloadable. A Yak failure must never
+    # hold back PyPI or the GitHub release: the package can be built and
+    # pushed by hand from a Mac or PC with Rhino (docs/publishing-yak.md).
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -53,7 +57,7 @@ jobs:
       - run: python -m pip install honeybee-core honeybee-radiance
       - name: Download the Yak command-line tool
         run: |
-          curl -fsSL --retry 3 -o "$RUNNER_TEMP/yak" https://files.mcneel.com/yak/tools/latest/linux-x64/yak
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/yak" https://files.mcneel.com/yak/tools/0.19.1/linux-x64/yak
           chmod +x "$RUNNER_TEMP/yak"
       - run: python scripts/package_yak.py
         env:
@@ -147,7 +151,7 @@ jobs:
 
   publish:
     name: Publish to PyPI
-    needs: [wheels, sdist, acceptance, grasshopper, yak]
+    needs: [wheels, sdist, acceptance, grasshopper]
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
@@ -196,6 +200,8 @@ jobs:
           name: grasshopper
           path: dist
       - uses: actions/download-artifact@v8
+        # Missing when the Yak job could not build it.
+        continue-on-error: true
         with:
           name: yak
           path: dist
@@ -207,10 +213,12 @@ jobs:
   yak-publish:
     name: Publish to Rhino Package Manager
     # After PyPI, because the components install that release on first use.
-    needs: publish
+    needs: [publish, yak]
+    if: ${{ !cancelled() && needs.publish.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v8
+        continue-on-error: true
         with:
           name: yak
           path: dist
@@ -218,10 +226,14 @@ jobs:
         env:
           YAK_TOKEN: ${{ secrets.YAK_TOKEN }}
         run: |
+          if ! ls dist/foton-*.yak >/dev/null 2>&1; then
+            echo "No Yak package was built: push it by hand (docs/publishing-yak.md)."
+            exit 0
+          fi
           if [ -z "$YAK_TOKEN" ]; then
             echo "No YAK_TOKEN secret: skipping. Push dist/foton-*.yak by hand (docs/publishing-yak.md)."
             exit 0
           fi
-          curl -fsSL --retry 3 -o "$RUNNER_TEMP/yak" https://files.mcneel.com/yak/tools/latest/linux-x64/yak
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/yak" https://files.mcneel.com/yak/tools/0.19.1/linux-x64/yak
           chmod +x "$RUNNER_TEMP/yak"
           "$RUNNER_TEMP/yak" push dist/foton-*.yak
