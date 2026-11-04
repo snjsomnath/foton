@@ -169,10 +169,12 @@ def main():
         obj.SetSource(code)
         obj.Params.OnParametersChanged()
         obj.VariableParameterMaintenance()
-        # Rhino 8's script component can reset parameter text while it reads
-        # the script, so set the tooltips again once it has settled.
+        # Rhino 8's script component rebuilds each parameter's Description from
+        # its type hint whenever it reads the script or a saved file; only the
+        # script parameter's ToolTip is kept, and Description then shows it.
         for params, ports in ((obj.Params.Input, inputs), (obj.Params.Output, outputs)):
             for param, (_, hint) in zip(params, ports):
+                param.ToolTip = hint
                 param.Description = hint
         obj.Attributes.Pivot = PointF(x, y)
         document.AddObject(obj, False)
