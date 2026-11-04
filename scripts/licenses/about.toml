@@ -1,0 +1,27 @@
+# Settings for cargo-about, which writes THIRD_PARTY_LICENSES.md.
+# Run scripts/licenses/update.sh after changing Rust dependencies.
+accepted = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Zlib",
+    "Unicode-3.0",
+    "Unlicense",
+]
+# The platforms Foton publishes wheels for.
+targets = [
+    "aarch64-apple-darwin",
+    "x86_64-apple-darwin",
+    "x86_64-unknown-linux-gnu",
+    "aarch64-unknown-linux-gnu",
+    "x86_64-pc-windows-msvc",
+]
+# Leave out build-only tools (such as shaderc) and dev-only crates: they are
+# not part of the shipped wheel.
+ignore-build-dependencies = true
+ignore-dev-dependencies = true
+# Skip Foton's own crates; they are covered by LICENSE.
+private = { ignore = true }

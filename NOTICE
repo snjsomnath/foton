@@ -1,0 +1,63 @@
+Foton
+Copyright (c) 2026 Sanjay Somanath
+Licensed under the MIT License (see LICENSE).
+
+Foton's own code is written for this project. This file credits the published
+methods, data and tools that it relies on. The licenses of the Rust libraries
+compiled into the Python wheels are in THIRD_PARTY_LICENSES.md.
+
+
+Methods implemented from published papers
+-----------------------------------------
+
+Sky model (crates/daylight-core/src/sky/perez.rs)
+  The annual sky matrix is written from the papers below, not from any other
+  program's source code. Full citations are at the top of that file.
+  - R. Perez, R. Seals and J. Michalsky (1993), all-weather sky luminance model.
+  - R. Perez, P. Ineichen, R. Seals, J. Michalsky and R. Stewart (1990),
+    daylight availability and luminous efficacy.
+  - F. Kasten (1966), relative optical air mass.
+  - J. W. Spencer (1971), earth-orbit eccentricity.
+  - P. I. Cooper (1969), solar declination.
+  - P. R. Tregenza (1987), sky subdivision, and D. Bourgeois, C. F. Reinhart
+    and G. Ward (2008), its Reinhart refinement.
+
+Sampling (crates/daylight-core/src/sampling.rs and the GPU shaders)
+  - I. M. Sobol' (1967), the Sobol' low-discrepancy sequence.
+  - B. Burley (2020), "Practical Hash-based Owen Scrambling", JCGT 9(4).
+  - N. Vegdahl (2021), "Building a Better LK Hash", hash constants used in
+    the Owen scramble. https://psychopath.io/post/2021_01_30_building_a_better_lk_hash
+  - C. Wellons, "lowbias32" integer hash from hash-prospector, released into
+    the public domain. https://github.com/skeeto/hash-prospector
+
+
+Radiance
+--------
+
+Radiance (https://www.radiance-online.org/) is the reference Foton is tested
+against. Foton contains no Radiance source code and does not ship Radiance.
+Where Foton matches a Radiance convention so the two agree exactly (for
+example the solar-time rule and the cosine table that gendaymtx uses), the
+convention is described in a comment where it is used. Radiance is only
+needed to reproduce the validation results.
+
+
+Ladybug Tools
+-------------
+
+The optional "honeybee" extra installs honeybee-core, honeybee-radiance,
+honeybee-radiance-postprocess and ladybug-core from Ladybug Tools
+(https://www.ladybug.tools/). Those packages are licensed under AGPL-3.0 or
+GPL-3.0. Foton calls them as separate, user-installed packages. It does not
+include, copy or modify their code, and they are not part of Foton's wheels.
+
+
+Weather data (epw/)
+-------------------
+
+  - phoenix.epw and seattle.epw: TMY3 data from the US National Renewable
+    Energy Laboratory, distributed through the EnergyPlus weather collection
+    (https://energyplus.net/weather).
+  - gothenburg.epw: TMYx data (NCEI ISD and ERA5, 2007-2021) from
+    Climate.OneBuilding.org. Lawrie, Linda K. and Drury B. Crawley.
+    https://climate.onebuilding.org/

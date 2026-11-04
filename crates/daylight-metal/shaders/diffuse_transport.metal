@@ -21,6 +21,8 @@ struct FinalizeUniforms {
     uint2 padding;
 };
 
+// Integer hash "lowbias32" by Chris Wellons (hash-prospector, public domain):
+// https://github.com/skeeto/hash-prospector
 static uint mix32(uint value)
 {
     value ^= value >> 16;
@@ -35,6 +37,10 @@ static uint rotate_left(uint value, uint amount)
     return (value << amount) | (value >> (32u - amount));
 }
 
+// Sobol' sequence direction numbers, 16 dimensions of 32 bits each. They are
+// expanded from the primitive polynomials and initial values in
+// SOBOL_PARAMETERS (crates/daylight-core/src/sampling.rs), so the CPU reference
+// and both GPU backends draw the same sample sequence.
 constant uint sobol_directions[512] = {
     0x80000000u, 0x40000000u, 0x20000000u, 0x10000000u, 0x08000000u, 0x04000000u, 0x02000000u, 0x01000000u,
     0x00800000u, 0x00400000u, 0x00200000u, 0x00100000u, 0x00080000u, 0x00040000u, 0x00020000u, 0x00010000u,
@@ -116,6 +122,9 @@ static uint sobol_uint(uint index, uint dimension)
     return value;
 }
 
+// Owen scrambling by hashing, after B. Burley, "Practical Hash-based Owen
+// Scrambling", JCGT 9(4), 2020. The hash constants are from N. Vegdahl,
+// "Building a Better LK Hash" (2021), https://psychopath.io/post/2021_01_30_building_a_better_lk_hash
 static uint owen_scramble(uint value, uint seed)
 {
     value = reverse_bits(value);

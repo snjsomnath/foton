@@ -1,3 +1,20 @@
+//! Low-discrepancy sampling shared by the CPU reference and the GPU shaders.
+//!
+//! Every random number in Foton's transport comes from a scrambled Sobol'
+//! sequence, so a run with the same seed gives the same result on every
+//! backend. The Metal and Vulkan shaders carry a copy of the direction numbers
+//! that this module builds.
+//!
+//! * The sequence is I. M. Sobol', "On the distribution of points in a cube
+//!   and the approximate evaluation of integrals", USSR Comput. Math. Math.
+//!   Phys. 7(4), 86-112, 1967, generated in Gray-code order (Antonov and
+//!   Saleev, 1979).
+//! * Scrambling follows B. Burley, "Practical Hash-based Owen Scrambling",
+//!   JCGT 9(4), 2020, with the hash constants from N. Vegdahl, "Building a
+//!   Better LK Hash" (2021).
+//! * The seed hash is "lowbias32" by C. Wellons (hash-prospector, public
+//!   domain).
+
 use serde::{Deserialize, Serialize};
 
 use crate::geometry::Vec3;
@@ -11,6 +28,9 @@ pub struct SampleKey {
     pub dimension: u32,
 }
 
+/// Sobol' parameters per dimension: the degree of the primitive polynomial,
+/// its middle coefficients as bits, and the initial direction numbers m_1..m_d.
+/// Dimension 0 is the van der Corput sequence and needs no parameters.
 const SOBOL_PARAMETERS: &[(u32, u32, &[u32])] = &[
     (0, 0, &[]),
     (1, 0, &[1]),
@@ -92,6 +112,8 @@ fn direction_numbers(dimension: usize) -> [u32; 32] {
     directions
 }
 
+/// Owen-scramble a 32-bit Sobol' value with a per-sample seed (Burley 2020,
+/// hash constants from Vegdahl 2021).
 fn owen_scramble(mut value: u32, seed: u32) -> u32 {
     value = value.reverse_bits();
     value ^= value.wrapping_mul(0x3d20_adea);
@@ -102,6 +124,7 @@ fn owen_scramble(mut value: u32, seed: u32) -> u32 {
     value.reverse_bits()
 }
 
+/// Integer hash "lowbias32" by Chris Wellons (hash-prospector, public domain).
 fn mix32(mut value: u32) -> u32 {
     value ^= value >> 16;
     value = value.wrapping_mul(0x7feb_352d);
