@@ -21,6 +21,7 @@ def verify_build(root=ROOT):
         "Foton Settings.ghuser",
         "Foton Annual Daylight.ghuser",
         "Foton Annual Results.ghuser",
+        "Foton Daylight Factor.ghuser",
         "Foton First Analysis.gh",
         "Foton First Analysis.ghx",
     }
@@ -36,6 +37,7 @@ def verify_build(root=ROOT):
                 "Foton Settings",
                 "Foton Annual Daylight",
                 "Foton Annual Results",
+                "Foton Daylight Factor",
             )
         ),
     }

@@ -4,6 +4,25 @@ All notable Foton changes are recorded here.
 
 ## Unreleased
 
+- Grasshopper now defaults to 8 diffuse bounces, the validated setting. The
+  Foton Annual Daylight component used to pass `bounces_ = 1` when nothing was
+  connected, which reads about 18 % low; scripted and command-line runs were
+  not affected.
+- Foton Settings finds `foton-honeybee` on its own: in Foton's environment in
+  `~/.foton`, on PATH, and in the usual pip, venv and pipx folders on Windows
+  and macOS. Its new `install_` toggle creates that environment from a Python
+  3.10 to 3.13 already on the computer and installs Foton into it.
+- Live mode: `live_` on the annual and daylight factor components sends runs to
+  a background worker (`foton-honeybee serve`) that keeps the scene, the GPU and
+  the traced coefficients between runs and writes no files. Changing
+  thresholds, schedule or weather then only recomputes the metrics.
+- Daylight factor: a new Foton Daylight Factor component, a
+  `foton-honeybee daylight-factor` command and `HoneybeeStudy.daylight_factor()`.
+  Results are written in Honeybee's daylight-factor layout (one `.res` file per
+  grid). Annual daylight and daylight factor share traced coefficients.
+- Annual-daylight result files and manifests are unchanged; the command now
+  shares its code with the worker.
+
 - Faster annual runs with identical results. On an M4 Pro the diffuse trace is
   about 36 % faster (2,020 sensors: 1.18 s to 0.76 s; 9,216 sensors: 6.58 s to
   4.26 s), mostly because the GPU's random-number loop now stops at the

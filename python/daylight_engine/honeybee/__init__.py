@@ -7,6 +7,11 @@ from .annual import (
     honeybee_schedule,
     run_annual_daylight,
 )
+from .daylight_factor import (
+    DaylightFactorRun,
+    GridDaylightFactor,
+    run_daylight_factor,
+)
 from .recipe import Recipe
 from .protocol import PROTOCOL_NAME, PROTOCOL_VERSION
 from .settings import RecipeSettings
@@ -21,7 +26,9 @@ from .validation import (
 
 __all__ = [
     "AnnualDaylightRun",
+    "DaylightFactorRun",
     "GridAnnualResult",
+    "GridDaylightFactor",
     "HoneybeeStudy",
     "Recipe",
     "RecipeSettings",
@@ -35,4 +42,5 @@ __all__ = [
     "compare_converged_annual",
     "verify_official_annual_daylight_loader",
     "run_annual_daylight",
+    "run_daylight_factor",
 ]

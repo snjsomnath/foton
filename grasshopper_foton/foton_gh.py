@@ -148,25 +148,294 @@ def request_data(
     return request
 
 
+# The package the one-click install puts in Foton's own environment. The lower
+# bound is the first release with the built-in sky, the daylight-factor
+# command and the background worker these components use.
+ENGINE_REQUIREMENT = "foton-daylight[honeybee]>=0.3.2,<0.4"
+ENGINE_MINIMUM = (0, 3, 2)
+ENGINE_MAXIMUM = (0, 4, 0)
+SUPPORTED_PYTHONS = ((3, 13), (3, 12), (3, 11), (3, 10))
+DEFAULT_BOUNCES = 8  # keep in step with foton.honeybee.annual.DEFAULT_MAXIMUM_BOUNCES
+
+
+def _windows():
+    # IronPython reports sys.platform as "cli"; os.name is reliable.
+    return os.name == "nt"
+
+
+def _home():
+    return os.path.expanduser("~")
+
+
+def foton_home():
+    """Folder holding Foton's own Python environment (``FOTON_HOME`` overrides)."""
+    configured = os.environ.get("FOTON_HOME")
+    return os.path.abspath(os.path.expanduser(configured or os.path.join(_home(), ".foton")))
+
+
+def environment_folder():
+    return os.path.join(foton_home(), "venv")
+
+
+def _environment_file(folder, name):
+    if _windows():
+        return os.path.join(folder, "Scripts", name + ".exe")
+    return os.path.join(folder, "bin", name)
+
+
+def environment_executable():
+    return _environment_file(environment_folder(), "foton-honeybee")
+
+
+def _unique(paths):
+    seen, result = set(), []
+    for path in paths:
+        if not path:
+            continue
+        key = os.path.normcase(os.path.abspath(path))
+        if key not in seen:
+            seen.add(key)
+            result.append(path)
+    return result
+
+
+def _python_versions():
+    return ["{0}{1}".format(major, minor) for major, minor in SUPPORTED_PYTHONS]
+
+
+def candidate_executables():
+    """Every place ``foton-honeybee`` is usually installed, most likely first.
+
+    Rhino rarely inherits the PATH of a terminal (on macOS never), so the
+    usual pip, venv and pipx locations are searched as well as PATH.
+    """
+    name = "foton-honeybee.exe" if _windows() else "foton-honeybee"
+    home = _home()
+    folders = [os.path.dirname(environment_executable())]
+    folders.extend(os.environ.get("PATH", "").split(os.pathsep))
+    if _windows():
+        local = os.environ.get("LOCALAPPDATA", os.path.join(home, "AppData", "Local"))
+        roaming = os.environ.get("APPDATA", os.path.join(home, "AppData", "Roaming"))
+        for version in _python_versions():
+            folders.append(os.path.join(local, "Programs", "Python", "Python" + version, "Scripts"))
+            folders.append(os.path.join(roaming, "Python", "Python" + version, "Scripts"))
+            folders.append(os.path.join("C:" + os.sep, "Program Files", "Python" + version, "Scripts"))
+        folders.append(os.path.join(home, ".local", "bin"))
+        folders.append(os.path.join(home, "ladybug_tools", "python", "Scripts"))
+    else:
+        for version in _python_versions():
+            dotted = version[0] + "." + version[1:]
+            folders.append("/Library/Frameworks/Python.framework/Versions/" + dotted + "/bin")
+            folders.append(os.path.join(home, "Library", "Python", dotted, "bin"))
+        folders.extend([
+            os.path.join(home, ".local", "bin"),
+            "/opt/homebrew/bin",
+            "/usr/local/bin",
+            os.path.join(home, "ladybug_tools", "python", "bin"),
+        ])
+    return _unique(os.path.join(folder, name) for folder in folders if folder)
+
+
 def discover_executable(configured=None):
-    """Find the external Foton CLI without assuming a Python installation."""
+    """Find ``foton-honeybee``: the connected path, Foton's own environment, then the usual places."""
     configured = configured or os.environ.get("FOTON_HONEYBEE_EXE")
     if configured:
         path = os.path.abspath(os.path.expanduser(str(configured)))
         if not os.path.isfile(path):
             raise FotonError("Configured foton-honeybee executable does not exist: " + path)
         return path
-    try:
-        from distutils.spawn import find_executable
-
-        path = find_executable("foton-honeybee")
-    except ImportError:
-        path = None
-    if path:
-        return os.path.abspath(path)
+    for path in candidate_executables():
+        if os.path.isfile(path):
+            return os.path.abspath(path)
     raise FotonError(
-        "foton-honeybee was not found on PATH. Connect its full path to executable_."
+        "foton-honeybee was not found. Set install_ to True on Foton Settings to "
+        "install it, or connect its full path to executable_. Looked in "
+        + environment_folder() + ", on PATH and in the usual Python folders."
     )
+
+
+def _version_tuple(text):
+    parts = []
+    for item in str(text).split(".")[:3]:
+        digits = ""
+        for character in item:
+            if not character.isdigit():
+                break
+            digits += character
+        parts.append(int(digits or 0))
+    while len(parts) < 3:
+        parts.append(0)
+    return tuple(parts)
+
+
+def engine_version_supported(version):
+    value = _version_tuple(version)
+    return ENGINE_MINIMUM <= value < ENGINE_MAXIMUM
+
+
+def _base_python_candidates(configured=None):
+    """Python 3.10 to 3.13 interpreters that could host Foton's environment."""
+    commands = []
+    if configured:
+        commands.append([os.path.abspath(os.path.expanduser(str(configured)))])
+    home = _home()
+    if _windows():
+        launcher = os.path.join(os.environ.get("WINDIR", "C:" + os.sep + "Windows"), "py.exe")
+        if os.path.isfile(launcher):
+            for major, minor in SUPPORTED_PYTHONS:
+                commands.append([launcher, "-{0}.{1}".format(major, minor)])
+        local = os.environ.get("LOCALAPPDATA", os.path.join(home, "AppData", "Local"))
+        for version in _python_versions():
+            commands.append([os.path.join(local, "Programs", "Python", "Python" + version, "python.exe")])
+            commands.append([os.path.join("C:" + os.sep, "Program Files", "Python" + version, "python.exe")])
+        # The Python that the Ladybug Tools installer ships, when it is new enough.
+        commands.append([os.path.join(home, "ladybug_tools", "python", "python.exe")])
+    else:
+        for version in _python_versions():
+            dotted = version[0] + "." + version[1:]
+            commands.append(["/Library/Frameworks/Python.framework/Versions/" + dotted + "/bin/python3"])
+            commands.append(["/opt/homebrew/bin/python" + dotted])
+            commands.append(["/usr/local/bin/python" + dotted])
+            commands.append(["/usr/bin/python" + dotted])
+        commands.append([os.path.join(home, "ladybug_tools", "python", "bin", "python3")])
+        commands.append(["/opt/homebrew/bin/python3"])
+        commands.append(["/usr/local/bin/python3"])
+        if not os.path.isdir("/Library/Frameworks"):
+            # Not macOS, where /usr/bin/python3 can open an Xcode install prompt.
+            commands.append(["/usr/bin/python3"])
+    seen, result = set(), []
+    for command in commands:
+        if not os.path.isfile(command[0]):
+            continue
+        key = tuple(command)
+        if key not in seen:
+            seen.add(key)
+            result.append(command)
+    return result
+
+
+_PYTHON_PROBE = (
+    "import sys, venv, ensurepip; "
+    "print('%d.%d' % sys.version_info[:2])"
+)
+
+
+def find_base_python(configured=None):
+    """Return ``(command, "3.x")`` for the first usable Python, or raise FotonError."""
+    tried = []
+    for command in _base_python_candidates(configured):
+        try:
+            code, lines = _stream_command(command + ["-c", _PYTHON_PROBE], timeout=30.0)
+        except (OSError, FotonError):
+            tried.append(" ".join(command) + " (would not start)")
+            continue
+        text = "".join(lines).strip().splitlines()
+        found = text[-1].strip() if text else ""
+        if code == 0 and _version_tuple(found)[:2] in SUPPORTED_PYTHONS:
+            return command, found
+        tried.append(" ".join(command) + " (" + (found or "unusable") + ")")
+    detail = "; ".join(tried) if tried else "none found"
+    raise FotonError(
+        "Foton needs Python 3.10 to 3.13 to install into. Install one from "
+        "python.org, or connect a python executable to python_. Tried: " + detail
+    )
+
+
+def install_foton(python=None, progress=None, cancel=None, upgrade=False):
+    """Create Foton's own environment and pip install the engine into it.
+
+    Nothing is installed when the environment already holds a supported
+    version and ``upgrade`` is False, so a toggle left on costs one check.
+    Returns the path of the installed ``foton-honeybee``.
+    """
+    executable = environment_executable()
+    if not upgrade and os.path.isfile(executable):
+        try:
+            current = capabilities(executable)
+            if engine_version_supported(current.get("engine_version")):
+                if progress is not None:
+                    progress("Foton {0} is already installed in {1}".format(
+                        current.get("engine_version"), environment_folder()))
+                return executable
+        except FotonError:
+            pass
+    command, version = find_base_python(python)
+    folder = environment_folder()
+
+    def report(line):
+        if progress is not None and line.strip():
+            progress(line.rstrip())
+
+    report("Using Python {0}: {1}".format(version, " ".join(command)))
+    if not os.path.isfile(_environment_file(folder, "python")):
+        report("Creating Foton's environment in " + folder)
+        parent = os.path.dirname(folder)
+        if not os.path.isdir(parent):
+            os.makedirs(parent)
+        code, lines = _stream_command(command + ["-m", "venv", folder], report, cancel)
+        if code != 0:
+            raise FotonError("Could not create " + folder + ":\n" + "".join(lines[-20:]))
+    python_path = _environment_file(folder, "python")
+    report("Installing " + ENGINE_REQUIREMENT + "")
+    code, lines = _stream_command(
+        [python_path, "-m", "pip", "install", "--upgrade",
+         "--disable-pip-version-check", ENGINE_REQUIREMENT],
+        report,
+        cancel,
+    )
+    if code != 0:
+        raise FotonError("pip could not install Foton:\n" + "".join(lines[-20:]))
+    if not os.path.isfile(executable):
+        raise FotonError("The install finished but " + executable + " is missing")
+    return executable
+
+
+def _stream_command(command, on_line=None, cancel=None, timeout=None):
+    """Run a command, passing each output line on; returns (exit code, lines)."""
+    env = _subprocess_environment(command[0])
+    process = subprocess.Popen(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        env=env,
+    )
+    lines = queue.Queue()
+
+    def read():
+        while True:
+            line = process.stdout.readline()
+            if not line:
+                break
+            lines.put(_text(line))
+        lines.put(None)
+
+    reader = threading.Thread(target=read)
+    reader.daemon = True
+    reader.start()
+    collected = []
+    started = time.time()
+    try:
+        while True:
+            if cancel is not None and cancel():
+                raise FotonCancelled("Cancelled")
+            if timeout is not None and time.time() - started > timeout:
+                raise FotonError("Timed out: " + " ".join(command))
+            try:
+                line = lines.get(True, 0.1)
+            except queue.Empty:
+                continue
+            if line is None:
+                break
+            collected.append(line)
+            if on_line is not None:
+                on_line(line)
+    except BaseException:
+        _signal_process(process, force=True)
+        process.wait()
+        raise
+    code = process.wait()
+    reader.join(1.0)
+    return code, collected
 
 
 def _parse_protocol_line(line):
@@ -472,9 +741,22 @@ def list_to_data_tree(branches):
         return branches
 
 
+def _grid_values(grid, metric):
+    """A grid's values for ``metric``: inline in a live reply, else from its file."""
+    inline = grid.get("values")
+    if inline is not None:
+        values = [float(value) for value in inline[metric]]
+        if len(values) != int(grid["sensor_count"]):
+            raise FotonError("Live result has the wrong number of values")
+        return values
+    return _metric_values(grid["metrics"][metric], grid["sensor_count"])
+
+
 def load_result_bundle(value):
     """Load manifest metrics in immutable SensorGrid order."""
     manifest = load_manifest(value) if isinstance(value, string_types) else value
+    if manifest.get("recipe") == "daylight_factor":
+        return load_daylight_factor_bundle(manifest)
     identifiers, rooms, sda = [], [], []
     metric_branches = dict((metric, []) for metric in METRICS)
     for grid in manifest["grids"]:
@@ -482,14 +764,13 @@ def load_result_bundle(value):
         rooms.append(grid.get("room_identifier"))
         sda.append(float(grid["sda"]))
         for metric in METRICS:
-            metric_branches[metric].append(
-                _metric_values(grid["metrics"][metric], grid["sensor_count"])
-            )
+            metric_branches[metric].append(_grid_values(grid, metric))
+    results_folder = manifest.get("results_folder")
     return {
         "manifest": manifest,
         "manifest_path": manifest.get("manifest"),
-        "results": [manifest["results_folder"]],
-        "folder": manifest["output_folder"],
+        "results": [results_folder] if results_folder else [],
+        "folder": manifest.get("output_folder"),
         "grid_ids": identifiers,
         "room_ids": rooms,
         "da": list_to_data_tree(metric_branches["da"]),
@@ -501,6 +782,199 @@ def load_result_bundle(value):
         "timings": _coerce_numeric(manifest.get("timings", {})),
         "warnings": manifest.get("warnings", []),
     }
+
+
+def load_daylight_factor_bundle(value):
+    """Load daylight factor values in immutable SensorGrid order."""
+    manifest = load_manifest(value) if isinstance(value, string_types) else value
+    identifiers, rooms, means, branches = [], [], [], []
+    for grid in manifest["grids"]:
+        identifiers.append(grid["identifier"])
+        rooms.append(grid.get("room_identifier"))
+        means.append(float(grid["mean_df"]))
+        branches.append(_grid_values(grid, "df"))
+    results_folder = manifest.get("results_folder")
+    return {
+        "manifest": manifest,
+        "manifest_path": manifest.get("manifest"),
+        "results": [results_folder] if results_folder else [],
+        "folder": manifest.get("output_folder"),
+        "grid_ids": identifiers,
+        "room_ids": rooms,
+        "df": list_to_data_tree(branches),
+        "mean_df": means,
+        "timings": _coerce_numeric(manifest.get("timings", {})),
+        "warnings": manifest.get("warnings", []),
+    }
+
+
+# Background worker ------------------------------------------------------------
+#
+# A live run talks to one long-lived ``foton-honeybee serve`` process per
+# executable. Grasshopper re-runs a component's whole script on every solve, so
+# the process is kept in a module that survives those re-runs.
+
+WORKER_START_TIMEOUT = 120.0
+
+
+def _worker_registry():
+    holder = sys.modules.get("_foton_worker_registry")
+    if holder is None:
+        import types
+
+        holder = types.ModuleType("_foton_worker_registry")
+        holder.workers = {}
+        sys.modules["_foton_worker_registry"] = holder
+    return holder.workers
+
+
+def stop_workers():
+    """Stop every background worker this Rhino session started."""
+    workers = _worker_registry()
+    for key in list(workers.keys()):
+        _stop_worker(workers.pop(key))
+
+
+def _stop_worker(worker):
+    process = worker["process"]
+    try:
+        if process.poll() is None:
+            _signal_process(process, force=True)
+            process.wait()
+    except Exception:
+        pass
+
+
+def _start_worker(executable):
+    env = _subprocess_environment(executable)
+    process = subprocess.Popen(
+        [executable, "serve"],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        env=env,
+    )
+    worker = {
+        "process": process,
+        "messages": queue.Queue(),
+        "errors": [],
+        "next_id": 1,
+        "ready": False,
+    }
+
+    def read_stdout():
+        while True:
+            line = process.stdout.readline()
+            if not line:
+                break
+            worker["messages"].put(line)
+        worker["messages"].put(None)
+
+    def read_stderr():
+        while True:
+            line = process.stderr.readline()
+            if not line:
+                break
+            worker["errors"].append(_text(line))
+            del worker["errors"][:-50]
+
+    for target in (read_stdout, read_stderr):
+        thread = threading.Thread(target=target)
+        thread.daemon = True
+        thread.start()
+    return worker
+
+
+def _worker_error(worker, message):
+    detail = "".join(worker["errors"]).strip()
+    return FotonError(message + (": " + detail if detail else ""))
+
+
+def _next_message(worker, cancel, deadline=None):
+    while True:
+        if cancel is not None and cancel():
+            raise FotonCancelled("Foton was cancelled")
+        if deadline is not None and time.time() > deadline:
+            raise _worker_error(worker, "The Foton worker did not start in time")
+        try:
+            line = worker["messages"].get(True, 0.1)
+        except queue.Empty:
+            continue
+        if line is None:
+            raise _worker_error(worker, "The Foton worker stopped")
+        return _parse_protocol_line(line)
+
+
+def _worker(executable, cancel=None):
+    workers = _worker_registry()
+    key = os.path.normcase(os.path.abspath(executable))
+    worker = workers.get(key)
+    if worker is not None and worker["process"].poll() is not None:
+        workers.pop(key, None)
+        worker = None
+    if worker is None:
+        worker = _start_worker(executable)
+        workers[key] = worker
+        try:
+            deadline = time.time() + WORKER_START_TIMEOUT
+            while not worker["ready"]:
+                if _next_message(worker, cancel, deadline).get("event") == "ready":
+                    worker["ready"] = True
+        except BaseException:
+            workers.pop(key, None)
+            _stop_worker(worker)
+            raise
+    return worker
+
+
+def _write_line(stream, line):
+    data = line + "\n"
+    try:
+        stream.write(data)
+    except TypeError:
+        # CPython 3 pipes take bytes; IronPython's take text.
+        stream.write(data.encode("utf-8"))
+    stream.flush()
+
+
+def worker_request(executable, command, options, progress=None, cancel=None):
+    """Send one request to the background worker and return its manifest."""
+    executable = discover_executable(executable)
+    worker = _worker(executable, cancel)
+    workers = _worker_registry()
+    key = os.path.normcase(os.path.abspath(executable))
+    request_id = str(worker["next_id"])
+    worker["next_id"] += 1
+    line = json.dumps({"id": request_id, "command": command, "options": options})
+    try:
+        _write_line(worker["process"].stdin, line)
+        while True:
+            message = _next_message(worker, cancel)
+            if message.get("request_id") != request_id:
+                continue
+            event = message.get("event")
+            if event == "complete":
+                return message.get("manifest") or {}
+            if event == "failed":
+                raise FotonError(message.get("message") or "Foton failed")
+            if progress is not None:
+                progress(message)
+    except FotonError as error:
+        if not isinstance(error, FotonCancelled) and worker["process"].poll() is None:
+            # A failed request leaves a healthy worker ready for the next one.
+            raise
+        workers.pop(key, None)
+        _stop_worker(worker)
+        raise
+    except BaseException as error:
+        # Cancelled mid-trace, or the pipe broke: the worker's state is unknown.
+        workers.pop(key, None)
+        _stop_worker(worker)
+        if isinstance(error, KeyboardInterrupt):
+            raise FotonCancelled("Foton was cancelled")
+        if isinstance(error, (IOError, OSError, ValueError)):
+            raise _worker_error(worker, "Could not reach the Foton worker")
+        raise
 
 
 def _run_process(command, progress=None, cancel=None):
@@ -597,18 +1071,49 @@ def run_annual_daylight(
     reuse=True,
     direct_samples=None,
     maximum_samples=None,
-    maximum_bounces=8,
+    maximum_bounces=None,
     scene_seed=0,
     progress=None,
     cancel=None,
+    live=False,
 ):
-    """Run Foton externally and return a Ladybug/Honeybee-friendly result bundle."""
+    """Run Foton externally and return a Ladybug/Honeybee-friendly result bundle.
+
+    ``live=True`` sends the run to the background worker, which keeps the
+    scene and traced coefficients between runs and writes no files: the
+    bundle's ``results`` is empty, so Honeybee's result components need a
+    saved (non-live) run.
+    """
     executable = discover_executable(executable)
     limits = thresholds(thresholds_value)
+    maximum_bounces = DEFAULT_BOUNCES if maximum_bounces is None else int(maximum_bounces)
     temp_folder, model_path, weather_path, schedule_path = _prepare_inputs(
         model, wea, schedule
     )
     try:
+        if live:
+            options = {
+                "model": model_path,
+                "wea": weather_path,
+                "schedule": schedule_path,
+                "backend": str(backend or "auto"),
+                "grid_filter": str(grid_filter or "*"),
+                "north": north_angle(north),
+                "quality": str(quality or "final"),
+                "sky_density": int(sky_density or 1),
+                "threshold": limits["threshold"],
+                "udi_lower": limits["udi_lower"],
+                "udi_upper": limits["udi_upper"],
+                "maximum_bounces": maximum_bounces,
+                "scene_seed": int(scene_seed),
+                "direct_samples": None if direct_samples is None else int(direct_samples),
+                "maximum_samples": None if maximum_samples is None else int(maximum_samples),
+            }
+            manifest = worker_request(
+                executable, "annual-daylight", options, progress=progress, cancel=cancel
+            )
+            manifest["grasshopper_reused"] = False
+            return load_result_bundle(manifest)
         request = request_data(
             model_path,
             weather_path,
@@ -623,7 +1128,7 @@ def run_annual_daylight(
             udi_upper=limits["udi_upper"],
             direct_samples=direct_samples,
             maximum_samples=maximum_samples,
-            maximum_bounces=int(maximum_bounces),
+            maximum_bounces=maximum_bounces,
             scene_seed=int(scene_seed),
             export_illuminance=True,
         )
@@ -682,7 +1187,7 @@ def run_annual_daylight(
             "--udi-upper",
             str(limits["udi_upper"]),
             "--maximum-bounces",
-            str(int(maximum_bounces)),
+            str(maximum_bounces),
             "--scene-seed",
             str(int(scene_seed)),
             "--export-illuminance",
@@ -698,3 +1203,84 @@ def run_annual_daylight(
         return load_result_bundle(manifest)
     finally:
         shutil.rmtree(temp_folder, ignore_errors=True)
+
+
+def run_daylight_factor(
+    model,
+    output_folder,
+    grid_filter="*",
+    quality="final",
+    sky_density=1,
+    backend="auto",
+    executable=None,
+    direct_samples=None,
+    maximum_samples=None,
+    maximum_bounces=None,
+    scene_seed=0,
+    progress=None,
+    cancel=None,
+    live=False,
+):
+    """Run daylight factor (CIE overcast sky) and return a result bundle.
+
+    A saved run writes Honeybee's daylight-factor layout (one ``.res`` file
+    per grid) into a new numbered folder; a live run uses the worker and
+    writes nothing.
+    """
+    executable = discover_executable(executable)
+    maximum_bounces = DEFAULT_BOUNCES if maximum_bounces is None else int(maximum_bounces)
+    folder = tempfile.mkdtemp(prefix="foton-gh-inputs-")
+    try:
+        model_path = _copy_or_write_model(model, folder)
+        settings = {
+            "backend": str(backend or "auto"),
+            "grid_filter": str(grid_filter or "*"),
+            "quality": str(quality or "final"),
+            "sky_density": int(sky_density or 1),
+            "maximum_bounces": maximum_bounces,
+            "scene_seed": int(scene_seed),
+            "direct_samples": None if direct_samples is None else int(direct_samples),
+            "maximum_samples": None if maximum_samples is None else int(maximum_samples),
+        }
+        if live:
+            options = dict(settings)
+            options["model"] = model_path
+            manifest = worker_request(
+                executable, "daylight-factor", options, progress=progress, cancel=cancel
+            )
+            return load_daylight_factor_bundle(manifest)
+        output = _reserve_output(os.path.abspath(os.path.expanduser(output_folder)))
+        input_folder = os.path.join(output, "inputs")
+        os.mkdir(input_folder)
+        final_model = os.path.join(input_folder, "model.hbjson")
+        shutil.copy2(model_path, final_model)
+        command = [
+            executable,
+            "daylight-factor",
+            "--jsonl",
+            "--model",
+            final_model,
+            "--output",
+            output,
+            "--backend",
+            settings["backend"],
+            "--grid-filter",
+            settings["grid_filter"],
+            "--quality",
+            settings["quality"],
+            "--sky-density",
+            str(settings["sky_density"]),
+            "--maximum-bounces",
+            str(maximum_bounces),
+            "--scene-seed",
+            str(settings["scene_seed"]),
+        ]
+        if direct_samples is not None:
+            command.extend(["--direct-samples", str(int(direct_samples))])
+        if maximum_samples is not None:
+            command.extend(["--maximum-samples", str(int(maximum_samples))])
+        manifest = _run_process(command, progress=progress, cancel=cancel)
+        return load_daylight_factor_bundle(manifest)
+    finally:
+        shutil.rmtree(folder, ignore_errors=True)
+
