@@ -342,3 +342,46 @@ def test_worker_protocol_keeps_library_output_off_stdout():
     events = [json.loads(line) for line in replies.getvalue().splitlines()]
     assert [e["event"] for e in events] == ["ready", "complete", "failed", "complete"]
     assert events[1]["request_id"] == "a" and events[3]["request_id"] == "b"
+
+
+def test_worker_keeps_weather_in_memory_across_studies_with_identical_results(tmp_path):
+    import shutil
+    from daylight_engine.honeybee.weather import prepare_annual_weather
+    from daylight_engine.honeybee.worker import Worker
+
+    # The bridge copies the EPW to a new temporary path on every request.
+    first_copy = tmp_path / "a" / "weather.epw"
+    second_copy = tmp_path / "b" / "weather.epw"
+    for copy in (first_copy, second_copy):
+        copy.parent.mkdir()
+        shutil.copy2(WEATHER, copy)
+    memo = {}
+    cache = tmp_path / "cache"
+    first = prepare_annual_weather(first_copy, cache_directory=cache, memo=memo)
+    second = prepare_annual_weather(second_copy, cache_directory=cache, memo=memo)
+    assert second.sky is first.sky and not second.sky.flags.writeable
+    assert second.source == str(second_copy.resolve()) and second.cache_hit
+    assert second.weather_id == first.weather_id
+    assert prepare_annual_weather(first_copy, north=10, cache_directory=cache, memo=memo).sky is not first.sky
+
+    class Collect:
+        def __init__(self):
+            self.events = []
+
+        def emit(self, event, **fields):
+            self.events.append(dict(fields, event=event))
+
+    def live(worker, model, weather):
+        writer = Collect()
+        options = {"model": str(model), "wea": str(weather), "backend": "reference",
+                   "quality": "preview"}
+        worker.handle({"id": "1", "command": "annual-daylight", "options": options}, writer)
+        return writer.events[-1]["manifest"]
+
+    other = ROOT / "test_models" / "architectural" / "teaching_depth6.hbjson"
+    warm = Worker()
+    live(warm, other, first_copy)
+    reused = live(warm, MODEL, second_copy)
+    assert len(warm.weather_memo) == 1
+    fresh = live(Worker(), MODEL, first_copy)
+    assert reused["grids"] == fresh["grids"]
