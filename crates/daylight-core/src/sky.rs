@@ -7,11 +7,14 @@ use crate::{
 
 pub mod perez;
 
+/// Number of patches in the Tregenza sky, including the ground patch.
 pub const TREGENZA_ROWS: usize = 146;
+/// Number of patches in the Reinhart MF:2 sky, including the ground patch.
 pub const REINHART_MF2_ROWS: usize = 578;
 pub(crate) const TREGENZA_RING_COUNTS: [usize; 7] = [30, 30, 24, 24, 18, 12, 6];
 const TREGENZA_RING_ALTITUDES_DEGREES: [f32; 7] = [6.0, 18.0, 30.0, 42.0, 54.0, 66.0, 78.0];
 
+/// How the sky is divided into patches: Tregenza (146) or Reinhart MF:2 (578).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SkyBasis {
     Tregenza,
@@ -19,6 +22,7 @@ pub enum SkyBasis {
 }
 
 impl SkyBasis {
+    /// Number of patches, including the ground patch.
     pub const fn row_count(self) -> usize {
         match self {
             Self::Tregenza => TREGENZA_ROWS,
@@ -27,6 +31,9 @@ impl SkyBasis {
     }
 }
 
+/// Daylight coefficients: how much light from each sky patch reaches each sensor.
+///
+/// Stored sensor by sensor in RGB: `values[sensor * patch_count + patch]`.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct CoefficientMatrix {
     pub sensor_count: usize,
@@ -35,6 +42,7 @@ pub struct CoefficientMatrix {
 }
 
 impl CoefficientMatrix {
+    /// Create a coefficient matrix and check its shape and values.
     pub fn new(sensor_count: usize, basis: SkyBasis, values: Vec<[f32; 3]>) -> Result<Self> {
         let matrix = Self {
             sensor_count,
@@ -45,6 +53,7 @@ impl CoefficientMatrix {
         Ok(matrix)
     }
 
+    /// Check that there is one finite, non-negative RGB value per sensor and patch.
     pub fn validate(&self) -> Result<()> {
         let expected = self.sensor_count * self.basis.row_count();
         if self.sensor_count == 0 || self.values.len() != expected {
@@ -67,10 +76,12 @@ impl CoefficientMatrix {
         Ok(())
     }
 
+    /// Coefficient of one sensor and patch.
     pub fn get(&self, sensor_index: usize, patch_index: usize) -> [f32; 3] {
         self.values[sensor_index * self.basis.row_count() + patch_index]
     }
 
+    /// Combine Reinhart MF:2 coefficients into Tregenza patches by adding sub-patches together.
     pub fn aggregate_tregenza(&self) -> Result<Self> {
         if self.basis == SkyBasis::Tregenza {
             return Ok(self.clone());
@@ -90,6 +101,9 @@ impl CoefficientMatrix {
     }
 }
 
+/// Hourly sky radiance per patch, in RGB.
+///
+/// Stored patch by patch: `values[patch * timestep_count + timestep]`.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SkyMatrix {
     pub basis: SkyBasis,
@@ -98,6 +112,7 @@ pub struct SkyMatrix {
 }
 
 impl SkyMatrix {
+    /// Create a sky matrix and check its shape and values.
     pub fn new(basis: SkyBasis, timestep_count: usize, values: Vec<[f32; 3]>) -> Result<Self> {
         let matrix = Self {
             basis,
@@ -108,6 +123,7 @@ impl SkyMatrix {
         Ok(matrix)
     }
 
+    /// Check that there is one finite, non-negative RGB value per patch and timestep.
     pub fn validate(&self) -> Result<()> {
         let expected = self.basis.row_count() * self.timestep_count;
         if self.timestep_count == 0 || self.values.len() != expected {
@@ -130,11 +146,13 @@ impl SkyMatrix {
         Ok(())
     }
 
+    /// Radiance of one patch at one timestep.
     pub fn get(&self, patch_index: usize, timestep_index: usize) -> [f32; 3] {
         self.values[patch_index * self.timestep_count + timestep_index]
     }
 }
 
+/// For each Reinhart MF:2 patch, the Tregenza patch that contains it.
 pub fn mf2_to_tregenza_map() -> Vec<usize> {
     let mut mapping = vec![0; REINHART_MF2_ROWS];
     let mut mf2_offset = 1;
@@ -152,6 +170,7 @@ pub fn mf2_to_tregenza_map() -> Vec<usize> {
     mapping
 }
 
+/// Centre direction of every patch, in Radiance's patch order. Patch 0 is the ground.
 pub fn patch_directions(basis: SkyBasis) -> Vec<Vec3> {
     let mut directions = Vec::with_capacity(basis.row_count());
     directions.push(Vec3::new(0.0, 0.0, -1.0));
@@ -184,6 +203,7 @@ pub fn patch_directions(basis: SkyBasis) -> Vec<Vec3> {
     directions
 }
 
+/// Solid angle of every patch in steradians, in the same order as `patch_directions`.
 pub fn patch_solid_angles(basis: SkyBasis) -> Vec<f32> {
     let mut solid_angles = Vec::with_capacity(basis.row_count());
     solid_angles.push(std::f32::consts::TAU);
@@ -297,6 +317,7 @@ fn patch_solid_angle_bounds(basis: SkyBasis, patch_index: usize) -> (f32, f32, f
     unreachable!("regular patch index did not map to a Radiance row")
 }
 
+/// The patch whose centre is nearest to `direction`.
 pub fn closest_patch(basis: SkyBasis, direction: Vec3) -> usize {
     if direction.z < 0.0 {
         return 0;
@@ -310,6 +331,7 @@ pub fn closest_patch(basis: SkyBasis, direction: Vec3) -> usize {
         .unwrap_or(basis.row_count() - 1)
 }
 
+/// The patch that contains `direction`, using Radiance's own patch boundaries.
 pub fn radiance_patch_index(basis: SkyBasis, direction: Vec3) -> usize {
     if direction.z < 0.0 {
         return 0;

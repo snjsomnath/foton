@@ -35,6 +35,8 @@ except NameError:
     string_types = (str,)
 
 
+# Shown on each component; kept in step with pyproject.toml.
+COMPONENT_VERSION = "0.3.3"
 PROTOCOL_NAME = "foton.honeybee"
 PROTOCOL_VERSION = 1
 METRICS = ("da", "cda", "udi_lower", "udi", "udi_upper")
@@ -151,8 +153,8 @@ def request_data(
 # The package the one-click install puts in Foton's own environment. The lower
 # bound is the first release with the built-in sky, the daylight-factor
 # command and the background worker these components use.
-ENGINE_REQUIREMENT = "foton-daylight[honeybee]>=0.3.2,<0.4"
-ENGINE_MINIMUM = (0, 3, 2)
+ENGINE_REQUIREMENT = "foton-daylight[honeybee]>=0.3.3,<0.4"
+ENGINE_MINIMUM = (0, 3, 3)
 ENGINE_MAXIMUM = (0, 4, 0)
 SUPPORTED_PYTHONS = ((3, 13), (3, 12), (3, 11), (3, 10))
 DEFAULT_BOUNCES = 8  # keep in step with foton.honeybee.annual.DEFAULT_MAXIMUM_BOUNCES
@@ -341,6 +343,124 @@ def find_base_python(configured=None):
     )
 
 
+# When no Python 3.10 to 3.13 is installed, Foton fetches uv (a single-file
+# Python installer from Astral) and lets it download a private Python. Both
+# live in Foton's own folder, so nothing else on the computer changes.
+UV_PYTHON = "3.12"
+UV_DOWNLOAD = "https://github.com/astral-sh/uv/releases/latest/download/"
+
+
+def _system():
+    if _windows():
+        return "windows"
+    if os.path.isdir("/System/Library/CoreServices"):
+        return "macos"
+    return "linux"
+
+
+def _machine():
+    """``arm64`` or ``x86_64`` for the running computer."""
+    try:
+        import clr  # noqa: F401  (IronPython inside Rhino)
+        from System.Runtime.InteropServices import Architecture, RuntimeInformation
+
+        arm = RuntimeInformation.OSArchitecture == Architecture.Arm64
+        return "arm64" if arm else "x86_64"
+    except ImportError:
+        import platform
+
+        machine = platform.machine().lower()
+        return "arm64" if machine in ("arm64", "aarch64") else "x86_64"
+
+
+def uv_asset():
+    """The name of the uv release archive for this computer."""
+    arch = "aarch64" if _machine() == "arm64" else "x86_64"
+    system = _system()
+    if system == "windows":
+        return "uv-{0}-pc-windows-msvc.zip".format(arch)
+    if system == "macos":
+        return "uv-{0}-apple-darwin.tar.gz".format(arch)
+    return "uv-{0}-unknown-linux-gnu.tar.gz".format(arch)
+
+
+def uv_executable():
+    return os.path.join(foton_home(), "uv", "uv.exe" if _windows() else "uv")
+
+
+def _system_tool(name):
+    """curl and tar ship with macOS and with Windows 10 (1803) and later."""
+    if _windows():
+        path = os.path.join(os.environ.get("WINDIR", "C:" + os.sep + "Windows"), "System32", name + ".exe")
+    else:
+        path = os.path.join("/usr/bin", name)
+    return path if os.path.isfile(path) else name
+
+
+def uv_environment():
+    """Keep uv's Python, cache and settings inside Foton's folder."""
+    home = foton_home()
+    return {
+        "UV_PYTHON_INSTALL_DIR": os.path.join(home, "python"),
+        "UV_CACHE_DIR": os.path.join(home, "cache"),
+        "UV_PYTHON_PREFERENCE": "only-managed",
+        "UV_NO_CONFIG": "1",
+    }
+
+
+def ensure_uv(progress=None, cancel=None):
+    """Download uv into Foton's folder unless it is already there."""
+    target = uv_executable()
+    if os.path.isfile(target):
+        return target
+
+    def report(line):
+        if progress is not None and line.strip():
+            progress(line.rstrip())
+
+    folder = os.path.dirname(target)
+    staging = tempfile.mkdtemp(prefix="uv-", dir=_ensure_folder(foton_home()))
+    try:
+        archive = os.path.join(staging, uv_asset())
+        report("Downloading uv from " + UV_DOWNLOAD + uv_asset())
+        code, lines = _stream_command(
+            [_system_tool("curl"), "-fsSL", "--retry", "2", "-o", archive, UV_DOWNLOAD + uv_asset()],
+            report,
+            cancel,
+        )
+        if code != 0 or not os.path.isfile(archive):
+            raise FotonError(
+                "Could not download uv. Check the internet connection, or install "
+                "Python 3.10 to 3.13 from python.org and try again:\n" + "".join(lines[-10:])
+            )
+        unpacked = os.path.join(staging, "unpacked")
+        os.makedirs(unpacked)
+        code, lines = _stream_command([_system_tool("tar"), "-xf", archive, "-C", unpacked], report, cancel)
+        if code != 0:
+            raise FotonError("Could not unpack uv:\n" + "".join(lines[-10:]))
+        name = os.path.basename(target)
+        found = None
+        for root, _directories, files in os.walk(unpacked):
+            if name in files:
+                found = os.path.join(root, name)
+                break
+        if found is None:
+            raise FotonError("The uv download did not contain " + name)
+        _ensure_folder(folder)
+        shutil.move(found, target)
+        if not _windows():
+            os.chmod(target, 0o755)
+    finally:
+        shutil.rmtree(staging, True)
+    return target
+
+
+def _ensure_folder(folder):
+    if not os.path.isdir(folder):
+        os.makedirs(folder)
+    return folder
+
+
 def install_foton(python=None, progress=None, cancel=None, upgrade=False):
     """Create Foton's own environment and pip install the engine into it.
 
@@ -359,20 +479,35 @@ def install_foton(python=None, progress=None, cancel=None, upgrade=False):
                 return executable
         except FotonError:
             pass
-    command, version = find_base_python(python)
     folder = environment_folder()
 
     def report(line):
         if progress is not None and line.strip():
             progress(line.rstrip())
 
-    report("Using Python {0}: {1}".format(version, " ".join(command)))
     if not os.path.isfile(_environment_file(folder, "python")):
-        report("Creating Foton's environment in " + folder)
-        parent = os.path.dirname(folder)
-        if not os.path.isdir(parent):
-            os.makedirs(parent)
-        code, lines = _stream_command(command + ["-m", "venv", folder], report, cancel)
+        try:
+            command, version = find_base_python(python)
+        except FotonError:
+            if python:
+                raise  # the user chose a Python; don't silently use another
+            command = None
+        _ensure_folder(os.path.dirname(folder))
+        if command is not None:
+            report("Using Python {0}: {1}".format(version, " ".join(command)))
+            report("Creating Foton's environment in " + folder)
+            code, lines = _stream_command(command + ["-m", "venv", folder], report, cancel)
+        else:
+            report("No Python 3.10 to 3.13 found. Foton will download its own Python "
+                   + UV_PYTHON + " into " + foton_home())
+            uv = ensure_uv(progress, cancel)
+            report("Creating Foton's environment in " + folder)
+            code, lines = _stream_command(
+                [uv, "venv", "--seed", "--python", UV_PYTHON, folder],
+                report,
+                cancel,
+                extra_env=uv_environment(),
+            )
         if code != 0:
             raise FotonError("Could not create " + folder + ":\n" + "".join(lines[-20:]))
     python_path = _environment_file(folder, "python")
@@ -390,28 +525,114 @@ def install_foton(python=None, progress=None, cancel=None, upgrade=False):
     return executable
 
 
-def _stream_command(command, on_line=None, cancel=None, timeout=None):
+def _install_registry():
+    # Kept in sys.modules: each component run re-executes this module, and a
+    # background install has to outlive that.
+    holder = sys.modules.get("_foton_install_registry")
+    if holder is None:
+        import types
+
+        holder = types.ModuleType("_foton_install_registry")
+        holder.installs = {}
+        sys.modules["_foton_install_registry"] = holder
+    return holder.installs
+
+
+def background_install(python=None):
+    """Run ``install_foton`` on a background thread so Rhino stays usable.
+
+    Returns a state dictionary: ``running``, ``log`` (recent lines),
+    ``executable`` once installed, ``error`` if it failed, and ``started``.
+    Calling it again while an install runs, or after it finished, returns the
+    same state, so a component can poll it on each solution. ``reset_install``
+    clears a finished state; ``cancel_install`` stops a running one, and the
+    next call after it has stopped starts a fresh install.
+    """
+    installs = _install_registry()
+    key = environment_folder()
+    state = installs.get(key)
+    if state is not None and not (state["cancelled"] and not state["running"]):
+        return state
+    # A stopped install is not a failure: start again from where it left off.
+    state = {
+        "running": True,
+        "log": [],
+        "executable": None,
+        "error": None,
+        "cancelled": False,
+        "started": time.time(),
+    }
+    installs[key] = state
+
+    def progress(line):
+        state["log"].append(line)
+        del state["log"][:-200]
+
+    def run():
+        try:
+            state["executable"] = install_foton(
+                python, progress=progress, cancel=lambda: state["cancelled"]
+            )
+        except Exception as error:  # reported on the component
+            state["error"] = str(error) or error.__class__.__name__
+        finally:
+            state["running"] = False
+
+    thread = threading.Thread(target=run)
+    thread.daemon = True
+    thread.start()
+    return state
+
+
+def install_status():
+    """The current background install's state, or None."""
+    return _install_registry().get(environment_folder())
+
+
+def cancel_install():
+    state = install_status()
+    if state is not None and state["running"]:
+        state["cancelled"] = True
+
+
+def reset_install():
+    """Forget a finished install, so the next toggle starts a fresh one."""
+    installs = _install_registry()
+    state = installs.get(environment_folder())
+    if state is not None and not state["running"]:
+        del installs[environment_folder()]
+
+
+def _stream_command(command, on_line=None, cancel=None, timeout=None, extra_env=None):
     """Run a command, passing each output line on; returns (exit code, lines)."""
     env = _subprocess_environment(command[0])
+    if extra_env:
+        env.update(extra_env)
+    # Rhino's IronPython cannot merge stderr into stdout (stderr=STDOUT raises
+    # "Cannot redirect stderr to stdout yet"), so read both pipes.
     process = subprocess.Popen(
         command,
         stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
+        stderr=subprocess.PIPE,
         env=env,
     )
-    lines = queue.Queue()
+    lines = _mailbox()
 
-    def read():
+    def read(stream):
         while True:
-            line = process.stdout.readline()
+            line = stream.readline()
             if not line:
                 break
             lines.put(_text(line))
         lines.put(None)
 
-    reader = threading.Thread(target=read)
-    reader.daemon = True
-    reader.start()
+    readers = []
+    for stream in (process.stdout, process.stderr):
+        reader = threading.Thread(target=read, args=(stream,))
+        reader.daemon = True
+        reader.start()
+        readers.append(reader)
+    open_streams = len(readers)
     collected = []
     started = time.time()
     try:
@@ -425,7 +646,10 @@ def _stream_command(command, on_line=None, cancel=None, timeout=None):
             except queue.Empty:
                 continue
             if line is None:
-                break
+                open_streams -= 1
+                if not open_streams:
+                    break
+                continue
             collected.append(line)
             if on_line is not None:
                 on_line(line)
@@ -434,7 +658,8 @@ def _stream_command(command, on_line=None, cancel=None, timeout=None):
         process.wait()
         raise
     code = process.wait()
-    reader.join(1.0)
+    for reader in readers:
+        reader.join(1.0)
     return code, collected
 
 
@@ -556,6 +781,41 @@ def thresholds(value=None):
     return result
 
 
+class _DotNetMailbox(object):
+    """A queue whose timed ``get`` wakes as soon as an item arrives.
+
+    IronPython's ``Queue.get(True, timeout)`` polls with sleeps of up to
+    50 ms, which a sub-second live run pays on every message. .NET's
+    ``BlockingCollection`` waits on a kernel event instead.
+    """
+
+    def __init__(self, collection):
+        self._collection = collection
+
+    def put(self, item):
+        self._collection.Add(item)
+
+    def get(self, block=True, timeout=None):
+        milliseconds = -1 if timeout is None else int(timeout * 1000)
+        taken, item = self._collection.TryTake(milliseconds if block else 0)
+        if not taken:
+            raise queue.Empty()
+        return item
+
+
+def _mailbox():
+    """A thread-safe queue for reader threads; .NET-backed under IronPython."""
+    if sys.platform == "cli":
+        try:
+            from System import Object
+            from System.Collections.Concurrent import BlockingCollection
+
+            return _DotNetMailbox(BlockingCollection[Object]())
+        except Exception:
+            pass
+    return queue.Queue()
+
+
 def _copy_or_write_model(model, folder):
     destination = os.path.join(folder, "model.hbjson")
     if isinstance(model, string_types):
@@ -620,14 +880,33 @@ def _copy_or_write_schedule(schedule, folder):
     return destination
 
 
-def _prepare_inputs(model, wea, schedule):
+def _prepare_inputs(model, wea, schedule, copy_files=True):
+    """Stage the inputs in a new temporary folder.
+
+    A live run reads files where they are (``copy_files=False``): the worker
+    keys its caches on file contents, so copying a 1.6 MB EPW on every slider
+    change only costs time. Objects (a Honeybee Model, a Wea) are still written.
+    """
     folder = tempfile.mkdtemp(prefix="foton-gh-inputs-")
+
+    def stage(value, write, kind, extensions):
+        if not copy_files and isinstance(value, string_types):
+            path = os.path.abspath(os.path.expanduser(str(value)))
+            if not os.path.isfile(path):
+                raise FotonError(kind + " does not exist: " + path)
+            if extensions and os.path.splitext(path)[1].lower() not in extensions:
+                raise FotonError("Weather input must be an EPW or WEA file")
+            return path
+        return write(value, folder)
+
     try:
         return (
             folder,
-            _copy_or_write_model(model, folder),
-            _copy_or_write_weather(wea, folder),
-            _copy_or_write_schedule(schedule, folder),
+            stage(model, _copy_or_write_model, "HBJSON model", None),
+            stage(wea, _copy_or_write_weather, "EPW/WEA file", (".epw", ".wea")),
+            None if schedule is None else stage(
+                schedule, _copy_or_write_schedule, "Schedule file", None
+            ),
         )
     except Exception:
         shutil.rmtree(folder, ignore_errors=True)
@@ -856,7 +1135,7 @@ def _start_worker(executable):
     )
     worker = {
         "process": process,
-        "messages": queue.Queue(),
+        "messages": _mailbox(),
         "errors": [],
         "next_id": 1,
         "ready": False,
@@ -937,6 +1216,10 @@ def _write_line(stream, line):
     stream.flush()
 
 
+# Shortest gap between progress updates passed on from a live run.
+LIVE_PROGRESS_INTERVAL = 0.25
+
+
 def worker_request(executable, command, options, progress=None, cancel=None):
     """Send one request to the background worker and return its manifest."""
     executable = discover_executable(executable)
@@ -946,6 +1229,7 @@ def worker_request(executable, command, options, progress=None, cancel=None):
     request_id = str(worker["next_id"])
     worker["next_id"] += 1
     line = json.dumps({"id": request_id, "command": command, "options": options})
+    last_progress = None
     try:
         _write_line(worker["process"].stdin, line)
         while True:
@@ -957,7 +1241,13 @@ def worker_request(executable, command, options, progress=None, cancel=None):
                 return message.get("manifest") or {}
             if event == "failed":
                 raise FotonError(message.get("message") or "Foton failed")
-            if progress is not None:
+            # Each progress call redraws Rhino; a live run that ends in a
+            # fraction of a second only needs the first one.
+            now = time.time()
+            if progress is not None and (
+                last_progress is None or now - last_progress >= LIVE_PROGRESS_INTERVAL
+            ):
+                last_progress = now
                 progress(message)
     except FotonError as error:
         if not isinstance(error, FotonCancelled) and worker["process"].poll() is None:
@@ -986,7 +1276,7 @@ def _run_process(command, progress=None, cancel=None):
         bufsize=1,
         env=env,
     )
-    messages = queue.Queue()
+    messages = _mailbox()
     errors = []
 
     def read_stdout():
@@ -1088,7 +1378,7 @@ def run_annual_daylight(
     limits = thresholds(thresholds_value)
     maximum_bounces = DEFAULT_BOUNCES if maximum_bounces is None else int(maximum_bounces)
     temp_folder, model_path, weather_path, schedule_path = _prepare_inputs(
-        model, wea, schedule
+        model, wea, schedule, copy_files=not live
     )
     try:
         if live:

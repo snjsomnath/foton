@@ -24,10 +24,18 @@ def create_app(
     frontend_directory: str | Path | None = None,
     demo_weather_path: str | Path | None = None,
 ) -> FastAPI:
+    """Build the viewer's FastAPI app.
+
+    The arguments let tests swap in a fake engine, a weather store or another
+    frontend folder. The built frontend is served from ``viewer/dist`` when it
+    exists.
+    """
     factory = engine_factory or Engine
     store = weather_store or WeatherStore()
+    # The demo weather ships inside the package, so the demo also works from
+    # a pip install, not only from a checkout.
     demo_epw = Path(demo_weather_path) if demo_weather_path else (
-        Path(__file__).resolve().parents[3] / "epw" / "gothenburg.epw"
+        Path(__file__).resolve().parent / "data" / "gothenburg.epw"
     )
     demo_weather_lock = asyncio.Lock()
 
@@ -44,7 +52,7 @@ def create_app(
 
     app = FastAPI(
         title="Foton Viewer",
-        version="0.3.1",
+        version="0.3.3",
         lifespan=lifespan,
     )
 
@@ -91,7 +99,7 @@ def create_app(
             except FileNotFoundError as exc:
                 raise HTTPException(
                     status_code=503,
-                    detail="Demo weather is missing. Run from a Foton checkout containing epw/gothenburg.epw.",
+                    detail="Demo weather is missing: reinstall foton-daylight (it ships daylight_engine/viewer/data/gothenburg.epw).",
                 ) from exc
             except (OSError, RuntimeError, ValueError) as exc:
                 raise HTTPException(status_code=503, detail=str(exc)) from exc

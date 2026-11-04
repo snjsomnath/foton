@@ -17,6 +17,12 @@ from .weather import (
 
 
 def inspect_installation(backend="auto", output=None, radiance_bin=None):
+    """Check that Foton, its GPU backend and its Python dependencies are ready.
+
+    Returns a report with versions, the selected backend, the quality presets and
+    any errors or warnings, without running an analysis. A missing Radiance is a
+    warning, because annual runs do not need it.
+    """
     from foton import Engine, __version__
 
     engine = dict(Engine({"backend": backend}).capabilities())

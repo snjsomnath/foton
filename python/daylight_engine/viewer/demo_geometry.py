@@ -12,6 +12,8 @@ from .geometry import (
 
 
 class DemoParameters(RoomParameters):
+    """Room parameters for the animated demo: several windows, an L-shaped plan, more rooms and a facing building."""
+
     window_count: int = Field(1, ge=1, le=4)
     window_gap: float = Field(0.4, ge=0.1, le=3)
     rear_width_scale: float = Field(1.0, ge=0.5, le=1.5)
@@ -24,6 +26,7 @@ class DemoParameters(RoomParameters):
 
     @model_validator(mode="after")
     def validate_demo(self):
+        """Reject windows that do not fit the facade, a notch that leaves no room, and more than 30,000 sensors."""
         span = self.window_count * self.window_width + (self.window_count - 1) * self.window_gap
         if abs(self.window_offset) + span / 2 > self.width / 2 - 0.05:
             raise ValueError("all windows must fit within the facade with a 0.05 m side margin")
@@ -36,6 +39,7 @@ class DemoParameters(RoomParameters):
 
 
 def generate_demo_scene(parameters: dict | DemoParameters) -> ParametricScene:
+    """Build the demo's rooms, windows, shading and context building as a ``ParametricScene``."""
     p = parameters if isinstance(parameters, DemoParameters) else DemoParameters.model_validate(parameters)
     base = generate_parametric_scene(RoomParameters.model_validate(p.model_dump()))
     a = base.arrays

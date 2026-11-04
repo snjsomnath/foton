@@ -14,10 +14,10 @@ does the expensive ray tracing on the GPU, so a full year of hourly results
 for a typical model takes about a second. You keep your Honeybee model and your
 Ladybug result components. Only the slow step changes.
 
-<p align="center"><img src="https://raw.githubusercontent.com/snjsomnath/foton/main/docs/images/grasshopper-heatmap-viewport.png" width="70%" alt="Daylight autonomy of a shaded room computed by Foton in Grasshopper and drawn by Ladybug's spatial heatmap"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/snjsomnath/foton/main/docs/images/grasshopper-live-mode.gif" width="55%" alt="Animation: as the window of a room is widened and narrowed in Grasshopper, daylight autonomy on the floor and the sDA, cDA, UDI and daylight factor plans update with it"></p>
 
-*The shipped Grasshopper example. Foton computes a year of daylight in about a
-second, and Honeybee and Ladybug read the result as if Radiance had written it.*
+*Live mode in Grasshopper (new in 0.3.2). Each time the window changes, Foton reruns the
+annual study and every metric updates in about a third of a second.*
 
 ## Who it is for
 
@@ -30,6 +30,8 @@ second, and Honeybee and Ladybug read the result as if Radiance had written it.*
 ## At a glance
 
 <p align="center"><img src="https://raw.githubusercontent.com/snjsomnath/foton/main/docs/images/annual-run-times.png" width="85%" alt="Bar chart: a full annual daylight run takes 0.14 s for a 96-sensor room, 1.07 s for 2,020 sensors and 5.77 s for a 9,216-sensor office block"></p>
+
+<p align="center"><img src="https://raw.githubusercontent.com/snjsomnath/foton/main/docs/images/benchmark-models.png" width="85%" alt="The four benchmark models drawn in 3D with the roof off: a single teaching office, four rooms around a courtyard, the three-room acceptance model and a four-storey office block with 256 rooms. Every sensor is a small square coloured by its daylight autonomy"></p>
 
 <p align="center"><img src="https://raw.githubusercontent.com/snjsomnath/foton/main/docs/images/accuracy-sda.png" width="60%" alt="Scatter plot: sDA from Foton against sDA from Radiance for 119 sensor grids, all close to the diagonal"></p>
 
@@ -63,10 +65,16 @@ The `foton-results` folder has the same layout as a Honeybee annual daylight
 run, so Honeybee's own metric and visualisation components can read it. To
 check which GPU Foton will use, run `foton-honeybee capabilities`.
 
-**In Rhino 8 and Grasshopper:** download `foton-grasshopper-<version>.zip` from
-the [releases page](https://github.com/snjsomnath/foton/releases) and follow
-the [Grasshopper quickstart](https://github.com/snjsomnath/foton/blob/main/docs/grasshopper-quickstart.md).
-It takes about five minutes.
+**In Rhino 8 and Grasshopper:** type `PackageManager` in Rhino, search for
+**foton** and install it. You can also download `foton-grasshopper-<version>.zip`
+from the [releases page](https://github.com/snjsomnath/foton/releases). The
+components appear on the **HB-Foton** tab. Set `install_` on Foton Settings to
+True and it installs the rest, including its own Python if you don't have one.
+The [Grasshopper quickstart](https://github.com/snjsomnath/foton/blob/main/docs/grasshopper-quickstart.md)
+walks through it with screenshots. It takes about five minutes. Foton's results go straight into Ladybug's own
+components, such as the spatial heatmap below.
+
+<p align="center"><img src="https://raw.githubusercontent.com/snjsomnath/foton/main/docs/images/grasshopper-heatmap-viewport.png" width="70%" alt="Daylight autonomy of a shaded room computed by Foton in Grasshopper and drawn by Ladybug's spatial heatmap"></p>
 
 ## How it works
 
@@ -129,7 +137,7 @@ Raw data: [apple-m4-pro-672fe35d](https://github.com/snjsomnath/foton/blob/main/
 - `preview` and `final` quality settings
 - Metal (macOS), Vulkan (Windows, Linux) and a CPU fallback that gives the
   same answer
-- A Python API, a command-line tool and three Grasshopper components
+- A Python API, a command-line tool and four Grasshopper components
 
 ## What it does not do
 

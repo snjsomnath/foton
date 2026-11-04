@@ -13,21 +13,80 @@ import traceback
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUTPUT = os.path.join(ROOT, "grasshopper_foton", "distribution")
 
-COMPONENTS = (
-    ("Foton Settings", ("executable_", "backend_", "python_", "install_", "_check"),
-     ("report", "executable", "engine_version", "protocol_version", "backend", "capabilities", "cache_folder")),
-    ("Foton Annual Daylight", ("_model", "_wea", "schedule_", "north_", "thresholds_", "grid_filter_", "quality_", "sky_density_", "backend_", "output_folder_", "executable_", "reuse_", "direct_samples_", "indirect_samples_", "bounces_", "seed_", "live_", "_run"),
-     ("report", "results", "DA", "cDA", "UDI", "UDI_low", "UDI_up", "sDA", "grid_ids", "room_ids", "manifest", "timings", "timings_text", "warnings", "folder")),
-    ("Foton Annual Results", ("_manifest", "_load"),
-     ("report", "results", "DA", "cDA", "UDI", "UDI_low", "UDI_up", "sDA", "grid_ids", "room_ids", "manifest", "timings", "timings_text", "warnings", "folder")),
-    ("Foton Daylight Factor", ("_model", "grid_filter_", "quality_", "sky_density_", "backend_", "output_folder_", "executable_", "bounces_", "live_", "_run"),
-     ("report", "results", "DF", "mean_DF", "grid_ids", "room_ids", "timings_text", "folder")),
+COMPONENT_NAMES = (
+    "Foton Settings",
+    "Foton Annual Daylight",
+    "Foton Annual Results",
+    "Foton Daylight Factor",
 )
 
 
 def source(path):
     with open(os.path.join(ROOT, path), "r") as stream:
         return stream.read()
+
+
+def component_spec(name, code=None):
+    """Read a component's ports, help text and placement from its source.
+
+    The docstring is the one place each input and output is described:
+    ``Args:`` and ``Returns:`` list them in order as ``name: description``,
+    with longer descriptions continued on more deeply indented lines.
+    """
+    if code is None:
+        code = source("grasshopper_foton/components/" + name + ".py")
+    docstring = code.split('"""', 2)[1]
+    head, _, ports = docstring.partition("Args:")
+    inputs_text, _, outputs_text = ports.partition("Returns:")
+
+    def entries(text):
+        result = []
+        for line in text.splitlines():
+            name, separator, text = line.strip().partition(": ")
+            port = line.startswith(" " * 8) and not line.startswith(" " * 9)
+            if port and separator and name.replace("_", "").isalnum():
+                result.append([name, text.strip()])
+            elif line.strip() and result:
+                result[-1][1] += " " + line.strip()
+        return [tuple(entry) for entry in result]
+
+    description = "\n\n".join(
+        " ".join(paragraph.split())
+        for paragraph in head.strip().rstrip("-").split("\n\n")
+        if paragraph.strip()
+    )
+
+    def setting(key):
+        return assigned_text(code, "ghenv.Component." + key)
+
+    return {
+        "name": name,
+        "nickname": setting("NickName"),
+        "category": setting("Category"),
+        "subcategory": setting("SubCategory"),
+        "description": description,
+        "inputs": entries(inputs_text),
+        "outputs": entries(outputs_text),
+        "icon": "grasshopper_foton/icons/" + name + ".png",
+    }
+
+
+def assigned_text(code, target):
+    """The quoted string assigned to ``target`` on a line of its own.
+
+    Plain string handling rather than ``re``: Rhino's IronPython 2 runs regular
+    expressions on .NET, where multiline anchors behave differently.
+    """
+    prefix = target + " = "
+    for line in code.splitlines():
+        line = line.strip()
+        if line.startswith(prefix) and line[len(prefix):][:1] in ("\"", "'"):
+            return line[len(prefix) + 1:-1]
+    raise RuntimeError("No %s found" % target)
+
+
+def component_version():
+    return assigned_text(source("grasshopper_foton/foton_gh.py"), "COMPONENT_VERSION")
 
 
 def embedded_script(name):
@@ -60,7 +119,7 @@ def main():
     clr.AddReference("Grasshopper")
     clr.AddReference("GH_IO")
     import Grasshopper as gh
-    from Grasshopper.Kernel import GH_Document, GH_UserObject, GH_ParamAccess
+    from Grasshopper.Kernel import GH_Document, GH_Exposure, GH_UserObject, GH_ParamAccess
     from GH_IO.Serialization import GH_Archive
     from System import Guid
     from System.Drawing import PointF
@@ -68,49 +127,83 @@ def main():
     if not os.path.isdir(OUTPUT):
         os.makedirs(OUTPUT)
     document = GH_Document()
-    # The built-in, cross-platform legacy GhPython component; external engine stays CPython.
-    component_id = Guid("410755b1-224a-4c1e-a407-bf32fb45ea7e")
+    # Rhino 8's "IronPython 2 Script" component. The legacy GhPython component
+    # (410755b1-...) is marked obsolete in Rhino 8, which shows an "OLD" badge and
+    # hides it from the ribbon. The external engine stays in CPython either way.
+    component_id = Guid("97aa26ef-88ae-4ba6-98a6-ed6ddeca11d1")
 
-    def make_component(name, inputs, outputs, code, x, y):
+    from System.Drawing import Bitmap
+
+    def make_component(name, inputs, outputs, code, x, y, spec=None):
         obj = gh.Instances.ComponentServer.EmitObjectProxy(component_id).CreateInstance()
         obj.CreateAttributes()
-        obj.HiddenOutOutput = True
+        obj.UsingStandardOutputParam = False
         while obj.Params.Input.Count:
             obj.Params.UnregisterInputParameter(obj.Params.Input[0], True)
         while obj.Params.Output.Count:
             obj.Params.UnregisterOutputParameter(obj.Params.Output[0], True)
         from Grasshopper.Kernel import GH_ParameterSide
-        for side, names in ((GH_ParameterSide.Input, inputs), (GH_ParameterSide.Output, outputs)):
-            for index, port_name in enumerate(names):
+        for side, ports in ((GH_ParameterSide.Input, inputs), (GH_ParameterSide.Output, outputs)):
+            for index, (port_name, hint) in enumerate(ports):
                 param = obj.CreateParameter(side, index)
                 param.Name = param.NickName = port_name
-                param.Description = port_name
+                # The tooltip shown when hovering over the input or output.
+                param.Description = hint
                 param.Access = GH_ParamAccess.item
                 param.Optional = True
                 if side == GH_ParameterSide.Input:
                     obj.Params.RegisterInputParam(param)
                 else:
                     obj.Params.RegisterOutputParam(param)
-        obj.Name = obj.NickName = name
-        obj.Category = "HB-Foton"
-        obj.SubCategory = "Recipes"
-        obj.Code = code
+        obj.Name = name
+        obj.NickName = spec["nickname"] if spec else name
+        obj.Category = spec["category"] if spec else "HB-Foton"
+        obj.SubCategory = spec["subcategory"] if spec else "Foton"
+        if spec:
+            obj.Description = spec["description"]
+            obj.Message = version
+            try:
+                obj.SetIconOverride(Bitmap(os.path.join(ROOT, spec["icon"])))
+            except Exception as error:  # the user object's own icon still applies
+                print("WARNING: %s icon override failed: %s" % (name, error))
+        obj.SetSource(code)
         obj.Params.OnParametersChanged()
+        obj.VariableParameterMaintenance()
+        # Rhino 8's script component rebuilds each parameter's Description from
+        # its type hint whenever it reads the script or a saved file; only the
+        # script parameter's ToolTip is kept, and Description then shows it.
+        for params, ports in ((obj.Params.Input, inputs), (obj.Params.Output, outputs)):
+            for param, (_, hint) in zip(params, ports):
+                param.ToolTip = hint
+                param.Description = hint
+        # The component's own Description is rebuilt from its Tooltip the same
+        # way, which matters for the copies saved in the example definition.
+        if spec:
+            obj.Tooltip = spec["description"]
+            obj.Description = spec["description"]
         obj.Attributes.Pivot = PointF(x, y)
         document.AddObject(obj, False)
         return obj
 
-    objects, output_files = [], []
-    for index, (name, inputs, outputs) in enumerate(COMPONENTS):
-        obj = make_component(name, inputs, outputs, embedded_script(name), 400 + index * 400, 250)
+    version = component_version()
+    objects, output_files, help_warnings = [], [], []
+    for index, name in enumerate(COMPONENT_NAMES):
+        spec = component_spec(name)
+        inputs = [port for port, _ in spec["inputs"]]
+        obj = make_component(name, spec["inputs"], spec["outputs"], embedded_script(name), 400 + index * 400, 250, spec)
         objects.append(obj)
         user = GH_UserObject()
         user.SetDataFromObject(obj)
         user.Description.Name = name
-        user.Description.NickName = name.replace(" ", "")
-        user.Description.Category = "HB-Foton"
-        user.Description.SubCategory = "Recipes"
+        user.Description.NickName = spec["nickname"]
+        user.Description.Description = spec["description"] + "\n\nFoton " + version + " - https://github.com/snjsomnath/foton"
+        user.Description.Category = spec["category"]
+        user.Description.SubCategory = spec["subcategory"]
+        user.Icon = Bitmap(os.path.join(ROOT, spec["icon"]))
         user.BaseGuid = obj.ComponentGuid
+        # Without this a user object can inherit a hidden exposure, and
+        # Grasshopper leaves it out of the ribbon and the canvas search.
+        user.Exposure = GH_Exposure.primary
         user.Path = os.path.join(OUTPUT, name + ".ghuser")
         if not user.SaveToFile():
             raise RuntimeError("Failed to save " + user.Path)
@@ -119,6 +212,25 @@ def main():
         restored = loaded.InstantiateObject()
         if restored is None or [p.Name for p in restored.Params.Input] != list(inputs):
             raise RuntimeError("User object round-trip failed: " + name)
+        # Recorded rather than raised, so the build finishes and every loss is
+        # listed at once; package_grasshopper.py refuses a build with any.
+        for params, ports in ((restored.Params.Input, spec["inputs"]), (restored.Params.Output, spec["outputs"])):
+            for param, (port, hint) in zip(params, ports):
+                if param.Description != hint:
+                    help_warnings.append("%s %s tooltip after reload: %r" % (name, port, param.Description))
+        if loaded.Exposure != GH_Exposure.primary:
+            raise RuntimeError("User object is not exposed in the ribbon: " + name)
+        if loaded.Icon is None:
+            help_warnings.append("%s has no icon after reload" % name)
+        if not loaded.Description.Description.startswith(spec["description"][:40]):
+            help_warnings.append("%s description after reload: %r" % (name, loaded.Description.Description))
+        if loaded.Description.SubCategory != spec["subcategory"]:
+            raise RuntimeError("User object is in the wrong ribbon panel: " + name)
+        if restored.Obsolete:
+            raise RuntimeError("User object is built on an obsolete component: " + name)
+        restored_source = restored.TryGetSource()
+        if not (restored_source[0] if isinstance(restored_source, tuple) else restored_source):
+            raise RuntimeError("User object lost its script: " + name)
         output_files.append(name + ".ghuser")
 
     example_code = '''import os
@@ -127,7 +239,18 @@ model = os.path.join(root, "examples", "shoebox.hbjson")
 weather = os.path.join(root, "examples", "gothenburg.epw")
 output = os.path.join(os.path.expanduser("~"), "foton_simulation", "first_example")
 '''
-    paths = make_component("Example files", (), ("model", "weather", "output"), example_code, 100, 400)
+    paths = make_component(
+        "Example files",
+        (),
+        (
+            ("model", "The example shoebox model (HBJSON) next to this file."),
+            ("weather", "The Gothenburg weather file next to this file."),
+            ("output", "Where the example writes its results."),
+        ),
+        example_code,
+        100,
+        400,
+    )
     annual = objects[1]
     for destination, index in (("_model", 0), ("_wea", 1), ("output_folder_", 2)):
         next(p for p in annual.Params.Input if p.Name == destination).AddSource(paths.Params.Output[index])
@@ -146,7 +269,7 @@ output = os.path.join(os.path.expanduser("~"), "foton_simulation", "first_exampl
         next(p for p in obj.Params.Input if p.Name == port).AddSource(toggle)
     panel = GH_Panel()
     panel.CreateAttributes()
-    panel.UserText = "Foton beta: toggle install_ on Foton Settings once (or pip install foton-daylight[honeybee] yourself), then Check, then Run. Radiance is not needed. Turn live_ on for fast slider changes. Read START_HERE.md. CPU fallback is diagnostic only."
+    panel.UserText = "Foton " + version + ": GPU daylight for Grasshopper.\n1. First time only: set install_ on Foton Settings to True. Foton installs into ~/.foton, with its own Python if needed.\n2. Toggle _check: it should name your GPU.\n3. Toggle _run on Foton Annual Daylight or Foton Daylight Factor.\nTurn live_ on for quick updates while you move sliders. Hover over any input for help. Guide: START_HERE.md"
     panel.Attributes.Pivot = PointF(100, 650)
     document.AddObject(panel, False)
     archive = GH_Archive()
@@ -162,16 +285,32 @@ output = os.path.join(os.path.expanduser("~"), "foton_simulation", "first_exampl
     restored_document = GH_Document()
     if not loaded_archive.ExtractObject(restored_document, "Definition"):
         raise RuntimeError("Example document round-trip failed")
-    sources = ["scripts/build_grasshopper.py", "python/foton_bridge/__init__.py", "grasshopper_foton/foton_gh.py"] + ["grasshopper_foton/components/" + c[0] + ".py" for c in COMPONENTS]
+    for restored in restored_document.Objects:
+        if restored.Name in COMPONENT_NAMES:
+            spec = component_spec(restored.Name)
+            if restored.Description != spec["description"]:
+                help_warnings.append("%s description in the example: %r" % (restored.Name, restored.Description))
+            for params, ports in ((restored.Params.Input, spec["inputs"]), (restored.Params.Output, spec["outputs"])):
+                for param, (port, hint) in zip(params, ports):
+                    if param.Description != hint:
+                        help_warnings.append("%s %s tooltip in the example: %r" % (restored.Name, port, param.Description))
+    sources = (
+        ["scripts/build_grasshopper.py", "python/foton_bridge/__init__.py", "grasshopper_foton/foton_gh.py"]
+        + ["grasshopper_foton/components/" + name + ".py" for name in COMPONENT_NAMES]
+        + ["grasshopper_foton/icons/" + name + ".png" for name in COMPONENT_NAMES]
+    )
     def sha(path):
         with open(path, "rb") as stream:
             return hashlib.sha256(stream.read()).hexdigest()
     import Rhino
     manifest = {"schema_version": 1, "rhino_version": str(Rhino.RhinoApp.Version), "round_trip_passed": True,
+                "help_and_icons_verified": not help_warnings, "help_warnings": help_warnings,
                 "sources": dict((p, sha(os.path.join(ROOT, p))) for p in sources),
                 "artifacts": dict((p, sha(os.path.join(OUTPUT, p))) for p in output_files)}
     with open(os.path.join(OUTPUT, "build_manifest.json"), "w") as stream:
         json.dump(manifest, stream, indent=2, sort_keys=True)
+    for warning in help_warnings:
+        print("WARNING: " + warning)
     print("Foton Grasshopper artifacts built in " + OUTPUT)
 
 
@@ -183,4 +322,6 @@ if __name__ == "__main__":
             os.makedirs(OUTPUT)
         with open(os.path.join(OUTPUT, "build_error.log"), "w") as stream:
             stream.write(traceback.format_exc())
-        raise
+        # Print instead of raising, so Rhino shows no blocking error dialog.
+        print("Foton Grasshopper build FAILED; see " + os.path.join(OUTPUT, "build_error.log"))
+        print(traceback.format_exc())

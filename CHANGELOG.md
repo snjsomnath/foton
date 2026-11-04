@@ -2,8 +2,58 @@
 
 All notable Foton changes are recorded here.
 
-## Unreleased
+## 0.3.3 - 2026-11-04
 
+Makes installing Foton in Rhino straightforward.
+
+- The Foton components now appear on an **HB-Foton** tab in the Grasshopper
+  toolbar and in canvas search. Since 0.3.0 they had been hidden from both,
+  so the only way to reach them was through the example file.
+- The components are built on Rhino 8's current IronPython 2 script
+  component, so they no longer carry an "OLD" badge. They need Rhino 8.
+- `install_` on Foton Settings no longer needs Python installed first. When it
+  finds no Python 3.10 to 3.13, it downloads uv into `~/.foton`, which fetches
+  a private Python 3.12 for Foton's environment. Nothing outside `~/.foton`
+  changes.
+- `install_` runs in the background, so Rhino stays usable while Foton
+  installs; Foton Settings shows how long it has been running and checks the
+  install when it finishes. Before, Rhino froze until the install was done,
+  which could be minutes when Foton downloads its own Python.
+- The components are easier to use: each has its own icon, a description,
+  and help text on every input and output (hover over one to read it). The
+  version shows under each component.
+- Foton is packaged for Rhino's Package Manager (Yak). The release workflow
+  builds the package, attaches it to the GitHub release and publishes it.
+- New step-by-step install guide with screenshots in
+  `docs/grasshopper-quickstart.md`, and a maintainer guide in
+  `docs/publishing-yak.md`.
+- The browser viewer's demo now works from a pip install. Its Gothenburg
+  weather file ships inside the package; before, the demo stopped with "Demo
+  weather is missing" unless it ran from a checkout.
+- The citation (CITATION.cff) now lists Alexander Hollberg as second author.
+- CI runs less: a push to main after a tested pull request gets a quick Linux
+  check, a newer push cancels a pull request's older run, pull requests test
+  four Python jobs instead of six, and the viewer is checked only when it
+  changes.
+- The release check reuses an earlier version's Metal and Vulkan suites when
+  nothing in the engine changed since: only the version number, the
+  Grasshopper components, the viewer or documentation.
+- Faster live mode in Grasshopper with identical results. The background
+  worker keeps prepared weather in memory across geometry changes instead of
+  re-reading the EPW and the cached sky matrix on every run; the Grasshopper
+  bridge waits on a .NET event instead of IronPython's polling queue, passes
+  at most one progress update per quarter second to Rhino during a live run,
+  and reads the weather and schedule files in place instead of copying them.
+
+## 0.3.2 - 2026-11-04
+
+The first release with Foton's own sky: `pip install foton-daylight[honeybee]`
+now runs annual daylight with no Radiance install. It also brings live mode,
+daylight factor and a one-click install to Grasshopper, and a rewritten README
+for first-time visitors.
+
+- The README is rewritten for a first-time visitor, with charts of speed and
+  accuracy and a diagram of how a run works.
 - Grasshopper now defaults to 8 diffuse bounces, the validated setting. The
   Foton Annual Daylight component used to pass `bounces_ = 1` when nothing was
   connected, which reads about 18 % low; scripted and command-line runs were

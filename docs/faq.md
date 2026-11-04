@@ -45,9 +45,11 @@ because it does not include the full LM-83 procedure (dynamic blinds and ASE).
 
 ## Can I use it from Grasshopper?
 
-Yes. Download `foton-grasshopper-<version>.zip` from the
-[releases page](https://github.com/snjsomnath/foton/releases) and follow the
-[Grasshopper quickstart](grasshopper-quickstart.md). The results work with
+Yes, in Rhino 8 on a Mac or a Windows PC. Install **foton** from Rhino's
+Package Manager, or download `foton-grasshopper-<version>.zip` from the
+[releases page](https://github.com/snjsomnath/foton/releases), and follow the
+[Grasshopper quickstart](grasshopper-quickstart.md). You don't need to install
+Python first. The results work with
 Honeybee's metric components and Ladybug's heatmap.
 
 ## How do I cite Foton?

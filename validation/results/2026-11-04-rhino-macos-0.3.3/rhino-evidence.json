@@ -1,0 +1,21 @@
+{
+  "commit": "eda816cfcd7663f6a67031543075445a56423d88",
+  "engine_version": "0.3.3",
+  "rhino_version": "8.35.26251.13002",
+  "system": "Darwin",
+  "backend": "metal",
+  "tested_at": "2026-11-04",
+  "notes": "macOS 26.6 on Apple M4 Pro, Rhino 8.35 with the same Ladybug Tools install as the 0.3.2 checklist (recorded for 0.3.1 as 1.9.0), existing Rhino profile, Radiance 5.4a. Components: the Grasshopper build committed at 5a2ad44 (built in Rhino 8.35 from f63e02c; the release commit eda816c changes only .github/workflows/ci.yml), on Rhino 8's IronPython 2 Script component with help text and icons verified after save and reload (build_manifest help_and_icons_verified true). install: dist/foton-0.3.3-any-any.yak from scripts/package_yak.py installed with yak install, Rhino restarted; Package Manager lists foton 0.3.3; the HB-Foton tab shows one Foton group with all four components and their icons, canvas search for Foton finds all four, no OLD badge, 0.3.3 under each component, port and component tooltips shown on hover. Foton Settings install_ was run inside Rhino into scratch FOTON_HOME folders with PIP_FIND_LINKS pointing at the local 0.3.3 wheel (0.3.3 was not yet on PyPI): it installs in the background (Rhino stays responsive, Message counts Installing m:ss), ends at 0.3.3 / metal with the check report, says already installed when toggled again, and when toggled off mid-install stops cleanly and starts a fresh install on the next toggle. The uv route (no Python 3.10-3.13 found) was run headless from the same code: it downloaded uv and Python 3.12.16 and installed 0.3.3 in 85 s. open_example, run, rerun, change_inputs, upgrade_invalidates_reuse, reload_moved_results, cancel: scripts/check_grasshopper.py run in a freshly started Rhino through the Rhino MCP Python runner against dist/foton-grasshopper-0.3.3.zip, with FOTON_HONEYBEE_EXE=/Users/ssanjay/GitHub/foton-0.3.3/.venv/bin/foton-honeybee; all ten checks passed (rhino-smoke.json), engine 0.3.3 on metal. honeybee_metrics: HB Annual Daylight Metrics read the results folder of a fresh Foton Annual Daylight run of the bundle's shoebox example (executable_ connected to the same foton-honeybee) and returned DA identical to Foton's own DA on all 36 sensors (max difference 0.0 pp), no errors or warnings; the run manifest reports engine 0.3.3. ladybug_heatmap: LB Spatial Heatmap built a 36-face mesh with vertex colours from those DA values and the example model's SensorGrid mesh, no errors or warnings. Not covered: a fresh Rhino profile, Windows, and install_ against the published PyPI release.",
+  "scenarios": {
+    "install": true,
+    "open_example": true,
+    "run": true,
+    "cancel": true,
+    "rerun": true,
+    "change_inputs": true,
+    "upgrade_invalidates_reuse": true,
+    "reload_moved_results": true,
+    "honeybee_metrics": true,
+    "ladybug_heatmap": true
+  }
+}

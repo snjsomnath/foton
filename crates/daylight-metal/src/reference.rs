@@ -17,6 +17,10 @@ const RAY_EPSILON: f32 = 1.0e-4;
 // distance are real; a positive minimum culled the adjacent wall at corners.
 const RAY_MIN_DISTANCE: f32 = 0.0;
 
+/// Foton's solver on the CPU.
+///
+/// Slower than the GPU backends but available everywhere, and it gives the same
+/// answer. Tests use it as the reference the GPU backends are checked against.
 #[derive(Clone, Debug, Default)]
 pub struct ReferenceBackend;
 
@@ -55,6 +59,7 @@ impl Backend for ReferenceBackend {
 }
 
 impl ReferenceBackend {
+    /// Like `analyze`, but always keeps the traced coefficients in the result.
     pub fn analyze_with_coefficients(
         &self,
         scene: &SceneData,

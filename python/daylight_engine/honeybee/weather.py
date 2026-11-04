@@ -10,7 +10,7 @@ against; it is no longer needed at run time.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from hashlib import sha256
 import json
 import os
@@ -50,6 +50,25 @@ class AnnualWeather:
     sky_version: str = ""
 
 
+# Prepared weather kept in memory by a long-lived process: see ``memo`` on
+# :func:`prepare_annual_weather`. Each entry holds a sky matrix (15 MB at
+# Tregenza, 60 MB at MF:2), so only the most recent few are kept.
+WeatherMemo = dict
+MAXIMUM_REMEMBERED_WEATHER = 2
+
+
+def _remember(memo, key, weather: AnnualWeather) -> AnnualWeather:
+    if memo is None or key is None:
+        return weather
+    # The memo hands the same array to later runs, so nothing may write to it.
+    weather.sky.flags.writeable = False
+    memo.pop(key, None)
+    memo[key] = weather
+    while len(memo) > MAXIMUM_REMEMBERED_WEATHER:
+        memo.pop(next(iter(memo)))
+    return weather
+
+
 def foton_sky_version() -> str:
     """Version string recorded for matrices from the built-in sky model."""
     from daylight_engine import __version__
@@ -65,6 +84,7 @@ def prepare_annual_weather(
     radiance_bin: str | None = None,
     cache_directory: str | Path | None = None,
     sky_source: str = "foton",
+    memo: WeatherMemo | None = None,
 ) -> AnnualWeather:
     """Prepare the hourly sky matrix an annual study consumes.
 
@@ -74,6 +94,12 @@ def prepare_annual_weather(
     own Perez model; ``"gendaymtx"`` runs Radiance's ``gendaymtx -O0`` and
     needs a Radiance installation. Both are cached under a key that includes
     the source, so switching sources never serves the other's matrix.
+
+    ``memo`` keeps prepared weather in memory between calls, keyed by the
+    weather file's bytes and every setting that shapes the matrix. A
+    long-lived process (the ``serve`` worker) uses it to skip re-parsing the
+    EPW and re-loading the matrix from disk on every run; the arrays it
+    returns are the same ones, so results are identical.
     """
     try:
         from ladybug.epw import EPW
@@ -94,6 +120,22 @@ def prepare_annual_weather(
     sky_density = int(sky_density)
     rows = SKY_ROWS[sky_density]
     basis = SKY_BASIS[sky_density]
+    memo_key = None
+    if memo is not None and isinstance(wea_or_epw, (str, Path)):
+        path = Path(wea_or_epw).expanduser().resolve()
+        if path.is_file():
+            memo_key = (
+                sha256(path.read_bytes()).hexdigest(),
+                path.suffix.lower(),
+                north,
+                sky_density,
+                sky_source,
+                str(radiance_bin) if sky_source == "gendaymtx" else None,
+                str(cache_directory) if cache_directory is not None else None,
+            )
+            remembered = memo.get(memo_key)
+            if remembered is not None:
+                return replace(remembered, source=str(path), cache_hit=True)
     wea, source, source_bytes = _coerce_wea(wea_or_epw, EPW, Wea)
     if len(wea) != 8760 or int(wea.timestep) != 1:
         raise ValueError("annual daylight requires an hourly 8,760-timestep WEA")
@@ -125,7 +167,7 @@ def prepare_annual_weather(
         matrix = np.load(matrix_path, allow_pickle=False)
         if matrix.shape == (rows, 8760, 3):
             metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
-            return AnnualWeather(
+            return _remember(memo, memo_key, AnnualWeather(
                 sky=np.ascontiguousarray(matrix, dtype=np.float32),
                 sun_up_hours=tuple(
                     float(value) for value in metadata["sun_up_hours"]
@@ -141,7 +183,7 @@ def prepare_annual_weather(
                 gendaymtx_version=version if executable else None,
                 sky_source=sky_source,
                 sky_version=version,
-            )
+            ))
 
     cache.mkdir(parents=True, exist_ok=True)
     if sky_source == "foton":
@@ -181,7 +223,7 @@ def prepare_annual_weather(
     metadata_path.write_text(
         json.dumps(metadata, indent=2, sort_keys=True), encoding="utf-8"
     )
-    return AnnualWeather(
+    return _remember(memo, memo_key, AnnualWeather(
         sky=matrix,
         sun_up_hours=sun_up_hours,
         weather_id=weather_id,
@@ -195,7 +237,7 @@ def prepare_annual_weather(
         gendaymtx_version=version if executable else None,
         sky_source=sky_source,
         sky_version=version,
-    )
+    ))
 
 
 def wea_irradiance_arrays(wea) -> tuple[np.ndarray, np.ndarray, np.ndarray]:

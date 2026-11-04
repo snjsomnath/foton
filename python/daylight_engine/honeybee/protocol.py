@@ -15,10 +15,13 @@ PROTOCOL_VERSION = 1
 
 @dataclass
 class ProtocolWriter:
+    """Writes Foton protocol messages, one JSON object per line, numbering them in order."""
+
     stream: TextIO
     sequence: int = 0
 
     def emit(self, event: str, **payload) -> dict[str, Any]:
+        """Write one message with the given event name and fields, and return it."""
         message = {
             "protocol": PROTOCOL_NAME,
             "protocol_version": PROTOCOL_VERSION,
@@ -33,6 +36,7 @@ class ProtocolWriter:
 
 
 def input_file_fingerprint(path) -> str:
+    """SHA-256 of a file's bytes, used to tell whether an input has changed."""
     digest = sha256()
     with Path(path).expanduser().resolve().open("rb") as stream:
         for chunk in iter(lambda: stream.read(1024 * 1024), b""):
@@ -60,6 +64,7 @@ def annual_request(
     scene_seed=0,
     export_illuminance=True,
 ) -> dict[str, Any]:
+    """Build the protocol's annual daylight request from keyword arguments and add its fingerprint."""
     model_path = Path(model).expanduser().resolve()
     weather_path = Path(wea).expanduser().resolve()
     schedule_path = Path(schedule).expanduser().resolve() if schedule else None
@@ -104,6 +109,11 @@ def annual_request(
 
 
 def annual_manifest(run, output_folder) -> dict[str, Any]:
+    """Describe a finished annual run as a ``run_manifest.json`` object.
+
+    Lists the result files and sDA of every grid, cache hits, timings and the
+    engine and solver versions that produced the run.
+    """
     from foton import __version__
 
     output = Path(output_folder).expanduser().resolve()
@@ -182,6 +192,7 @@ def annual_manifest(run, output_folder) -> dict[str, Any]:
 
 
 def parse_message(line: str) -> dict[str, Any]:
+    """Parse one protocol line, checking the protocol name, version and event. Raises ``ValueError`` otherwise."""
     try:
         message = json.loads(line)
     except json.JSONDecodeError as error:

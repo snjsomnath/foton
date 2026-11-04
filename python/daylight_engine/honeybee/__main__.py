@@ -99,6 +99,7 @@ def _options(args):
 
 
 def main(argv=None) -> int:
+    """Entry point of the ``foton-honeybee`` command. Returns the process exit code."""
     args = _parser().parse_args(argv)
     if args.command == "serve":
         from .worker import serve
