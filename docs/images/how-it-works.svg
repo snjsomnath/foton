@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="430" viewBox="0 0 1200 430" font-family="Inter, 'Helvetica Neue', Arial, sans-serif">
+  <!-- Source for docs/images/how-it-works.png. Edit here, then re-export at 2x. -->
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#52514e"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="430" fill="#ffffff"/>
+
+  <text x="40" y="52" font-size="26" font-weight="600" fill="#0b0b0b">Where Foton fits in a Honeybee daylight study</text>
+  <text x="40" y="84" font-size="16" fill="#52514e">Foton replaces the slow ray-tracing step. Your model and your result components stay the same.</text>
+
+  <!-- Input -->
+  <rect x="40" y="140" width="230" height="200" rx="12" fill="#f4f3f0" stroke="#d6d5d0"/>
+  <text x="155" y="178" font-size="18" font-weight="600" fill="#0b0b0b" text-anchor="middle">Your model</text>
+  <text x="155" y="214" font-size="15" fill="#52514e" text-anchor="middle">Honeybee rooms,</text>
+  <text x="155" y="236" font-size="15" fill="#52514e" text-anchor="middle">windows and sensor grids</text>
+  <text x="155" y="276" font-size="15" fill="#52514e" text-anchor="middle">+ an EPW weather file</text>
+  <text x="155" y="316" font-size="13" fill="#7a7974" text-anchor="middle">Rhino, Grasshopper or HBJSON</text>
+
+  <line x1="276" y1="240" x2="322" y2="240" stroke="#52514e" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Foton -->
+  <rect x="330" y="120" width="540" height="240" rx="14" fill="#eaf2fc" stroke="#2a78d6" stroke-width="2"/>
+  <text x="600" y="156" font-size="20" font-weight="700" fill="#1d5aa5" text-anchor="middle">Foton, on your GPU</text>
+
+  <rect x="350" y="180" width="150" height="150" rx="10" fill="#ffffff" stroke="#b9d3f3"/>
+  <text x="425" y="214" font-size="16" font-weight="600" fill="#0b0b0b" text-anchor="middle">1. Build</text>
+  <text x="425" y="244" font-size="14" fill="#52514e" text-anchor="middle">Turns the model</text>
+  <text x="425" y="264" font-size="14" fill="#52514e" text-anchor="middle">into a scene the</text>
+  <text x="425" y="284" font-size="14" fill="#52514e" text-anchor="middle">GPU can trace</text>
+
+  <line x1="502" y1="255" x2="523" y2="255" stroke="#2a78d6" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="525" y="180" width="150" height="150" rx="10" fill="#ffffff" stroke="#b9d3f3"/>
+  <text x="600" y="214" font-size="16" font-weight="600" fill="#0b0b0b" text-anchor="middle">2. Trace</text>
+  <text x="600" y="244" font-size="14" fill="#52514e" text-anchor="middle">Follows light from</text>
+  <text x="600" y="264" font-size="14" fill="#52514e" text-anchor="middle">every sky patch to</text>
+  <text x="600" y="284" font-size="14" fill="#52514e" text-anchor="middle">every sensor</text>
+
+  <line x1="677" y1="255" x2="698" y2="255" stroke="#2a78d6" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="700" y="180" width="150" height="150" rx="10" fill="#ffffff" stroke="#b9d3f3"/>
+  <text x="775" y="214" font-size="16" font-weight="600" fill="#0b0b0b" text-anchor="middle">3. Year</text>
+  <text x="775" y="244" font-size="14" fill="#52514e" text-anchor="middle">Applies all 8,760</text>
+  <text x="775" y="264" font-size="14" fill="#52514e" text-anchor="middle">hourly skies and</text>
+  <text x="775" y="284" font-size="14" fill="#52514e" text-anchor="middle">works out metrics</text>
+
+  <line x1="876" y1="240" x2="922" y2="240" stroke="#52514e" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Output -->
+  <rect x="930" y="140" width="230" height="200" rx="12" fill="#f4f3f0" stroke="#d6d5d0"/>
+  <text x="1045" y="178" font-size="18" font-weight="600" fill="#0b0b0b" text-anchor="middle">Results</text>
+  <text x="1045" y="214" font-size="15" fill="#52514e" text-anchor="middle">DA, cDA, UDI, sDA</text>
+  <text x="1045" y="236" font-size="15" fill="#52514e" text-anchor="middle">and hourly illuminance</text>
+  <text x="1045" y="276" font-size="15" fill="#52514e" text-anchor="middle">in Honeybee's own format</text>
+  <text x="1045" y="316" font-size="13" fill="#7a7974" text-anchor="middle">Read by Ladybug and Honeybee</text>
+
+  <text x="600" y="400" font-size="14" fill="#7a7974" text-anchor="middle">Radiance is not needed to run a study. Foton is tested against it on 106 models.</text>
+</svg>
