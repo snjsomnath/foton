@@ -4,6 +4,7 @@ from functools import lru_cache
 
 @lru_cache(maxsize=8)
 def solar_diagram(latitude: float, longitude: float, time_zone: float, north: float = 0.0) -> dict:
+    """Sun positions for all 8,760 hours at a location, for drawing the sun path."""
     from ladybug.sunpath import Sunpath
     from ladybug.dt import DateTime
 

@@ -24,6 +24,12 @@ def create_app(
     frontend_directory: str | Path | None = None,
     demo_weather_path: str | Path | None = None,
 ) -> FastAPI:
+    """Build the viewer's FastAPI app.
+
+    The arguments let tests swap in a fake engine, a weather store or another
+    frontend folder. The built frontend is served from ``viewer/dist`` when it
+    exists.
+    """
     factory = engine_factory or Engine
     store = weather_store or WeatherStore()
     demo_epw = Path(demo_weather_path) if demo_weather_path else (

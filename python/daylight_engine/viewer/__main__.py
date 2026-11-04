@@ -6,6 +6,7 @@ import argparse
 
 
 def main() -> None:
+    """Start the viewer's web server (``foton-viewer``)."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8000)

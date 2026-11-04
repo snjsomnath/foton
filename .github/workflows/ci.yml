@@ -11,7 +11,9 @@ permissions:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # Pull requests drop superseded runs. Main finishes every run, so the README
+  # badge never shows a cancelled run as failing.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   rust:

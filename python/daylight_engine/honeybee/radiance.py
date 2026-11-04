@@ -14,6 +14,8 @@ import numpy as np
 
 @dataclass(frozen=True)
 class RadianceRun:
+    """Result of a Radiance direct-visibility run, with the commands and versions used."""
+
     visibility: np.ndarray
     commands: list[list[str]]
     versions: dict[str, str]
@@ -23,6 +25,8 @@ class RadianceRun:
 
 @dataclass(frozen=True)
 class RadianceCoefficientStages:
+    """Radiance daylight coefficients split into direct, indirect and full contributions."""
+
     direct: np.ndarray
     full: np.ndarray
     indirect: np.ndarray
@@ -34,6 +38,8 @@ class RadianceCoefficientStages:
 
 @dataclass(frozen=True)
 class RadianceIntegratedDirect:
+    """Radiance direct coefficients integrated over each sky patch, with sample counts."""
+
     coefficients: np.ndarray
     commands: list[list[str]]
     versions: dict[str, str]
@@ -44,6 +50,13 @@ class RadianceIntegratedDirect:
 
 
 def resolve_radiance_executables(radiance_bin=None, *, required=("oconv", "rcontrib")):
+    """Find Radiance programs for validation runs.
+
+    Looks in ``radiance_bin``, ``RADIANCE_BIN``, Honeybee's configured Radiance
+    folder, OpenStudio's bundled Radiance on macOS and finally ``PATH``. Returns
+    a name to path mapping, or raises ``FileNotFoundError`` listing where it
+    looked.
+    """
     searched: list[str] = []
     candidate_directories: list[Path] = []
     if radiance_bin:
@@ -92,6 +105,7 @@ def run_radiance_visibility(
     workers=None,
     radiance_bin=None,
 ) -> RadianceRun:
+    """Compute sky-patch visibility for each sensor with Radiance's ``rcontrib``, to compare with Foton."""
     executables = resolve_radiance_executables(radiance_bin)
     subprocess_environment = _radiance_subprocess_environment(executables)
     work_directory = Path(work_directory)

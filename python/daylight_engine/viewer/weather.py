@@ -27,6 +27,7 @@ DEMO_EXTERIOR_ILLUMINANCE_LUX = 10_000.0
 
 
 def occupancy_schedule(timestep_count: int) -> np.ndarray:
+    """Occupied hours 08:00 to 18:00 every day, as 1 and 0 for each hour of the year."""
     if timestep_count != 8760:
         raise ValueError("the viewer requires an hourly 8,760-timestep EPW")
     hours = np.arange(timestep_count, dtype=np.uint32) % 24
@@ -34,6 +35,7 @@ def occupancy_schedule(timestep_count: int) -> np.ndarray:
 
 
 def parse_radiance_matrix(text: str, rows: int, columns: int) -> np.ndarray:
+    """Read a Radiance ASCII matrix (as ``gendaymtx`` writes) into an array of shape (rows, columns, 3)."""
     header: dict[str, int] = {}
     samples: list[list[float]] = []
     for raw_line in text.splitlines():
@@ -81,6 +83,7 @@ def _radiance_environment(executable: Path) -> dict[str, str]:
 
 
 def resolve_gendaymtx(configured: str | None = None) -> Path | None:
+    """Find Radiance's ``gendaymtx``, or return ``None`` when it is not installed."""
     candidates: list[str] = []
     if configured:
         candidates.append(configured)
@@ -105,6 +108,7 @@ def resolve_gendaymtx(configured: str | None = None) -> Path | None:
 
 
 def executable_version(executable: Path) -> str:
+    """Version line of a Radiance install, used to label cached skies."""
     rtrace = executable.parent / "rtrace"
     version_executable = rtrace if rtrace.is_file() else executable
     completed = subprocess.run(
@@ -122,6 +126,8 @@ def executable_version(executable: Path) -> str:
 
 @dataclass(frozen=True)
 class WeatherDataset:
+    """One weather file turned into hourly sky matrices, plus its location and labels."""
+
     weather_id: str
     filename: str
     north_rotation_degrees: float
@@ -134,6 +140,7 @@ class WeatherDataset:
     metadata: dict[str, Any]
 
     def summary(self) -> dict[str, Any]:
+        """The fields the browser shows about this weather file."""
         return {
             "weather_id": self.weather_id,
             "filename": self.filename,
@@ -147,6 +154,7 @@ class WeatherDataset:
 
 
 def cie_overcast_matrix(basis: str, exterior_illuminance_lux: float) -> np.ndarray:
+    """A single CIE overcast sky scaled to the given horizontal illuminance (lux)."""
     directions = np.asarray(sky_patch_directions(basis), dtype=np.float64)
     solid_angles = np.asarray(sky_patch_solid_angles(basis), dtype=np.float64)
     relative_luminance = np.where(
@@ -165,6 +173,7 @@ def cie_overcast_matrix(basis: str, exterior_illuminance_lux: float) -> np.ndarr
 
 
 def built_in_overcast_dataset() -> WeatherDataset:
+    """The weather used before any EPW is uploaded: one CIE overcast sky."""
     label = f"CIE overcast · {DEMO_EXTERIOR_ILLUMINANCE_LUX:,.0f} lux exterior"
     metadata = {
         "source": "built-in-cie-overcast",
@@ -205,6 +214,8 @@ def _epw_timestep_labels(epw_path: Path) -> tuple[str, ...]:
 
 
 class WeatherStore:
+    """Uploaded weather files and their sky matrices, cached on disk between sessions."""
+
     def __init__(
         self,
         cache_directory: str | Path | None = None,
@@ -266,6 +277,7 @@ class WeatherStore:
         return None
 
     def status(self) -> dict[str, Any]:
+        """Whether ``gendaymtx`` is available, and its path and version."""
         executable = resolve_gendaymtx(self.configured_gendaymtx)
         return {
             "available": executable is not None,
@@ -274,6 +286,7 @@ class WeatherStore:
         }
 
     def get(self, weather_id: str) -> WeatherDataset:
+        """Return a loaded weather dataset by id."""
         try:
             return self._datasets[weather_id]
         except KeyError as exc:
@@ -285,6 +298,7 @@ class WeatherStore:
         filename: str,
         north_rotation_degrees: float = 0.0,
     ) -> WeatherDataset:
+        """Turn an uploaded EPW into hourly skies, cache them and return the dataset."""
         if not epw_bytes or len(epw_bytes) > MAXIMUM_EPW_BYTES:
             raise ValueError("EPW upload must be between 1 byte and 32 MiB")
         if not np.isfinite(north_rotation_degrees):

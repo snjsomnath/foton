@@ -19,26 +19,35 @@ from foton_bridge import reusable, reuse_identity
 
 
 class FotonProcessError(RuntimeError):
-    pass
+    """Raised when the ``foton-honeybee`` process fails or replies with something unexpected."""
 
 
 class FotonProcessCancelled(FotonProcessError):
-    pass
+    """Raised when a run is stopped through its cancel event."""
 
 
 @dataclass(frozen=True)
 class FotonRunHandle:
+    """A run started in the background: wait for it with ``result()`` or stop it with ``cancel()``."""
+
     future: object
     cancel_event: threading.Event
 
     def cancel(self):
+        """Ask the run to stop. The Foton process is terminated at the next check."""
         self.cancel_event.set()
 
     def result(self, timeout=None):
+        """Wait for the run and return its manifest, or raise the error it failed with."""
         return self.future.result(timeout=timeout)
 
 
 def discover_executable(configured=None) -> str:
+    """Find the ``foton-honeybee`` command.
+
+    Uses ``configured`` when given (it must be an existing file), otherwise looks
+    on ``PATH``. Raises ``FileNotFoundError`` when neither works.
+    """
     if configured:
         path = Path(configured).expanduser().resolve()
         if not path.is_file():
@@ -55,6 +64,14 @@ def discover_executable(configured=None) -> str:
 
 @dataclass(frozen=True)
 class AnnualDaylightRequest:
+    """Everything one annual daylight run needs, in the units Honeybee uses.
+
+    ``model`` and ``wea`` are file paths (HBJSON and EPW or WEA). The thresholds
+    are in lux and ``target_time`` is the sDA target in percent of occupied hours.
+    Leave ``direct_samples`` and ``maximum_samples`` as ``None`` to take them from
+    the ``quality`` preset.
+    """
+
     model: str
     wea: str
     output_folder: str
@@ -75,6 +92,7 @@ class AnnualDaylightRequest:
     export_illuminance: bool = True
 
     def protocol_request(self):
+        """Return this request as the JSON object the Foton protocol uses, including an input fingerprint."""
         return annual_request(
             model=self.model,
             wea=self.wea,
@@ -96,6 +114,7 @@ class AnnualDaylightRequest:
         )
 
     def command(self, executable, output_folder):
+        """Return the ``foton-honeybee annual-daylight`` command line for this request."""
         command = [
             executable,
             "annual-daylight",
@@ -146,6 +165,12 @@ class AnnualDaylightRequest:
 
 
 class FotonClient:
+    """Runs ``foton-honeybee`` as a separate process and reads its progress.
+
+    Keeping Foton in its own process means Rhino's Python never loads the GPU
+    code, and a run can be cancelled by stopping the process.
+    """
+
     def __init__(self, executable=None):
         self.executable = discover_executable(executable)
         self._executor = ThreadPoolExecutor(
@@ -153,6 +178,7 @@ class FotonClient:
         )
 
     def capabilities(self, backend="auto"):
+        """Return what the installed Foton can do: version, GPU backend, quality presets and provenance."""
         completed = subprocess.run(
             [self.executable, "capabilities", "--backend", backend],
             text=True,
@@ -177,6 +203,15 @@ class FotonClient:
         cancel_event=None,
         output_policy="unique",
     ):
+        """Run one annual daylight study and return its result manifest.
+
+        ``progress`` is called with each JSON message Foton sends. Setting
+        ``cancel_event`` stops the process and raises ``FotonProcessCancelled``.
+        ``output_policy`` decides what happens when the output folder exists:
+        ``"unique"`` adds a numbered suffix, ``"error"`` raises, and ``"reuse"``
+        returns the existing results when they came from identical inputs and the
+        same Foton build.
+        """
         requested_output = Path(request.output_folder).expanduser().resolve()
         if output_policy == "reuse" and requested_output.exists():
             identity = reuse_identity(request.protocol_request(), self.capabilities(request.backend))
@@ -260,6 +295,7 @@ class FotonClient:
         return manifest
 
     def run_annual_daylight_async(self, request, **options):
+        """Start ``run_annual_daylight`` on a background thread and return a ``FotonRunHandle``."""
         cancel_event = options.pop("cancel_event", None) or threading.Event()
         future = self._executor.submit(
             self.run_annual_daylight,

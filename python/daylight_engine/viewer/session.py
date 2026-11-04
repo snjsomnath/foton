@@ -22,6 +22,8 @@ SendMessage = Callable[[dict[str, Any]], Awaitable[None]]
 
 @dataclass
 class AnalysisCache:
+    """Results of the last analysis at one quality, kept so the selected hour can change without tracing again."""
+
     client_revision: int
     scene_revision: int
     quality: str
@@ -44,6 +46,7 @@ def selected_hour_illuminance(
     sky: np.ndarray,
     timestep: int,
 ) -> np.ndarray:
+    """Illuminance at each sensor (lux) for one hour of the year, from coefficients and the hourly sky."""
     if coefficients.ndim != 3 or coefficients.shape[2] != 3:
         raise ValueError("coefficients must have shape [sensor,patch,3]")
     if sky.ndim != 3 or sky.shape[2] != 3:
@@ -62,6 +65,12 @@ def selected_hour_illuminance(
 
 
 class ViewerSession:
+    """State of one browser connection: the current scene, the running analysis and cached results.
+
+    A new scene or a new analysis cancels the one in progress, so the browser
+    always sees results for what it shows.
+    """
+
     def __init__(self, engine: Any, weather_store: WeatherStore) -> None:
         self.engine = engine
         self.weather_store = weather_store
@@ -74,6 +83,7 @@ class ViewerSession:
         self.caches: dict[str, AnalysisCache] = {}
 
     async def close(self) -> None:
+        """Cancel any running analysis and wait for it to stop."""
         self._cancel_active()
         if self.active_task:
             try:
@@ -97,6 +107,7 @@ class ViewerSession:
         send: SendMessage,
         demo: bool = False,
     ) -> None:
+        """Build and upload a new scene, then send its geometry to the browser."""
         self._cancel_active()
         generated = generate_demo_scene(parameters) if demo else generate_parametric_scene(RoomParameters.model_validate(parameters))
         scene = await asyncio.to_thread(generated.create_native_scene, self.engine)
@@ -122,6 +133,7 @@ class ViewerSession:
         selected_timestep: int,
         send: SendMessage,
     ) -> None:
+        """Trace the current scene and send results to the browser as they arrive."""
         if self.scene is None or self.generated is None:
             raise ValueError("create a scene before starting analysis")
         if client_revision != self.client_revision:
@@ -260,6 +272,7 @@ class ViewerSession:
         selected_timestep: int,
         send: SendMessage,
     ) -> None:
+        """Send illuminance for another hour of the year from the cached coefficients."""
         if client_revision != self.client_revision:
             raise ValueError("selected-hour revision does not match the current scene")
         cache = self.caches.get("final") or self.caches.get("preview")
