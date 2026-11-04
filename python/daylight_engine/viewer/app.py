@@ -52,7 +52,7 @@ def create_app(
 
     app = FastAPI(
         title="Foton Viewer",
-        version="0.3.3",
+        version="0.3.4",
         lifespan=lifespan,
     )
 

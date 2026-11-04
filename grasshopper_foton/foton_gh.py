@@ -36,7 +36,7 @@ except NameError:
 
 
 # Shown on each component; kept in step with pyproject.toml.
-COMPONENT_VERSION = "0.3.3"
+COMPONENT_VERSION = "0.3.4"
 PROTOCOL_NAME = "foton.honeybee"
 PROTOCOL_VERSION = 1
 METRICS = ("da", "cda", "udi_lower", "udi", "udi_upper")
