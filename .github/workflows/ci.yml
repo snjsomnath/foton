@@ -24,14 +24,10 @@ on:
       - "viewer/**"
   workflow_dispatch:
 
-# A newer push to the same pull request cancels the run it replaces.
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
-
 permissions:
   contents: read
 
+# A newer push to the same pull request cancels the run it replaces.
 concurrency:
   group: ci-${{ github.ref }}
   # Never cancel a main run: a cancelled run shows as failed on the README badge.
