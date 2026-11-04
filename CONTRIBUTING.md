@@ -36,6 +36,12 @@ Intel with current drivers). Laptops should be plugged in.
    python -m pip install -e ".[honeybee,test]"
    ```
 
+   Check that Foton sees your GPU and not just the CPU fallback:
+
+   ```bash
+   python -c "from foton import Engine; print(Engine().capabilities())"
+   ```
+
 3. Close other heavy programs, then run the suite and rebuild the table:
 
    ```bash
