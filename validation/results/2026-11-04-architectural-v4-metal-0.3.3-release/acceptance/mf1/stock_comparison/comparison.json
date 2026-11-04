@@ -1,0 +1,327 @@
+{
+  "folders": {
+    "foton": "/Users/ssanjay/GitHub/foton-0.3.3/validation/results/2026-11-04-architectural-v4-metal-0.3.3-release/acceptance/mf1/annual",
+    "radiance": "/Users/ssanjay/GitHub/foton-0.3.3/validation/results/2026-11-04-architectural-v4-metal-0.3.3-release/acceptance/mf1/stock/annual_daylight"
+  },
+  "grids": [
+    {
+      "identifier": "classroom_01",
+      "illuminance": {
+        "absolute_error_lux": {
+          "maximum": 0.04340900480747223,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p95": 0.0,
+          "p99": 0.0005862140143290214
+        },
+        "compatibility_passed": false,
+        "cvrmse_percent": Infinity,
+        "nmbe_percent": Infinity,
+        "passed": false,
+        "per_sensor_maximum_error_lux": {
+          "maximum": 0.04340900480747223,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p95": 0.0,
+          "p99": 0.002267934493720452
+        },
+        "strict_passed": false,
+        "worst": {
+          "foton_lux": 0.04340900480747223,
+          "hour_of_year": 4881.5,
+          "radiance_lux": 0.0,
+          "sensor_index": 171,
+          "sun_up_hour_index": 2693
+        }
+      },
+      "metrics": {
+        "cda": {
+          "maximum_error_percentage_points": 0.0,
+          "mean_absolute_error_percentage_points": 0.0,
+          "passed": true
+        },
+        "da": {
+          "maximum_error_percentage_points": 0.0,
+          "mean_absolute_error_percentage_points": 0.0,
+          "passed": true
+        },
+        "udi": {
+          "maximum_error_percentage_points": 0.0,
+          "mean_absolute_error_percentage_points": 0.0,
+          "passed": true
+        },
+        "udi_lower": {
+          "maximum_error_percentage_points": 0.0,
+          "mean_absolute_error_percentage_points": 0.0,
+          "passed": true
+        },
+        "udi_upper": {
+          "maximum_error_percentage_points": 0.0,
+          "mean_absolute_error_percentage_points": 0.0,
+          "passed": true
+        }
+      },
+      "raw_shape": [
+        175,
+        4405
+      ],
+      "sda": {
+        "difference_percentage_points": 0.0,
+        "foton_percent": 0.0,
+        "passed": true,
+        "radiance_percent": 0.0
+      },
+      "sensor_count": 175
+    },
+    {
+      "identifier": "office_02",
+      "illuminance": {
+        "absolute_error_lux": {
+          "maximum": 1882.4140625,
+          "p50": 5.091845467686653,
+          "p90": 50.74563217163089,
+          "p95": 90.5112426757812,
+          "p99": 224.97466369628785
+        },
+        "compatibility_passed": false,
+        "cvrmse_percent": 43.596944149000485,
+        "nmbe_percent": 15.732235692651896,
+        "passed": false,
+        "per_sensor_maximum_error_lux": {
+          "maximum": 1882.4140625,
+          "p50": 104.32662568986416,
+          "p90": 640.1818603515626,
+          "p95": 908.9129028320307,
+          "p99": 1624.2756640624982
+        },
+        "strict_passed": false,
+        "worst": {
+          "foton_lux": 18447.154296875,
+          "hour_of_year": 2725.5,
+          "radiance_lux": 16564.740234375,
+          "sensor_index": 9,
+          "sun_up_hour_index": 1159
+        }
+      },
+      "metrics": {
+        "cda": {
+          "maximum_error_percentage_points": 23.470000000000002,
+          "mean_absolute_error_percentage_points": 4.271989583333334,
+          "passed": false
+        },
+        "da": {
+          "maximum_error_percentage_points": 33.230000000000004,
+          "mean_absolute_error_percentage_points": 1.91896875,
+          "passed": true
+        },
+        "udi": {
+          "maximum_error_percentage_points": 42.52,
+          "mean_absolute_error_percentage_points": 4.476375,
+          "passed": false
+        },
+        "udi_lower": {
+          "maximum_error_percentage_points": 42.52000000000001,
+          "mean_absolute_error_percentage_points": 4.487218749999999,
+          "passed": false
+        },
+        "udi_upper": {
+          "maximum_error_percentage_points": 1.7800000000000011,
+          "mean_absolute_error_percentage_points": 0.030750000000000003,
+          "passed": true
+        }
+      },
+      "raw_shape": [
+        960,
+        4405
+      ],
+      "sda": {
+        "difference_percentage_points": 1.3060036484983852,
+        "foton_percent": 6.132365888421612,
+        "passed": true,
+        "radiance_percent": 4.826362239923227
+      },
+      "sensor_count": 960
+    },
+    {
+      "identifier": "office_01",
+      "illuminance": {
+        "absolute_error_lux": {
+          "maximum": 2851.865234375,
+          "p50": 58.82269287109375,
+          "p90": 243.90166015625,
+          "p95": 370.01062927246085,
+          "p99": 708.8504931640615
+        },
+        "compatibility_passed": false,
+        "cvrmse_percent": 26.33417401340862,
+        "nmbe_percent": 15.08929369402327,
+        "passed": false,
+        "per_sensor_maximum_error_lux": {
+          "maximum": 2851.865234375,
+          "p50": 720.8656616210938,
+          "p90": 1641.261279296875,
+          "p95": 1900.811328125,
+          "p99": 2424.5887304687485
+        },
+        "strict_passed": false,
+        "worst": {
+          "foton_lux": 21897.931640625,
+          "hour_of_year": 5246.5,
+          "radiance_lux": 19046.06640625,
+          "sensor_index": 45,
+          "sun_up_hour_index": 2944
+        }
+      },
+      "metrics": {
+        "cda": {
+          "maximum_error_percentage_points": 32.04,
+          "mean_absolute_error_percentage_points": 11.47935593220339,
+          "passed": false
+        },
+        "da": {
+          "maximum_error_percentage_points": 38.87,
+          "mean_absolute_error_percentage_points": 10.735096045197741,
+          "passed": false
+        },
+        "udi": {
+          "maximum_error_percentage_points": 52.55,
+          "mean_absolute_error_percentage_points": 13.047807909604522,
+          "passed": false
+        },
+        "udi_lower": {
+          "maximum_error_percentage_points": 52.55,
+          "mean_absolute_error_percentage_points": 13.078790960451977,
+          "passed": false
+        },
+        "udi_upper": {
+          "maximum_error_percentage_points": 3.0999999999999996,
+          "mean_absolute_error_percentage_points": 0.36270056497175146,
+          "passed": true
+        }
+      },
+      "raw_shape": [
+        885,
+        4405
+      ],
+      "sda": {
+        "difference_percentage_points": 8.5714937927136,
+        "foton_percent": 40.23484726586844,
+        "passed": false,
+        "radiance_percent": 31.66335347315484
+      },
+      "sensor_count": 885
+    }
+  ],
+  "official_loader": {
+    "maximum_error_percentage_points": 0.0049970569349326865,
+    "metrics": {
+      "cda": [
+        {
+          "identifier": "classroom_01",
+          "maximum_error_percentage_points": 0.0031715245687798277,
+          "passed": true
+        },
+        {
+          "identifier": "office_02",
+          "maximum_error_percentage_points": 0.0049920696101775075,
+          "passed": true
+        },
+        {
+          "identifier": "office_01",
+          "maximum_error_percentage_points": 0.0049970569349326865,
+          "passed": true
+        }
+      ],
+      "da": [
+        {
+          "identifier": "classroom_01",
+          "maximum_error_percentage_points": 0.0,
+          "passed": true
+        },
+        {
+          "identifier": "office_02",
+          "maximum_error_percentage_points": 0.004931506849317202,
+          "passed": true
+        },
+        {
+          "identifier": "office_01",
+          "maximum_error_percentage_points": 0.004931506849317202,
+          "passed": true
+        }
+      ],
+      "udi": [
+        {
+          "identifier": "classroom_01",
+          "maximum_error_percentage_points": 0.0,
+          "passed": true
+        },
+        {
+          "identifier": "office_02",
+          "maximum_error_percentage_points": 0.004931506849317202,
+          "passed": true
+        },
+        {
+          "identifier": "office_01",
+          "maximum_error_percentage_points": 0.004931506849317202,
+          "passed": true
+        }
+      ],
+      "udi_lower": [
+        {
+          "identifier": "classroom_01",
+          "maximum_error_percentage_points": 0.0,
+          "passed": true
+        },
+        {
+          "identifier": "office_02",
+          "maximum_error_percentage_points": 0.004931506849317202,
+          "passed": true
+        },
+        {
+          "identifier": "office_01",
+          "maximum_error_percentage_points": 0.004931506849317202,
+          "passed": true
+        }
+      ],
+      "udi_upper": [
+        {
+          "identifier": "classroom_01",
+          "maximum_error_percentage_points": 0.0,
+          "passed": true
+        },
+        {
+          "identifier": "office_02",
+          "maximum_error_percentage_points": 0.004931506849315426,
+          "passed": true
+        },
+        {
+          "identifier": "office_01",
+          "maximum_error_percentage_points": 0.004931506849317202,
+          "passed": true
+        }
+      ]
+    },
+    "passed": true,
+    "tolerance_percentage_points": 0.05
+  },
+  "oracle": "stock",
+  "passed": false,
+  "performance": {
+    "foton_seconds": 1.0902186239836738,
+    "passed": true,
+    "radiance_seconds": 23.360459416988306,
+    "speedup": 21.427316414416833
+  },
+  "schema_version": 1,
+  "structural": {
+    "grid_counts_match": true,
+    "grid_ids_match": true,
+    "model_grid_counts_match": true,
+    "model_grid_ids_match": true,
+    "sun_up_hours_match": true
+  },
+  "versions": {
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "python": "3.13.5"
+  }
+}

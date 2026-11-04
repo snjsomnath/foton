@@ -9,3 +9,6 @@ grasshopper_foton/distribution/*.ghx -text
 
 # Fixture hashes are checked byte for byte, so keep LF endings on Windows too.
 test_models/**/*.hbjson text eol=lf
+
+# Weather files are hashed (epw/README.md, the packaged demo copy): keep bytes as is.
+*.epw -text

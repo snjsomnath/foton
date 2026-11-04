@@ -118,8 +118,11 @@ class HoneybeeStudy:
         radiance_bin: str | None = None,
         weather_cache: str | Path | None = None,
         sky_source: str = "foton",
+        weather_memo: dict | None = None,
     ) -> None:
         started = time.perf_counter()
+        # Shared with other studies in a long-lived worker; see prepare_annual_weather.
+        self.weather_memo = weather_memo
         self.model_input = model
         self.backend = backend
         self.grid_filter = grid_filter
@@ -191,6 +194,7 @@ class HoneybeeStudy:
             radiance_bin=self.radiance_bin,
             cache_directory=self.weather_cache,
             sky_source=self.sky_source,
+            memo=self.weather_memo,
         )
         weather_seconds = time.perf_counter() - weather_started
         _report_progress(progress, "weather", 0.25, "Annual sky matrix ready")

@@ -1,7 +1,9 @@
 name: CI
 
-# Changes that touch only prose or recorded benchmark results skip CI; they are
-# checked locally (see docs/benchmarking.md). Any other file in the change runs it.
+# Pull requests get the full check: Rust, Python on Linux, macOS and Windows,
+# and a packaged wheel. A push to main (usually a pull request that just passed
+# all of that) gets a quick Linux-only check. Changes that touch only prose or
+# recorded benchmark results skip CI; the viewer has its own workflow.
 on:
   push:
     branches: ["main"]
@@ -11,6 +13,7 @@ on:
       - "CONTRIBUTING.md"
       - "docs/**"
       - "benchmarks/**"
+      - "viewer/**"
   pull_request:
     paths-ignore:
       - "README.md"
@@ -18,11 +21,13 @@ on:
       - "CONTRIBUTING.md"
       - "docs/**"
       - "benchmarks/**"
+      - "viewer/**"
   workflow_dispatch:
 
 permissions:
   contents: read
 
+# A newer push to the same pull request cancels the run it replaces.
 concurrency:
   group: ci-${{ github.ref }}
   # Never cancel a main run: a cancelled run shows as failed on the README badge.
@@ -50,8 +55,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-14]
-        python: ["3.10", "3.13"]
+        # Oldest and newest Python on Linux, newest on macOS and Windows.
+        # Pushes to main run only the Linux 3.13 row.
+        include: ${{ fromJSON(github.event_name == 'push' && '[{"os":"ubuntu-latest","python":"3.13"}]' || '[{"os":"ubuntu-latest","python":"3.10"},{"os":"ubuntu-latest","python":"3.13"},{"os":"macos-14","python":"3.13"},{"os":"windows-latest","python":"3.13"}]') }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -91,25 +97,9 @@ jobs:
           assert PROTOCOL_VERSION == 1;
           print(honeybee_foton.__all__)"
 
-  viewer:
-    name: Viewer
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: viewer
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
-        with:
-          node-version: "20"
-          cache: npm
-          cache-dependency-path: viewer/package-lock.json
-      - run: npm ci
-      - run: npm test -- --run
-      - run: npm run build
-
   package:
     name: Package smoke test
+    if: github.event_name != 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
