@@ -1,8 +1,13 @@
 # Weather files
 
-Hourly EPW files used by the examples and the validation suite. All three are
-public weather data from the EnergyPlus weather collection
-(https://energyplus.net/weather, mirrored at energyplus-weather.s3.amazonaws.com).
+Hourly EPW files used by the examples and the validation suite.
+
+- `phoenix.epw` and `seattle.epw` are TMY3 files from the US National Renewable
+  Energy Laboratory, from the EnergyPlus weather collection
+  (https://energyplus.net/weather, mirrored at energyplus-weather.s3.amazonaws.com).
+- `gothenburg.epw` is a TMYx file (NCEI ISD and ERA5 data, 2007-2021) from
+  Climate.OneBuilding.org, by Linda K. Lawrie and Drury B. Crawley
+  (https://climate.onebuilding.org/).
 
 | File | Station | Source | Role | SHA-256 |
 | --- | --- | --- | --- | --- |
