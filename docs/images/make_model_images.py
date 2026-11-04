@@ -285,6 +285,10 @@ def draw(results: dict) -> Path:
     path = OUT / "benchmark-models.png"
     fig.savefig(path, dpi=200)
     plt.close(fig)
+    # A 256-colour palette keeps the file small with no visible change.
+    from PIL import Image
+
+    Image.open(path).convert("RGB").quantize(256, dither=Image.Dither.NONE).save(path, optimize=True)
     return path
 
 
