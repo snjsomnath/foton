@@ -82,7 +82,7 @@ export class DemoSession {
           (pending.stage !== "hour" && result.quality !== pending.stage) ||
           (pending.stage === "hour" && result.quality !== this.frame?.analysis.quality)) return;
       if (result.used_reference_fallback || !["metal", "vulkan"].includes(result.transport_backend.toLowerCase())) {
-        this.fail("This teaser requires native Metal or Vulkan GPU transport. CPU reference fallback was detected."); return;
+        this.fail("This demo requires native Metal or Vulkan GPU transport. CPU reference fallback was detected."); return;
       }
       if (!result.annual_metrics_available || result.sensor_ids.length !== pending.geometry.sensor_ids.length ||
           result.sensor_ids.some((id, index) => id !== pending.geometry!.sensor_ids[index]) ||

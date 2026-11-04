@@ -1,9 +1,23 @@
 name: CI
 
+# Changes that touch only prose or recorded benchmark results skip CI; they are
+# checked locally (see docs/benchmarking.md). Any other file in the change runs it.
 on:
   push:
     branches: ["main"]
+    paths-ignore:
+      - "README.md"
+      - "CHANGELOG.md"
+      - "CONTRIBUTING.md"
+      - "docs/**"
+      - "benchmarks/**"
   pull_request:
+    paths-ignore:
+      - "README.md"
+      - "CHANGELOG.md"
+      - "CONTRIBUTING.md"
+      - "docs/**"
+      - "benchmarks/**"
   workflow_dispatch:
 
 permissions:
@@ -11,7 +25,8 @@ permissions:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # Never cancel a main run: a cancelled run shows as failed on the README badge.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   rust:

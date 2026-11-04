@@ -7,28 +7,23 @@ function advance(clock: PlaybackClock, seconds: number, ready = true) {
   return transitions;
 }
 describe("cinematic timeline", () => {
-  it("covers eight chapters, four metrics, and a 72-second edit", () => {
-    expect(CHAPTERS).toHaveLength(8);
-    expect(TOTAL_DURATION).toBeCloseTo(72);
+  it("covers seven chapters, four metrics, and a 54.5-second edit", () => {
+    expect(CHAPTERS).toHaveLength(7);
+    expect(TOTAL_DURATION).toBeCloseTo(54.5);
     expect(new Set(SHOTS.map((shot) => shot.metric)).size).toBe(4);
     expect(SHOTS.find(shot => shot.chapter === "Hourly analysis")!.parameters).toEqual(DEFAULT_PARAMETERS);
     expect(SHOTS.filter((shot) => shot.quality === "final").length).toBeGreaterThan(6);
     expect(june21Hour(9)).toBe(4113);
   });
-  it("connects camera keyframes and widens before each campus increase", () => {
+  it("connects camera keyframes and ends on a single room", () => {
     for (let i = 1; i < SHOTS.length; i++) {
       expect(SHOTS[i].camera).toEqual(SHOTS[i-1].cameraEnd);
       expect(Math.abs(SHOTS[i].cameraEnd[0] - SHOTS[i].camera[0])).toBeLessThanOrEqual(180);
     }
-    const reveal = SHOTS.find(s => s.parameters.room_count === 1024)!;
-    expect(reveal.focus).toBe("scene");
-    const scale = SHOTS.filter(s => s.chapter === "Multiple zones");
-    for (let i = 1; i < scale.length; i++) {
-      expect(scale[i].overview!.from).toEqual(scale[i-1].overview!.to);
-      expect(scale[i].focus).toBe("scene");
-    }
-    expect(reveal.focusEnd).toBe("scene");
-    expect(reveal.duration).toBe(8);
+    expect(SHOTS.every(s => s.parameters.room_count === 1)).toBe(true);
+    const closing = SHOTS[SHOTS.length - 1];
+    expect(closing.chapter).toBe("Open source");
+    expect(closing.quality).toBe("final");
   });
   it("waits for results and preserves time when paused", () => {
     const clock = new PlaybackClock();
@@ -48,7 +43,7 @@ describe("cinematic timeline", () => {
     const clock = new PlaybackClock();
     clock.restart();
     clock.jump(SHOTS.length - 1);
-    advance(clock, 7.1);
+    advance(clock, 5.1);
     expect(clock.ended).toBe(true);
     expect(clock.playing).toBe(false);
     expect(clock.progress).toBe(1);
@@ -57,7 +52,7 @@ describe("cinematic timeline", () => {
     expect(clock.ended).toBe(false);
     clock.loop = true;
     clock.jump(SHOTS.length - 1);
-    advance(clock, 7.1);
+    advance(clock, 5.1);
     expect(clock.index).toBe(0);
     expect(clock.playing).toBe(true);
   });
