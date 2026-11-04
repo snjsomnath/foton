@@ -176,6 +176,11 @@ def main():
             for param, (_, hint) in zip(params, ports):
                 param.ToolTip = hint
                 param.Description = hint
+        # The component's own Description is rebuilt from its Tooltip the same
+        # way, which matters for the copies saved in the example definition.
+        if spec:
+            obj.Tooltip = spec["description"]
+            obj.Description = spec["description"]
         obj.Attributes.Pivot = PointF(x, y)
         document.AddObject(obj, False)
         return obj
@@ -280,6 +285,15 @@ output = os.path.join(os.path.expanduser("~"), "foton_simulation", "first_exampl
     restored_document = GH_Document()
     if not loaded_archive.ExtractObject(restored_document, "Definition"):
         raise RuntimeError("Example document round-trip failed")
+    for restored in restored_document.Objects:
+        if restored.Name in COMPONENT_NAMES:
+            spec = component_spec(restored.Name)
+            if restored.Description != spec["description"]:
+                help_warnings.append("%s description in the example: %r" % (restored.Name, restored.Description))
+            for params, ports in ((restored.Params.Input, spec["inputs"]), (restored.Params.Output, spec["outputs"])):
+                for param, (port, hint) in zip(params, ports):
+                    if param.Description != hint:
+                        help_warnings.append("%s %s tooltip in the example: %r" % (restored.Name, port, param.Description))
     sources = (
         ["scripts/build_grasshopper.py", "python/foton_bridge/__init__.py", "grasshopper_foton/foton_gh.py"]
         + ["grasshopper_foton/components/" + name + ".py" for name in COMPONENT_NAMES]
