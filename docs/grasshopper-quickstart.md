@@ -65,8 +65,11 @@ copy the components from it, or update.
    downloads Foton into it. If there is no Python 3.10 to 3.13 on the computer,
    it first downloads a small installer called [uv](https://docs.astral.sh/uv/),
    which fetches a private copy of Python into the same folder. Nothing outside
-   `.foton` changes. It shows each step as it goes. This happens once and takes
-   a minute or two.
+   `.foton` changes. This happens once and takes a minute or two, longer if it
+   has to download Python. It runs in the background, so you can keep working
+   in Rhino: the component shows how long it has been installing, and its
+   `report` output lists each step. When it finishes, it checks the install on
+   its own. To stop it, set `install_` back to False.
 
    ![Foton Settings showing the install steps](images/install/03-settings-install.png)
 
