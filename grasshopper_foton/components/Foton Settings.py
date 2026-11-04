@@ -121,7 +121,7 @@ if not installing:
     cancel_install()
     reset_install()
 else:
-    state = install_status() or background_install(globals().get("python_"))
+    state = background_install(globals().get("python_"))
     install_log = list(state["log"])
     if state["running"]:
         seconds = int(time.time() - state["started"])

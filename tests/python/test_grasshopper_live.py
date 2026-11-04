@@ -456,3 +456,28 @@ def test_background_install_reports_errors_and_can_be_cancelled(monkeypatch, tmp
     _wait_for(state)
     assert state["error"] == "Foton was cancelled"
     foton_gh.reset_install()
+
+
+def test_install_starts_again_after_it_was_stopped(monkeypatch, tmp_path):
+    import time
+
+    monkeypatch.setenv("FOTON_HOME", str(tmp_path))
+
+    def slow(python=None, progress=None, cancel=None, upgrade=False):
+        while not cancel():
+            time.sleep(0.01)
+        raise foton_gh.FotonCancelled("Foton was cancelled")
+
+    monkeypatch.setattr(foton_gh, "install_foton", slow)
+    foton_gh.reset_install()
+    first = foton_gh.background_install()
+    foton_gh.cancel_install()
+    _wait_for(first)
+    # install_ back on: a new install, not the stopped one reported as failed.
+    monkeypatch.setattr(foton_gh, "install_foton", lambda *a, **k: "/fake/foton-honeybee")
+    second = foton_gh.background_install()
+    assert second is not first
+    _wait_for(second)
+    assert second["executable"] == "/fake/foton-honeybee"
+    assert second["error"] is None
+    foton_gh.reset_install()

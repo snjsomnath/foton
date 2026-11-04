@@ -545,13 +545,15 @@ def background_install(python=None):
     ``executable`` once installed, ``error`` if it failed, and ``started``.
     Calling it again while an install runs, or after it finished, returns the
     same state, so a component can poll it on each solution. ``reset_install``
-    clears a finished state; ``cancel_install`` stops a running one.
+    clears a finished state; ``cancel_install`` stops a running one, and the
+    next call after it has stopped starts a fresh install.
     """
     installs = _install_registry()
     key = environment_folder()
     state = installs.get(key)
-    if state is not None:
+    if state is not None and not (state["cancelled"] and not state["running"]):
         return state
+    # A stopped install is not a failure: start again from where it left off.
     state = {
         "running": True,
         "log": [],
