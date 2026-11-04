@@ -19,6 +19,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::geometry::Vec3;
 
+/// Identifies one random number: which scene, sensor, sample, bounce and dimension it belongs to.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SampleKey {
     pub scene_seed: u64,
@@ -50,6 +51,7 @@ const SOBOL_PARAMETERS: &[(u32, u32, &[u32])] = &[
     (6, 16, &[1, 3, 5, 11, 7, 11]),
 ];
 
+/// A number in (0, 1) for `key`: a scrambled Sobol' point, the same on every run and every backend.
 pub fn low_discrepancy_sample(key: SampleKey) -> f32 {
     let dimension = key.dimension as usize % SOBOL_PARAMETERS.len();
     let sobol = sobol_uint(key.sample_index, dimension);
@@ -64,6 +66,7 @@ pub fn low_discrepancy_sample(key: SampleKey) -> f32 {
     ((scrambled as f64 + 0.5) / (u32::MAX as f64 + 1.0)) as f32
 }
 
+/// The `index`-th point of the Sobol' sequence in one dimension, as a 32-bit fraction.
 pub fn sobol_uint(index: u32, dimension: usize) -> u32 {
     let direction_numbers = direction_numbers(dimension % SOBOL_PARAMETERS.len());
     let gray_code = index ^ (index >> 1);
@@ -76,6 +79,7 @@ pub fn sobol_uint(index: u32, dimension: usize) -> u32 {
     value
 }
 
+/// Map two numbers in [0, 1] to a cosine-weighted direction on the hemisphere around +z.
 pub fn cosine_hemisphere(first: f32, second: f32) -> Vec3 {
     let radius = first.clamp(0.0, 1.0).sqrt();
     let azimuth = std::f32::consts::TAU * second.clamp(0.0, 1.0);

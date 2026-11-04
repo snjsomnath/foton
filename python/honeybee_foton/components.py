@@ -14,10 +14,13 @@ from .results import load_grid_result_branches, load_manifest
 
 @dataclass(frozen=True)
 class FotonSettings:
+    """Which ``foton-honeybee`` command and GPU backend the components use."""
+
     executable: str | None = None
     backend: str = "auto"
 
     def capabilities(self):
+        """Return the capabilities reported by the configured Foton."""
         return FotonClient(self.executable).capabilities(self.backend)
 
 
@@ -28,6 +31,7 @@ class AnnualDaylightComponent:
         self.settings = settings or FotonSettings()
 
     def run(self, request: AnnualDaylightRequest, **process_options):
+        """Run a study and return ``(manifest, GridResultBranches)``."""
         manifest = FotonClient(self.settings.executable).run_annual_daylight(
             request, **process_options
         )
@@ -45,5 +49,6 @@ class AnnualResultsComponent:
 
     @staticmethod
     def load(manifest_path):
+        """Read a finished run from its manifest or folder and return ``(manifest, GridResultBranches)``."""
         manifest = load_manifest(manifest_path)
         return manifest, load_grid_result_branches(manifest)

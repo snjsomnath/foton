@@ -69,6 +69,7 @@ def _options(defaults, options):
 
 
 def new_study(options, weather_memo=None) -> HoneybeeStudy:
+    """Create a ``HoneybeeStudy`` from command options."""
     return HoneybeeStudy(
         options["model"],
         backend=options.get("backend", "auto"),

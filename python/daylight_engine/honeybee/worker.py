@@ -39,6 +39,8 @@ COMMANDS = {
 
 
 class Worker:
+    """Keeps recently used studies in memory between requests, oldest dropped first."""
+
     def __init__(self) -> None:
         self.studies: OrderedDict[tuple, Any] = OrderedDict()
         # Weather outlives studies: a geometry change makes a new study, but
@@ -46,6 +48,7 @@ class Worker:
         self.weather_memo: dict = {}
 
     def study(self, options: dict[str, Any]):
+        """Return ``(study, reused)`` for these options, creating the study when it is not already held."""
         key = study_key(options)
         study = self.studies.pop(key, None)
         reused = study is not None
@@ -106,6 +109,7 @@ class Worker:
 
 
 def serve(stdin: TextIO | None = None, stdout: TextIO | None = None) -> int:
+    """Run the worker loop on ``stdin`` and ``stdout`` until stdin closes or ``shutdown`` arrives. Returns the exit code."""
     stdin = stdin or sys.stdin
     protocol_stream = stdout or sys.stdout
     writer = ProtocolWriter(protocol_stream)

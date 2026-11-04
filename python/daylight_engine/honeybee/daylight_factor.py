@@ -36,15 +36,19 @@ class GridDaylightFactor:
 
     @property
     def sensor_count(self) -> int:
+        """Number of sensors in this grid."""
         return int(self.sensor_indices.size)
 
     @property
     def mean(self) -> float:
+        """Average daylight factor of the grid, in percent."""
         return float(np.mean(self.values))
 
 
 @dataclass(frozen=True)
 class DaylightFactorRun:
+    """Completed daylight factor analysis grouped in HBJSON grid order."""
+
     grids: tuple[GridDaylightFactor, ...]
     timings: dict[str, float | None]
     results_folder: Path | None
@@ -84,6 +88,12 @@ def daylight_factor_run(
     output_folder: str | Path | None = None,
     progress: Callable[[dict[str, Any]], None] | None = None,
 ) -> DaylightFactorRun:
+    """Compute the daylight factor for every grid of a prepared study.
+
+    Traces the sky coefficients (or reuses ones the study already traced with the
+    same settings) and applies a CIE overcast sky. When ``output_folder`` is set
+    the results are written in Honeybee's daylight factor layout.
+    """
     started = time.perf_counter()
     if isinstance(sky_density, bool) or int(sky_density) not in SKY_BASIS:
         raise ValueError("sky_density must be 1 (Tregenza) or 2 (Reinhart MF:2)")

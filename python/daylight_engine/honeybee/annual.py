@@ -7,7 +7,7 @@ from dataclasses import dataclass
 import json
 from pathlib import Path
 import time
-from typing import Any, Callable, Iterable
+from typing import Any, Callable
 
 import numpy as np
 
@@ -77,6 +77,7 @@ class GridAnnualResult:
 
     @property
     def sensor_count(self) -> int:
+        """Number of sensors in this grid."""
         return int(self.sensor_indices.size)
 
 
@@ -565,41 +566,51 @@ class AnnualDaylightRecipe:
 
     @property
     def name(self):
+        """Recipe name, ``"annual_daylight"``."""
         return self._name
 
     @property
     def tag(self):
+        """Recipe tag, always ``"foton"``."""
         return "foton"
 
     @property
     def path(self):
+        """Folder that holds this recipe's code."""
         return str(Path(__file__).resolve().parent)
 
     @property
     def default_project_folder(self):
+        """Where runs go when the settings name no folder: ``./foton``."""
         return str(Path.cwd() / "foton")
 
     @property
     def simulation_id(self):
+        """Name of the last run's folder, or ``None`` before the first run."""
         return self._simulation_id
 
     @property
     def inputs(self):
+        """A copy of the current input values."""
         return dict(self._inputs)
 
     @property
     def outputs(self):
+        """Names of the outputs this recipe writes."""
         return list(self._output_names)
 
     @property
     def input_names(self):
+        """Names of the inputs this recipe accepts."""
         return list(self._input_names)
 
     @property
     def output_names(self):
+        """Names of the outputs this recipe writes."""
         return list(self._output_names)
 
     def input_value_by_name(self, input_name, input_value):
+        """Set one input, checking the value. Dashes and spaces in the name are read as underscores."""
         name = str(input_name).strip().lower().replace("-", "_").replace(" ", "_")
         if name not in self._inputs:
             raise ValueError(
@@ -634,6 +645,7 @@ class AnnualDaylightRecipe:
         self._inputs[name] = input_value
 
     def output_value_by_name(self, output_name, project_folder=None):
+        """Return the path of one output (``results``, ``metrics``, ``grid_summary`` or ``metadata``) of the last run."""
         name = str(output_name).strip().lower().replace("-", "_")
         if name not in self._output_names:
             raise ValueError(f"unknown output {output_name!r}")
@@ -663,6 +675,12 @@ class AnnualDaylightRecipe:
         silent=False,
         debug_folder=None,
     ):
+        """Run the study and return the project folder.
+
+        Takes the same arguments as Ladybug Tools' ``Recipe.run``. The Radiance,
+        OpenStudio, EnergyPlus and Queenbee options are accepted and ignored,
+        because Foton does not use them.
+        """
         del radiance_check, openstudio_check, energyplus_check
         del queenbee_path, silent, debug_folder
         settings = settings or RecipeSettings()

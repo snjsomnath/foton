@@ -5,6 +5,7 @@ use crate::geometry::SceneData;
 const FNV_OFFSET_BASIS: u64 = 0xcbf2_9ce4_8422_2325;
 const FNV_PRIME: u64 = 0x0000_0100_0000_01b3;
 
+/// FNV-1a hash of all scene data. Equal scenes give equal fingerprints.
 pub fn scene_fingerprint(scene: &SceneData) -> u64 {
     let mut hash = FNV_OFFSET_BASIS;
     for vertex in &scene.vertices {

@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::{DaylightError, Result};
 
+/// A point or direction in metres. Laid out as three `f32`s to match the GPU structs.
 #[repr(C)]
 #[derive(Clone, Copy, Debug, Default, PartialEq, Pod, Zeroable, Serialize, Deserialize)]
 pub struct Vec3 {
@@ -14,14 +15,17 @@ pub struct Vec3 {
 }
 
 impl Vec3 {
+    /// Create a vector.
     pub const fn new(x: f32, y: f32, z: f32) -> Self {
         Self { x, y, z }
     }
 
+    /// Dot product.
     pub fn dot(self, other: Self) -> f32 {
         self.x * other.x + self.y * other.y + self.z * other.z
     }
 
+    /// Cross product.
     pub fn cross(self, other: Self) -> Self {
         Self::new(
             self.y * other.z - self.z * other.y,
@@ -30,22 +34,27 @@ impl Vec3 {
         )
     }
 
+    /// Component-wise sum.
     pub fn add(self, other: Self) -> Self {
         Self::new(self.x + other.x, self.y + other.y, self.z + other.z)
     }
 
+    /// Component-wise difference, `self - other`.
     pub fn subtract(self, other: Self) -> Self {
         Self::new(self.x - other.x, self.y - other.y, self.z - other.z)
     }
 
+    /// Multiply every component by `scale`.
     pub fn scale(self, scale: f32) -> Self {
         Self::new(self.x * scale, self.y * scale, self.z * scale)
     }
 
+    /// Euclidean length.
     pub fn length(self) -> f32 {
         self.dot(self).sqrt()
     }
 
+    /// Unit vector in the same direction. Fails for a zero or non-finite vector.
     pub fn normalized(self) -> Result<Self> {
         let length = self.length();
         if !length.is_finite() || length <= f32::EPSILON {
@@ -57,6 +66,7 @@ impl Vec3 {
         Ok(Self::new(self.x / length, self.y / length, self.z / length))
     }
 
+    /// Unit vector in the same direction, or `fallback` when that is not defined.
     pub fn normalized_or(self, fallback: Self) -> Self {
         let length = self.length();
         if length.is_finite() && length > f32::EPSILON {
@@ -66,11 +76,13 @@ impl Vec3 {
         }
     }
 
+    /// True when no component is NaN or infinite.
     pub fn is_finite(self) -> bool {
         self.x.is_finite() && self.y.is_finite() && self.z.is_finite()
     }
 }
 
+/// The surface types Foton simulates.
 #[repr(u32)]
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 pub enum MaterialKind {
@@ -79,6 +91,11 @@ pub enum MaterialKind {
     ThinGlass = 1,
 }
 
+/// A surface material, laid out to match the GPU struct.
+///
+/// `diffuse_rgb` is the reflectance of matte surfaces and `transmittance_rgb` the
+/// normal-incidence transmittance of glass, both 0 to 1. `validate` fills in
+/// `internal_transmissivity_rgb` for glass.
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Pod, Zeroable, Serialize, Deserialize)]
 pub struct Material {
@@ -90,6 +107,7 @@ pub struct Material {
 }
 
 impl Material {
+    /// A matte surface with the given reflectance.
     pub fn lambertian(diffuse_rgb: [f32; 3]) -> Self {
         Self {
             kind: MaterialKind::Lambertian as u32,
@@ -100,6 +118,7 @@ impl Material {
         }
     }
 
+    /// Thin glass with the given normal-incidence transmittance, as in Radiance's `glass` material.
     pub fn thin_glass(transmittance_rgb: [f32; 3]) -> Self {
         Self {
             kind: MaterialKind::ThinGlass as u32,
@@ -110,6 +129,7 @@ impl Material {
         }
     }
 
+    /// Check the values and work out the glass transmissivity the shaders use.
     pub fn validate(&mut self) -> Result<()> {
         if self.kind > MaterialKind::ThinGlass as u32 {
             return Err(DaylightError::InvalidValue {
@@ -144,6 +164,7 @@ impl Material {
     }
 }
 
+/// A run of consecutive triangles that forms one mesh.
 #[repr(C)]
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Pod, Zeroable, Serialize, Deserialize)]
 pub struct MeshRange {
@@ -151,6 +172,7 @@ pub struct MeshRange {
     pub triangle_count: u32,
 }
 
+/// One placed copy of a mesh: a 4 by 4 transform, its room and a category mask.
 #[repr(C)]
 #[derive(Clone, Copy, Debug, PartialEq, Pod, Zeroable, Serialize, Deserialize)]
 pub struct Instance {
@@ -175,6 +197,7 @@ impl Default for Instance {
     }
 }
 
+/// A sensor point: position, facing direction, ids and the floor area it stands for.
 #[repr(C)]
 #[derive(Clone, Copy, Debug, Default, PartialEq, Pod, Zeroable, Serialize, Deserialize)]
 pub struct Sensor {
@@ -186,6 +209,10 @@ pub struct Sensor {
     pub _padding: [u32; 3],
 }
 
+/// A whole scene in flat arrays, ready to upload to a GPU.
+///
+/// Triangles index into `vertices`, `triangle_materials` index into
+/// `materials`, and `instances` place `mesh_ranges` in the scene.
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct SceneData {
     pub vertices: Vec<Vec3>,
@@ -198,6 +225,7 @@ pub struct SceneData {
 }
 
 impl SceneData {
+    /// Check every index and value, and fill in derived material data. Call before analysing.
     pub fn validate(&mut self) -> Result<()> {
         if self.vertices.is_empty() || self.triangles.is_empty() {
             return Err(DaylightError::InvalidShape {

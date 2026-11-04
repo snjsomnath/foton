@@ -3,11 +3,16 @@ use crate::{
     geometry::{Instance, Material, MeshRange, SceneData, Sensor, Vec3},
 };
 
+/// Instance mask bit for opaque surfaces.
 pub const MASK_OPAQUE: u32 = 1 << 0;
+/// Instance mask bit for glazing.
 pub const MASK_GLAZING: u32 = 1 << 1;
+/// Instance mask bit for exterior surfaces.
 pub const MASK_EXTERIOR: u32 = 1 << 2;
+/// Instance mask bit for geometry that takes part in the current analysis.
 pub const MASK_ACTIVE_BATCH: u32 = 1 << 3;
 
+/// Settings for `shoebox_scene`: how many rooms, sensors per room and optional glazing.
 #[derive(Clone, Copy, Debug)]
 pub struct ShoeboxOptions {
     pub room_count: usize,
@@ -25,6 +30,7 @@ impl Default for ShoeboxOptions {
     }
 }
 
+/// A simple 6 m by 9 m room, or a row of them, used by tests and benchmarks.
 pub fn shoebox_scene(options: ShoeboxOptions) -> Result<SceneData> {
     let mut vertices = Vec::new();
     let mut triangles = Vec::new();

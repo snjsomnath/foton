@@ -12,12 +12,20 @@ use crate::{
     sky::{CoefficientMatrix, SkyBasis, SkyMatrix},
 };
 
+/// How carefully to trace: `Preview` for quick feedback while editing, `Final` for results.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AnalysisQuality {
     Preview,
     Final,
 }
 
+/// Everything one analysis needs besides the scene.
+///
+/// `sky` holds the hourly skies and `occupancy_weights` one weight per sky
+/// timestep (0 to 1). Illuminance thresholds are in lux and `time_fraction` is the
+/// sDA time target (0.5 for 50 %). `direct_samples`, `maximum_samples` and
+/// `maximum_bounces` control the tracing. Set `coefficient_override` to reuse
+/// coefficients traced earlier and skip tracing.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct AnalysisRequest {
     pub sky: SkyMatrix,
@@ -36,6 +44,7 @@ pub struct AnalysisRequest {
     pub coefficient_override: Option<CoefficientMatrix>,
 }
 
+/// Hourly illuminance in lux, stored sensor by sensor: `values[sensor * timestep_count + timestep]`.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct AnnualIlluminance {
     pub sensor_count: usize,
@@ -43,6 +52,7 @@ pub struct AnnualIlluminance {
     pub values: Vec<f32>,
 }
 
+/// Time spent in each stage on the GPU, in milliseconds.
 #[derive(Clone, Debug, Default, PartialEq, Serialize, Deserialize)]
 pub struct GpuTimings {
     pub upload_ms: f64,
@@ -52,6 +62,7 @@ pub struct GpuTimings {
     pub snapshot_ms: f64,
 }
 
+/// What an analysis returns: annual metrics, optionally the coefficients and hourly illuminance, and how they were made.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct AnalysisResult {
     pub solver_revision: u64,
@@ -65,6 +76,7 @@ pub struct AnalysisResult {
     pub metadata: AnalysisMetadata,
 }
 
+/// How a result was produced, so it can be traced back to the solver, sky and settings.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct AnalysisMetadata {
     pub metric_label: String,
@@ -80,6 +92,7 @@ pub struct AnalysisMetadata {
     pub used_reference_fallback: bool,
 }
 
+/// What a backend reports about itself and its hardware.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BackendCapabilities {
     pub name: String,
@@ -90,6 +103,10 @@ pub struct BackendCapabilities {
 
 static NEXT_SCENE_ID: AtomicU64 = AtomicU64::new(1);
 
+/// A committed scene that backends can analyse repeatedly.
+///
+/// Cloning is cheap and shares the scene. The revision goes up whenever instances
+/// change, so a backend knows when cached GPU data is stale.
 #[derive(Clone)]
 pub struct SceneHandle {
     id: u64,
@@ -98,6 +115,7 @@ pub struct SceneHandle {
 }
 
 impl SceneHandle {
+    /// Validate `scene` and wrap it in a new handle with revision 1.
     pub fn new(mut scene: SceneData) -> Result<Self> {
         scene.validate()?;
         Ok(Self {
@@ -107,14 +125,17 @@ impl SceneHandle {
         })
     }
 
+    /// Identifier that is unique to this handle within the process.
     pub const fn id(&self) -> u64 {
         self.id
     }
 
+    /// Current revision. It starts at 1 and goes up with every instance update.
     pub fn revision(&self) -> u64 {
         self.revision.load(Ordering::Acquire)
     }
 
+    /// A copy of the scene as it is now.
     pub fn snapshot(&self) -> Result<SceneData> {
         self.data
             .read()
@@ -124,6 +145,9 @@ impl SceneHandle {
             })
     }
 
+    /// Move or reassign instances, then validate the whole scene.
+    ///
+    /// Nothing changes when any update is invalid. Returns the new revision.
     pub fn update_instances(&self, updates: &[InstanceUpdate]) -> Result<u64> {
         let mut scene = self.data.write().map_err(|_| DaylightError::Backend {
             detail: "scene handle lock is poisoned".into(),
@@ -148,6 +172,7 @@ impl SceneHandle {
     }
 }
 
+/// A new transform, and optionally a new room, for one instance.
 #[derive(Clone, Copy, Debug)]
 pub struct InstanceUpdate {
     pub instance_index: usize,
@@ -155,6 +180,11 @@ pub struct InstanceUpdate {
     pub room_id: Option<u32>,
 }
 
+/// A way to run the daylight solver: Metal, Vulkan or the CPU reference.
+///
+/// Only `capabilities` and `analyze` must be written. The default methods keep
+/// the scene in a `SceneHandle`; GPU backends override them to keep scenes
+/// resident on the device.
 pub trait Backend: Send + Sync + 'static {
     fn capabilities(&self) -> BackendCapabilities;
 
