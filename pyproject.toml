@@ -80,7 +80,8 @@ python-source = "python"
 python-packages = ["foton", "daylight_engine", "honeybee_foton", "foton_bridge"]
 module-name = "daylight_engine._native"
 exclude = ["**/__pycache__/**", "**/*.pyc", "**/build_error.log"]
-features = ["extension-module"]
+# abi3: one wheel per platform works on every Python from 3.10 on.
+features = ["extension-module", "abi3"]
 include = [
     { path = "LICENSE", format = "sdist" },
     { path = "NOTICE", format = "sdist" },
