@@ -158,7 +158,7 @@ def main():
         obj.Name = name
         obj.NickName = spec["nickname"] if spec else name
         obj.Category = spec["category"] if spec else "HB-Foton"
-        obj.SubCategory = spec["subcategory"] if spec else "1 :: Recipes"
+        obj.SubCategory = spec["subcategory"] if spec else "Recipes"
         if spec:
             obj.Description = spec["description"]
             obj.Message = version

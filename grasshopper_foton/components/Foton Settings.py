@@ -63,7 +63,7 @@ ghenv.Component.Name = "Foton Settings"
 ghenv.Component.NickName = "FotonSettings"
 ghenv.Component.Message = COMPONENT_VERSION
 ghenv.Component.Category = "HB-Foton"
-ghenv.Component.SubCategory = "0 :: Settings"
+ghenv.Component.SubCategory = "Settings"
 if hasattr(ghenv.Component, "AdditionalHelpFromDocStrings"):
     ghenv.Component.AdditionalHelpFromDocStrings = "2"
 
