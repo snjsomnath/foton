@@ -73,9 +73,11 @@ def test_candidates_cover_usual_python_folders(monkeypatch):
 
 
 def test_engine_version_range_matches_this_release():
-    import tomllib
+    import re
 
-    version = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["version"]
+    # tomllib is Python 3.11+; CI also runs 3.10.
+    text = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    version = re.search(r'^version = "([^"]+)"', text, re.MULTILINE).group(1)
     # Main may still carry the previous patch number until the release bump;
     # from 0.3.2 on, the components must accept the engine they ship with.
     assert foton_gh._version_tuple(version)[:2] == foton_gh.ENGINE_MINIMUM[:2]
