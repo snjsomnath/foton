@@ -31,6 +31,8 @@ second, and Honeybee and Ladybug read the result as if Radiance had written it.*
 
 <p align="center"><img src="https://raw.githubusercontent.com/snjsomnath/foton/main/docs/images/annual-run-times.png" width="85%" alt="Bar chart: a full annual daylight run takes 0.14 s for a 96-sensor room, 1.07 s for 2,020 sensors and 5.77 s for a 9,216-sensor office block"></p>
 
+<p align="center"><img src="https://raw.githubusercontent.com/snjsomnath/foton/main/docs/images/benchmark-models.png" width="85%" alt="The four benchmark models drawn in 3D with the roof off: a single teaching office, four rooms around a courtyard, the three-room acceptance model and a four-storey office block with 256 rooms. Every sensor is a small square coloured by its daylight autonomy"></p>
+
 <p align="center"><img src="https://raw.githubusercontent.com/snjsomnath/foton/main/docs/images/accuracy-sda.png" width="60%" alt="Scatter plot: sDA from Foton against sDA from Radiance for 119 sensor grids, all close to the diagonal"></p>
 
 On a typical room Foton's daylight autonomy is within 0.2 percentage points of
