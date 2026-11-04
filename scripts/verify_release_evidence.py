@@ -68,6 +68,11 @@ ENGINE_UNCHANGED_PATHS = (
     "viewer/",
     "CONTRIBUTING.md",
     "benchmarks/",
+    # The speed benchmarks and the README table built from them time the
+    # engine; the numerical suite never runs them.
+    "scripts/benchmark_",
+    "scripts/compare_benchmarks.py",
+    "scripts/refresh_readme_speed.py",
 )
 VERSION_FILES = (
     "Cargo.toml",

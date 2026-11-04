@@ -209,7 +209,8 @@ def test_release_gate_reuses_gpu_suites_when_the_engine_is_unchanged():
     files["rhino.json"]["engine_version"] = "0.3.1"
     files["rhino.json"]["commit"] = "later"
     bump = ["Cargo.toml", "Cargo.lock", "pyproject.toml", "grasshopper_foton/yak/manifest.yml"]
-    grasshopper = ["grasshopper_foton/foton_gh.py", "scripts/build_grasshopper.py", "viewer/src/app.tsx"]
+    grasshopper = ["grasshopper_foton/foton_gh.py", "scripts/build_grasshopper.py", "viewer/src/app.tsx",
+                   "scripts/benchmark_grasshopper.py", "scripts/refresh_readme_speed.py"]
     # 0.3.0's suites qualify 0.3.1 when only the version and Grasshopper changed.
     assert not run_verify(manifest, files, commit="later", version="0.3.1", changed=bump + grasshopper)
     # Not when a version file changed more than its version line.
