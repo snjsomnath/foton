@@ -1,11 +1,11 @@
 {
   "artifacts": {
-    "Foton Annual Daylight.ghuser": "e9930c439dd41767078cd01a62fc9476c2d6f7a1a0ea711e0de71f0a7efae7c2", 
-    "Foton Annual Results.ghuser": "940089abd336455b500314e75ab057696a0f58d66a5de4ca8d4306b390ab6551", 
-    "Foton Daylight Factor.ghuser": "be1b5e2c9b03b28e48d77fcc3a6b4eea8af7aff3b8149279df14631b21639690", 
-    "Foton First Analysis.gh": "161509aabe8b511d7a95e6a31615fab2dd17157e579ba26d129a7f60b6661cf2", 
-    "Foton First Analysis.ghx": "5bd007dd209d06d0bbc8e6e012378511b10a50264f31ff3d6feb9674e5245b2a", 
-    "Foton Settings.ghuser": "fbdfbf11d54e05b3abf06ce9d9bd926d0faa471b8a7ef21045fb572937c288fd"
+    "Foton Annual Daylight.ghuser": "b0fd19b8aef890a0210635d5f4279e6bc03849d1b8e50dd546f02f78a6d8bf5d", 
+    "Foton Annual Results.ghuser": "eff327bc26f18861fa21f79ce23e875930fa74e6933b65e8b548d1a149d43775", 
+    "Foton Daylight Factor.ghuser": "d1019480538371e75f633c5344e50408d0c177d8bd9d7c4173b59777e2641e0c", 
+    "Foton First Analysis.gh": "2a5b3e9a8f0f51aedaf17683b4779cb904b8bb677e9320f6666452066c9e5cfc", 
+    "Foton First Analysis.ghx": "1f4e7aad16e622b06193004ca5f6df4b9ace5b9e0f86b31eda59ad5718f5a965", 
+    "Foton Settings.ghuser": "9ad1b464672088f5fce5b2b1a6549a415708e206c65ef29b9d856153512ab266"
   }, 
   "help_and_icons_verified": true, 
   "help_warnings": [], 
@@ -16,8 +16,8 @@
     "grasshopper_foton/components/Foton Annual Daylight.py": "ea7b82d078000309bfc9a4ac5687d4d236659ef42f314d3df5a1739dca4673c2", 
     "grasshopper_foton/components/Foton Annual Results.py": "4c8a6e4625fe60953ca9adff8d547ce04b43acf841dda8b05ca63f8a965bd0d7", 
     "grasshopper_foton/components/Foton Daylight Factor.py": "5aff24d0aac76bd2644058dedffe36990ebcff0fc7902483598243e8496b3906", 
-    "grasshopper_foton/components/Foton Settings.py": "5c33ef060d0cefdce084eae9d45822e7924a34753c4c40035b1afaff0a7e198e", 
-    "grasshopper_foton/foton_gh.py": "7540278bcd608fed59b54bba08140fa5e4715f7d5bd40d2e0b83599dc9e426ff", 
+    "grasshopper_foton/components/Foton Settings.py": "18955a43ce68c25497f0719226fc8c9477815b53d42b822243f859d1dd777bc9", 
+    "grasshopper_foton/foton_gh.py": "ff205ef921b0000b7e163b3e0659f389ac36fdd18bcf1280e387aa40df5d46c5", 
     "grasshopper_foton/icons/Foton Annual Daylight.png": "c162dc972410a57bf4bfa645bc0ac4a864b7c57afae4117570d1849227aa52d7", 
     "grasshopper_foton/icons/Foton Annual Results.png": "d8bf7e650957e632e57f7cb5ac5824d0d7c62554060d9a1c1c991334c5b3e395", 
     "grasshopper_foton/icons/Foton Daylight Factor.png": "ea1cbdf53dacd5ced359e9b9a82de5642bdfce23c00bbe1c01d59d0505d5c2db", 
