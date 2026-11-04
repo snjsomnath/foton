@@ -70,7 +70,7 @@ ghenv.Component.Name = "Foton Daylight Factor"
 ghenv.Component.NickName = "FotonDF"
 ghenv.Component.Message = COMPONENT_VERSION
 ghenv.Component.Category = "HB-Foton"
-ghenv.Component.SubCategory = "Recipes"
+ghenv.Component.SubCategory = "Foton"
 if hasattr(ghenv.Component, "AdditionalHelpFromDocStrings"):
     ghenv.Component.AdditionalHelpFromDocStrings = "2"
 

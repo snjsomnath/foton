@@ -56,7 +56,7 @@ ghenv.Component.Name = "Foton Annual Results"
 ghenv.Component.NickName = "FotonResults"
 ghenv.Component.Message = COMPONENT_VERSION
 ghenv.Component.Category = "HB-Foton"
-ghenv.Component.SubCategory = "Results"
+ghenv.Component.SubCategory = "Foton"
 if hasattr(ghenv.Component, "AdditionalHelpFromDocStrings"):
     ghenv.Component.AdditionalHelpFromDocStrings = "2"
 

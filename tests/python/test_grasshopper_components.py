@@ -57,7 +57,7 @@ def test_component_has_help_icon_and_ribbon_place(name):
     spec = build_grasshopper.component_spec(name)
     source = (ROOT / "grasshopper_foton/components" / (name + ".py")).read_text()
     assert spec["category"] == "HB-Foton"
-    assert spec["subcategory"] in ("Settings", "Recipes", "Results")
+    assert spec["subcategory"] in ("Foton",)
     assert len(spec["description"]) > 60
     assert source.startswith("# Foton: GPU daylight simulation for Grasshopper.")
     assert "MIT licence" in source.splitlines()[1]

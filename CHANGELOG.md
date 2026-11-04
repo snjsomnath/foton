@@ -17,8 +17,7 @@ Makes installing Foton in Rhino straightforward.
   changes.
 - The components are easier to use: each has its own icon, a description,
   and help text on every input and output (hover over one to read it). The
-  version shows under each component, and the toolbar groups them into
-  Settings, Recipes and Results.
+  version shows under each component.
 - Foton is packaged for Rhino's Package Manager (Yak). The release workflow
   builds the package, attaches it to the GitHub release and publishes it.
 - New step-by-step install guide with screenshots in

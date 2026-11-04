@@ -45,9 +45,9 @@ packages folder, under `foton/<version>/Foton First Analysis.gh`.
 
 ### Step 2: find the components
 
-The components are on the **HB-Foton** tab of the Grasshopper toolbar, in three
-groups: Settings, Recipes and Results. You can also double-click an empty part
-of the canvas and type **Foton**. Hover over any input or output to read what
+The four components sit together on the **HB-Foton** tab of the Grasshopper
+toolbar. You can also double-click an empty part of the canvas and type
+**Foton**. Hover over any input or output to read what
 it does and what it defaults to. The number under each component is its Foton
 version.
 
