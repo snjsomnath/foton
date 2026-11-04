@@ -109,5 +109,19 @@ class RefreshReadmeSpeedTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             self.refresh.speed_block_many([(mac, root / "a.json"), (l4, root / "b.json")])
 
+    def test_linux_machine_without_a_model_name_is_described_plainly(self):
+        fingerprint = _result()["fingerprint"]
+        fingerprint["model_name"] = "x86_64"
+        fingerprint["hardware"].update(machine="x86_64", system="Linux")
+        self.assertEqual(
+            self.refresh._machine(fingerprint), "a Linux machine (AMD Ryzen 9, 64 GiB, NVIDIA RTX 4090)"
+        )
+
+    def test_hardware_names_are_tidied(self):
+        self.assertEqual(self.refresh._tidy("Intel(R) Xeon(R) CPU @ 2.20GHz"), "Intel Xeon")
+        self.assertEqual(
+            self.refresh._tidy("NVIDIA RTX PRO 6000 Blackwell Server Edition"), "NVIDIA RTX PRO 6000 Blackwell"
+        )
+
 if __name__ == "__main__":
     unittest.main()

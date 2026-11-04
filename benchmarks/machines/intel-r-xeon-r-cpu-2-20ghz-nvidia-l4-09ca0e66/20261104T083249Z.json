@@ -1,0 +1,716 @@
+{
+  "annual": {
+    "cases": [
+      {
+        "last_timings": {
+          "coefficient_trace_seconds": 0.039162575,
+          "cold_end_to_end_seconds": 0.4919041670000297,
+          "engine_acceleration_structure_seconds": 0.0,
+          "engine_annual_reduction_seconds": 0.00527585,
+          "engine_snapshot_seconds": 0.0,
+          "engine_tracing_seconds": 0.039162575,
+          "engine_upload_seconds": 0.014312578,
+          "metric_reduction_seconds": 0.09045424300029481,
+          "raw_export_seconds": 0.0,
+          "study_preparation_seconds": 0.1712650049998956,
+          "total_seconds": 0.3206391620001341,
+          "warm_study_seconds": null,
+          "weather_seconds": 0.21982354400006443,
+          "write_seconds": 0.010012358000039967
+        },
+        "model": "test_models/architectural/teaching_office.hbjson",
+        "preparation_seconds": {
+          "maximum": 0.3388971140002468,
+          "median": 0.17604806899998948,
+          "minimum": 0.17089818599970386,
+          "values": [
+            0.3388971140002468,
+            0.19664465899995776,
+            0.17089818599970386,
+            0.17604806899998948,
+            0.1712650049998956
+          ]
+        },
+        "rooms": 1,
+        "scene": "teaching_office",
+        "sensors": 96,
+        "tracing_seconds": {
+          "maximum": 0.039162575,
+          "median": 0.039016681,
+          "minimum": 0.038884462,
+          "values": [
+            0.038913019,
+            0.038884462,
+            0.039043388,
+            0.039016681,
+            0.039162575
+          ]
+        },
+        "wall_seconds": {
+          "maximum": 0.6613229139998111,
+          "median": 0.5019565050001802,
+          "minimum": 0.49454344099967784,
+          "values": [
+            0.6613229139998111,
+            0.524905292999847,
+            0.4949604640000871,
+            0.5019565050001802,
+            0.49454344099967784
+          ]
+        }
+      },
+      {
+        "last_timings": {
+          "coefficient_trace_seconds": 0.029683859,
+          "cold_end_to_end_seconds": 0.5006623529998251,
+          "engine_acceleration_structure_seconds": 0.0,
+          "engine_annual_reduction_seconds": 0.005431121,
+          "engine_snapshot_seconds": 0.0,
+          "engine_tracing_seconds": 0.029683859,
+          "engine_upload_seconds": 0.014058503,
+          "metric_reduction_seconds": 0.08061581999982081,
+          "raw_export_seconds": 0.0,
+          "study_preparation_seconds": 0.18970334000005096,
+          "total_seconds": 0.31095901299977413,
+          "warm_study_seconds": null,
+          "weather_seconds": 0.218978345999858,
+          "write_seconds": 0.010955134000141697
+        },
+        "model": "test_models/architectural/courtyard_rooms.hbjson",
+        "preparation_seconds": {
+          "maximum": 0.35813398499976756,
+          "median": 0.18970334000005096,
+          "minimum": 0.186316213000282,
+          "values": [
+            0.35813398499976756,
+            0.19525484599989795,
+            0.186316213000282,
+            0.18743601999995008,
+            0.18970334000005096
+          ]
+        },
+        "rooms": 4,
+        "scene": "courtyard_rooms",
+        "sensors": 112,
+        "tracing_seconds": {
+          "maximum": 0.029766405,
+          "median": 0.029683859,
+          "minimum": 0.029538333,
+          "values": [
+            0.029657078,
+            0.029538333,
+            0.029766405,
+            0.029712044,
+            0.029683859
+          ]
+        },
+        "wall_seconds": {
+          "maximum": 0.6746346420000009,
+          "median": 0.503348060999997,
+          "minimum": 0.5002344889999222,
+          "values": [
+            0.6746346420000009,
+            0.5102948990002005,
+            0.5002344889999222,
+            0.5026225110000269,
+            0.503348060999997
+          ]
+        }
+      },
+      {
+        "last_timings": {
+          "coefficient_trace_seconds": 0.292502584,
+          "cold_end_to_end_seconds": 0.8706761980001829,
+          "engine_acceleration_structure_seconds": 0.0,
+          "engine_annual_reduction_seconds": 0.042467448,
+          "engine_snapshot_seconds": 0.0,
+          "engine_tracing_seconds": 0.292502584,
+          "engine_upload_seconds": 0.016274725,
+          "metric_reduction_seconds": 0.3857580099997904,
+          "raw_export_seconds": 0.0,
+          "study_preparation_seconds": 0.25027008999995815,
+          "total_seconds": 0.6204061080002248,
+          "warm_study_seconds": null,
+          "weather_seconds": 0.21978655999964758,
+          "write_seconds": 0.014440065000144386
+        },
+        "model": "test_models/architectural/acceptance.hbjson",
+        "preparation_seconds": {
+          "maximum": 0.4363160129996686,
+          "median": 0.2556751920001261,
+          "minimum": 0.25027008999995815,
+          "values": [
+            0.4363160129996686,
+            0.25866923100011263,
+            0.2510265280002386,
+            0.2556751920001261,
+            0.25027008999995815
+          ]
+        },
+        "rooms": 3,
+        "scene": "acceptance",
+        "sensors": 2020,
+        "tracing_seconds": {
+          "maximum": 0.292502584,
+          "median": 0.290984711,
+          "minimum": 0.290263825,
+          "values": [
+            0.291286191,
+            0.290984711,
+            0.290263825,
+            0.290269726,
+            0.292502584
+          ]
+        },
+        "wall_seconds": {
+          "maximum": 1.0631998160001785,
+          "median": 0.8721011399998133,
+          "minimum": 0.8678081640000528,
+          "values": [
+            1.0631998160001785,
+            0.8832512200001474,
+            0.8678081640000528,
+            0.8721011399998133,
+            0.8718629800000599
+          ]
+        }
+      },
+      {
+        "last_timings": {
+          "coefficient_trace_seconds": 3.496666428,
+          "cold_end_to_end_seconds": 6.325840032000087,
+          "engine_acceleration_structure_seconds": 0.0,
+          "engine_annual_reduction_seconds": 0.224545489,
+          "engine_snapshot_seconds": 0.0,
+          "engine_tracing_seconds": 3.496666428,
+          "engine_upload_seconds": 0.024089738,
+          "metric_reduction_seconds": 3.7974618760003978,
+          "raw_export_seconds": 0.0,
+          "study_preparation_seconds": 2.184162563999962,
+          "total_seconds": 4.141677468000125,
+          "warm_study_seconds": null,
+          "weather_seconds": 0.22387923099995533,
+          "write_seconds": 0.1148873420002019
+        },
+        "model": "office_floors.hbjson",
+        "preparation_seconds": {
+          "maximum": 2.316076816000077,
+          "median": 2.184162563999962,
+          "minimum": 2.020682729999862,
+          "values": [
+            2.1563794759999837,
+            2.020682729999862,
+            2.316076816000077,
+            2.186937428999954,
+            2.184162563999962
+          ]
+        },
+        "rooms": 256,
+        "scene": "office_floors",
+        "sensors": 9216,
+        "tracing_seconds": {
+          "maximum": 3.499130335,
+          "median": 3.496666428,
+          "minimum": 3.495713456,
+          "values": [
+            3.495713456,
+            3.496848547,
+            3.496428047,
+            3.499130335,
+            3.496666428
+          ]
+        },
+        "wall_seconds": {
+          "maximum": 6.480433878999975,
+          "median": 6.341090642000381,
+          "minimum": 6.199292439000146,
+          "values": [
+            6.332017755999914,
+            6.199292439000146,
+            6.480433878999975,
+            6.345699100999809,
+            6.341090642000381
+          ]
+        }
+      }
+    ],
+    "engine": {
+      "capabilities": {
+        "hardware_acceleration": true,
+        "name": "Vulkan device: NVIDIA L4",
+        "supports_async_jobs": true,
+        "supports_ray_tracing": true
+      },
+      "requested_backend": "auto",
+      "selected_backend": "vulkan",
+      "version": "0.3.2"
+    },
+    "host": {
+      "cpu": "Intel(R) Xeon(R) CPU @ 2.20GHz",
+      "cpu_core_description": null,
+      "cpu_count": 12,
+      "gpu": "NVIDIA L4",
+      "hostname": "255c3d6d9101",
+      "machine": "x86_64",
+      "memory": "53.0 GiB",
+      "model": "x86_64",
+      "model_identifier": null,
+      "python": "3.13.16",
+      "release": "6.6.159+",
+      "system": "Linux"
+    },
+    "label": null,
+    "quality": "final",
+    "recorded_at_utc": "2026-11-04 08:29:55Z",
+    "repeats": 5,
+    "schema_version": 2,
+    "settings": {
+      "direct_samples": 256,
+      "maximum_bounces": 8,
+      "maximum_samples": 65536,
+      "sky_density": 1
+    },
+    "weather": "gothenburg.epw"
+  },
+  "fingerprint": {
+    "backend": "vulkan",
+    "foton": {
+      "commit": "a5ca9d7616d5383fd0bc7d64dc63722c4d3d230c",
+      "dirty": false,
+      "version": "0.3.2"
+    },
+    "gpu": {
+      "driver": "580.82.07",
+      "memory": "23034 MiB",
+      "name": "NVIDIA L4",
+      "vendor": "NVIDIA"
+    },
+    "hardware": {
+      "cpu": "Intel(R) Xeon(R) CPU @ 2.20GHz",
+      "cpu_count": 12,
+      "gpu": "NVIDIA L4",
+      "gpu_cores": null,
+      "machine": "x86_64",
+      "memory": "53.0 GiB",
+      "model": "x86_64",
+      "system": "Linux"
+    },
+    "machine_id": "intel-r-xeon-r-cpu-2-20ghz-nvidia-l4-09ca0e66",
+    "model_name": "x86_64",
+    "os": "Linux 6.6.159+",
+    "python": "3.13.16"
+  },
+  "grasshopper": {
+    "cases": [
+      {
+        "median_seconds": {
+          "component_total": 2.1353434909997304,
+          "hbjson_export": 0.004837685999973473,
+          "honeybee_loader": 0.06488311800012525,
+          "input_staging": 0.007364864999999554,
+          "metric_loading": 0.001662426000166306,
+          "metrics": 8.337299959748634e-05,
+          "process_exit": 0.27936045000024023,
+          "process_startup": 0.17115977100002056,
+          "result_writing": 0.07670783000003212,
+          "round_trip_total": 2.1992983000000095,
+          "scene_build": 0.9310166139998728,
+          "sky": 0.23627797200015266,
+          "tracing": 0.4213692529997388
+        },
+        "output_megabytes": 3.420033,
+        "rooms": 1,
+        "runs": [
+          {
+            "inner_timings": {
+              "coefficient_trace_seconds": 0.03899214,
+              "cold_end_to_end_seconds": 1.6273365379997813,
+              "engine_acceleration_structure_seconds": 0.0,
+              "engine_annual_reduction_seconds": 0.005225234,
+              "engine_snapshot_seconds": 0.0,
+              "engine_tracing_seconds": 0.03899214,
+              "engine_upload_seconds": 0.014743022,
+              "metric_reduction_seconds": 0.42131444500000725,
+              "raw_export_seconds": 0.002685855999970954,
+              "study_preparation_seconds": 0.9553254419997756,
+              "total_seconds": 0.6720110960000056,
+              "warm_study_seconds": null,
+              "weather_seconds": 0.2361209319997215,
+              "write_seconds": 0.013882770000236633
+            },
+            "output_bytes": 3420033,
+            "stages": {
+              "component_total": 2.201543331999801,
+              "hbjson_export": 0.00495189000002938,
+              "honeybee_loader": 0.06700127099975361,
+              "input_staging": 0.007566418999886082,
+              "metric_loading": 0.001662426000166306,
+              "metrics": 7.920300004116143e-05,
+              "process_exit": 0.2777015379997465,
+              "process_startup": 0.21841113100026632,
+              "result_writing": 0.07741242100019008,
+              "round_trip_total": 2.2685446029995546,
+              "scene_build": 0.9557191539997802,
+              "sky": 0.23627797200015266,
+              "tracing": 0.4213692529997388
+            }
+          },
+          {
+            "inner_timings": {
+              "coefficient_trace_seconds": 0.039027938,
+              "cold_end_to_end_seconds": 1.5889610399999583,
+              "engine_acceleration_structure_seconds": 0.0,
+              "engine_annual_reduction_seconds": 0.005233638,
+              "engine_snapshot_seconds": 0.0,
+              "engine_tracing_seconds": 0.039027938,
+              "engine_upload_seconds": 0.014554384,
+              "metric_reduction_seconds": 0.41248443199992835,
+              "raw_export_seconds": 0.0026342360001763154,
+              "study_preparation_seconds": 0.9278745480000907,
+              "total_seconds": 0.6610864919998676,
+              "warm_study_seconds": null,
+              "weather_seconds": 0.23444238899992342,
+              "write_seconds": 0.013473500999680255
+            },
+            "output_bytes": 3420041,
+            "stages": {
+              "component_total": 2.114737247999983,
+              "hbjson_export": 0.004837685999973473,
+              "honeybee_loader": 0.06488311800012525,
+              "input_staging": 0.007364864999999554,
+              "metric_loading": 0.0016419429998677515,
+              "metrics": 8.337299959748634e-05,
+              "process_exit": 0.27936045000024023,
+              "process_startup": 0.17115977100002056,
+              "result_writing": 0.07586437300005855,
+              "round_trip_total": 2.1796203660001083,
+              "scene_build": 0.9269207420002203,
+              "sky": 0.23456064899983176,
+              "tracing": 0.41255166300015844
+            }
+          },
+          {
+            "inner_timings": {
+              "coefficient_trace_seconds": 0.039000514,
+              "cold_end_to_end_seconds": 1.6071273669999755,
+              "engine_acceleration_structure_seconds": 0.0,
+              "engine_annual_reduction_seconds": 0.005213734,
+              "engine_snapshot_seconds": 0.0,
+              "engine_tracing_seconds": 0.039000514,
+              "engine_upload_seconds": 0.01434291,
+              "metric_reduction_seconds": 0.42319856799986155,
+              "raw_export_seconds": 0.002664362999894365,
+              "study_preparation_seconds": 0.9323258539998278,
+              "total_seconds": 0.6748015130001477,
+              "warm_study_seconds": null,
+              "weather_seconds": 0.2365701139997327,
+              "write_seconds": 0.01425422800002707
+            },
+            "output_bytes": 3420033,
+            "stages": {
+              "component_total": 2.1353434909997304,
+              "hbjson_export": 0.004819349000172224,
+              "honeybee_loader": 0.06395480900027906,
+              "input_staging": 0.007362969999576308,
+              "metric_loading": 0.0016796350000731763,
+              "metrics": 9.463700007472653e-05,
+              "process_exit": 0.28273930600016683,
+              "process_startup": 0.17054356900007406,
+              "result_writing": 0.07670783000003212,
+              "round_trip_total": 2.1992983000000095,
+              "scene_build": 0.9310166139998728,
+              "sky": 0.2367231130001528,
+              "tracing": 0.4232788059998711
+            }
+          }
+        ],
+        "scene": "teaching_office",
+        "sensors": 96
+      },
+      {
+        "median_seconds": {
+          "component_total": 9.821052682999834,
+          "hbjson_export": 0.049014488000011625,
+          "honeybee_loader": 0.12258950500017818,
+          "input_staging": 0.008723970000119152,
+          "metric_loading": 0.008860920000188344,
+          "metrics": 0.00019575600026655593,
+          "process_exit": 0.2869810840002174,
+          "process_startup": 0.17443851899997753,
+          "result_writing": 0.13165511199986213,
+          "round_trip_total": 9.943642188000013,
+          "scene_build": 1.0106180930001756,
+          "sky": 0.23935371000015948,
+          "tracing": 7.893067899000016
+        },
+        "output_megabytes": 37.735523,
+        "rooms": 3,
+        "runs": [
+          {
+            "inner_timings": {
+              "coefficient_trace_seconds": 0.290959707,
+              "cold_end_to_end_seconds": 8.505110507000154,
+              "engine_acceleration_structure_seconds": 0.0,
+              "engine_annual_reduction_seconds": 0.042226537,
+              "engine_snapshot_seconds": 0.0,
+              "engine_tracing_seconds": 0.290959707,
+              "engine_upload_seconds": 0.016355078,
+              "metric_reduction_seconds": 7.1927769670001,
+              "raw_export_seconds": 0.04567382400000497,
+              "study_preparation_seconds": 1.0111498320002283,
+              "total_seconds": 7.493960674999926,
+              "warm_study_seconds": null,
+              "weather_seconds": 0.239196426000035,
+              "write_seconds": 0.06124868500000957
+            },
+            "output_bytes": 37735519,
+            "stages": {
+              "component_total": 9.091799308999725,
+              "hbjson_export": 0.04793282499986162,
+              "honeybee_loader": 0.12291002200026924,
+              "input_staging": 0.008723970000119152,
+              "metric_loading": 0.008957241000189242,
+              "metrics": 0.00019575600026655593,
+              "process_exit": 0.27981473499994536,
+              "process_startup": 0.17131447499969,
+              "result_writing": 0.13165511199986213,
+              "round_trip_total": 9.214709330999995,
+              "scene_build": 1.0106180930001756,
+              "sky": 0.23935371000015948,
+              "tracing": 7.1928271349997885
+            }
+          },
+          {
+            "inner_timings": {
+              "coefficient_trace_seconds": 0.29104363,
+              "cold_end_to_end_seconds": 9.20254696000029,
+              "engine_acceleration_structure_seconds": 0.0,
+              "engine_annual_reduction_seconds": 0.042235437,
+              "engine_snapshot_seconds": 0.0,
+              "engine_tracing_seconds": 0.29104363,
+              "engine_upload_seconds": 0.016227136,
+              "metric_reduction_seconds": 7.893007183999998,
+              "raw_export_seconds": 0.046039667000059126,
+              "study_preparation_seconds": 1.008365588000288,
+              "total_seconds": 8.194181372000003,
+              "warm_study_seconds": null,
+              "weather_seconds": 0.23921737000000576,
+              "write_seconds": 0.061237484000230324
+            },
+            "output_bytes": 37735523,
+            "stages": {
+              "component_total": 9.821052682999834,
+              "hbjson_export": 0.049014488000011625,
+              "honeybee_loader": 0.12258950500017818,
+              "input_staging": 0.00854515299988634,
+              "metric_loading": 0.008860920000188344,
+              "metrics": 0.00016077600002972758,
+              "process_exit": 0.2965675810000903,
+              "process_startup": 0.1846714459998111,
+              "result_writing": 0.13160318899963386,
+              "round_trip_total": 9.943642188000013,
+              "scene_build": 1.008721281000362,
+              "sky": 0.23937651799997184,
+              "tracing": 7.893067899000016
+            }
+          },
+          {
+            "inner_timings": {
+              "coefficient_trace_seconds": 0.290970276,
+              "cold_end_to_end_seconds": 9.48488510299967,
+              "engine_acceleration_structure_seconds": 0.0,
+              "engine_annual_reduction_seconds": 0.042279037,
+              "engine_snapshot_seconds": 0.0,
+              "engine_tracing_seconds": 0.290970276,
+              "engine_upload_seconds": 0.016397974,
+              "metric_reduction_seconds": 8.16181655399987,
+              "raw_export_seconds": 0.04654732700009845,
+              "study_preparation_seconds": 1.0259474589997808,
+              "total_seconds": 8.458937643999889,
+              "warm_study_seconds": null,
+              "weather_seconds": 0.23405395700001463,
+              "write_seconds": 0.06224556200004372
+            },
+            "output_bytes": 37735523,
+            "stages": {
+              "component_total": 10.085202029999891,
+              "hbjson_export": 0.05296117699981551,
+              "honeybee_loader": 0.12147236700002395,
+              "input_staging": 0.009078655000394065,
+              "metric_loading": 0.008574469999985013,
+              "metrics": 0.00022165200016388553,
+              "process_exit": 0.2869810840002174,
+              "process_startup": 0.17443851899997753,
+              "result_writing": 0.13311708799983535,
+              "round_trip_total": 10.206674396999915,
+              "scene_build": 1.0233065989996248,
+              "sky": 0.2341844120001042,
+              "tracing": 8.16189505200009
+            }
+          }
+        ],
+        "scene": "acceptance",
+        "sensors": 2020
+      },
+      {
+        "median_seconds": {
+          "component_total": 43.91445613199994,
+          "hbjson_export": 0.4503557960001672,
+          "honeybee_loader": 0.3616277030000674,
+          "input_staging": 0.01569407900024089,
+          "metric_loading": 0.059412727000108134,
+          "metrics": 0.005046587999913754,
+          "process_exit": 0.3640252119998877,
+          "process_startup": 0.17628328899991175,
+          "result_writing": 0.634896253000079,
+          "round_trip_total": 44.278108591999626,
+          "scene_build": 2.730937249999897,
+          "sky": 0.23573746600004597,
+          "tracing": 39.10513397600016
+        },
+        "output_megabytes": 167.39674,
+        "rooms": 256,
+        "runs": [
+          {
+            "inner_timings": {
+              "coefficient_trace_seconds": 3.498112266,
+              "cold_end_to_end_seconds": 42.198057916999915,
+              "engine_acceleration_structure_seconds": 0.0,
+              "engine_annual_reduction_seconds": 0.224594418,
+              "engine_snapshot_seconds": 0.0,
+              "engine_tracing_seconds": 3.498112266,
+              "engine_upload_seconds": 0.024346959,
+              "metric_reduction_seconds": 38.904080902999794,
+              "raw_export_seconds": 0.23509443400007513,
+              "study_preparation_seconds": 2.70355411599985,
+              "total_seconds": 39.494503801000064,
+              "warm_study_seconds": null,
+              "weather_seconds": 0.23336336300008043,
+              "write_seconds": 0.3514429810002184
+            },
+            "output_bytes": 167396740,
+            "stages": {
+              "component_total": 43.54431422000016,
+              "hbjson_export": 0.4503557960001672,
+              "honeybee_loader": 0.35687402399980783,
+              "input_staging": 0.015351931000168406,
+              "metric_loading": 0.05763198199974795,
+              "metrics": 0.005031881999912002,
+              "process_exit": 0.3640252119998877,
+              "process_startup": 0.1740773739998076,
+              "result_writing": 0.6379467090000617,
+              "round_trip_total": 43.90118824399997,
+              "scene_build": 2.7015383799998745,
+              "sky": 0.2335277350002798,
+              "tracing": 38.90413582400015
+            }
+          },
+          {
+            "inner_timings": {
+              "coefficient_trace_seconds": 3.498527773,
+              "cold_end_to_end_seconds": 42.87083171099994,
+              "engine_acceleration_structure_seconds": 0.0,
+              "engine_annual_reduction_seconds": 0.224539776,
+              "engine_snapshot_seconds": 0.0,
+              "engine_tracing_seconds": 3.498527773,
+              "engine_upload_seconds": 0.024041636,
+              "metric_reduction_seconds": 39.530113841,
+              "raw_export_seconds": 0.22940721800023312,
+              "study_preparation_seconds": 2.7500046599998313,
+              "total_seconds": 40.120827051000106,
+              "warm_study_seconds": null,
+              "weather_seconds": 0.24096718199962197,
+              "write_seconds": 0.34398165700031313
+            },
+            "output_bytes": 167396732,
+            "stages": {
+              "component_total": 44.27679733500008,
+              "hbjson_export": 0.4409610249999787,
+              "honeybee_loader": 0.3616277030000674,
+              "input_staging": 0.01572054600001138,
+              "metric_loading": 0.05984231599995837,
+              "metrics": 0.005196725000132574,
+              "process_exit": 0.36284107200026483,
+              "process_startup": 0.23843963499984966,
+              "result_writing": 0.6310633019998022,
+              "round_trip_total": 44.63842503800015,
+              "scene_build": 2.7504513799999586,
+              "sky": 0.24112556599993695,
+              "tracing": 39.53017170600015
+            }
+          },
+          {
+            "inner_timings": {
+              "coefficient_trace_seconds": 3.501137858,
+              "cold_end_to_end_seconds": 42.427089370999965,
+              "engine_acceleration_structure_seconds": 0.0,
+              "engine_annual_reduction_seconds": 0.224584258,
+              "engine_snapshot_seconds": 0.0,
+              "engine_tracing_seconds": 3.501137858,
+              "engine_upload_seconds": 0.024512883,
+              "metric_reduction_seconds": 39.10505363199991,
+              "raw_export_seconds": 0.23247392699977354,
+              "study_preparation_seconds": 2.7326768630000515,
+              "total_seconds": 39.694412507999914,
+              "warm_study_seconds": null,
+              "weather_seconds": 0.23555913500013048,
+              "write_seconds": 0.34819765099973665
+            },
+            "output_bytes": 167396744,
+            "stages": {
+              "component_total": 43.91445613199994,
+              "hbjson_export": 0.5829968409998401,
+              "honeybee_loader": 0.36365245999968465,
+              "input_staging": 0.01569407900024089,
+              "metric_loading": 0.059412727000108134,
+              "metrics": 0.005046587999913754,
+              "process_exit": 0.3676614470000459,
+              "process_startup": 0.17628328899991175,
+              "result_writing": 0.634896253000079,
+              "round_trip_total": 44.278108591999626,
+              "scene_build": 2.730937249999897,
+              "sky": 0.23573746600004597,
+              "tracing": 39.10513397600016
+            }
+          }
+        ],
+        "scene": "office_floors",
+        "sensors": 9216
+      }
+    ],
+    "engine": {
+      "capabilities": {
+        "hardware_acceleration": true,
+        "name": "Vulkan device: NVIDIA L4",
+        "supports_async_jobs": true,
+        "supports_ray_tracing": true
+      },
+      "requested_backend": "auto",
+      "selected_backend": "vulkan",
+      "version": "0.3.2"
+    },
+    "executable": "foton-honeybee",
+    "host": {
+      "cpu": "Intel(R) Xeon(R) CPU @ 2.20GHz",
+      "cpu_core_description": null,
+      "cpu_count": 12,
+      "gpu": "NVIDIA L4",
+      "hostname": "255c3d6d9101",
+      "machine": "x86_64",
+      "memory": "53.0 GiB",
+      "model": "x86_64",
+      "model_identifier": null,
+      "python": "3.13.16",
+      "release": "6.6.159+",
+      "system": "Linux"
+    },
+    "recorded_at_utc": "2026-11-04 08:29:56Z",
+    "repeats": 3,
+    "schema_version": 1,
+    "weather": "gothenburg.epw"
+  },
+  "label": null,
+  "quick": false,
+  "recorded_at_utc": "2026-11-04 08:32:49Z",
+  "schema_version": 1
+}

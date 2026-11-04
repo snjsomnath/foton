@@ -1,0 +1,716 @@
+{
+  "annual": {
+    "cases": [
+      {
+        "last_timings": {
+          "coefficient_trace_seconds": 0.103569463,
+          "cold_end_to_end_seconds": 0.3843105939995439,
+          "engine_acceleration_structure_seconds": 0.0,
+          "engine_annual_reduction_seconds": 0.014046481,
+          "engine_snapshot_seconds": 0.0,
+          "engine_tracing_seconds": 0.103569463,
+          "engine_upload_seconds": 0.004218868,
+          "metric_reduction_seconds": 0.13777770199976658,
+          "raw_export_seconds": 0.0,
+          "study_preparation_seconds": 0.13121840599978896,
+          "total_seconds": 0.25309218799975497,
+          "warm_study_seconds": null,
+          "weather_seconds": 0.11060076900048443,
+          "write_seconds": 0.004476326999792946
+        },
+        "model": "test_models/architectural/teaching_office.hbjson",
+        "preparation_seconds": {
+          "maximum": 0.24071161599931656,
+          "median": 0.13121840599978896,
+          "minimum": 0.13050697700055025,
+          "values": [
+            0.24071161599931656,
+            0.1397986009997112,
+            0.13057872599983966,
+            0.13050697700055025,
+            0.13121840599978896
+          ]
+        },
+        "rooms": 1,
+        "scene": "teaching_office",
+        "sensors": 96,
+        "tracing_seconds": {
+          "maximum": 0.103569463,
+          "median": 0.102573444,
+          "minimum": 0.098658957,
+          "values": [
+            0.100180075,
+            0.102677114,
+            0.102573444,
+            0.098658957,
+            0.103569463
+          ]
+        },
+        "wall_seconds": {
+          "maximum": 0.49046131600061926,
+          "median": 0.3855475829996067,
+          "minimum": 0.3806890160003604,
+          "values": [
+            0.49046131600061926,
+            0.39116092000040226,
+            0.38440377400002035,
+            0.3806890160003604,
+            0.3855475829996067
+          ]
+        }
+      },
+      {
+        "last_timings": {
+          "coefficient_trace_seconds": 0.146588137,
+          "cold_end_to_end_seconds": 0.43348262200106547,
+          "engine_acceleration_structure_seconds": 0.0,
+          "engine_annual_reduction_seconds": 0.01512615,
+          "engine_snapshot_seconds": 0.0,
+          "engine_tracing_seconds": 0.146588137,
+          "engine_upload_seconds": 0.004257407,
+          "metric_reduction_seconds": 0.1815782539997599,
+          "raw_export_seconds": 0.0,
+          "study_preparation_seconds": 0.13585402200078533,
+          "total_seconds": 0.29762860000028013,
+          "warm_study_seconds": null,
+          "weather_seconds": 0.11102161899998464,
+          "write_seconds": 0.004764596999848436
+        },
+        "model": "test_models/architectural/courtyard_rooms.hbjson",
+        "preparation_seconds": {
+          "maximum": 0.2508395200002269,
+          "median": 0.13585402200078533,
+          "minimum": 0.13505427400014014,
+          "values": [
+            0.2508395200002269,
+            0.13938450099976762,
+            0.13505427400014014,
+            0.1351739430001544,
+            0.13585402200078533
+          ]
+        },
+        "rooms": 4,
+        "scene": "courtyard_rooms",
+        "sensors": 112,
+        "tracing_seconds": {
+          "maximum": 0.147133056,
+          "median": 0.146627466,
+          "minimum": 0.145897777,
+          "values": [
+            0.146859046,
+            0.145897777,
+            0.147133056,
+            0.146627466,
+            0.146588137
+          ]
+        },
+        "wall_seconds": {
+          "maximum": 0.5515214269998978,
+          "median": 0.4349726410000585,
+          "minimum": 0.43443589199978305,
+          "values": [
+            0.5515214269998978,
+            0.4382309399998121,
+            0.43443589199978305,
+            0.4349726410000585,
+            0.43483086099968205
+          ]
+        }
+      },
+      {
+        "last_timings": {
+          "coefficient_trace_seconds": 1.168204882,
+          "cold_end_to_end_seconds": 1.718859650000013,
+          "engine_acceleration_structure_seconds": 0.0,
+          "engine_annual_reduction_seconds": 0.232865621,
+          "engine_snapshot_seconds": 0.0,
+          "engine_tracing_seconds": 1.168204882,
+          "engine_upload_seconds": 0.004576697,
+          "metric_reduction_seconds": 1.4352944709999065,
+          "raw_export_seconds": 0.0,
+          "study_preparation_seconds": 0.16800566200072353,
+          "total_seconds": 1.5508539879992895,
+          "warm_study_seconds": null,
+          "weather_seconds": 0.1091539199996987,
+          "write_seconds": 0.006135467000603967
+        },
+        "model": "test_models/architectural/acceptance.hbjson",
+        "preparation_seconds": {
+          "maximum": 0.28117311999994854,
+          "median": 0.1700590309992549,
+          "minimum": 0.1661988329997257,
+          "values": [
+            0.28117311999994854,
+            0.1700590309992549,
+            0.1661988329997257,
+            0.1725691290002942,
+            0.16800566200072353
+          ]
+        },
+        "rooms": 3,
+        "scene": "acceptance",
+        "sensors": 2020,
+        "tracing_seconds": {
+          "maximum": 1.168204882,
+          "median": 1.152675532,
+          "minimum": 1.150757484,
+          "values": [
+            1.150757484,
+            1.152131062,
+            1.152675532,
+            1.156388409,
+            1.168204882
+          ]
+        },
+        "wall_seconds": {
+          "maximum": 1.8106015610001123,
+          "median": 1.6962147240001286,
+          "minimum": 1.683119022000028,
+          "values": [
+            1.8106015610001123,
+            1.6862727509997057,
+            1.683119022000028,
+            1.6962147240001286,
+            1.7193697490001796
+          ]
+        }
+      },
+      {
+        "last_timings": {
+          "coefficient_trace_seconds": 8.745862763,
+          "cold_end_to_end_seconds": 11.354415992000213,
+          "engine_acceleration_structure_seconds": 0.0,
+          "engine_annual_reduction_seconds": 1.325501791,
+          "engine_snapshot_seconds": 0.0,
+          "engine_tracing_seconds": 8.745862763,
+          "engine_upload_seconds": 0.006668885,
+          "metric_reduction_seconds": 10.160960815999715,
+          "raw_export_seconds": 0.0,
+          "study_preparation_seconds": 1.0384428749994186,
+          "total_seconds": 10.315973117000794,
+          "warm_study_seconds": null,
+          "weather_seconds": 0.11484743700020772,
+          "write_seconds": 0.03786080499958189
+        },
+        "model": "office_floors.hbjson",
+        "preparation_seconds": {
+          "maximum": 1.1328685650005355,
+          "median": 1.0146739410001828,
+          "minimum": 0.9293904959995416,
+          "values": [
+            0.9962055530004363,
+            0.9293904959995416,
+            1.1328685650005355,
+            1.0146739410001828,
+            1.0384428749994186
+          ]
+        },
+        "rooms": 256,
+        "scene": "office_floors",
+        "sensors": 9216,
+        "tracing_seconds": {
+          "maximum": 8.790798153,
+          "median": 8.683326062,
+          "minimum": 8.625808869,
+          "values": [
+            8.683326062,
+            8.790798153,
+            8.625808869,
+            8.680753644,
+            8.745862763
+          ]
+        },
+        "wall_seconds": {
+          "maximum": 11.361180607999813,
+          "median": 11.22098886799995,
+          "minimum": 11.064249637999637,
+          "values": [
+            11.064249637999637,
+            11.22098886799995,
+            11.14865581399954,
+            11.248718459999509,
+            11.361180607999813
+          ]
+        }
+      }
+    ],
+    "engine": {
+      "capabilities": {
+        "hardware_acceleration": true,
+        "name": "Vulkan device: NVIDIA RTX PRO 6000 Blackwell Server Edition",
+        "supports_async_jobs": true,
+        "supports_ray_tracing": true
+      },
+      "requested_backend": "auto",
+      "selected_backend": "vulkan",
+      "version": "0.3.2"
+    },
+    "host": {
+      "cpu": "AMD EPYC 9B45",
+      "cpu_core_description": null,
+      "cpu_count": 48,
+      "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+      "hostname": "40a54efaae85",
+      "machine": "x86_64",
+      "memory": "176.9 GiB",
+      "model": "x86_64",
+      "model_identifier": null,
+      "python": "3.13.16",
+      "release": "6.6.159+",
+      "system": "Linux"
+    },
+    "label": null,
+    "quality": "final",
+    "recorded_at_utc": "2026-11-04 08:41:24Z",
+    "repeats": 5,
+    "schema_version": 2,
+    "settings": {
+      "direct_samples": 256,
+      "maximum_bounces": 8,
+      "maximum_samples": 65536,
+      "sky_density": 1
+    },
+    "weather": "gothenburg.epw"
+  },
+  "fingerprint": {
+    "backend": "vulkan",
+    "foton": {
+      "commit": "a5ca9d7616d5383fd0bc7d64dc63722c4d3d230c",
+      "dirty": false,
+      "version": "0.3.2"
+    },
+    "gpu": {
+      "driver": "580.82.07",
+      "memory": "97887 MiB",
+      "name": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+      "vendor": "NVIDIA"
+    },
+    "hardware": {
+      "cpu": "AMD EPYC 9B45",
+      "cpu_count": 48,
+      "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+      "gpu_cores": null,
+      "machine": "x86_64",
+      "memory": "176.9 GiB",
+      "model": "x86_64",
+      "system": "Linux"
+    },
+    "machine_id": "amd-epyc-9b45-nvidia-rtx-pro-6000-blackwell-server-edition-992efb55",
+    "model_name": "x86_64",
+    "os": "Linux 6.6.159+",
+    "python": "3.13.16"
+  },
+  "grasshopper": {
+    "cases": [
+      {
+        "median_seconds": {
+          "component_total": 1.197177062999799,
+          "hbjson_export": 0.0022840190003989846,
+          "honeybee_loader": 0.02963706100035779,
+          "input_staging": 0.0021648179990734207,
+          "metric_loading": 0.0007777390001137974,
+          "metrics": 5.42799998584087e-05,
+          "process_exit": 0.19937555200067436,
+          "process_startup": 0.07682449000003544,
+          "result_writing": 0.05845845200019539,
+          "round_trip_total": 1.2267021049992763,
+          "scene_build": 0.5163539189998119,
+          "sky": 0.11403391700059728,
+          "tracing": 0.2254276559997379
+        },
+        "output_megabytes": 3.420074,
+        "rooms": 1,
+        "runs": [
+          {
+            "inner_timings": {
+              "coefficient_trace_seconds": 0.100344855,
+              "cold_end_to_end_seconds": 0.8650767259996428,
+              "engine_acceleration_structure_seconds": 0.0,
+              "engine_annual_reduction_seconds": 0.014056252,
+              "engine_snapshot_seconds": 0.0,
+              "engine_tracing_seconds": 0.100344855,
+              "engine_upload_seconds": 0.004561817,
+              "metric_reduction_seconds": 0.22286202699979185,
+              "raw_export_seconds": 0.0009451390005779103,
+              "study_preparation_seconds": 0.523122405000322,
+              "total_seconds": 0.34195432099932077,
+              "warm_study_seconds": null,
+              "weather_seconds": 0.11267507800039311,
+              "write_seconds": 0.006021815999702085
+            },
+            "output_bytes": 3420076,
+            "stages": {
+              "component_total": 1.1981165930001225,
+              "hbjson_export": 0.002247938999971666,
+              "honeybee_loader": 0.03240018899941788,
+              "input_staging": 0.00224518800041551,
+              "metric_loading": 0.0007427089994962444,
+              "metrics": 6.381000002875226e-05,
+              "process_exit": 0.20007898200037744,
+              "process_startup": 0.07673976099977153,
+              "result_writing": 0.06048779100001411,
+              "round_trip_total": 1.2305167819995404,
+              "scene_build": 0.5196756380000807,
+              "sky": 0.11277294699993945,
+              "tracing": 0.22286354799962282
+            }
+          },
+          {
+            "inner_timings": {
+              "coefficient_trace_seconds": 0.101830505,
+              "cold_end_to_end_seconds": 0.8666171260001647,
+              "engine_acceleration_structure_seconds": 0.0,
+              "engine_annual_reduction_seconds": 0.014232401,
+              "engine_snapshot_seconds": 0.0,
+              "engine_tracing_seconds": 0.101830505,
+              "engine_upload_seconds": 0.004263707,
+              "metric_reduction_seconds": 0.2254186660002233,
+              "raw_export_seconds": 0.0009299000003011315,
+              "study_preparation_seconds": 0.5202225379998708,
+              "total_seconds": 0.3463945880002939,
+              "warm_study_seconds": null,
+              "weather_seconds": 0.11455324700000347,
+              "write_seconds": 0.006033276000380283
+            },
+            "output_bytes": 3420074,
+            "stages": {
+              "component_total": 1.197177062999799,
+              "hbjson_export": 0.002543279000747134,
+              "honeybee_loader": 0.029525041999477253,
+              "input_staging": 0.0021648179990734207,
+              "metric_loading": 0.0007777390001137974,
+              "metrics": 5.42799998584087e-05,
+              "process_exit": 0.19937555200067436,
+              "process_startup": 0.07727764100036438,
+              "result_writing": 0.05831246199977613,
+              "round_trip_total": 1.2267021049992763,
+              "scene_build": 0.5163539189998119,
+              "sky": 0.11463509700024588,
+              "tracing": 0.2254276559997379
+            }
+          },
+          {
+            "inner_timings": {
+              "coefficient_trace_seconds": 0.101881574,
+              "cold_end_to_end_seconds": 0.8640657469995858,
+              "engine_acceleration_structure_seconds": 0.0,
+              "engine_annual_reduction_seconds": 0.014834551,
+              "engine_snapshot_seconds": 0.0,
+              "engine_tracing_seconds": 0.101881574,
+              "engine_upload_seconds": 0.004293058,
+              "metric_reduction_seconds": 0.2254922260008243,
+              "raw_export_seconds": 0.0008839390002322034,
+              "study_preparation_seconds": 0.5180819480001446,
+              "total_seconds": 0.3459837989994412,
+              "warm_study_seconds": null,
+              "weather_seconds": 0.11395124699993175,
+              "write_seconds": 0.006113656000707124
+            },
+            "output_bytes": 3420074,
+            "stages": {
+              "component_total": 1.1940074359999926,
+              "hbjson_export": 0.0022840190003989846,
+              "honeybee_loader": 0.02963706100035779,
+              "input_staging": 0.002102749000187032,
+              "metric_loading": 0.0008152090003932244,
+              "metrics": 5.277999935060507e-05,
+              "process_exit": 0.1992984329999672,
+              "process_startup": 0.07682449000003544,
+              "result_writing": 0.05845845200019539,
+              "round_trip_total": 1.2236444970003504,
+              "scene_build": 0.5143584709994684,
+              "sky": 0.11403391700059728,
+              "tracing": 0.2255439259997729
+            }
+          }
+        ],
+        "scene": "teaching_office",
+        "sensors": 96
+      },
+      {
+        "median_seconds": {
+          "component_total": 4.392170759000692,
+          "hbjson_export": 0.022626186000707094,
+          "honeybee_loader": 0.04808986899934098,
+          "input_staging": 0.0025473979994785623,
+          "metric_loading": 0.00471284699960961,
+          "metrics": 7.913999979791697e-05,
+          "process_exit": 0.20309878999978537,
+          "process_startup": 0.07672485100010817,
+          "result_writing": 0.07830182999987301,
+          "round_trip_total": 4.440200408000237,
+          "scene_build": 0.555090134999773,
+          "sky": 0.11373580700001185,
+          "tracing": 3.3307054789993344
+        },
+        "output_megabytes": 37.735563,
+        "rooms": 3,
+        "runs": [
+          {
+            "inner_timings": {
+              "coefficient_trace_seconds": 1.175516057,
+              "cold_end_to_end_seconds": 4.030419839999922,
+              "engine_acceleration_structure_seconds": 0.0,
+              "engine_annual_reduction_seconds": 0.278333742,
+              "engine_snapshot_seconds": 0.0,
+              "engine_tracing_seconds": 1.175516057,
+              "engine_upload_seconds": 0.004728937,
+              "metric_reduction_seconds": 3.330647949000195,
+              "raw_export_seconds": 0.015844450000258803,
+              "study_preparation_seconds": 0.562223609999819,
+              "total_seconds": 3.4681962300001032,
+              "warm_study_seconds": null,
+              "weather_seconds": 0.11436831599985453,
+              "write_seconds": 0.02273573500042403
+            },
+            "output_bytes": 37735563,
+            "stages": {
+              "component_total": 4.393114557999979,
+              "hbjson_export": 0.020540235999760625,
+              "honeybee_loader": 0.050168447999567434,
+              "input_staging": 0.0024692289998711203,
+              "metric_loading": 0.00471284699960961,
+              "metrics": 8.970900034910301e-05,
+              "process_exit": 0.20545901900004537,
+              "process_startup": 0.0766233510003076,
+              "result_writing": 0.07830182999987301,
+              "round_trip_total": 4.443283005999547,
+              "scene_build": 0.559512322000046,
+              "sky": 0.11443948600026488,
+              "tracing": 3.3307054789993344
+            }
+          },
+          {
+            "inner_timings": {
+              "coefficient_trace_seconds": 1.191253918,
+              "cold_end_to_end_seconds": 4.029544360999353,
+              "engine_acceleration_structure_seconds": 0.0,
+              "engine_annual_reduction_seconds": 0.257403915,
+              "engine_snapshot_seconds": 0.0,
+              "engine_tracing_seconds": 1.191253918,
+              "engine_upload_seconds": 0.004892067,
+              "metric_reduction_seconds": 3.33551624500069,
+              "raw_export_seconds": 0.015461329999197915,
+              "study_preparation_seconds": 0.5580707729995993,
+              "total_seconds": 3.4714735879997534,
+              "warm_study_seconds": null,
+              "weather_seconds": 0.11333619699962583,
+              "write_seconds": 0.022208426000361214
+            },
+            "output_bytes": 37735565,
+            "stages": {
+              "component_total": 4.392170759000692,
+              "hbjson_export": 0.022987644999375334,
+              "honeybee_loader": 0.048029648999545316,
+              "input_staging": 0.0025660990013420815,
+              "metric_loading": 0.0046526870000889176,
+              "metrics": 6.883999958517961e-05,
+              "process_exit": 0.20309878999978537,
+              "process_startup": 0.0767743509995853,
+              "result_writing": 0.07835116000023845,
+              "round_trip_total": 4.440200408000237,
+              "scene_build": 0.5544092549998823,
+              "sky": 0.11341820699999516,
+              "tracing": 3.335573545000443
+            }
+          },
+          {
+            "inner_timings": {
+              "coefficient_trace_seconds": 1.148647665,
+              "cold_end_to_end_seconds": 3.9341039520004415,
+              "engine_acceleration_structure_seconds": 0.0,
+              "engine_annual_reduction_seconds": 0.23488288,
+              "engine_snapshot_seconds": 0.0,
+              "engine_tracing_seconds": 1.148647665,
+              "engine_upload_seconds": 0.004797727,
+              "metric_reduction_seconds": 3.239671945999362,
+              "raw_export_seconds": 0.015312950000407,
+              "study_preparation_seconds": 0.5581034630004069,
+              "total_seconds": 3.3760004890000346,
+              "warm_study_seconds": null,
+              "weather_seconds": 0.11365407699940988,
+              "write_seconds": 0.02224672600004851
+            },
+            "output_bytes": 37735559,
+            "stages": {
+              "component_total": 4.2957520509999085,
+              "hbjson_export": 0.022626186000707094,
+              "honeybee_loader": 0.04808986899934098,
+              "input_staging": 0.0025473979994785623,
+              "metric_loading": 0.004841267000301741,
+              "metrics": 7.913999979791697e-05,
+              "process_exit": 0.20208666099915717,
+              "process_startup": 0.07672485100010817,
+              "result_writing": 0.07803552000041236,
+              "round_trip_total": 4.3438419199992495,
+              "scene_build": 0.555090134999773,
+              "sky": 0.11373580700001185,
+              "tracing": 3.239718286000425
+            }
+          }
+        ],
+        "scene": "acceptance",
+        "sensors": 2020
+      },
+      {
+        "median_seconds": {
+          "component_total": 20.637609321000127,
+          "hbjson_export": 0.18825187999937043,
+          "honeybee_loader": 0.1175051150003128,
+          "input_staging": 0.004359926999313757,
+          "metric_loading": 0.029111480999745254,
+          "metrics": 0.0019360779997441568,
+          "process_exit": 0.257071365000229,
+          "process_startup": 0.07661305100009486,
+          "result_writing": 0.22957514299923787,
+          "round_trip_total": 20.754503277000367,
+          "scene_build": 1.2250518559994816,
+          "sky": 0.11587165599939908,
+          "tracing": 18.477906844000245
+        },
+        "output_megabytes": 167.396801,
+        "rooms": 256,
+        "runs": [
+          {
+            "inner_timings": {
+              "coefficient_trace_seconds": 8.655393459999999,
+              "cold_end_to_end_seconds": 19.766878008000276,
+              "engine_acceleration_structure_seconds": 0.0,
+              "engine_annual_reduction_seconds": 1.122307471,
+              "engine_snapshot_seconds": 0.0,
+              "engine_tracing_seconds": 8.655393459999999,
+              "engine_upload_seconds": 0.007053586,
+              "metric_reduction_seconds": 18.314266518000295,
+              "raw_export_seconds": 0.06746636699972441,
+              "study_preparation_seconds": 1.2292539340005533,
+              "total_seconds": 18.537624073999723,
+              "warm_study_seconds": null,
+              "weather_seconds": 0.11462106700037111,
+              "write_seconds": 0.10641616099928797
+            },
+            "output_bytes": 167396807,
+            "stages": {
+              "component_total": 20.439880867000284,
+              "hbjson_export": 0.18561638100072742,
+              "honeybee_loader": 0.11877020400061156,
+              "input_staging": 0.0043442070000310196,
+              "metric_loading": 0.029111480999745254,
+              "metrics": 0.0019162990001859725,
+              "process_exit": 0.257071365000229,
+              "process_startup": 0.07654553099928307,
+              "result_writing": 0.22957514299923787,
+              "round_trip_total": 20.558651071000895,
+              "scene_build": 1.2261979750001046,
+              "sky": 0.11470237699995778,
+              "tracing": 18.314340028000515
+            }
+          },
+          {
+            "inner_timings": {
+              "coefficient_trace_seconds": 8.648858144,
+              "cold_end_to_end_seconds": 19.961840052998923,
+              "engine_acceleration_structure_seconds": 0.0,
+              "engine_annual_reduction_seconds": 1.261463893,
+              "engine_snapshot_seconds": 0.0,
+              "engine_tracing_seconds": 8.648858144,
+              "engine_upload_seconds": 0.006777905999999999,
+              "metric_reduction_seconds": 18.51935385700017,
+              "raw_export_seconds": 0.062368149999201705,
+              "study_preparation_seconds": 1.2233809769995787,
+              "total_seconds": 18.738459075999344,
+              "warm_study_seconds": null,
+              "weather_seconds": 0.11577695599953586,
+              "write_seconds": 0.10100808500010316
+            },
+            "output_bytes": 167396801,
+            "stages": {
+              "component_total": 20.637609321000127,
+              "hbjson_export": 0.18825187999937043,
+              "honeybee_loader": 0.11689395600024,
+              "input_staging": 0.004397227000481507,
+              "metric_loading": 0.029240562000268255,
+              "metrics": 0.0019360779997441568,
+              "process_exit": 0.2560600560000239,
+              "process_startup": 0.07661305100009486,
+              "result_writing": 0.22551963600017189,
+              "round_trip_total": 20.754503277000367,
+              "scene_build": 1.2197585590001836,
+              "sky": 0.11587165599939908,
+              "tracing": 18.519434087000263
+            }
+          },
+          {
+            "inner_timings": {
+              "coefficient_trace_seconds": 8.678997005,
+              "cold_end_to_end_seconds": 19.931128572999114,
+              "engine_acceleration_structure_seconds": 0.0,
+              "engine_annual_reduction_seconds": 1.2130395840000001,
+              "engine_snapshot_seconds": 0.0,
+              "engine_tracing_seconds": 8.678997005,
+              "engine_upload_seconds": 0.006800145,
+              "metric_reduction_seconds": 18.477842563000195,
+              "raw_export_seconds": 0.06684919700001046,
+              "study_preparation_seconds": 1.2283328029998302,
+              "total_seconds": 18.702795769999284,
+              "warm_study_seconds": null,
+              "weather_seconds": 0.11668188600015128,
+              "write_seconds": 0.10590636300003098
+            },
+            "output_bytes": 167396797,
+            "stages": {
+              "component_total": 20.715781700999287,
+              "hbjson_export": 0.2943665720003992,
+              "honeybee_loader": 0.1175051150003128,
+              "input_staging": 0.004359926999313757,
+              "metric_loading": 0.028750122000019473,
+              "metrics": 0.0019449479996183072,
+              "process_exit": 0.2584814539995932,
+              "process_startup": 0.07744472000013047,
+              "result_writing": 0.23021141300068848,
+              "round_trip_total": 20.8332868159996,
+              "scene_build": 1.2250518559994816,
+              "sky": 0.11675700500018138,
+              "tracing": 18.477906844000245
+            }
+          }
+        ],
+        "scene": "office_floors",
+        "sensors": 9216
+      }
+    ],
+    "engine": {
+      "capabilities": {
+        "hardware_acceleration": true,
+        "name": "Vulkan device: NVIDIA RTX PRO 6000 Blackwell Server Edition",
+        "supports_async_jobs": true,
+        "supports_ray_tracing": true
+      },
+      "requested_backend": "auto",
+      "selected_backend": "vulkan",
+      "version": "0.3.2"
+    },
+    "executable": "foton-honeybee",
+    "host": {
+      "cpu": "AMD EPYC 9B45",
+      "cpu_core_description": null,
+      "cpu_count": 48,
+      "gpu": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+      "hostname": "40a54efaae85",
+      "machine": "x86_64",
+      "memory": "176.9 GiB",
+      "model": "x86_64",
+      "model_identifier": null,
+      "python": "3.13.16",
+      "release": "6.6.159+",
+      "system": "Linux"
+    },
+    "recorded_at_utc": "2026-11-04 08:41:25Z",
+    "repeats": 3,
+    "schema_version": 1,
+    "weather": "gothenburg.epw"
+  },
+  "label": null,
+  "quick": false,
+  "recorded_at_utc": "2026-11-04 08:42:46Z",
+  "schema_version": 1
+}

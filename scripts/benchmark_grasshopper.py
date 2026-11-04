@@ -58,6 +58,14 @@ STAGES = (
 )
 
 
+def _default_executable():
+    beside = Path(sys.executable).with_name("foton-honeybee")
+    if beside.exists():
+        return str(beside)
+    # pip installs outside a virtualenv (Colab, system Python) put it elsewhere on PATH.
+    return shutil.which("foton-honeybee") or str(beside)
+
+
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--backend", choices=("auto", "metal", "vulkan"), default="auto")
@@ -67,8 +75,8 @@ def parse_args(argv=None):
     parser.add_argument("--weather", default=str(ROOT / "epw" / "gothenburg.epw"))
     parser.add_argument(
         "--executable",
-        default=str(Path(sys.executable).with_name("foton-honeybee")),
-        help="foton-honeybee executable (default: the one next to this Python).",
+        default=_default_executable(),
+        help="foton-honeybee executable (default: the one next to this Python, else PATH).",
     )
     return parser.parse_args(argv)
 

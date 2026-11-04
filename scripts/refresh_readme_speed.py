@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 from datetime import datetime
 from pathlib import Path
+import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -83,11 +84,23 @@ def _date(recorded):
 
 def _machine(fingerprint):
     hardware, gpu = fingerprint["hardware"], fingerprint["gpu"]
-    parts = [hardware["cpu"], hardware["memory"]]
+    parts = [_tidy(hardware["cpu"]), hardware["memory"]]
     if gpu["name"] != hardware["cpu"]:
         parts.append(gpu["name"])
-    article = "an" if fingerprint["model_name"][:1].lower() in "aeiou" else "a"
-    return f"{article} {fingerprint['model_name']} ({', '.join(parts)})"
+    name = fingerprint["model_name"]
+    if name == hardware.get("machine", name + "?"):
+        # Linux reports only the architecture; say what kind of machine it is instead.
+        name = f"{hardware.get('system', 'Linux')} machine"
+    article = "an" if name[:1].lower() in "aeiou" else "a"
+    return f"{article} {name} ({', '.join(parts)})"
+
+
+def _tidy(name):
+    """Drop trademark marks, clock speeds and edition suffixes from hardware names."""
+    name = re.sub(r"\((R|TM)\)", "", name)
+    name = re.sub(r"\s+(CPU\s+)?@\s*[\d.]+\s*GHz", "", name)
+    name = re.sub(r"\s+Server Edition$", "", name)
+    return re.sub(r"\s+", " ", name).strip()
 
 
 def _seconds(value):
@@ -143,7 +156,7 @@ def speed_block(result, path):
 
 def _column(fingerprint):
     backend = {"metal": "Metal", "vulkan": "Vulkan"}.get(fingerprint["backend"], fingerprint["backend"])
-    return f"{fingerprint['gpu']['name']} ({backend})"
+    return f"{_tidy(fingerprint['gpu']['name'])} ({backend})"
 
 
 def _settings_text(annual):
