@@ -75,6 +75,7 @@ def main():
         )
         archive.write(ROOT / "docs/grasshopper-quickstart.md", "START_HERE.md")
         archive.write(ROOT / "LICENSE", "LICENSE")
+        archive.write(ROOT / "NOTICE", "NOTICE")
         archive.write(ROOT / "epw/gothenburg.epw", "examples/gothenburg.epw")
         archive.writestr(
             "examples/shoebox.hbjson", json.dumps(model.to_dict(), indent=2)
