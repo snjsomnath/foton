@@ -13,6 +13,7 @@ use crate::{
     error::{DaylightError, Result},
 };
 
+/// Where an analysis job is in its life.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum JobStatus {
     Queued,
@@ -22,6 +23,7 @@ pub enum JobStatus {
     Failed,
 }
 
+/// Status, progress (0 to 1) and any message of a job at one moment.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct JobSnapshot {
     pub status: JobStatus,
@@ -30,6 +32,7 @@ pub struct JobSnapshot {
     pub message: Option<String>,
 }
 
+/// An analysis running on its own thread, which can be polled and cancelled.
 pub struct AnalysisJob {
     cancelled: Arc<AtomicBool>,
     snapshot: Arc<Mutex<JobSnapshot>>,
@@ -38,6 +41,7 @@ pub struct AnalysisJob {
 }
 
 impl AnalysisJob {
+    /// Start analysing `scene` with `backend` on a new thread.
     pub fn spawn(backend: Arc<dyn Backend>, scene: SceneHandle, request: AnalysisRequest) -> Self {
         let solver_revision = scene.revision();
         let cancelled = Arc::new(AtomicBool::new(false));
@@ -90,18 +94,22 @@ impl AnalysisJob {
         }
     }
 
+    /// Current status and progress.
     pub fn poll(&self) -> JobSnapshot {
         self.snapshot.lock().expect("job snapshot poisoned").clone()
     }
 
+    /// Ask the job to stop. The backend stops at its next check.
     pub fn cancel(&self) {
         self.cancelled.store(true, Ordering::Release);
     }
 
+    /// The flag `cancel` sets, for code that wants to cancel the job later.
     pub fn cancellation_handle(&self) -> Arc<AtomicBool> {
         Arc::clone(&self.cancelled)
     }
 
+    /// Wait for the job to finish and return its result.
     pub fn result(mut self) -> Result<AnalysisResult> {
         if let Some(handle) = self.thread.take() {
             handle.join().map_err(|_| DaylightError::Backend {

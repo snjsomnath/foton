@@ -1,5 +1,6 @@
 use std::fmt::{Display, Formatter};
 
+/// Everything that can go wrong in Foton's solver.
 #[derive(Debug, Clone, PartialEq)]
 pub enum DaylightError {
     Cancelled,
@@ -27,4 +28,5 @@ impl Display for DaylightError {
 
 impl std::error::Error for DaylightError {}
 
+/// Result type used throughout Foton's crates.
 pub type Result<T> = std::result::Result<T, DaylightError>;

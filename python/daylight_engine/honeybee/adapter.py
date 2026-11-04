@@ -17,6 +17,14 @@ CONTEXT_ROOM_ID = 0
 
 @dataclass(frozen=True)
 class PreparedHoneybeeScene:
+    """A Honeybee model turned into the flat arrays Foton's engine reads.
+
+    ``arrays`` holds geometry, materials and sensors in world coordinates.
+    ``grid_info`` describes each sensor grid, ``room_map`` numbers the rooms from
+    1 (0 is context geometry), and ``model_fingerprint`` changes whenever
+    anything that affects the result changes.
+    """
+
     model: Any
     model_fingerprint: str
     arrays: dict[str, np.ndarray]
@@ -45,6 +53,7 @@ class PreparedHoneybeeScene:
         }
 
     def create_native_scene(self, engine):
+        """Upload this scene to ``engine`` and return the engine's scene object."""
         arrays = self.native_arrays()
         return engine.create_scene(
             arrays["vertices"],
@@ -74,6 +83,15 @@ def prepare_honeybee_scene(
     sensor_height=0.75,
     include_aperture_glazing=False,
 ) -> PreparedHoneybeeScene:
+    """Convert a Honeybee model, or an HBJSON path, into a ``PreparedHoneybeeScene``.
+
+    The model is copied, converted to metres and checked. Features Foton cannot
+    simulate correctly (doors, air boundaries, BSDF and dynamic materials) raise
+    ``ValueError`` instead of being skipped silently. ``grid_filter`` selects
+    sensor grids by identifier, with ``*`` wildcards. ``include_aperture_glazing``
+    adds window glass as thin transmitting surfaces; without it windows are
+    open holes.
+    """
     if not isinstance(grid_filter, str) or not grid_filter:
         raise ValueError("grid_filter must be a non-empty string")
     if not np.isfinite(grid_size) or grid_size <= 0:

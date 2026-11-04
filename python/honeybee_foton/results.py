@@ -15,6 +15,13 @@ from foton_bridge import resolve_manifest
 
 @dataclass(frozen=True)
 class GridResultBranches:
+    """Annual metrics grouped by sensor grid, ready to become Grasshopper branches.
+
+    Each tuple has one entry per grid, in the order the grids appear in the
+    model. DA, cDA and UDI hold one value per sensor, in percent; ``sda`` holds
+    one value per grid.
+    """
+
     identifiers: tuple[str, ...]
     room_identifiers: tuple[str, ...]
     da: tuple[list[float], ...]
@@ -26,6 +33,11 @@ class GridResultBranches:
 
 
 def load_manifest(path) -> dict[str, Any]:
+    """Read a ``run_manifest.json`` (or the folder that holds it).
+
+    Checks that it is a complete Foton manifest of the supported protocol
+    version, and turns its relative paths into absolute ones.
+    """
     manifest_path = Path(path).expanduser().resolve()
     if manifest_path.is_dir():
         manifest_path = manifest_path / "run_manifest.json"
@@ -60,6 +72,7 @@ def _metric(grid, name):
 
 
 def load_grid_result_branches(manifest_or_path) -> GridResultBranches:
+    """Load every grid's metric files named in a manifest and group them for Grasshopper."""
     manifest = (
         load_manifest(manifest_or_path)
         if isinstance(manifest_or_path, (str, Path))

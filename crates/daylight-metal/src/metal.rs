@@ -42,6 +42,7 @@ const MAXIMUM_TRANSPARENT_INTERSECTIONS: u32 = 64;
 #[link(name = "CoreGraphics", kind = "framework")]
 unsafe extern "C" {}
 
+/// Foton's solver on Apple GPUs, using Metal's hardware ray tracing.
 pub struct MetalBackend {
     device: Retained<ProtocolObject<dyn MTLDevice>>,
     command_queue: Retained<ProtocolObject<dyn MTLCommandQueue>>,
@@ -171,6 +172,7 @@ struct ResidentScene {
 }
 
 impl MetalBackend {
+    /// Open the default Metal device and compile the shaders.
     pub fn new() -> Result<Self> {
         let device = MTLCreateSystemDefaultDevice().ok_or_else(|| DaylightError::Backend {
             detail: "Metal is unavailable on this system".into(),
@@ -216,14 +218,17 @@ impl MetalBackend {
         })
     }
 
+    /// Name of the GPU.
     pub fn device_name(&self) -> String {
         self.device.name().to_string()
     }
 
+    /// True when the GPU supports Metal ray tracing.
     pub fn supports_ray_tracing(&self) -> bool {
         self.device.supportsRaytracing()
     }
 
+    /// Label of the command queue, when one is set.
     pub fn command_queue_label(&self) -> Option<String> {
         self.command_queue.label().map(|label| label.to_string())
     }

@@ -2,6 +2,7 @@ use crate::error::{DaylightError, Result};
 
 const GLASS_INDEX_OF_REFRACTION: f32 = 1.52;
 
+/// Convert glass transmittance at normal incidence into the internal transmissivity Radiance's `glass` material uses.
 pub fn radiance_glass_transmissivity(transmittance: f32) -> Result<f32> {
     if !transmittance.is_finite() || !(0.0..=1.0).contains(&transmittance) {
         return Err(DaylightError::InvalidValue {
@@ -20,6 +21,7 @@ pub fn radiance_glass_transmissivity(transmittance: f32) -> Result<f32> {
     Ok((numerator / (0.003_626_111_9 * transmittance)) as f32)
 }
 
+/// Unpolarised Fresnel reflectance of a smooth surface, for the cosine of the incidence angle.
 pub fn fresnel_reflectance(cos_incident: f32, index_of_refraction: f32) -> Result<f32> {
     if !cos_incident.is_finite()
         || !(0.0..=1.0).contains(&cos_incident)
@@ -45,11 +47,13 @@ pub fn fresnel_reflectance(cos_incident: f32, index_of_refraction: f32) -> Resul
     Ok(0.5 * (perpendicular * perpendicular + parallel * parallel))
 }
 
+/// Transmittance of thin glass at an angle, from its normal-incidence transmittance.
 pub fn thin_glass_transmittance(visible_transmittance: f32, cos_incident: f32) -> Result<f32> {
     let internal_transmissivity = radiance_glass_transmissivity(visible_transmittance)?;
     thin_glass_transmittance_from_transmissivity(internal_transmissivity, cos_incident)
 }
 
+/// Transmittance of thin glass at an angle, from its internal transmissivity.
 pub fn thin_glass_transmittance_from_transmissivity(
     internal_transmissivity: f32,
     cos_incident: f32,
@@ -57,6 +61,7 @@ pub fn thin_glass_transmittance_from_transmissivity(
     Ok(thin_glass_optics(internal_transmissivity, cos_incident)?.0)
 }
 
+/// Reflectance of thin glass at an angle, from its internal transmissivity.
 pub fn thin_glass_reflectance_from_transmissivity(
     internal_transmissivity: f32,
     cos_incident: f32,

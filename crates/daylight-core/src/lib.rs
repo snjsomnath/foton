@@ -41,4 +41,5 @@ pub use sky::{
     radiance_patch_index,
 };
 
+/// Version of the solver, recorded in every result.
 pub const SOLVER_VERSION: &str = env!("CARGO_PKG_VERSION");

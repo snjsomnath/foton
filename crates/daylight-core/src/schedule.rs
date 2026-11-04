@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::error::{DaylightError, Result};
 
+/// An occupancy schedule: one weight from 0 to 1 per timestep.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct OccupancySchedule {
     pub name: String,
@@ -9,6 +10,7 @@ pub struct OccupancySchedule {
 }
 
 impl OccupancySchedule {
+    /// Create a schedule and check it.
     pub fn new(name: impl Into<String>, weights: Vec<f32>) -> Result<Self> {
         let schedule = Self {
             name: name.into(),
@@ -18,6 +20,7 @@ impl OccupancySchedule {
         Ok(schedule)
     }
 
+    /// Check that the schedule has a name, valid weights and some occupied time.
     pub fn validate(&self) -> Result<()> {
         if self.name.trim().is_empty() || self.weights.is_empty() {
             return Err(DaylightError::InvalidShape {
@@ -44,6 +47,7 @@ impl OccupancySchedule {
         Ok(())
     }
 
+    /// Total occupied time, the sum of the weights.
     pub fn occupied_weight(&self) -> f32 {
         self.weights.iter().sum()
     }

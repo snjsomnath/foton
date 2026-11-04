@@ -24,6 +24,8 @@ GLASS_MATERIAL = 4
 
 
 class RoomParameters(BaseModel):
+    """A shoebox room with one south window, an overhang and side fins. Lengths are in metres."""
+
     width: float = Field(6.0, ge=1.0, le=50.0)
     depth: float = Field(9.0, ge=1.0, le=50.0)
     height: float = Field(3.0, ge=2.0, le=12.0)
@@ -45,6 +47,7 @@ class RoomParameters(BaseModel):
 
     @model_validator(mode="after")
     def validate_geometry(self) -> "RoomParameters":
+        """Reject a window that does not fit the wall, or a workplane above the ceiling."""
         margin = 0.05
         center = self.width * 0.5 + self.window_offset
         window_min = center - self.window_width * 0.5
@@ -60,11 +63,14 @@ class RoomParameters(BaseModel):
 
 @dataclass(frozen=True)
 class ParametricScene:
+    """A generated room: the parameters, the engine arrays and the geometry sent to the browser."""
+
     parameters: RoomParameters
     arrays: dict[str, np.ndarray]
     geometry_payload: dict[str, Any]
 
     def create_native_scene(self, engine: Any) -> Any:
+        """Upload this scene to ``engine`` and return the engine's scene object."""
         arrays = self.arrays
         return engine.create_scene(
             arrays["vertices"],
@@ -116,6 +122,7 @@ def _window_bounds(parameters: RoomParameters) -> tuple[float, float, float, flo
 def generate_parametric_scene(
     parameters: RoomParameters | dict[str, Any] | None = None,
 ) -> ParametricScene:
+    """Build the room described by ``parameters`` (defaults when ``None``)."""
     if parameters is None:
         parameters = RoomParameters()
     elif not isinstance(parameters, RoomParameters):

@@ -10,6 +10,7 @@ use crate::{
 
 const PHOTOPIC_WEIGHTS: [f32; 3] = [47.435, 119.93, 11.635];
 
+/// Annual metrics of one sensor, in percent of occupied hours. `passes_sda` tells whether it meets the sDA target.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SensorAnnualMetric {
     pub sensor_id: u32,
@@ -22,6 +23,7 @@ pub struct SensorAnnualMetric {
     pub passes_sda: bool,
 }
 
+/// Spatial daylight autonomy (300 lux, 50 % of hours) of one room, and the floor area its sensors represent.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RoomAnnualMetric {
     pub room_id: u32,
@@ -29,6 +31,7 @@ pub struct RoomAnnualMetric {
     pub represented_area: f32,
 }
 
+/// Annual metrics for every sensor and room, with the thresholds used.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct AnnualMetrics {
     pub threshold_lux: f32,
@@ -40,6 +43,7 @@ pub struct AnnualMetrics {
     pub rooms: Vec<RoomAnnualMetric>,
 }
 
+/// Daylight factor of every sensor, in percent, with the mean, minimum and maximum.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct DaylightFactorMetrics {
     pub per_sensor_percent: Vec<f32>,
@@ -48,6 +52,7 @@ pub struct DaylightFactorMetrics {
     pub maximum_percent: f32,
 }
 
+/// Compute annual metrics on the CPU from daylight coefficients and hourly skies.
 pub fn reduce_annual_metrics(
     coefficients: &CoefficientMatrix,
     sky: &SkyMatrix,
@@ -165,6 +170,7 @@ pub fn reduce_annual_metrics(
     )
 }
 
+/// Compute DA and sDA from per-sensor occupied hours above the threshold. The UDI values are left at zero.
 pub fn annual_metrics_from_weights(
     sensors: &[Sensor],
     occupied_weight: f32,
@@ -188,6 +194,7 @@ pub fn annual_metrics_from_weights(
     )
 }
 
+/// Turn per-sensor sums of occupied hours (above threshold, in each UDI band, continuous) into annual metrics.
 #[allow(clippy::too_many_arguments)]
 pub fn annual_metrics_from_accumulators(
     sensors: &[Sensor],
@@ -289,6 +296,7 @@ pub fn annual_metrics_from_accumulators(
     })
 }
 
+/// Daylight factor of each sensor: interior illuminance as a percentage of the exterior horizontal illuminance.
 pub fn evaluate_daylight_factor(
     interior_illuminance: &[f32],
     exterior_horizontal_illuminance: f32,
