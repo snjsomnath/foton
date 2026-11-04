@@ -24,6 +24,9 @@ Makes installing Foton in Rhino straightforward.
 - New step-by-step install guide with screenshots in
   `docs/grasshopper-quickstart.md`, and a maintainer guide in
   `docs/publishing-yak.md`.
+- The browser viewer's demo now works from a pip install. Its Gothenburg
+  weather file ships inside the package; before, the demo stopped with "Demo
+  weather is missing" unless it ran from a checkout.
 - The citation (CITATION.cff) now lists Alexander Hollberg as second author.
 - CI runs less: a push to main after a tested pull request gets a quick Linux
   check, a newer push cancels a pull request's older run, pull requests test
