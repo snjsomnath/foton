@@ -25,7 +25,8 @@ permissions:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # Never cancel a main run: a cancelled run shows as failed on the README badge.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   rust:
