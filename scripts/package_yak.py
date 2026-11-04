@@ -27,6 +27,7 @@ USER_OBJECTS = (
 )
 STAGED = (
     "manifest.yml",
+    "icon.png",
     *USER_OBJECTS,
     "Foton First Analysis.gh",
     "examples/shoebox.hbjson",
@@ -70,6 +71,7 @@ def stage(folder, root=ROOT):
     (folder / "examples").mkdir(parents=True)
     distribution = root / "grasshopper_foton/distribution"
     shutil.copy2(root / "grasshopper_foton/yak/manifest.yml", folder / "manifest.yml")
+    shutil.copy2(root / "grasshopper_foton/yak/icon.png", folder / "icon.png")
     for name in (*USER_OBJECTS, "Foton First Analysis.gh"):
         shutil.copy2(distribution / name, folder / name)
     from validation.scenes import make_scene

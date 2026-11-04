@@ -32,12 +32,16 @@ def verify_build(root=ROOT):
         "python/foton_bridge/__init__.py",
         "grasshopper_foton/foton_gh.py",
         *(
-            "grasshopper_foton/components/" + name + ".py"
+            folder_name + name + suffix
             for name in (
                 "Foton Settings",
                 "Foton Annual Daylight",
                 "Foton Annual Results",
                 "Foton Daylight Factor",
+            )
+            for folder_name, suffix in (
+                ("grasshopper_foton/components/", ".py"),
+                ("grasshopper_foton/icons/", ".png"),
             )
         ),
     }
