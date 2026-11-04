@@ -65,9 +65,10 @@ The `foton-results` folder has the same layout as a Honeybee annual daylight
 run, so Honeybee's own metric and visualisation components can read it. To
 check which GPU Foton will use, run `foton-honeybee capabilities`.
 
-**In Rhino 8 and Grasshopper:** download `foton-grasshopper-<version>.zip` from
-the [releases page](https://github.com/snjsomnath/foton/releases) and follow
-the [Grasshopper quickstart](https://github.com/snjsomnath/foton/blob/main/docs/grasshopper-quickstart.md).
+**In Rhino 8 and Grasshopper:** open Rhino's Package Manager, search for
+"foton" and install it. You can also download `foton-grasshopper-<version>.zip`
+from the [releases page](https://github.com/snjsomnath/foton/releases). Then
+follow the [Grasshopper quickstart](https://github.com/snjsomnath/foton/blob/main/docs/grasshopper-quickstart.md).
 It takes about five minutes. Foton's results go straight into Ladybug's own
 components, such as the spatial heatmap below.
 
