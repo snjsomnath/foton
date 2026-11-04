@@ -525,6 +525,82 @@ def install_foton(python=None, progress=None, cancel=None, upgrade=False):
     return executable
 
 
+def _install_registry():
+    # Kept in sys.modules: each component run re-executes this module, and a
+    # background install has to outlive that.
+    holder = sys.modules.get("_foton_install_registry")
+    if holder is None:
+        import types
+
+        holder = types.ModuleType("_foton_install_registry")
+        holder.installs = {}
+        sys.modules["_foton_install_registry"] = holder
+    return holder.installs
+
+
+def background_install(python=None):
+    """Run ``install_foton`` on a background thread so Rhino stays usable.
+
+    Returns a state dictionary: ``running``, ``log`` (recent lines),
+    ``executable`` once installed, ``error`` if it failed, and ``started``.
+    Calling it again while an install runs, or after it finished, returns the
+    same state, so a component can poll it on each solution. ``reset_install``
+    clears a finished state; ``cancel_install`` stops a running one.
+    """
+    installs = _install_registry()
+    key = environment_folder()
+    state = installs.get(key)
+    if state is not None:
+        return state
+    state = {
+        "running": True,
+        "log": [],
+        "executable": None,
+        "error": None,
+        "cancelled": False,
+        "started": time.time(),
+    }
+    installs[key] = state
+
+    def progress(line):
+        state["log"].append(line)
+        del state["log"][:-200]
+
+    def run():
+        try:
+            state["executable"] = install_foton(
+                python, progress=progress, cancel=lambda: state["cancelled"]
+            )
+        except Exception as error:  # reported on the component
+            state["error"] = str(error) or error.__class__.__name__
+        finally:
+            state["running"] = False
+
+    thread = threading.Thread(target=run)
+    thread.daemon = True
+    thread.start()
+    return state
+
+
+def install_status():
+    """The current background install's state, or None."""
+    return _install_registry().get(environment_folder())
+
+
+def cancel_install():
+    state = install_status()
+    if state is not None and state["running"]:
+        state["cancelled"] = True
+
+
+def reset_install():
+    """Forget a finished install, so the next toggle starts a fresh one."""
+    installs = _install_registry()
+    state = installs.get(environment_folder())
+    if state is not None and not state["running"]:
+        del installs[environment_folder()]
+
+
 def _stream_command(command, on_line=None, cancel=None, timeout=None, extra_env=None):
     """Run a command, passing each output line on; returns (exit code, lines)."""
     env = _subprocess_environment(command[0])

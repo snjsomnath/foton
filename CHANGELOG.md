@@ -15,6 +15,10 @@ Makes installing Foton in Rhino straightforward.
   finds no Python 3.10 to 3.13, it downloads uv into `~/.foton`, which fetches
   a private Python 3.12 for Foton's environment. Nothing outside `~/.foton`
   changes.
+- `install_` runs in the background, so Rhino stays usable while Foton
+  installs; Foton Settings shows how long it has been running and checks the
+  install when it finishes. Before, Rhino froze until the install was done,
+  which could be minutes when Foton downloads its own Python.
 - The components are easier to use: each has its own icon, a description,
   and help text on every input and output (hover over one to read it). The
   version shows under each component.

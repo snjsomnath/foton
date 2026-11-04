@@ -20,8 +20,10 @@ After that, Check reports the Foton version and the GPU it will use.
             environment from. Leave empty to use one found on this computer,
             or a private Python 3.12 if there is none.
         install_: Set to True once to install Foton, or to upgrade an older
-            version, and then check it. Needs an internet connection and takes
-            a minute or two.
+            version, and then check it. It runs in the background, so Rhino
+            stays usable, and the component shows how long it has run. Needs an
+            internet connection and takes a minute or two, longer if Foton has
+            to download its own Python. Set to False to stop it.
         _check: Set to True to find Foton and report what it can run on.
     Returns:
         report: What was found or installed, and the full check report.
@@ -40,9 +42,11 @@ from __future__ import print_function
 import json
 import os
 import sys
+import time
 
 try:
-    from grasshopper_foton.foton_gh import COMPONENT_VERSION, FotonError, capabilities as get_capabilities, install_foton
+    from grasshopper_foton.foton_gh import COMPONENT_VERSION, FotonError, capabilities as get_capabilities
+    from grasshopper_foton.foton_gh import background_install, cancel_install, install_status, reset_install
 except ImportError:
     parent = os.environ.get("FOTON_GH_PARENT")
     if parent:
@@ -50,7 +54,8 @@ except ImportError:
         if parent not in sys.path:
             sys.path.insert(0, parent)
     try:
-        from grasshopper_foton.foton_gh import COMPONENT_VERSION, FotonError, capabilities as get_capabilities, install_foton
+        from grasshopper_foton.foton_gh import COMPONENT_VERSION, FotonError, capabilities as get_capabilities
+        from grasshopper_foton.foton_gh import background_install, cancel_install, install_status, reset_install
     except ImportError:
         raise RuntimeError(
             "Cannot import grasshopper_foton. Add the repository parent directory "
@@ -83,36 +88,61 @@ def warn(message):
     ghenv.Component.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, str(message))
 
 
-def cancelled():
-    try:
-        import scriptcontext
+def remark(message):
+    from Grasshopper.Kernel import GH_RuntimeMessageLevel
 
-        return bool(scriptcontext.escape_test(False))
-    except ImportError:
-        return False
+    ghenv.Component.AddRuntimeMessage(GH_RuntimeMessageLevel.Remark, str(message))
+
+
+def check_again_in(milliseconds):
+    """Run this component again shortly, to show install progress.
+
+    The install runs on a background thread, so Rhino stays usable; this
+    component only looks at its progress once a second.
+    """
+    from Grasshopper.Kernel import GH_Document
+
+    document = ghenv.Component.OnPingDocument()
+    if document is None:
+        return
+    component = ghenv.Component
+
+    def expire(_document):
+        component.ExpireSolution(False)
+
+    document.ScheduleSolution(milliseconds, GH_Document.GH_ScheduleDelegate(expire))
 
 
 install_log = []
+configured = globals().get("executable_")
+installing = bool(globals().get("install_", False)) and not configured
+if not installing:
+    # Turning install_ off stops a running install and forgets a finished one.
+    cancel_install()
+    reset_install()
+else:
+    state = install_status() or background_install(globals().get("python_"))
+    install_log = list(state["log"])
+    if state["running"]:
+        seconds = int(time.time() - state["started"])
+        report = "\n".join(install_log[-30:])
+        ghenv.Component.Message = "Installing {0}:{1:02d}".format(seconds // 60, seconds % 60)
+        remark(
+            "Installing Foton in the background; Rhino stays usable. The first "
+            "install can take a few minutes. Set install_ to False to stop it."
+        )
+        check_again_in(1000)
+    elif state["error"]:
+        report = "\n".join(install_log + [state["error"]])
+        ghenv.Component.Message = "Install failed"
+        raise RuntimeError(report)
+    else:
+        configured = state["executable"]
 
+waiting = installing and configured is None
 
-def on_install(line):
-    install_log.append(line)
-    ghenv.Component.Message = "Installing"
+if not waiting and (globals().get("_check", False) or installing):
     try:
-        import Rhino
-
-        Rhino.RhinoApp.Wait()
-    except ImportError:
-        pass
-
-
-if globals().get("_check", False) or globals().get("install_", False):
-    try:
-        configured = globals().get("executable_")
-        if globals().get("install_", False) and not configured:
-            configured = install_foton(
-                globals().get("python_"), progress=on_install, cancel=cancelled
-            )
         data = get_capabilities(configured, globals().get("backend_") or "auto")
         executable = data["executable"]
         engine_version = data["engine_version"]

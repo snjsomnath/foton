@@ -385,3 +385,74 @@ def test_worker_keeps_weather_in_memory_across_studies_with_identical_results(tm
     assert len(warm.weather_memo) == 1
     fresh = live(Worker(), MODEL, first_copy)
     assert reused["grids"] == fresh["grids"]
+
+
+def _wait_for(state, seconds=5.0):
+    import time
+
+    deadline = time.time() + seconds
+    while state["running"] and time.time() < deadline:
+        time.sleep(0.01)
+    assert not state["running"]
+
+
+def test_background_install_keeps_rhino_free_and_reports_once(monkeypatch, tmp_path):
+    import threading
+
+    monkeypatch.setenv("FOTON_HOME", str(tmp_path))
+    release = threading.Event()
+    calls = []
+
+    def fake_install(python=None, progress=None, cancel=None, upgrade=False):
+        calls.append(python)
+        progress("Installing foton-daylight")
+        release.wait(5)
+        return "/fake/foton-honeybee"
+
+    monkeypatch.setattr(foton_gh, "install_foton", fake_install)
+    foton_gh.reset_install()
+    state = foton_gh.background_install("python3")
+    # The call returns at once while the install is still running.
+    assert state["running"]
+    assert foton_gh.background_install() is state
+    assert foton_gh.install_status() is state
+    release.set()
+    _wait_for(state)
+    assert state["executable"] == "/fake/foton-honeybee"
+    assert state["error"] is None
+    assert state["log"] == ["Installing foton-daylight"]
+    # A finished install is kept until install_ is turned off, so a toggle left
+    # on does not start the install again on every solution.
+    assert foton_gh.background_install() is state
+    assert calls == ["python3"]
+    foton_gh.reset_install()
+    assert foton_gh.install_status() is None
+
+
+def test_background_install_reports_errors_and_can_be_cancelled(monkeypatch, tmp_path):
+    import time
+
+    monkeypatch.setenv("FOTON_HOME", str(tmp_path))
+
+    def failing(python=None, progress=None, cancel=None, upgrade=False):
+        raise foton_gh.FotonError("pip could not install Foton")
+
+    monkeypatch.setattr(foton_gh, "install_foton", failing)
+    foton_gh.reset_install()
+    state = foton_gh.background_install()
+    _wait_for(state)
+    assert state["error"] == "pip could not install Foton"
+    foton_gh.reset_install()
+
+    def slow(python=None, progress=None, cancel=None, upgrade=False):
+        while not cancel():
+            time.sleep(0.01)
+        raise foton_gh.FotonCancelled("Foton was cancelled")
+
+    monkeypatch.setattr(foton_gh, "install_foton", slow)
+    state = foton_gh.background_install()
+    assert state["running"]
+    foton_gh.cancel_install()
+    _wait_for(state)
+    assert state["error"] == "Foton was cancelled"
+    foton_gh.reset_install()
