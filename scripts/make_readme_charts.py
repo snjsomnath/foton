@@ -7,8 +7,7 @@ Run from the repository root:
 
 It writes two PNG files to docs/images/:
 
-* speed-vs-radiance.png: one annual run of the acceptance model, Foton
-  against Honeybee's annual-daylight recipe (Radiance).
+* annual-run-times.png: how long one annual run takes on four models.
 * accuracy-sda.png: spatial daylight autonomy for every sensor grid in the
   validation corpus, Foton against converged Radiance.
 
@@ -33,15 +32,13 @@ OUT = ROOT / "docs" / "images"
 # Sources. Change these when a newer benchmark or campaign replaces them.
 BENCHMARK = ROOT / "benchmarks/results/20261103T195604Z-CM-GHHXPN239T/benchmark.json"
 CAMPAIGN = ROOT / "validation/results/2026-11-03-architectural-v4-metal-0.3.0-release"
-STOCK = CAMPAIGN / "acceptance/mf1/stock_comparison/comparison.json"
 
-# Colours: one accent for Foton, a neutral grey for the reference.
+# Colours: one accent for Foton and neutral greys for text and grid.
 SURFACE = "#ffffff"
 INK = "#0b0b0b"
 INK_SECONDARY = "#52514e"
 GRID = "#e4e3df"
 FOTON = "#2a78d6"
-REFERENCE = "#a3a29c"
 
 
 def _style() -> None:
@@ -70,50 +67,52 @@ def _title(fig, title: str, subtitle: str) -> None:
 
 
 def speed_chart() -> Path:
-    """Bar chart of one cold annual run on the acceptance model (2,020 sensors)."""
+    """Bar chart of one cold annual run per benchmark model, Foton on Metal."""
     benchmark = json.loads(BENCHMARK.read_text())
-    acceptance = next(case for case in benchmark["cases"] if case["scene"] == "acceptance")
-    foton_seconds = acceptance["wall_seconds"]["median"]
-    radiance_seconds = json.loads(STOCK.read_text())["performance"]["radiance_seconds"]
+    names = {
+        "teaching_office": "Teaching office",
+        "courtyard_rooms": "Courtyard, 4 rooms",
+        "acceptance": "Acceptance model, 3 rooms",
+        "office_floors": "Office block, 256 rooms",
+    }
+    cases = [case for case in benchmark["cases"] if case["scene"] in names]
+    cases.sort(key=lambda case: case["sensors"])
+    labels = [f"{names[case['scene']]}\n{case['sensors']:,} sensors" for case in cases]
+    values = [case["wall_seconds"]["median"] for case in cases]
 
-    labels = ["Honeybee + Radiance 5.4\n(12 CPU workers)", "Foton\n(Apple M4 Pro GPU)"]
-    values = [radiance_seconds, foton_seconds]
-    colours = [REFERENCE, FOTON]
-
-    fig, ax = plt.subplots(figsize=(8, 3.4))
-    fig.subplots_adjust(left=0.27, right=0.9, top=0.72, bottom=0.27)
-    bars = ax.barh(labels, values, color=colours, height=0.5)
+    fig, ax = plt.subplots(figsize=(8, 4.2))
+    fig.subplots_adjust(left=0.3, right=0.9, top=0.76, bottom=0.23)
+    bars = ax.barh(labels, values, color=FOTON, height=0.55)
     ax.invert_yaxis()
     for bar, value in zip(bars, values):
         ax.text(
             bar.get_width() + max(values) * 0.015,
             bar.get_y() + bar.get_height() / 2,
-            f"{value:.1f} s",
+            f"{value:.2f} s",
             va="center",
             fontsize=12,
             fontweight="semibold",
             color=INK,
         )
-    ax.set_xlim(0, max(values) * 1.12)
-    ax.set_xlabel("Seconds for a full annual daylight run (lower is better)")
+    ax.set_xlim(0, max(values) * 1.15)
+    ax.set_xlabel("Seconds for a full annual daylight run, from model to metrics")
     ax.xaxis.grid(True, color=GRID, linewidth=0.8)
     ax.set_axisbelow(True)
     ax.tick_params(axis="y", length=0, labelsize=11, labelcolor=INK)
     ax.spines["left"].set_visible(False)
     _title(
         fig,
-        f"One annual study: {radiance_seconds:.1f} s with Radiance, {foton_seconds:.1f} s with Foton",
-        "Acceptance model, 3 rooms, 2,020 sensors, Gothenburg weather. "
-        "Each tool at its own defaults.",
+        "A year of daylight in about a second",
+        "Annual DA and UDI for all 8,760 hours, Foton's default quality (8 bounces), Gothenburg weather.",
     )
     fig.text(
         0.04,
         0.03,
-        "Radiance's recipe uses 2 ambient bounces, Foton uses 8. Measured on one MacBook Pro, 3 Nov 2026.",
+        "MacBook Pro, Apple M4 Pro GPU (Metal), 3 Nov 2026. Median of five cold runs.",
         fontsize=9,
         color=INK_SECONDARY,
     )
-    path = OUT / "speed-vs-radiance.png"
+    path = OUT / "annual-run-times.png"
     fig.savefig(path, dpi=200)
     plt.close(fig)
     return path

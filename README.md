@@ -10,8 +10,8 @@ computer's GPU.**
 
 Foton computes daylight autonomy (DA), useful daylight illuminance (UDI),
 spatial daylight autonomy (sDA) and daylight factor for Honeybee models. It
-does the expensive ray tracing on the GPU, so a study that takes Radiance tens
-of seconds finishes in about one. You keep your Honeybee model and your
+does the expensive ray tracing on the GPU, so a full year of hourly results
+for a typical model takes about a second. You keep your Honeybee model and your
 Ladybug result components. Only the slow step changes.
 
 <p align="center"><img src="https://raw.githubusercontent.com/snjsomnath/foton/main/docs/images/grasshopper-heatmap-viewport.png" width="70%" alt="Daylight autonomy of a shaded room computed by Foton in Grasshopper and drawn by Ladybug's spatial heatmap"></p>
@@ -29,7 +29,7 @@ second, and Honeybee and Ladybug read the result as if Radiance had written it.*
 
 ## At a glance
 
-<p align="center"><img src="https://raw.githubusercontent.com/snjsomnath/foton/main/docs/images/speed-vs-radiance.png" width="85%" alt="Bar chart: one annual daylight study took 21.5 s with Honeybee and Radiance and 1.1 s with Foton"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/snjsomnath/foton/main/docs/images/annual-run-times.png" width="85%" alt="Bar chart: a full annual daylight run takes 0.14 s for a 96-sensor room, 1.07 s for 2,020 sensors and 5.77 s for a 9,216-sensor office block"></p>
 
 <p align="center"><img src="https://raw.githubusercontent.com/snjsomnath/foton/main/docs/images/accuracy-sda.png" width="60%" alt="Scatter plot: sDA from Foton against sDA from Radiance for 119 sensor grids, all close to the diagonal"></p>
 
@@ -110,20 +110,8 @@ Measured on 3 November 2026 on a MacBook Pro with an Apple M4 Pro (24 GB),
 using Metal and Foton's default `final` quality (8 bounces, 146-patch sky,
 Gothenburg weather). Each time is a full annual run on a model Foton had not
 seen before: loading the model, building the GPU scene, tracing, and writing
-DA and UDI for all 8,760 hours. Median of five runs.
-
-| Model | Rooms | Sensors | Annual run |
-| --- | ---: | ---: | ---: |
-| Teaching office | 1 | 96 | 0.14 s |
-| Courtyard with four rooms | 4 | 112 | 0.17 s |
-| Acceptance model | 3 | 2,020 | 1.07 s |
-| Four-storey office block | 256 | 9,216 | 5.77 s |
-
-On the acceptance model, Honeybee's standard annual daylight recipe took 21.5 s
-on the same Mac, using Radiance 5.4 with 12 workers. Each tool ran at its own
-defaults, and the Honeybee recipe uses 2 light bounces where Foton uses 8.
-Treat this as one fair-minded comparison, not a promise of a fixed speed-up.
-The full timing data is in the
+DA and UDI for all 8,760 hours. Each figure in the chart at the top is the
+median of five runs. The full timing data is in the
 [benchmark run](https://github.com/snjsomnath/foton/blob/main/benchmarks/results/20261103T195604Z-CM-GHHXPN239T/benchmark.md).
 
 Inside Grasshopper a run also writes the model, starts Foton and reads the
