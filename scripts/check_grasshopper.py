@@ -17,7 +17,7 @@ def main():
     clr.AddReference("GH_IO")
     import Grasshopper as gh
     from Grasshopper.Kernel import GH_Document, GH_RuntimeMessageLevel
-    from Grasshopper.Kernel.Types import GH_String, GH_Number
+    from Grasshopper.Kernel.Types import GH_Boolean, GH_String, GH_Number
     from Grasshopper.Kernel.Special import GH_BooleanToggle
     from GH_IO.Serialization import GH_Archive
     root = os.environ["FOTON_GH_BUNDLE"]
@@ -39,11 +39,17 @@ def main():
         settings = next(o for o in document.Objects if o.Name == "Foton Settings")
         annual = next(o for o in document.Objects if o.Name == "Foton Annual Daylight")
         results = next(o for o in document.Objects if o.Name == "Foton Annual Results")
+        factor = next(o for o in document.Objects if o.Name == "Foton Daylight Factor")
         def set_input(obj, name, value):
             p = next(p for p in obj.Params.Input if p.Name == name)
             p.RemoveAllSources()
             p.PersistentData.Clear()
-            p.PersistentData.Append(GH_Number(value) if isinstance(value, (int, float)) else GH_String(value))
+            if isinstance(value, bool):
+                p.PersistentData.Append(GH_Boolean(value))
+            elif isinstance(value, (int, float)):
+                p.PersistentData.Append(GH_Number(value))
+            else:
+                p.PersistentData.Append(GH_String(value))
         def values(obj, name):
             p = next(p for p in obj.Params.Output if p.Name == name)
             return [str(v) for v in p.VolatileData.AllData(True)]
@@ -55,11 +61,12 @@ def main():
             for obj in document.Objects:
                 obj.ExpireSolution(False)
             document.NewSolution(True)
-            errors = dict((o.Name, list(o.RuntimeMessages(GH_RuntimeMessageLevel.Error))) for o in (settings, annual, results))
+            errors = dict((o.Name, list(o.RuntimeMessages(GH_RuntimeMessageLevel.Error))) for o in (settings, annual, results, factor))
             if any(errors.values()):
                 raise RuntimeError(json.dumps(errors))
         set_input(settings, "executable_", executable)
         set_input(annual, "output_folder_", os.path.join(output, "annual"))
+        set_input(factor, "output_folder_", os.path.join(output, "daylight_factor"))
         for obj in document.Objects:
             if isinstance(obj, GH_BooleanToggle):
                 obj.Value = True
@@ -70,6 +77,8 @@ def main():
         report["checks"]["reload_results"] = da == values(results, "DA")
         report["backend"] = values(settings, "backend")[0]
         report["engine_version"] = values(settings, "engine_version")[0]
+        saved_df = values(factor, "DF")
+        report["checks"]["daylight_factor"] = bool(saved_df) and bool(values(factor, "results"))
         solve()
         report["reuse_report"] = values(annual, "report")
         report["reuse_paths"] = [first, values(annual, "manifest")[0]]
@@ -86,6 +95,28 @@ def main():
         set_input(annual, "north_", 90.0)
         solve()
         report["checks"]["changed_inputs_new_folder"] = result_path() != upgraded
+        # Live mode: the background worker returns the saved run's values,
+        # writes nothing, and reuses its traced coefficients for new thresholds.
+        saved_da = values(annual, "DA")
+        set_input(annual, "live_", True)
+        set_input(factor, "live_", True)
+        solve()
+        report["checks"]["live_matches_saved"] = (
+            values(annual, "DA") == saved_da
+            and values(factor, "DF") == saved_df
+            and not values(annual, "results")
+            and not values(factor, "results")
+        )
+        set_input(annual, "thresholds_", "-t 500 -lt 100 -ut 3000")
+        solve()
+        report["live_timings"] = values(annual, "timings_text")
+        report["checks"]["live_reuses_coefficients"] = (
+            values(annual, "DA") != saved_da
+            and any("coefficient_trace_seconds: 0.0" in value for value in values(annual, "timings_text"))
+        )
+        set_input(annual, "live_", False)
+        set_input(factor, "live_", False)
+        set_input(annual, "thresholds_", "-t 300 -lt 100 -ut 3000")
         # Exercise portable result loading after a real move of an owned test folder.
         moved = os.path.join(output, "moved")
         shutil.move(os.path.dirname(first), moved)

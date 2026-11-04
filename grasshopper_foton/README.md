@@ -31,6 +31,13 @@ loads Foton's CPython native extension.
 Checks executable discovery, protocol compatibility, Foton version, selected
 backend, backend capabilities, and the weather-cache location.
 
+Without `executable_`, it looks for `foton-honeybee` in Foton's own environment
+(`~/.foton/venv`, or `FOTON_HOME`), on PATH, and in the usual pip, virtual
+environment and pipx folders on Windows and macOS. Setting `install_` to True
+creates that environment with the first Python 3.10 to 3.13 it finds (or the one
+connected to `python_`) and pip installs `foton-daylight[honeybee]` into it. When
+a supported version is already there, it installs nothing.
+
 ### Foton Annual Daylight
 
 Accepts a Honeybee Model or HBJSON path and a Ladybug Wea or EPW/WEA path. It
@@ -43,6 +50,24 @@ The script serializes object inputs, invokes `foton-honeybee annual-daylight
 when ESC is detected through Rhino's `scriptcontext.escape_test`. Existing results are reused only
 when the protocol's content fingerprint is compatible. Otherwise, an atomically
 reserved `-001`, `-002`, etc. output folder prevents collisions.
+
+`bounces_` defaults to 8, the depth the validation campaigns use. Before this
+release the component defaulted to 1, which reads about 18 % low.
+
+With `live_` set to True, the run goes to a background `foton-honeybee serve`
+process instead. It keeps the prepared scene, the GPU and the traced
+coefficients between runs, so a change of thresholds, schedule or weather only
+recomputes the metrics. Live runs write no files and return an empty `results`.
+ESC stops the background process; the next live run starts a new one.
+
+### Foton Daylight Factor
+
+Accepts a Honeybee Model or HBJSON path and returns the daylight factor (%)
+under a CIE overcast sky in one branch per SensorGrid, plus `mean_DF` per grid.
+A saved run invokes `foton-honeybee daylight-factor --jsonl` and writes
+Honeybee's daylight-factor layout (`results/<grid>.res` and `grids_info.json`)
+into a new numbered folder. It accepts `live_` like the annual component, and
+shares traced coefficients with it.
 
 ### Foton Annual Results
 

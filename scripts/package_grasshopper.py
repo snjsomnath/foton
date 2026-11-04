@@ -21,6 +21,7 @@ def verify_build(root=ROOT):
         "Foton Settings.ghuser",
         "Foton Annual Daylight.ghuser",
         "Foton Annual Results.ghuser",
+        "Foton Daylight Factor.ghuser",
         "Foton First Analysis.gh",
         "Foton First Analysis.ghx",
     }
@@ -36,6 +37,7 @@ def verify_build(root=ROOT):
                 "Foton Settings",
                 "Foton Annual Daylight",
                 "Foton Annual Results",
+                "Foton Daylight Factor",
             )
         ),
     }
@@ -73,6 +75,7 @@ def main():
         )
         archive.write(ROOT / "docs/grasshopper-quickstart.md", "START_HERE.md")
         archive.write(ROOT / "LICENSE", "LICENSE")
+        archive.write(ROOT / "NOTICE", "NOTICE")
         archive.write(ROOT / "epw/gothenburg.epw", "examples/gothenburg.epw")
         archive.writestr(
             "examples/shoebox.hbjson", json.dumps(model.to_dict(), indent=2)

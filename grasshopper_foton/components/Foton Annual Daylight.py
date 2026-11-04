@@ -19,14 +19,17 @@ executable_         Item, optional full path to ``foton-honeybee``
 reuse_              Item, reuse a compatible completed output; default True
 direct_samples_     Item, optional advanced override
 indirect_samples_   Item, optional advanced override
-bounces_            Item, optional diffuse bounce count; default 1
+bounces_            Item, optional diffuse bounce count; default 8 (the validated setting)
 seed_               Item, optional deterministic seed; default 0
+live_               Item, keep Foton running between runs for fast slider
+                    changes; writes no files, so ``results`` stays empty
 _run                Item, Boolean run toggle
 
 Outputs
 -------
 report              Text progress/warnings
 results             One-item results-folder list; connect to HB annual result components
+                    (empty in live mode: turn live_ off to save a results folder)
 DA, cDA              Sensor values in one DataTree branch per SensorGrid
 UDI, UDI_low, UDI_up Sensor values in one DataTree branch per SensorGrid
 sDA                  One area-weighted percentage per SensorGrid
@@ -168,10 +171,11 @@ if globals().get("_run", False):
             reuse=bool(optional("reuse_", True)),
             direct_samples=optional("direct_samples_"),
             maximum_samples=optional("indirect_samples_"),
-            maximum_bounces=optional("bounces_", 1),
+            maximum_bounces=optional("bounces_"),
             scene_seed=optional("seed_", 0),
             progress=on_progress,
             cancel=cancelled,
+            live=bool(optional("live_", False)),
         )
         results = bundle["results"]
         DA, cDA = bundle["da"], bundle["cda"]
@@ -192,9 +196,16 @@ if globals().get("_run", False):
         for warning in warnings:
             warn(str(warning))
         reused = bool(bundle["manifest"].get("grasshopper_reused", False))
-        messages.append("Reused compatible results." if reused else "Foton run complete.")
+        live = bool(bundle["manifest"].get("live", False))
+        if live:
+            messages.append(
+                "Live run complete. No files were written; turn live_ off "
+                "to save a results folder for Honeybee components."
+            )
+        else:
+            messages.append("Reused compatible results." if reused else "Foton run complete.")
         report = "\n".join(messages)
-        ghenv.Component.Message = "Reused" if reused else "Complete"
+        ghenv.Component.Message = "Live" if live else "Reused" if reused else "Complete"
     except FotonCancelled as error:
         report = str(error)
         ghenv.Component.Message = "Cancelled"

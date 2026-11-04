@@ -164,7 +164,7 @@ class GrasshopperFotonTests(unittest.TestCase):
     def test_component_sources_are_python_2_compatible_in_style(self):
         components = ROOT / "grasshopper_foton" / "components"
         sources = list(components.glob("*.py"))
-        self.assertEqual(len(sources), 3)
+        self.assertEqual(len(sources), 4)
         for path in sources:
             source = path.read_text(encoding="utf-8")
             ast.parse(source, filename=str(path))

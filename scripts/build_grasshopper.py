@@ -14,12 +14,14 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUTPUT = os.path.join(ROOT, "grasshopper_foton", "distribution")
 
 COMPONENTS = (
-    ("Foton Settings", ("executable_", "backend_", "_check"),
+    ("Foton Settings", ("executable_", "backend_", "python_", "install_", "_check"),
      ("report", "executable", "engine_version", "protocol_version", "backend", "capabilities", "cache_folder")),
-    ("Foton Annual Daylight", ("_model", "_wea", "schedule_", "north_", "thresholds_", "grid_filter_", "quality_", "sky_density_", "backend_", "output_folder_", "executable_", "reuse_", "direct_samples_", "indirect_samples_", "bounces_", "seed_", "_run"),
+    ("Foton Annual Daylight", ("_model", "_wea", "schedule_", "north_", "thresholds_", "grid_filter_", "quality_", "sky_density_", "backend_", "output_folder_", "executable_", "reuse_", "direct_samples_", "indirect_samples_", "bounces_", "seed_", "live_", "_run"),
      ("report", "results", "DA", "cDA", "UDI", "UDI_low", "UDI_up", "sDA", "grid_ids", "room_ids", "manifest", "timings", "timings_text", "warnings", "folder")),
     ("Foton Annual Results", ("_manifest", "_load"),
      ("report", "results", "DA", "cDA", "UDI", "UDI_low", "UDI_up", "sDA", "grid_ids", "room_ids", "manifest", "timings", "timings_text", "warnings", "folder")),
+    ("Foton Daylight Factor", ("_model", "grid_filter_", "quality_", "sky_density_", "backend_", "output_folder_", "executable_", "bounces_", "live_", "_run"),
+     ("report", "results", "DF", "mean_DF", "grid_ids", "room_ids", "timings_text", "folder")),
 )
 
 
@@ -131,8 +133,11 @@ output = os.path.join(os.path.expanduser("~"), "foton_simulation", "first_exampl
         next(p for p in annual.Params.Input if p.Name == destination).AddSource(paths.Params.Output[index])
     next(p for p in annual.Params.Input if p.Name == "executable_").AddSource(objects[0].Params.Output[1])
     next(p for p in objects[2].Params.Input if p.Name == "_manifest").AddSource(annual.Params.Output[10])
+    factor = objects[3]
+    next(p for p in factor.Params.Input if p.Name == "_model").AddSource(paths.Params.Output[0])
+    next(p for p in factor.Params.Input if p.Name == "executable_").AddSource(objects[0].Params.Output[1])
     from Grasshopper.Kernel.Special import GH_BooleanToggle, GH_Panel
-    for obj, port, x, y in ((objects[0], "_check", 100, 100), (annual, "_run", 450, 100), (objects[2], "_load", 950, 100)):
+    for obj, port, x, y in ((objects[0], "_check", 100, 100), (annual, "_run", 450, 100), (objects[2], "_load", 950, 100), (factor, "_run", 1350, 100)):
         toggle = GH_BooleanToggle()
         toggle.CreateAttributes()
         toggle.Value = False
@@ -141,7 +146,7 @@ output = os.path.join(os.path.expanduser("~"), "foton_simulation", "first_exampl
         next(p for p in obj.Params.Input if p.Name == port).AddSource(toggle)
     panel = GH_Panel()
     panel.CreateAttributes()
-    panel.UserText = "Foton beta: install foton-daylight[honeybee] and Radiance 6. Set Settings executable_ if needed. Toggle Check, then Run. Read START_HERE.md. CPU fallback is diagnostic only."
+    panel.UserText = "Foton beta: toggle install_ on Foton Settings once (or pip install foton-daylight[honeybee] yourself), then Check, then Run. Radiance is not needed. Turn live_ on for fast slider changes. Read START_HERE.md. CPU fallback is diagnostic only."
     panel.Attributes.Pivot = PointF(100, 650)
     document.AddObject(panel, False)
     archive = GH_Archive()

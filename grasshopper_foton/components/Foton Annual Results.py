@@ -64,9 +64,14 @@ warnings = None
 folder = None
 
 
-if globals().get("_load", False):
-    if not globals().get("_manifest"):
-        raise ValueError("Connect a manifest path or Foton output folder.")
+if globals().get("_load", False) and not globals().get("_manifest"):
+    # Nothing to load yet: a live run, or a run that has not been saved.
+    report = (
+        "No saved Foton run to load. Connect a manifest path or output folder, "
+        "or turn live_ off on Foton Annual Daylight and run it to save one."
+    )
+    ghenv.Component.Message = "Waiting"
+elif globals().get("_load", False):
     try:
         bundle = load_result_bundle(_manifest)
         results = bundle["results"]

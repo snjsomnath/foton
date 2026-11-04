@@ -384,6 +384,86 @@ class HoneybeeStudy:
             metadata=metadata,
         )
 
+    def daylight_factor(
+        self,
+        *,
+        quality: str = "final",
+        sky_density: int = 1,
+        direct_samples: int | None = None,
+        maximum_samples: int | None = None,
+        maximum_bounces: int = DEFAULT_MAXIMUM_BOUNCES,
+        scene_seed: int = 0,
+        output_folder: str | Path | None = None,
+        progress: Callable[[dict[str, Any]], None] | None = None,
+    ):
+        """Daylight factor under a CIE overcast sky, from the sky coefficients.
+
+        The coefficients are shared with :meth:`annual_daylight`: a daylight
+        factor after an annual run at the same settings (or the other way
+        round) does not trace again.
+        """
+        from .daylight_factor import daylight_factor_run
+
+        return daylight_factor_run(
+            self,
+            quality=quality,
+            sky_density=sky_density,
+            direct_samples=direct_samples,
+            maximum_samples=maximum_samples,
+            maximum_bounces=maximum_bounces,
+            scene_seed=scene_seed,
+            output_folder=output_folder,
+            progress=progress,
+        )
+
+    def _coefficients(
+        self,
+        *,
+        basis: str,
+        quality: str,
+        direct_samples: int,
+        maximum_samples: int,
+        maximum_bounces: int,
+        scene_seed: int,
+    ) -> tuple[np.ndarray, bool, dict[str, float]]:
+        """Return cached coefficients, or trace them without a weather file.
+
+        The cache key is the one :meth:`annual_daylight` uses, so the two
+        studies share traced coefficients.
+        """
+        cache_key = (
+            self.prepared.model_fingerprint,
+            self.prepared.geometry_info["material_fingerprint"],
+            basis,
+            quality,
+            int(direct_samples),
+            int(maximum_samples),
+            int(maximum_bounces),
+            int(scene_seed),
+            SOLVER_REVISION,
+        )
+        coefficients = self._coefficient_cache.get(cache_key)
+        if coefficients is not None:
+            return coefficients, True, {}
+        rows = {"tregenza": 146, "reinhart-mf2": 578}[basis]
+        # Coefficients do not depend on the sky; one dark hour satisfies the
+        # analysis call, and its annual metrics are discarded.
+        native = self.scene.analyze(
+            np.zeros((rows, 1, 3), dtype=np.float32),
+            np.ones(1, dtype=np.float32),
+            quality=quality,
+            metrics=["da"],
+            direct_samples=int(direct_samples),
+            maximum_samples=int(maximum_samples),
+            maximum_bounces=int(maximum_bounces),
+            scene_seed=int(scene_seed),
+            export_coefficients=True,
+            export_illuminance=False,
+        ).result()
+        coefficients = np.ascontiguousarray(native.coefficients(), dtype=np.float32)
+        self._coefficient_cache[cache_key] = coefficients
+        return coefficients, False, _native_timings(native)
+
 
 def _report_progress(callback, stage, value, message):
     if callback is not None:
