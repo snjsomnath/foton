@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
-"""Run reproducible Honeybee/Radiance hardware comparisons and save a report."""
+"""Time cold annual daylight runs at Foton's shipped defaults and save a report.
+
+Each case is a Honeybee model run through ``HoneybeeStudy.annual_daylight`` with
+the default ``final`` quality preset, MF:1 sky and default bounce depth, from
+model loading to the written DA/UDI results. Every repeat builds a new study
+(scene preparation, acceleration structures, GPU upload and tracing), so the
+numbers are what a user waits for on a model Foton has not seen before. One
+unrecorded warm-up run compiles GPU pipelines and fills the weather cache.
+
+    python scripts/benchmark_hardware.py --backend auto
+"""
 
 from __future__ import annotations
 
@@ -12,47 +22,39 @@ from pathlib import Path
 import platform
 import re
 import socket
+import statistics
 import subprocess
 import sys
+import tempfile
 import time
 
 from foton import Engine, __version__
-from foton.honeybee.radiance import resolve_radiance_executables
 
 
 ROOT = Path(__file__).resolve().parents[1]
-HARDWARE_TABLE_START = "<!-- BENCHMARK_HARDWARE:START -->"
-HARDWARE_TABLE_END = "<!-- BENCHMARK_HARDWARE:END -->"
-HARDWARE_TABLE_HEADER = (
-    "| Run | Date (UTC) | Host | OS | Model | CPU | Cores | RAM | GPU | Backend | Engine |\n"
-    "| --- | --- | --- | --- | --- | --- | ---: | ---: | --- | --- | --- |"
-)
-README_TABLE_START = "<!-- BENCHMARK_RESULTS:START -->"
-README_TABLE_END = "<!-- BENCHMARK_RESULTS:END -->"
-README_TABLE_HEADER = (
-    "| Run | Fixture | Scale | Samples / bounces | Accuracy vs Radiance | "
-    "Scene / AS | Trace | Annual | Wall | Radiance |\n"
-    "| --- | --- | --- | ---: | --- | ---: | ---: | ---: | ---: | ---: |"
-)
+CORPUS = ROOT / "test_models" / "architectural"
+DEFAULT_SCENES = ("teaching_office", "courtyard_rooms", "acceptance", "office_floors")
 
 
-def parse_args():
+def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--backend", choices=("auto", "metal", "vulkan"), default="auto")
     parser.add_argument("--output", help="Directory for this benchmark run.")
     parser.add_argument("--label", help="Optional stable label included in the report.")
-    parser.add_argument("--samples", type=int, default=4096)
-    parser.add_argument("--bounces", type=int, default=2)
-    parser.add_argument("--workers", type=int)
-    parser.add_argument("--radiance-bin")
-    parser.add_argument("--glass-transmittance", type=float, default=0.6)
-    parser.add_argument("--large-rooms", type=int, default=1000)
-    parser.add_argument("--large-sensors-per-room", type=int, default=25)
-    parser.add_argument("--large-samples", type=int, default=64)
-    parser.add_argument("--large-bounces", type=int, default=1)
-    parser.add_argument("--quick", action="store_true", help="Use 256 samples and one bounce.")
-    parser.add_argument("--append-readme", action="store_true")
-    return parser.parse_args()
+    parser.add_argument(
+        "--scenes",
+        nargs="+",
+        default=list(DEFAULT_SCENES),
+        help="Corpus scene names under test_models/architectural, or office_floors.",
+    )
+    parser.add_argument("--repeats", type=int, default=5)
+    parser.add_argument("--weather", default=str(ROOT / "epw" / "gothenburg.epw"))
+    parser.add_argument("--floors", type=int, default=4, help="office_floors storeys.")
+    parser.add_argument(
+        "--rooms-per-facade", type=int, default=32, help="office_floors rooms per facade per storey."
+    )
+    parser.add_argument("--quick", action="store_true", help="Use the preview preset and one repeat.")
+    return parser.parse_args(argv)
 
 
 def _safe_identifier(value):
@@ -62,44 +64,6 @@ def _safe_identifier(value):
 def _default_output():
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     return ROOT / "benchmarks" / "results" / f"{timestamp}-{_safe_identifier(socket.gethostname())}"
-
-
-def _command_log_path(output, name):
-    return output / f"{name}.log"
-
-
-def run_command(name, command, output):
-    started = time.perf_counter()
-    completed = subprocess.run(
-        command,
-        cwd=ROOT,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        check=False,
-    )
-    elapsed_ms = (time.perf_counter() - started) * 1000.0
-    log_path = _command_log_path(output, name)
-    log_path.write_text(completed.stdout, encoding="utf-8")
-    if completed.returncode:
-        output_tail = "\n".join(completed.stdout.strip().splitlines()[-20:])
-        raise RuntimeError(
-            f"{name} failed with exit code {completed.returncode}; see {log_path}\n\n"
-            f"{output_tail}"
-        )
-    return {
-        "name": name,
-        "argv": command,
-        "elapsed_ms": elapsed_ms,
-        "log": log_path.name,
-    }
-
-
-def _load_json(path):
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except FileNotFoundError as error:
-        raise RuntimeError(f"expected benchmark output was not created: {path}") from error
 
 
 def _hardware_record(requested_backend):
@@ -185,18 +149,6 @@ def _host_record(engine):
     }
 
 
-def _require_radiance(radiance_bin):
-    try:
-        return resolve_radiance_executables(radiance_bin)
-    except FileNotFoundError as error:
-        raise RuntimeError(
-            "Radiance is required for benchmark comparisons. Install the "
-            "`oconv` and `rcontrib` executables, add them to PATH, or pass "
-            "--radiance-bin /path/to/radiance/bin (or set RADIANCE_BIN). "
-            "On macOS with Homebrew: `brew install radiance`."
-        ) from error
-
-
 def _require_python_dependencies():
     missing = [
         package
@@ -215,343 +167,171 @@ def _require_python_dependencies():
     )
 
 
-def _format_percent(value):
-    return "n/a" if value is None else f"{value:.3f}%"
+def office_floors_model(floors=4, rooms_per_facade=32, room_size=6.0, height=3.0):
+    """Build a double-loaded office block: every room has one glazed facade.
+
+    Two rows of ``room_size`` square rooms face south and north across a shared
+    spine wall, with 40 % glazing on the exterior wall and a 1 m sensor grid at
+    0.75 m. The defaults give 256 rooms and 9,216 sensors.
+    """
+    from honeybee.model import Model
+    from honeybee.room import Room
+    from ladybug_geometry.geometry3d import Vector3D
+
+    rooms, grids = [], []
+    for floor in range(floors):
+        for row, facade in ((0, Vector3D(0, -1, 0)), (1, Vector3D(0, 1, 0))):
+            for column in range(rooms_per_facade):
+                room = Room.from_box(
+                    f"office_{floor}_{row}_{column}",
+                    room_size,
+                    room_size,
+                    height,
+                    origin=_point(column * room_size, row * room_size, floor * height),
+                )
+                for face in room.faces:
+                    if face.normal.is_equivalent(facade, 1e-6):
+                        face.apertures_by_ratio(0.4, 0.01)
+                grids.append(room.properties.radiance.generate_sensor_grid(1.0, offset=0.75))
+                rooms.append(room)
+    Room.solve_adjacency(rooms, 0.01)
+    model = Model("office_floors", rooms=rooms, tolerance=0.01, angle_tolerance=1.0)
+    model.properties.radiance.add_sensor_grids(grids)
+    return model
 
 
-def _format_ms(value):
-    return "n/a" if value is None else f"{value:.2f} ms"
+def _point(x, y, z):
+    from ladybug_geometry.geometry3d import Point3D
+
+    return Point3D(x, y, z)
 
 
-def _table_value(value):
-    return str(value).replace("|", "/").replace("\n", " ")
+def _model_path(identifier, args, work):
+    if identifier == "office_floors":
+        model = office_floors_model(args.floors, args.rooms_per_facade)
+        return Path(model.to_hbjson("office_floors", str(work)))
+    path = CORPUS / f"{identifier}.hbjson"
+    if not path.is_file():
+        raise FileNotFoundError(f"unknown corpus scene {identifier!r}: {path} does not exist")
+    return path
 
 
-def hardware_readme_row(report):
-    host = report["host"]
-    return "| " + " | ".join(
-        (
-            _table_value(report["run_id"]),
-            _table_value(report["recorded_at_utc"]),
-            _table_value(host["hostname"]),
-            _table_value(
-                f"{'macOS' if host['system'] == 'Darwin' else host['system']} "
-                f"{host['release']}"
-            ),
-            _table_value(host["model"]),
-            _table_value(host["cpu"]),
-            str(host["cpu_count"]),
-            _table_value(host["memory"]),
-            _table_value(host["gpu"]),
-            _table_value(report["engine"]["selected_backend"]),
-            _table_value(report["engine"]["version"]),
+def _run_once(model_path, args, quality, weather_cache, output):
+    from foton.honeybee import HoneybeeStudy
+
+    started = time.perf_counter()
+    study = HoneybeeStudy(str(model_path), backend=args.backend, weather_cache=weather_cache)
+    annual = study.annual_daylight(args.weather, quality=quality, output_folder=output)
+    wall = time.perf_counter() - started
+    return study, annual, wall
+
+
+def _summary(values):
+    return {
+        "median": statistics.median(values),
+        "minimum": min(values),
+        "maximum": max(values),
+        "values": values,
+    }
+
+
+def benchmark_scene(identifier, args, quality, weather_cache, work):
+    model_path = _model_path(identifier, args, work)
+    walls, tracing, preparation = [], [], []
+    study = None
+    for repeat in range(args.repeats):
+        study, annual, wall = _run_once(
+            model_path, args, quality, weather_cache, work / identifier / f"run{repeat}"
         )
-    ) + " |"
-
-
-def benchmark_readme_rows(report):
-    run_id = report["run_id"]
-    direct = report["direct_visibility"]
-    direct_metrics = direct["comparison"]
-    direct_timings = direct["engine"]["timings_ms"]
-    full = report["full_transport"]
-    full_metrics = full["comparison"]
-    full_timings = full["engine"]["timings_ms"]
-    annual = full["annual"]
-    annual_metrics = annual["illuminance_comparison"]
-    large = report["large_scene"]
-    large_timings = large["first_run"]["timings_ms"]
-
-    def row(
-        fixture,
-        scale,
-        samples,
-        accuracy,
-        timings,
-        wall,
-        radiance,
-        scene_build=None,
-    ):
-        return "| " + " | ".join(
-            (
-                _table_value(run_id),
-                _table_value(fixture),
-                _table_value(scale),
-                _table_value(samples),
-                _table_value(accuracy),
-                _format_ms(
-                    scene_build
-                    if scene_build is not None
-                    else timings.get("acceleration_structure_ms")
-                ),
-                _format_ms(timings.get("tracing_ms")),
-                _format_ms(timings.get("annual_reduction_ms")),
-                _format_ms(wall),
-                _format_ms(radiance),
-            )
-        ) + " |"
-
-    return [
-        row(
-            "Honeybee direct visibility",
-            f"{direct['metadata']['sensor_count']} sensors × {direct['metadata']['sky_patch_count']} patches",
-            "0 / 0",
-            f"{direct_metrics['mismatch_count']} mismatches; "
-            f"{100.0 * direct_metrics['weighted_visible_energy_relative_error']:.3f}% energy",
-            direct_timings,
-            direct["engine"].get("wall_clock_ms"),
-            direct["radiance"].get("elapsed_ms"),
-        ),
-        row(
-            "Diffuse + thin glass coefficients",
-            f"{full_metrics['shape'][0]} sensors × {full_metrics['shape'][1]} patches",
-            f"{full['samples']} / {full['bounces']}",
-            f"NMBE {_format_percent(full_metrics['nmbe_percent'])}; "
-            f"CV(RMSE) {_format_percent(full_metrics['cvrmse_percent'])}",
-            full_timings,
-            full["engine"].get("wall_clock_ms"),
-            full["radiance"].get("elapsed_ms"),
-        ),
-        row(
-            "Annual illuminance + DA/sDA",
-            f"{full_metrics['shape'][0]} sensors × {annual['timestep_count']} hours",
-            f"{full['samples']} / {full['bounces']}",
-            f"NMBE {_format_percent(annual_metrics['nmbe_percent'])}; "
-            f"CV(RMSE) {_format_percent(annual_metrics['cvrmse_percent'])}; "
-            f"sDA Δ {annual['metric_differences']['static_sda_300_50_percentage_points']:.2f} pp",
-            full_timings,
-            full["engine"].get("wall_clock_ms"),
-            annual.get("radiance_total_ms"),
-        ),
-        row(
-            "1,000-room resident scene",
-            f"{large['rooms']} rooms / {large['sensor_count']} sensors",
-            f"{large['samples']} / {large['bounces']}",
-            "performance fixture",
-            large_timings,
-            large["first_run"].get("wall_clock_ms"),
-            large.get("radiance", {}).get("cold_wall_clock_ms"),
-            scene_build=large.get("scene_commit_ms"),
-        ),
-        row(
-            "1,000-room resident scene (cached)",
-            f"{large['rooms']} rooms / {large['sensor_count']} sensors",
-            f"{large['samples']} / {large['bounces']}",
-            "resident BLAS/TLAS reuse",
-            large["resident_scene_reuse"]["timings_ms"],
-            large["resident_scene_reuse"].get("wall_clock_ms"),
-            large.get("radiance", {}).get("cached_wall_clock_ms"),
-        ),
-    ]
-
-
-def append_table_rows(readme_path, start_marker, end_marker, rows):
-    content = readme_path.read_text(encoding="utf-8")
-    start = content.find(start_marker)
-    end = content.find(end_marker)
-    if start < 0 or end < 0 or end <= start:
-        raise RuntimeError(
-            f"{readme_path} does not contain the benchmark table markers"
-        )
-    prefix = content[:end].rstrip()
-    suffix = content[end:]
-    existing = set(prefix.splitlines())
-    additions = [row for row in rows if row not in existing]
-    if not additions:
-        return 0
-    addition_text = "\n".join(additions)
-    readme_path.write_text(
-        f"{prefix}\n{addition_text}\n{suffix}", encoding="utf-8"
-    )
-    return len(additions)
-
-
-def append_readme_row(readme_path, row):
-    return bool(
-        append_table_rows(
-            readme_path,
-            README_TABLE_START,
-            README_TABLE_END,
-            [row],
-        )
-    )
+        walls.append(wall)
+        tracing.append(annual.timings["engine_tracing_seconds"])
+        preparation.append(annual.timings["study_preparation_seconds"])
+        print(f"{identifier} run {repeat + 1}/{args.repeats}: {wall:.3f} s", flush=True)
+    prepared = study.prepared
+    return {
+        "scene": identifier,
+        "model": str(model_path.relative_to(ROOT)) if model_path.is_relative_to(ROOT) else model_path.name,
+        "rooms": len(prepared.model.rooms),
+        "sensors": int(len(prepared.arrays["sensor_positions"])),
+        "wall_seconds": _summary(walls),
+        "tracing_seconds": _summary(tracing),
+        "preparation_seconds": _summary(preparation),
+        "last_timings": annual.timings,
+    }
 
 
 def report_markdown(report):
-    direct = report["direct_visibility"]
-    full = report["full_transport"]
-    metrics = full["comparison"]
-    return "\n".join(
-        (
-            "# Hardware Benchmark",
-            "",
-            f"- Recorded: `{report['recorded_at_utc']}`",
-            f"- Host: `{report['host']['hostname']}`",
-            f"- CPU: `{report['host']['cpu']}`",
-            f"- GPU: `{report['host']['gpu']}`",
-            f"- Selected backend: `{report['engine']['selected_backend']}`",
-            f"- Large scene: `{report['large_scene']['rooms']} rooms / "
-            f"{report['large_scene']['sensor_count']} sensors`",
-            f"- Direct mismatched rays: `{direct['comparison']['mismatch_count']}`",
-            "- Direct weighted visible-energy error: "
-            f"`{direct['comparison']['weighted_visible_energy_relative_error']:.4%}`",
-            f"- Full transport NMBE: `{metrics['nmbe_percent']:.4f}%`",
-            f"- Full transport CV(RMSE): `{metrics['cvrmse_percent']:.4f}%`",
-            "- Engine tracing: "
-            f"`{full['engine']['timings_ms']['tracing_ms']:.4f} ms`",
-            f"- Radiance rcontrib: `{full['radiance']['elapsed_ms']:.4f} ms`",
-            "",
-            "## README hardware row",
-            "",
-            hardware_readme_row(report),
-            "",
-            "## README benchmark rows",
-            "",
-            *benchmark_readme_rows(report),
-            "",
+    host = report["host"]
+    lines = [
+        "# Hardware Benchmark",
+        "",
+        f"- Recorded: `{report['recorded_at_utc']}`",
+        f"- Machine: {host['model']}, {host['cpu']}, {host['memory']}",
+        f"- GPU / backend: {host['gpu']} / `{report['engine']['selected_backend']}`",
+        f"- Foton: `{report['engine']['version']}`",
+        f"- Settings: `{json.dumps(report['settings'], sort_keys=True)}`",
+        f"- Weather: `{report['weather']}`",
+        f"- Repeats per scene: {report['repeats']} (median shown)",
+        "",
+        "| Scene | Rooms | Sensors | Cold annual run | GPU tracing |",
+        "| --- | ---: | ---: | ---: | ---: |",
+    ]
+    for case in report["cases"]:
+        lines.append(
+            f"| {case['scene']} | {case['rooms']} | {case['sensors']} | "
+            f"{case['wall_seconds']['median']:.2f} s | "
+            f"{case['tracing_seconds']['median']:.2f} s |"
         )
-    )
+    return "\n".join(lines) + "\n"
+
+
+def run_suite(args):
+    """Run every scene in ``args`` and return the report without writing it."""
+    if args.quick:
+        args.repeats = 1
+    if args.repeats <= 0:
+        raise ValueError("repeats must be positive")
+    _require_python_dependencies()
+    from foton.honeybee.annual import DEFAULT_MAXIMUM_BOUNCES, quality_preset
+
+    quality = "preview" if args.quick else "final"
+    engine = _hardware_record(args.backend)
+    with tempfile.TemporaryDirectory() as folder:
+        work = Path(folder)
+        weather_cache = work / "weather_cache"
+        _run_once(CORPUS / "teaching_office.hbjson", args, quality, weather_cache, work / "warmup")
+        cases = [benchmark_scene(name, args, quality, weather_cache, work) for name in args.scenes]
+    return {
+        "schema_version": 2,
+        "label": args.label,
+        "recorded_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%SZ"),
+        "host": _host_record(engine),
+        "engine": {**engine, "version": __version__},
+        "quality": quality,
+        "settings": {
+            **quality_preset(quality, 1),
+            "maximum_bounces": DEFAULT_MAXIMUM_BOUNCES,
+            "sky_density": 1,
+        },
+        "weather": Path(args.weather).name,
+        "repeats": args.repeats,
+        "cases": cases,
+    }
 
 
 def main():
     args = parse_args()
-    if args.quick:
-        args.samples = 256
-        args.bounces = 1
-        args.large_samples = 8
-    if args.samples <= 0 or args.bounces <= 0:
-        raise ValueError("samples and bounces must be positive")
-    if not 0 <= args.glass_transmittance <= 1:
-        raise ValueError("glass transmittance must be within [0, 1]")
-
-    _require_python_dependencies()
-    output = Path(args.output).expanduser().resolve() if args.output else _default_output()
-    engine = _hardware_record(args.backend)
-    _require_radiance(args.radiance_bin)
-    output.mkdir(parents=True, exist_ok=False)
-
-    direct_output = output / "direct"
-    full_output = output / "full"
-    large_output = output / "large_scene.json"
-    direct_command = [
-        sys.executable,
-        "scripts/compare_honeybee_shoebox.py",
-        "--backend",
-        "compare",
-        "--engine-backend",
-        args.backend,
-        "--output",
-        str(direct_output),
-        "--basis",
-        "tregenza",
-        "--auto-grid",
-    ]
-    full_command = [
-        sys.executable,
-        "scripts/compare_full_transport_shoebox.py",
-        "--backend",
-        args.backend,
-        "--output",
-        str(full_output),
-        "--samples",
-        str(args.samples),
-        "--bounces",
-        str(args.bounces),
-        "--glass-transmittance",
-        str(args.glass_transmittance),
-        "--annual",
-    ]
-    large_command = [
-        sys.executable,
-        "scripts/benchmark_large_scene.py",
-        "--backend",
-        args.backend,
-        "--output",
-        str(large_output),
-        "--rooms",
-        str(args.large_rooms),
-        "--sensors-per-room",
-        str(args.large_sensors_per_room),
-        "--samples",
-        str(args.large_samples),
-        "--bounces",
-        str(args.large_bounces),
-        "--glass-transmittance",
-        str(args.glass_transmittance),
-    ]
-    if args.workers:
-        large_command.extend(("--workers", str(args.workers)))
-    if args.radiance_bin:
-        large_command.extend(("--radiance-bin", args.radiance_bin))
-    if args.workers:
-        direct_command.extend(("--workers", str(args.workers)))
-        full_command.extend(("--workers", str(args.workers)))
-    if args.radiance_bin:
-        direct_command.extend(("--radiance-bin", args.radiance_bin))
-        full_command.extend(("--radiance-bin", args.radiance_bin))
-    commands = [
-        run_command("direct_visibility", direct_command, output),
-        run_command("full_transport", full_command, output),
-        run_command("large_scene", large_command, output),
-    ]
-
-    direct_results = direct_output / "ShadedShoebox-direct-visibility" / "results"
-    direct_metadata = _load_json(direct_results / "metadata.json")
-    report = {
-        "schema_version": 2,
-        "run_id": output.name,
-        "recorded_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%SZ"),
-        "label": args.label,
-        "host": _host_record(engine),
-        "engine": {"version": __version__, **engine},
-        "workload": {
-            "fixtures": [
-                "Honeybee shaded shoebox direct visibility v1",
-                "Honeybee diffuse/glass transport v1",
-                "deterministic annual stress sky v1",
-                "canonical instanced 1,000-room scene v1",
-            ],
-            "direct_basis": "tregenza",
-            "samples": args.samples,
-            "diffuse_bounces": args.bounces,
-            "glass_transmittance": args.glass_transmittance,
-        },
-        "direct_visibility": {
-            "comparison": _load_json(direct_results / "comparison.json"),
-            "engine": direct_metadata["gpu"],
-            "radiance": direct_metadata["radiance"],
-            "metadata": direct_metadata,
-        },
-        "full_transport": _load_json(full_output / "comparison.json"),
-        "large_scene": _load_json(large_output),
-        "commands": commands,
-    }
-    benchmark_json = output / "benchmark.json"
-    benchmark_json.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    benchmark_md = output / "benchmark.md"
-    benchmark_md.write_text(report_markdown(report), encoding="utf-8")
-    hardware_row = hardware_readme_row(report)
-    benchmark_rows = benchmark_readme_rows(report)
-    if args.append_readme:
-        hardware_count = append_table_rows(
-            ROOT / "README.md",
-            HARDWARE_TABLE_START,
-            HARDWARE_TABLE_END,
-            [hardware_row],
-        )
-        result_count = append_table_rows(
-            ROOT / "README.md",
-            README_TABLE_START,
-            README_TABLE_END,
-            benchmark_rows,
-        )
-        print(
-            f"Appended {hardware_count} hardware row and {result_count} benchmark rows."
-        )
-    print(benchmark_md)
-    print(hardware_row)
-    print("\n".join(benchmark_rows))
+    output = Path(args.output).resolve() if args.output else _default_output()
+    output.mkdir(parents=True, exist_ok=True)
+    report = {"run_id": output.name, **run_suite(args)}
+    (output / "benchmark.json").write_text(
+        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    markdown = report_markdown(report)
+    (output / "benchmark.md").write_text(markdown, encoding="utf-8")
+    print(markdown)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
