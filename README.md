@@ -14,10 +14,10 @@ does the expensive ray tracing on the GPU, so a full year of hourly results
 for a typical model takes about a second. You keep your Honeybee model and your
 Ladybug result components. Only the slow step changes.
 
-<p align="center"><img src="https://raw.githubusercontent.com/snjsomnath/foton/main/docs/images/grasshopper-heatmap-viewport.png" width="70%" alt="Daylight autonomy of a shaded room computed by Foton in Grasshopper and drawn by Ladybug's spatial heatmap"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/snjsomnath/foton/main/docs/images/grasshopper-live-mode.gif" width="55%" alt="Animation: as the window of a room is widened and narrowed in Grasshopper, daylight autonomy on the floor and the sDA, cDA, UDI and daylight factor plans update with it"></p>
 
-*The shipped Grasshopper example. Foton computes a year of daylight in about a
-second, and Honeybee and Ladybug read the result as if Radiance had written it.*
+*Live mode in Grasshopper (new in 0.3.2). Each time the window changes, Foton reruns the
+annual study and every metric updates in about a third of a second.*
 
 ## Who it is for
 
@@ -68,7 +68,10 @@ check which GPU Foton will use, run `foton-honeybee capabilities`.
 **In Rhino 8 and Grasshopper:** download `foton-grasshopper-<version>.zip` from
 the [releases page](https://github.com/snjsomnath/foton/releases) and follow
 the [Grasshopper quickstart](https://github.com/snjsomnath/foton/blob/main/docs/grasshopper-quickstart.md).
-It takes about five minutes.
+It takes about five minutes. Foton's results go straight into Ladybug's own
+components, such as the spatial heatmap below.
+
+<p align="center"><img src="https://raw.githubusercontent.com/snjsomnath/foton/main/docs/images/grasshopper-heatmap-viewport.png" width="70%" alt="Daylight autonomy of a shaded room computed by Foton in Grasshopper and drawn by Ladybug's spatial heatmap"></p>
 
 ## How it works
 
