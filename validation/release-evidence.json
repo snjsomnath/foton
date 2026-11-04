@@ -13,7 +13,7 @@
     }
   ],
   "rhino": [
-    "validation/results/2026-11-04-rhino-macos-0.3.3/rhino-evidence.json"
+    "validation/results/2026-11-04-rhino-macos-0.3.4/rhino-evidence.json"
   ],
   "known_open_cases": "validation/known-open-cases.json"
 }
