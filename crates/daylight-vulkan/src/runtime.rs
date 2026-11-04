@@ -25,6 +25,7 @@ pub(crate) struct Context {
 }
 
 impl Context {
+    /// Create a Vulkan instance and logical device for `selected`.
     pub fn new(selected: &VulkanDevice) -> Result<Arc<Self>> {
         let entry = unsafe { Entry::load() }.map_err(|error| backend(error.to_string()))?;
         let application = vk::ApplicationInfo::default()
@@ -107,6 +108,7 @@ impl Context {
         }))
     }
 
+    /// Record commands with `record`, submit them and wait until the GPU has finished.
     pub fn submit<F>(&self, record: F) -> Result<()>
     where
         F: FnOnce(vk::CommandBuffer),
@@ -181,6 +183,7 @@ pub(crate) struct Pipeline {
 }
 
 impl Pipeline {
+    /// Build a compute pipeline from SPIR-V with the given descriptor bindings and push-constant size.
     pub fn new(
         context: &Context,
         spirv: &[u8],
@@ -250,6 +253,7 @@ impl Pipeline {
         })
     }
 
+    /// Bind buffers, the acceleration structure and push constants, and run the pipeline over `groups` work groups.
     pub fn dispatch(
         &self,
         context: &Context,
@@ -369,6 +373,7 @@ impl Drop for Pipeline {
 }
 
 impl Buffer {
+    /// Create a buffer holding a copy of `values`.
     pub fn from_data<T: Pod>(
         context: &Context,
         values: &[T],
@@ -379,6 +384,7 @@ impl Buffer {
         Ok(buffer)
     }
 
+    /// Create a buffer of `size` bytes filled with zeros.
     pub fn zeroed(context: &Context, size: usize, usage: vk::BufferUsageFlags) -> Result<Self> {
         let buffer = Self::new(context, size.max(4) as u64, usage)?;
         unsafe {
@@ -435,6 +441,7 @@ impl Buffer {
         })
     }
 
+    /// GPU address of the buffer, for shaders that read it by pointer.
     pub fn address(&self) -> vk::DeviceAddress {
         unsafe {
             self.device.get_buffer_device_address(
@@ -443,6 +450,7 @@ impl Buffer {
         }
     }
 
+    /// Copy `values` into the start of the buffer.
     pub fn write<T: Pod>(&self, values: &[T]) -> Result<()> {
         let bytes: &[u8] = bytemuck::cast_slice(values);
         if bytes.len() > self.size as usize {
@@ -459,6 +467,7 @@ impl Buffer {
         Ok(())
     }
 
+    /// Read `count` values from the start of the buffer.
     pub fn read<T: Pod>(&self, count: usize) -> Result<Vec<T>> {
         if count * size_of::<T>() > self.size as usize {
             return Err(backend("Vulkan buffer read exceeds allocation"));

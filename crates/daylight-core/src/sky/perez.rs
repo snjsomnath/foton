@@ -365,10 +365,12 @@ impl PatchTable {
         }
     }
 
+    /// Number of patches in the table.
     pub fn len(&self) -> usize {
         self.altitude.len()
     }
 
+    /// True when the table has no patches.
     pub fn is_empty(&self) -> bool {
         self.altitude.is_empty()
     }

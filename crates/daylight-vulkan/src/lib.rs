@@ -109,6 +109,8 @@ const NVIDIA_VENDOR_ID: u32 = 0x10DE;
 const AMD_VENDOR_ID: u32 = 0x1002;
 const INTEL_VENDOR_ID: u32 = 0x8086;
 
+/// True when the device name is an Apple GPU. On a Mac, automatic backend
+/// selection uses Metal only for Apple GPUs.
 pub fn is_apple_gpu(device_name: &str) -> bool {
     device_name
         .trim_start()
@@ -116,6 +118,7 @@ pub fn is_apple_gpu(device_name: &str) -> bool {
         .starts_with("apple")
 }
 
+/// A Vulkan GPU that Foton can use.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct VulkanDevice {
     pub vendor_id: u32,
@@ -124,6 +127,7 @@ pub struct VulkanDevice {
 }
 
 impl VulkanDevice {
+    /// Short vendor name: `nvidia`, `amd`, `intel` or `unknown`.
     pub fn vendor_name(&self) -> &'static str {
         match self.vendor_id {
             NVIDIA_VENDOR_ID => "nvidia",
@@ -134,6 +138,7 @@ impl VulkanDevice {
     }
 }
 
+/// Every NVIDIA, AMD or Intel GPU with the Vulkan ray-query features Foton needs.
 pub fn compatible_devices() -> Result<Vec<VulkanDevice>> {
     let entry = unsafe { Entry::load() }.map_err(|error| DaylightError::Backend {
         detail: format!("unable to load Vulkan loader: {error}"),
@@ -239,6 +244,7 @@ fn has_required_extensions(instance: &ash::Instance, device: vk::PhysicalDevice)
     }))
 }
 
+/// Foton's solver on Windows and Linux GPUs, using Vulkan ray queries.
 pub struct VulkanBackend {
     device: VulkanDevice,
     resident_scenes: Mutex<HashMap<u64, ResidentScene>>,
@@ -256,6 +262,7 @@ struct ResidentScene {
 }
 
 impl VulkanBackend {
+    /// Use the first compatible GPU and build the compute pipelines.
     pub fn new() -> Result<Self> {
         let device =
             compatible_devices()?
@@ -327,6 +334,7 @@ impl VulkanBackend {
         })
     }
 
+    /// The GPU this backend runs on.
     pub fn device(&self) -> &VulkanDevice {
         &self.device
     }
