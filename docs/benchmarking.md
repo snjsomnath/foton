@@ -34,6 +34,20 @@ per machine and Foton commit, with the newest full run of each. To add a
 machine, run both commands on it and open a pull request with the new JSON file
 and the regenerated table. Nothing here runs in CI apart from the unit tests.
 
+### Refreshing the README speed table
+
+```bash
+python scripts/benchmark_suite.py
+python scripts/refresh_readme_speed.py
+```
+
+`refresh_readme_speed.py` rewrites only the text between the
+`speed-table:start` and `speed-table:end` markers in the README: the date,
+machine, settings and a table of annual-run and Grasshopper round-trip times,
+taken from the newest full result in `benchmarks/machines/` (or `--machine
+<id>`). Anything around the markers stays hand-written. `--check` reports
+whether the table is out of date without changing the file.
+
 ## Hardware timing benchmark
 
 ```bash
