@@ -152,8 +152,10 @@ def request_data(
 
 # The package the one-click install puts in Foton's own environment. The lower
 # bound is the first release with the built-in sky, the daylight-factor
-# command and the background worker these components use.
-ENGINE_REQUIREMENT = "foton-daylight[honeybee]>=0.3.3,<0.4"
+# command and the background worker these components use. "~=0.3.3" means
+# 0.3.3 or newer within 0.3, written without "<" or ">" so that no Windows
+# shell can read part of it as a redirect.
+ENGINE_REQUIREMENT = "foton-daylight[honeybee]~=0.3.3"
 ENGINE_MINIMUM = (0, 3, 3)
 ENGINE_MAXIMUM = (0, 4, 0)
 SUPPORTED_PYTHONS = ((3, 13), (3, 12), (3, 11), (3, 10))
@@ -163,6 +165,23 @@ DEFAULT_BOUNCES = 8  # keep in step with foton.honeybee.annual.DEFAULT_MAXIMUM_B
 def _windows():
     # IronPython reports sys.platform as "cli"; os.name is reliable.
     return os.name == "nt"
+
+
+CREATE_NO_WINDOW = 0x08000000
+
+
+def _popen(command, **options):
+    """Start a process; on Windows, without opening a console window.
+
+    Rhino is a window program, so every console program it starts (python,
+    pip, uv) would otherwise open its own terminal window.
+    """
+    if _windows():
+        try:
+            return subprocess.Popen(command, creationflags=CREATE_NO_WINDOW, **options)
+        except (TypeError, ValueError, NotImplementedError):
+            pass  # this Python's subprocess has no creationflags
+    return subprocess.Popen(command, **options)
 
 
 def _home():
@@ -461,12 +480,75 @@ def _ensure_folder(folder):
     return folder
 
 
+def install_log_path():
+    """Where the last install_ run wrote every step, including pip's output."""
+    return os.path.join(foton_home(), "install.log")
+
+
+def pip_log_path():
+    """pip's own detailed log of the last install, kept even when pip prints nothing."""
+    return os.path.join(foton_home(), "pip.log")
+
+
+def _tail(path, count=20):
+    try:
+        stream = open(path, "rb")
+        try:
+            text = _text(stream.read())
+        finally:
+            stream.close()
+    except (IOError, OSError):
+        return []
+    return [line for line in text.splitlines() if line.strip()][-count:]
+
+
+def _exit_code_text(code):
+    # Windows reports crashes as large NTSTATUS codes, which read best in hex.
+    if code is not None and (code < 0 or code > 255):
+        return "0x%08X" % (code & 0xFFFFFFFF)
+    return str(code)
+
+
+def _failure(summary, code, lines, command, log=None):
+    """Explain a failed install step, even when it printed nothing."""
+    parts = [summary + " (exit code " + _exit_code_text(code) + ")."]
+    output = [line.rstrip() for line in lines if line.strip()][-20:]
+    if output:
+        parts.append("\n".join(output))
+    else:
+        parts.append("It printed nothing.")
+        if log:
+            detail = _tail(log)
+            if detail:
+                parts.append("The end of " + log + ":\n" + "\n".join(detail))
+    parts.append("To see the full error, run this in Command Prompt (Windows) or Terminal (Mac):\n"
+                 + _command_line(command))
+    return "\n".join(parts)
+
+
+def _command_line(command):
+    """The command as one line to paste into a terminal."""
+    quoted = []
+    for part in command:
+        part = str(part)
+        if not part or any(c in part for c in ' \t"<>&|^'):
+            part = '"' + part.replace('"', '\\"') + '"'
+        quoted.append(part)
+    return " ".join(quoted)
+
+
+def _wants_uv(python):
+    """``python_ = "uv"`` makes install_ download its own Python, as on a computer without one."""
+    return python is not None and str(python).strip().lower() == "uv"
+
+
 def install_foton(python=None, progress=None, cancel=None, upgrade=False):
     """Create Foton's own environment and pip install the engine into it.
 
     Nothing is installed when the environment already holds a supported
     version and ``upgrade`` is False, so a toggle left on costs one check.
-    Returns the path of the installed ``foton-honeybee``.
+    Every step is also written to ``install_log_path()``. Returns the path of
+    the installed ``foton-honeybee``.
     """
     executable = environment_executable()
     if not upgrade and os.path.isfile(executable):
@@ -479,47 +561,77 @@ def install_foton(python=None, progress=None, cancel=None, upgrade=False):
                 return executable
         except FotonError:
             pass
-    folder = environment_folder()
+    _ensure_folder(foton_home())
+    try:
+        log = open(install_log_path(), "w")
+    except (IOError, OSError):
+        log = None
 
     def report(line):
-        if progress is not None and line.strip():
+        if not line.strip():
+            return
+        if log is not None:
+            try:
+                log.write(line.rstrip() + "\n")
+                log.flush()
+            except (IOError, OSError, ValueError):
+                pass
+        if progress is not None:
             progress(line.rstrip())
 
+    try:
+        return _install(python, report, cancel, executable)
+    except FotonError as error:
+        if log is not None and not isinstance(error, FotonCancelled):
+            try:
+                log.write(str(error) + "\n")
+            except (IOError, OSError, ValueError):
+                pass
+        raise
+    finally:
+        if log is not None:
+            log.close()
+
+
+def _install(python, report, cancel, executable):
+    folder = environment_folder()
     if not os.path.isfile(_environment_file(folder, "python")):
-        try:
-            command, version = find_base_python(python)
-        except FotonError:
-            if python:
-                raise  # the user chose a Python; don't silently use another
-            command = None
+        command = None
+        if not _wants_uv(python):
+            try:
+                command, version = find_base_python(python)
+            except FotonError:
+                if python:
+                    raise  # the user chose a Python; don't silently use another
         _ensure_folder(os.path.dirname(folder))
         if command is not None:
             report("Using Python {0}: {1}".format(version, " ".join(command)))
             report("Creating Foton's environment in " + folder)
-            code, lines = _stream_command(command + ["-m", "venv", folder], report, cancel)
+            step = command + ["-m", "venv", folder]
+            code, lines = _stream_command(step, report, cancel)
         else:
-            report("No Python 3.10 to 3.13 found. Foton will download its own Python "
-                   + UV_PYTHON + " into " + foton_home())
-            uv = ensure_uv(progress, cancel)
+            if _wants_uv(python):
+                report("python_ is uv: Foton will download its own Python "
+                       + UV_PYTHON + " into " + foton_home())
+            else:
+                report("No Python 3.10 to 3.13 found. Foton will download its own Python "
+                       + UV_PYTHON + " into " + foton_home())
+            uv = ensure_uv(report, cancel)
             report("Creating Foton's environment in " + folder)
-            code, lines = _stream_command(
-                [uv, "venv", "--seed", "--python", UV_PYTHON, folder],
-                report,
-                cancel,
-                extra_env=uv_environment(),
-            )
+            step = [uv, "venv", "--seed", "--python", UV_PYTHON, folder]
+            code, lines = _stream_command(step, report, cancel, extra_env=uv_environment())
         if code != 0:
-            raise FotonError("Could not create " + folder + ":\n" + "".join(lines[-20:]))
+            raise FotonError(_failure("Could not create " + folder, code, lines, step))
     python_path = _environment_file(folder, "python")
-    report("Installing " + ENGINE_REQUIREMENT + "")
-    code, lines = _stream_command(
-        [python_path, "-m", "pip", "install", "--upgrade",
-         "--disable-pip-version-check", ENGINE_REQUIREMENT],
-        report,
-        cancel,
-    )
+    pip_log = pip_log_path()
+    if os.path.isfile(pip_log):
+        os.remove(pip_log)
+    report("Installing " + ENGINE_REQUIREMENT)
+    step = [python_path, "-m", "pip", "install", "--upgrade",
+            "--disable-pip-version-check", "--log", pip_log, ENGINE_REQUIREMENT]
+    code, lines = _stream_command(step, report, cancel)
     if code != 0:
-        raise FotonError("pip could not install Foton:\n" + "".join(lines[-20:]))
+        raise FotonError(_failure("pip could not install Foton", code, lines, step, pip_log))
     if not os.path.isfile(executable):
         raise FotonError("The install finished but " + executable + " is missing")
     return executable
@@ -610,7 +722,7 @@ def _stream_command(command, on_line=None, cancel=None, timeout=None, extra_env=
         env.update(extra_env)
     # Rhino's IronPython cannot merge stderr into stdout (stderr=STDOUT raises
     # "Cannot redirect stderr to stdout yet"), so read both pipes.
-    process = subprocess.Popen(
+    process = _popen(
         command,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -697,7 +809,7 @@ def capabilities(executable=None, backend="auto", output=None):
     command = [executable, "capabilities", "--backend", str(backend)]
     if output:
         command.extend(["--output", str(output)])
-    process = subprocess.Popen(
+    process = _popen(
         command,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -1126,7 +1238,7 @@ def _stop_worker(worker):
 
 def _start_worker(executable):
     env = _subprocess_environment(executable)
-    process = subprocess.Popen(
+    process = _popen(
         [executable, "serve"],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
@@ -1269,7 +1381,7 @@ def worker_request(executable, command, options, progress=None, cancel=None):
 
 def _run_process(command, progress=None, cancel=None):
     env = _subprocess_environment(command[0])
-    process = subprocess.Popen(
+    process = _popen(
         command,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,

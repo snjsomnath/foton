@@ -2,6 +2,24 @@
 
 All notable Foton changes are recorded here.
 
+## Unreleased
+
+Fixes the Grasshopper install on Windows, found by the first Windows test.
+
+- `install_` on Windows no longer opens a terminal window for each step. Live
+  mode's background process and Check also start without one.
+- When an install step fails, Foton Settings now shows the whole log in
+  `report` and turns red, instead of stopping with an empty `report`. The
+  message gives the exit code, the end of pip's own log and the exact command
+  to run by hand. Every step is also saved to `~/.foton/install.log`, and pip's
+  detailed log to `~/.foton/pip.log`.
+- The version Foton installs is written as `~=0.3.3` instead of
+  `>=0.3.3,<0.4`, which means the same but has no `<` or `>` for a Windows
+  shell to misread.
+- Connecting `uv` to `python_` makes `install_` download its own Python even
+  when one is installed, so the no-Python route can be tested on any computer.
+- The example definition has a toggle on `install_`.
+
 ## 0.3.3 - 2026-11-04
 
 Makes installing Foton in Rhino straightforward.

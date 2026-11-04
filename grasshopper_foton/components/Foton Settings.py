@@ -18,7 +18,8 @@ After that, Check reports the Foton version and the GPU it will use.
             vulkan, or reference (a slow CPU fallback for diagnosis only).
         python_: Optional. A Python 3.10 to 3.13 for install_ to build Foton's
             environment from. Leave empty to use one found on this computer,
-            or a private Python 3.12 if there is none.
+            or a private Python 3.12 if there is none. Type uv to always
+            download the private Python, even when one is installed.
         install_: Set to True once to install Foton, or to upgrade an older
             version, and then check it. It runs in the background, so Rhino
             stays usable, and the component shows how long it has run. Needs an
@@ -46,7 +47,7 @@ import time
 
 try:
     from grasshopper_foton.foton_gh import COMPONENT_VERSION, FotonError, capabilities as get_capabilities
-    from grasshopper_foton.foton_gh import background_install, cancel_install, install_status, reset_install
+    from grasshopper_foton.foton_gh import background_install, cancel_install, install_log_path, install_status, reset_install
 except ImportError:
     parent = os.environ.get("FOTON_GH_PARENT")
     if parent:
@@ -55,7 +56,7 @@ except ImportError:
             sys.path.insert(0, parent)
     try:
         from grasshopper_foton.foton_gh import COMPONENT_VERSION, FotonError, capabilities as get_capabilities
-        from grasshopper_foton.foton_gh import background_install, cancel_install, install_status, reset_install
+        from grasshopper_foton.foton_gh import background_install, cancel_install, install_log_path, install_status, reset_install
     except ImportError:
         raise RuntimeError(
             "Cannot import grasshopper_foton. Add the repository parent directory "
@@ -86,6 +87,14 @@ def warn(message):
     from Grasshopper.Kernel import GH_RuntimeMessageLevel
 
     ghenv.Component.AddRuntimeMessage(GH_RuntimeMessageLevel.Warning, str(message))
+
+
+def error(message):
+    # A runtime error turns the component red but, unlike raising, still lets
+    # the outputs below be set, so report shows the whole log.
+    from Grasshopper.Kernel import GH_RuntimeMessageLevel
+
+    ghenv.Component.AddRuntimeMessage(GH_RuntimeMessageLevel.Error, str(message))
 
 
 def remark(message):
@@ -133,9 +142,9 @@ else:
         )
         check_again_in(1000)
     elif state["error"]:
-        report = "\n".join(install_log + [state["error"]])
+        report = "\n".join(install_log + [state["error"], "Full log: " + install_log_path()])
         ghenv.Component.Message = "Install failed"
-        raise RuntimeError(report)
+        error(state["error"])
     else:
         configured = state["executable"]
 
@@ -156,7 +165,7 @@ if not waiting and (globals().get("_check", False) or installing):
             ghenv.Component.Message = "Setup required"
         for message in data.get("errors", []) + data.get("warnings", []):
             warn(message)
-    except FotonError as error:
-        report = "\n".join(install_log + [str(error)])
+    except FotonError as failure:
+        report = "\n".join(install_log + [str(failure)])
         ghenv.Component.Message = "Not found"
-        raise RuntimeError(report)
+        error(failure)
