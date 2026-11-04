@@ -43,7 +43,7 @@ yak login
 
 This opens a browser window for your Rhino account (the same one you use for
 Rhino licences). Sign in and allow access. Yak saves a token on your computer
-(`~/.mcneel/yak.yml` on a Mac, `%APPDATA%\McNeel\yak.yml` on Windows), so you
+(`~/Documents/.mcneel/yak.yml` on a Mac; on Windows `yak login` prints where it saved it), so you
 only do this once per computer.
 
 The account you push with becomes the package owner. To let someone else publish
