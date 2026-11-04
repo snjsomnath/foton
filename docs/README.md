@@ -13,6 +13,7 @@
 - [How Foton works](architecture.md): the method, the code layout and the data contracts
 - [Accuracy notes and plan](purpose-and-plan.md): what has been checked against Radiance and what is still open
 - [Benchmarking](benchmarking.md): how to measure speed and reproduce the published numbers
+- [Testing on Windows](testing-on-windows.md): a step-by-step test of Rhino, Grasshopper, install and benchmark on a Windows PC
 - [Validation models](../validation/architectural-scenes.md): the 106 test models
 
 ## Maintaining Foton
