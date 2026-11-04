@@ -79,8 +79,6 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 /* Speed is the hero; the model has a reserved, measured frame of its own. */
 .demo-header { top: 4%; align-items: flex-start; }
 .demo-identity { display: flex; flex-direction: column; gap: .6cqw; }
-.demo-affiliation { font-size: .68cqw; line-height: 1.5; letter-spacing: .025em; color: #667469; }
-.demo-affiliation strong { font-weight: 500; color: #344a3c; }
 .demo-scene { left: 34%; top: 20%; width: 62%; height: 65%; }
 .demo-copy { top: 27%; width: 30%; animation-duration: .28s; }
 .demo-copy h1 { font-size: 4.1cqw; letter-spacing: -.07em; line-height: .98; }
@@ -164,7 +162,6 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 .format-square .demo-header { top: 3.5%; }
 .format-square .demo-wordmark { font-size: 4cqw; }
 .format-square .demo-wordmark small { font-size: 1.3cqw; }
-.format-square .demo-affiliation { font-size: 1.1cqw; line-height: 1.5; }
 .format-square .demo-identity { gap: 1cqw; }
 .format-square .demo-edition { font-size: .95cqw; margin-top: 1cqw; }
 .format-square .demo-speed { top: 14%; }
