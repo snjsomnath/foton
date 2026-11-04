@@ -65,10 +65,12 @@ The `foton-results` folder has the same layout as a Honeybee annual daylight
 run, so Honeybee's own metric and visualisation components can read it. To
 check which GPU Foton will use, run `foton-honeybee capabilities`.
 
-**In Rhino 8 and Grasshopper:** download `foton-grasshopper-<version>.zip` from
-the [releases page](https://github.com/snjsomnath/foton/releases) and follow
-the [Grasshopper quickstart](https://github.com/snjsomnath/foton/blob/main/docs/grasshopper-quickstart.md).
-It takes about five minutes. Foton's results go straight into Ladybug's own
+**In Rhino 8 and Grasshopper:** type `PackageManager` in Rhino, search for
+**foton** and install it. The components appear on the **HB-Foton** tab.
+Set `install_` on Foton Settings to True and it installs the rest, including
+its own Python if you don't have one. The
+[Grasshopper quickstart](https://github.com/snjsomnath/foton/blob/main/docs/grasshopper-quickstart.md)
+walks through it with screenshots. It takes about five minutes. Foton's results go straight into Ladybug's own
 components, such as the spatial heatmap below.
 
 <p align="center"><img src="https://raw.githubusercontent.com/snjsomnath/foton/main/docs/images/grasshopper-heatmap-viewport.png" width="70%" alt="Daylight autonomy of a shaded room computed by Foton in Grasshopper and drawn by Ladybug's spatial heatmap"></p>
@@ -143,7 +145,7 @@ On an NVIDIA Tesla T4 with Vulkan, a small model takes about 1.5 s against
 - `preview` and `final` quality settings
 - Metal (macOS), Vulkan (Windows, Linux) and a CPU fallback that gives the
   same answer
-- A Python API, a command-line tool and three Grasshopper components
+- A Python API, a command-line tool and four Grasshopper components
 
 ## What it does not do
 

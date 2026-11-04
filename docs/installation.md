@@ -4,6 +4,13 @@ Foton is the product and Python import name. The PyPI distribution is named
 `foton-daylight` because the shorter `foton` project name is already registered by
 another publisher.
 
+## In Rhino and Grasshopper
+
+Rhino 8 users don't need the steps on this page. Install **foton** from
+Rhino's Package Manager and let the Foton Settings component install the rest,
+as the [Grasshopper quickstart](grasshopper-quickstart.md) shows. This page is
+for running Foton from Python or the command line.
+
 ## Install from PyPI
 
 ```bash
@@ -33,8 +40,8 @@ python -c "from foton import Engine; print(Engine().capabilities())"
 | Platform | Preferred backend | Runtime prerequisite |
 | --- | --- | --- |
 | macOS on Apple silicon | Metal | A Metal ray-tracing-capable Apple GPU |
-| Linux x86-64 | Vulkan | A Vulkan 1.3 loader and compatible NVIDIA, AMD, or Intel driver |
-| Windows x86-64 | Vulkan | A Vulkan 1.3-compatible NVIDIA, AMD, or Intel driver |
+| Linux x86-64 | Vulkan | A Vulkan 1.3 loader and a GPU with ray tracing (NVIDIA RTX, AMD Radeon RX 6000 or newer, Intel Arc) and current driver |
+| Windows x86-64 | Vulkan | A GPU with ray tracing (NVIDIA RTX, AMD Radeon RX 6000 or newer, Intel Arc) and current driver |
 | Any supported Python platform | Reference CPU | No GPU runtime |
 
 Foton rejects software Vulkan devices during automatic selection. If no supported GPU
