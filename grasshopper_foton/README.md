@@ -35,8 +35,10 @@ Without `executable_`, it looks for `foton-honeybee` in Foton's own environment
 (`~/.foton/venv`, or `FOTON_HOME`), on PATH, and in the usual pip, virtual
 environment and pipx folders on Windows and macOS. Setting `install_` to True
 creates that environment with the first Python 3.10 to 3.13 it finds (or the one
-connected to `python_`) and pip installs `foton-daylight[honeybee]` into it. When
-a supported version is already there, it installs nothing.
+connected to `python_`) and pip installs `foton-daylight[honeybee]` into it. If
+no such Python is installed, it downloads [uv](https://docs.astral.sh/uv/) into
+`~/.foton`, which fetches a private Python 3.12 for the environment. When a
+supported version is already there, it installs nothing.
 
 ### Foton Annual Daylight
 

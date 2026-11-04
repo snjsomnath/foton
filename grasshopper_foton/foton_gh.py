@@ -151,8 +151,8 @@ def request_data(
 # The package the one-click install puts in Foton's own environment. The lower
 # bound is the first release with the built-in sky, the daylight-factor
 # command and the background worker these components use.
-ENGINE_REQUIREMENT = "foton-daylight[honeybee]>=0.3.2,<0.4"
-ENGINE_MINIMUM = (0, 3, 2)
+ENGINE_REQUIREMENT = "foton-daylight[honeybee]>=0.3.3,<0.4"
+ENGINE_MINIMUM = (0, 3, 3)
 ENGINE_MAXIMUM = (0, 4, 0)
 SUPPORTED_PYTHONS = ((3, 13), (3, 12), (3, 11), (3, 10))
 DEFAULT_BOUNCES = 8  # keep in step with foton.honeybee.annual.DEFAULT_MAXIMUM_BOUNCES
@@ -528,25 +528,31 @@ def _stream_command(command, on_line=None, cancel=None, timeout=None, extra_env=
     env = _subprocess_environment(command[0])
     if extra_env:
         env.update(extra_env)
+    # Rhino's IronPython cannot merge stderr into stdout (stderr=STDOUT raises
+    # "Cannot redirect stderr to stdout yet"), so read both pipes.
     process = subprocess.Popen(
         command,
         stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
+        stderr=subprocess.PIPE,
         env=env,
     )
     lines = _mailbox()
 
-    def read():
+    def read(stream):
         while True:
-            line = process.stdout.readline()
+            line = stream.readline()
             if not line:
                 break
             lines.put(_text(line))
         lines.put(None)
 
-    reader = threading.Thread(target=read)
-    reader.daemon = True
-    reader.start()
+    readers = []
+    for stream in (process.stdout, process.stderr):
+        reader = threading.Thread(target=read, args=(stream,))
+        reader.daemon = True
+        reader.start()
+        readers.append(reader)
+    open_streams = len(readers)
     collected = []
     started = time.time()
     try:
@@ -560,7 +566,10 @@ def _stream_command(command, on_line=None, cancel=None, timeout=None, extra_env=
             except queue.Empty:
                 continue
             if line is None:
-                break
+                open_streams -= 1
+                if not open_streams:
+                    break
+                continue
             collected.append(line)
             if on_line is not None:
                 on_line(line)
@@ -569,7 +578,8 @@ def _stream_command(command, on_line=None, cancel=None, timeout=None, extra_env=
         process.wait()
         raise
     code = process.wait()
-    reader.join(1.0)
+    for reader in readers:
+        reader.join(1.0)
     return code, collected
 
 

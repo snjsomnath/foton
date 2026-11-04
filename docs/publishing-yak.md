@@ -157,11 +157,12 @@ To let the release workflow push the package:
    It prints a long API key. Treat it like a password.
 2. In the GitHub repository, open **Settings > Secrets and variables > Actions**
    and add a secret named `YAK_TOKEN` with that key.
-3. In the workflow job that pushes, expose it to `yak` as the `YAK_TOKEN`
-   environment variable and run the same `yak push` command, after the PyPI
-   publish step has succeeded. GitHub's runners do not have Rhino, so the job
-   first has to download McNeel's stand-alone `yak` tool; check McNeel's Yak
-   guide for its current download link.
+The release workflow (`.github/workflows/release.yml`) does the rest. Its `yak`
+job downloads McNeel's stand-alone Linux `yak` tool and builds the package with
+`scripts/package_yak.py`; the package is attached to the GitHub release. Its
+`yak-publish` job runs only after PyPI has the new version, because the
+components install that version on first use, and pushes the package with
+`YAK_TOKEN`. Without the secret it skips the push and you push by hand as above.
 
 If the key leaks, delete the `YAK_TOKEN` secret straight away and ask McNeel how
 to revoke the key.

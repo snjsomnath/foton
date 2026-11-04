@@ -68,13 +68,15 @@ def main():
     if not os.path.isdir(OUTPUT):
         os.makedirs(OUTPUT)
     document = GH_Document()
-    # The built-in, cross-platform legacy GhPython component; external engine stays CPython.
-    component_id = Guid("410755b1-224a-4c1e-a407-bf32fb45ea7e")
+    # Rhino 8's "IronPython 2 Script" component. The legacy GhPython component
+    # (410755b1-...) is marked obsolete in Rhino 8, which shows an "OLD" badge and
+    # hides it from the ribbon. The external engine stays in CPython either way.
+    component_id = Guid("97aa26ef-88ae-4ba6-98a6-ed6ddeca11d1")
 
     def make_component(name, inputs, outputs, code, x, y):
         obj = gh.Instances.ComponentServer.EmitObjectProxy(component_id).CreateInstance()
         obj.CreateAttributes()
-        obj.HiddenOutOutput = True
+        obj.UsingStandardOutputParam = False
         while obj.Params.Input.Count:
             obj.Params.UnregisterInputParameter(obj.Params.Input[0], True)
         while obj.Params.Output.Count:
@@ -94,8 +96,9 @@ def main():
         obj.Name = obj.NickName = name
         obj.Category = "HB-Foton"
         obj.SubCategory = "Recipes"
-        obj.Code = code
+        obj.SetSource(code)
         obj.Params.OnParametersChanged()
+        obj.VariableParameterMaintenance()
         obj.Attributes.Pivot = PointF(x, y)
         document.AddObject(obj, False)
         return obj
@@ -111,9 +114,8 @@ def main():
         user.Description.Category = "HB-Foton"
         user.Description.SubCategory = "Recipes"
         user.BaseGuid = obj.ComponentGuid
-        # Without this the user object inherits the legacy GhPython component's
-        # hidden exposure, and Grasshopper leaves it out of the ribbon and the
-        # canvas search.
+        # Without this a user object can inherit a hidden exposure, and
+        # Grasshopper leaves it out of the ribbon and the canvas search.
         user.Exposure = GH_Exposure.primary
         user.Path = os.path.join(OUTPUT, name + ".ghuser")
         if not user.SaveToFile():
@@ -125,6 +127,11 @@ def main():
             raise RuntimeError("User object round-trip failed: " + name)
         if loaded.Exposure != GH_Exposure.primary:
             raise RuntimeError("User object is not exposed in the ribbon: " + name)
+        if restored.Obsolete:
+            raise RuntimeError("User object is built on an obsolete component: " + name)
+        restored_source = restored.TryGetSource()
+        if not (restored_source[0] if isinstance(restored_source, tuple) else restored_source):
+            raise RuntimeError("User object lost its script: " + name)
         output_files.append(name + ".ghuser")
 
     example_code = '''import os

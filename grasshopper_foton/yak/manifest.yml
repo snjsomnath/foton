@@ -1,14 +1,15 @@
 ---
 name: foton
-version: 0.3.1
+version: 0.3.3
 authors:
 - Sanjay Somanath
 description: >
   GPU daylight simulation for Grasshopper. Runs Honeybee annual daylight and
   daylight factor studies on Metal (Apple silicon) or Vulkan (NVIDIA RTX, AMD
   RX 6000 or newer, Intel Arc) and writes standard Honeybee results that
-  Ladybug Tools components can read. Needs Python 3.10 to 3.13; the Foton
-  Settings component installs the rest. MIT licence.
+  Ladybug Tools components can read. Rhino 8 only. The Foton Settings
+  component installs the engine (and, if needed, its own Python) on first use.
+  MIT licence.
 url: https://github.com/snjsomnath/foton
 keywords:
 - daylight

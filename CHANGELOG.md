@@ -2,8 +2,31 @@
 
 All notable Foton changes are recorded here.
 
-## Unreleased
+## 0.3.3 - 2026-11-04
 
+Makes installing Foton in Rhino straightforward.
+
+- The Foton components now appear on an **HB-Foton** tab in the Grasshopper
+  toolbar and in canvas search. Since 0.3.0 they had been hidden from both,
+  so the only way to reach them was through the example file.
+- The components are built on Rhino 8's current IronPython 2 script
+  component, so they no longer carry an "OLD" badge. They need Rhino 8.
+- `install_` on Foton Settings no longer needs Python installed first. When it
+  finds no Python 3.10 to 3.13, it downloads uv into `~/.foton`, which fetches
+  a private Python 3.12 for Foton's environment. Nothing outside `~/.foton`
+  changes.
+- Foton is packaged for Rhino's Package Manager (Yak). The release workflow
+  builds the package, attaches it to the GitHub release and publishes it.
+- New step-by-step install guide with screenshots in
+  `docs/grasshopper-quickstart.md`, and a maintainer guide in
+  `docs/publishing-yak.md`.
+- CI runs less: a push to main after a tested pull request gets a quick Linux
+  check, a newer push cancels a pull request's older run, pull requests test
+  four Python jobs instead of six, and the viewer is checked only when it
+  changes.
+- The release check reuses an earlier version's Metal and Vulkan suites when
+  nothing in the engine changed since: only the version number, the
+  Grasshopper components, the viewer or documentation.
 - Faster live mode in Grasshopper with identical results. The background
   worker keeps prepared weather in memory across geometry changes instead of
   re-reading the EPW and the cached sky matrix on every run; the Grasshopper

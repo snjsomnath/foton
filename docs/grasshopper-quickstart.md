@@ -7,64 +7,63 @@ passing release evidence should be described as validated.
 
 ### What you need
 
-- **Rhino 8** on a Mac or a Windows PC.
+- **Rhino 8** on a Mac or a Windows PC, with
+  [Ladybug Tools](https://www.food4rhino.com/en/app/ladybug-tools) for the
+  Honeybee model components.
 - **A GPU Foton can use.** On a Mac: any Apple silicon Mac (M1 or later). On
   Windows: an NVIDIA RTX, AMD Radeon RX 6000 or newer, or Intel Arc graphics card
   with a current driver. Other computers fall back to a slow CPU mode that is only
   meant for checking problems.
-- **Python 3.10, 3.11, 3.12 or 3.13**, installed from
-  [python.org](https://www.python.org/downloads/). Rhino's own Python does not
-  count. A new Mac already has a `python3`, but it is version 3.9, which is too
-  old, so install one from python.org anyway.
+- **An internet connection** for the first install.
 
-Radiance is not needed.
+You don't need to install Python or Radiance. If you already have Python 3.10
+to 3.13, Foton uses it; if not, it downloads its own copy into a `.foton`
+folder in your home folder.
 
 ### Step 1: get the Foton components
 
-There are two ways. Use the first once Foton is listed in Rhino's Package
-Manager; until then, use the second.
-
-**A. From Rhino's Package Manager (once Foton is listed)**
+**A. From Rhino's Package Manager (recommended, once Foton is listed)**
 
 1. In Rhino, type `PackageManager` and press Enter.
 2. Search for **foton**, select it and click **Install**.
 3. Restart Rhino. The Installed tab now shows **foton**:
 
-   ![Package Manager, Installed tab, with foton 0.3.2 ticked](images/install/01-package-manager-installed.png)
+   ![Package Manager, Installed tab, with foton ticked](images/install/01-package-manager-installed.png)
 
 The package also contains the example definition. You can find it in Rhino's
 packages folder, under `foton/<version>/Foton First Analysis.gh`.
 
-**B. From the release download (works today)**
+**B. From the release download**
 
 1. Download `foton-grasshopper-<version>.zip` from the
    [latest release](https://github.com/snjsomnath/foton/releases/latest).
 2. Unzip the whole archive into a folder you will keep. Keep the `examples`
    folder next to `Foton First Analysis.gh`.
-3. To use the components in your own definitions, copy the four `.ghuser`
-   files into Grasshopper's User Objects folder. In Grasshopper, choose
-   **File > Special Folders > User Object Folder** to open it, then restart Rhino.
+3. Copy the four `.ghuser` files into Grasshopper's User Objects folder. In
+   Grasshopper, choose **File > Special Folders > User Object Folder** to open
+   it, then restart Rhino.
 
 ### Step 2: find the components
 
-In 0.3.2 the Foton components are hidden from the Grasshopper toolbar and from
-canvas search, so typing "Foton" on the canvas finds nothing. This is fixed from
-0.3.3. Until then:
+The components are on the **HB-Foton** tab of the Grasshopper toolbar. You can
+also double-click an empty part of the canvas and type **Foton**.
 
-1. Open **Foton First Analysis.gh**. It already has every component wired up.
-2. To use a component in your own definition, select it in the example, copy it
-   (Cmd+C on a Mac, Ctrl+C on Windows) and paste it into your definition.
+![The HB-Foton tab with the four Foton components](images/install/02-hb-foton-tab.png)
 
-From 0.3.3, the components have their own **HB-Foton** tab, and you can also
-double-click an empty part of the canvas and type **Foton**.
+In 0.3.2 and earlier the components were hidden from the toolbar and from
+canvas search. If you are on one of those, open **Foton First Analysis.gh** and
+copy the components from it, or update.
 
 ### Step 3: let Foton Settings install the rest
 
 1. Open **Foton First Analysis.gh** in Grasshopper.
-2. Set the `install_` toggle on **Foton Settings** to True. Foton Settings finds
-   your Python, makes Foton's own environment in a `.foton` folder in your home
-   folder, and downloads Foton into it. It shows each step as it goes. This
-   happens once and takes a minute or two.
+2. Set the `install_` toggle on **Foton Settings** to True. Foton Settings makes
+   Foton's own environment in a `.foton` folder in your home folder and
+   downloads Foton into it. If there is no Python 3.10 to 3.13 on the computer,
+   it first downloads a small installer called [uv](https://docs.astral.sh/uv/),
+   which fetches a private copy of Python into the same folder. Nothing outside
+   `.foton` changes. It shows each step as it goes. This happens once and takes
+   a minute or two.
 
    ![Foton Settings showing the install steps](images/install/03-settings-install.png)
 
@@ -73,11 +72,10 @@ double-click an empty part of the canvas and type **Foton**.
 
    ![Foton Settings check report naming the GPU](images/install/04-settings-check.png)
 
-If Foton Settings says it found no Python, install one from python.org (see
-"What you need") or connect the full path of your `python` to `python_`. If you
-would rather install Foton yourself, run
+If you want Foton to use a particular Python, connect its full path to
+`python_`. If you would rather install Foton yourself, run
 `python -m pip install "foton-daylight[honeybee]"`; Foton Settings finds it in
-the usual places.
+the usual places. To start again from scratch, delete the `.foton` folder.
 
 ### Step 4: run the example
 
@@ -156,7 +154,8 @@ running one after the other on the same model and settings traces only once.
 | Symptom | Action |
 | --- | --- |
 | Executable not found | Set `install_` to True on Settings, or connect the full path to `executable_`. |
-| Install says no Python was found | Install Python 3.10 to 3.13 from python.org, or connect a `python` executable to `python_`. |
+| Install can't download uv or Python | Check the internet connection (a proxy may block github.com). Or install Python 3.10 to 3.13 from python.org and set `install_` again, or connect a `python` executable to `python_`. |
+| Components missing from the toolbar | You're on 0.3.2 or earlier: update, or copy the components from **Foton First Analysis.gh**. |
 | Live run is no faster | The first live run starts Foton and traces as usual; only later runs on the same model are fast. |
 | Settings reports `gendaymtx` unavailable | Nothing to do: annual runs use Foton's built-in sky. Install Radiance 5.4a and set `RADIANCE_BIN` only to reproduce validation evidence or to opt into `gendaymtx`. |
 | Reference CPU selected | Update the GPU driver and inspect backend requirements; explicit Metal/Vulkan requests report errors instead of falling back. |
