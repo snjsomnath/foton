@@ -1,0 +1,21 @@
+{
+  "commit": "3101ba1a2f3fe8134b493d51ae26d4375b3676d1",
+  "engine_version": "0.3.2",
+  "rhino_version": "8.35.26251.13002",
+  "system": "Darwin",
+  "backend": "metal",
+  "tested_at": "2026-11-04",
+  "notes": "macOS 26.6 on Apple M4 Pro, Rhino 8.35 with the same Ladybug Tools install as the 0.3.1 checklist (recorded there as 1.9.0), existing Rhino profile, foton-daylight 0.3.2 installed editable into a fresh venv in the release-0.3.2 worktree, Radiance 5.4a. Executable for every step: /Users/ssanjay/GitHub/foton-release-0.3.2/.venv/bin/foton-honeybee (FOTON_HONEYBEE_EXE for check_grasshopper.py, connected to executable_ for the Honeybee and Ladybug steps); ~/.foton/venv was moved aside so no other build could be picked up. Bundle: dist/foton-grasshopper-0.3.2.zip from scripts/package_grasshopper.py (verify_build passed, no rebuild needed). install: the bundle's four .ghuser files (Foton Settings, Foton Annual Daylight, Foton Annual Results, Foton Daylight Factor) were copied into the Grasshopper UserObjects folder, replacing the ones there; those were already byte-identical (cmp) because another session had installed the same main build, so Grasshopper did not need a restart. open_example, run, rerun, change_inputs, upgrade_invalidates_reuse, reload_moved_results, cancel: scripts/check_grasshopper.py run inside Rhino through the Rhino MCP Python runner against the extracted 0.3.2 bundle; all ten checks passed (rhino-smoke.json), including the new daylight_factor, live_matches_saved and live_reuses_coefficients checks; the Settings component reported engine 0.3.2 on metal and every run manifest reports engine 0.3.2 (the moved folder's manifest carries the check's deliberate older-test-version stamp). honeybee_metrics: HB Annual Daylight Metrics read the results folder of a fresh Foton Annual Daylight run of the bundle's shoebox example and returned DA identical to Foton's own DA on all 36 sensors (max difference 0.0 pp), no errors or warnings. ladybug_heatmap: LB Spatial Heatmap built a 36-face mesh with vertex colours from those DA values and the example model's SensorGrid mesh, no errors or warnings. Not covered: a fresh Rhino profile, a fresh UserObjects install, Windows.",
+  "scenarios": {
+    "install": true,
+    "open_example": true,
+    "run": true,
+    "cancel": true,
+    "rerun": true,
+    "change_inputs": true,
+    "upgrade_invalidates_reuse": true,
+    "reload_moved_results": true,
+    "honeybee_metrics": true,
+    "ladybug_heatmap": true
+  }
+}
