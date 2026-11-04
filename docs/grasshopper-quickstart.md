@@ -69,7 +69,9 @@ copy the components from it, or update.
    has to download Python. It runs in the background, so you can keep working
    in Rhino: the component shows how long it has been installing, and its
    `report` output lists each step. When it finishes, it checks the install on
-   its own. To stop it, set `install_` back to False.
+   its own. To stop it, set `install_` back to False. To use the downloaded
+   Python even though one is installed, connect a Panel with the text `uv` to
+   `python_`.
 
    ![Foton Settings showing the install steps](images/install/03-settings-install.png)
 
@@ -161,6 +163,7 @@ running one after the other on the same model and settings traces only once.
 | --- | --- |
 | Executable not found | Set `install_` to True on Settings, or connect the full path to `executable_`. |
 | Install can't download uv or Python | Check the internet connection (a proxy may block github.com). Or install Python 3.10 to 3.13 from python.org and set `install_` again, or connect a `python` executable to `python_`. |
+| Install failed | The component turns red and `report` shows each step and the error. Every step is also saved in `install.log`, and pip's own log in `pip.log`, both in the `.foton` folder in your home folder. The error ends with the exact command, so you can run it in Command Prompt or Terminal to see the problem directly. On an office network, a proxy or SSL inspection is the usual cause. |
 | Components missing from the toolbar | You're on 0.3.2 or earlier: update, or copy the components from **Foton First Analysis.gh**. |
 | Live run is no faster | The first live run starts Foton and traces as usual; only later runs on the same model are fast. |
 | Settings reports `gendaymtx` unavailable | Nothing to do: annual runs use Foton's built-in sky. Install Radiance 5.4a and set `RADIANCE_BIN` only to reproduce validation evidence or to opt into `gendaymtx`. |

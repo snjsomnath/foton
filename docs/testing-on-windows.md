@@ -12,15 +12,14 @@ installs and the benchmark.
 3. Install Foton with Python on its own.
 4. Run the speed benchmark and send the result.
 
-**You need Foton 0.3.3 or newer.** The Package Manager listing, the automatic
-install inside Grasshopper and the HB-Foton toolbar tab are new in 0.3.3. Check
-the version at the top of [pypi.org/project/foton-daylight](https://pypi.org/project/foton-daylight/).
-The steps below say 0.3.3; if a newer version is out, use that number instead.
+**You need Foton 0.3.4 or newer.** 0.3.4 fixes the automatic install inside
+Grasshopper on Windows, which failed in 0.3.3. Check the version at the top of
+[pypi.org/project/foton-daylight](https://pypi.org/project/foton-daylight/).
+The steps below say 0.3.4; if a newer version is out, use that number instead.
 
 **Please do the parts in this order.** Parts 1 and 2 test the route for people
-who have never installed Python. If you install Python first (Part 3), that
-route is skipped. If Python 3.10 to 3.13 is already on your computer, that's
-fine, just mention it in your report.
+who have never installed Python. If Python is already on your computer, Part 2
+shows how to test that route anyway.
 
 While you work, keep a note of anything that confuses you, any error message and
 how long each step takes. Screenshots help a lot (Windows key + Shift + S).
@@ -80,33 +79,38 @@ The example file came with the package.
 1. Open File Explorer, paste this into the address bar and press Enter:
 
    ```
-   %APPDATA%\McNeel\Rhinoceros\packages\8.0\foton\0.3.3
+   %APPDATA%\McNeel\Rhinoceros\packages\8.0\foton\0.3.4
    ```
 
 2. Open **Foton First Analysis.gh** in Grasshopper. It holds a small shaded room
    with Gothenburg weather.
-3. Find the **Foton Settings** component and set its `install_` toggle to
-   **True**. Foton now sets itself up in a `.foton` folder in your user folder.
+3. If Python is already installed on your computer, first make Foton ignore it
+   so the no-Python route gets tested: double-click the canvas, type **Panel**,
+   type `uv` into the new panel and connect it to `python_` on **Foton
+   Settings**.
+4. Set the `install_` toggle on **Foton Settings** to **True**. Foton now sets itself up in a `.foton` folder in your user folder.
    If there is no Python on your computer, it first downloads its own copy. This
    runs in the background, so Rhino stays usable. The component shows how long
    it has been running, and its `report` output lists each step. It takes a few
    minutes. Note roughly how long, and take a screenshot when it finishes.
-4. Set `_check` on Foton Settings to **True**. The report should show the Foton
+5. Set `_check` on Foton Settings to **True**. The report should show the Foton
    version and say **Vulkan** with your graphics card's name. If it says **CPU**
    or **reference** instead, that's important: take a screenshot.
-5. Set `_run` on **Foton Annual Daylight** to **True**. The first run takes a
+6. Set `_run` on **Foton Annual Daylight** to **True**. The first run takes a
    little longer because it prepares the weather data. Note how long it takes,
    then set it to False and True again and note the time of the second run too.
-6. Optional: connect `results` to **HB Annual Daylight Metrics**, and its `DA`
+7. Optional: connect `results` to **HB Annual Daylight Metrics**, and its `DA`
    output with the room's sensor grid mesh to **LB Spatial Heatmap**, to see the
    colours on the room in Rhino. Take a screenshot.
-7. Optional: set `live_` to **True** on Foton Annual Daylight and change an
+8. Optional: set `live_` to **True** on Foton Annual Daylight and change an
    input, such as the daylight threshold. After the first run, results should
    update within a few seconds.
 
-If anything goes wrong, copy the full text of the `report` output (connect a
-Panel to it) and include it in your report. To start the install again from
-scratch, close Rhino and delete the `.foton` folder in `C:\Users\<your name>`.
+If the install fails, the component turns red and its `report` output (connect
+a Panel to it) shows each step and the error. Please send that text, plus the
+files `install.log` and `pip.log` from the `.foton` folder in
+`C:\Users\<your name>`. To start the install again from scratch, close Rhino
+and delete that `.foton` folder.
 
 ## Part 3: Install Foton with Python
 
@@ -124,7 +128,7 @@ is also what the benchmark in Part 4 uses.
 
    ```
    py -3.12 -m venv $HOME\foton-test
-   & $HOME\foton-test\Scripts\python -m pip install "foton-daylight[honeybee]==0.3.3"
+   & $HOME\foton-test\Scripts\python -m pip install "foton-daylight[honeybee]==0.3.4"
    ```
 
 3. Check that Foton finds your graphics card:
@@ -148,14 +152,14 @@ steps the Grasshopper component goes through. It saves its results inside the
 folder you unzip. Skip this part if Foton said `reference` or CPU in Part 3.
 
 1. Download the Foton source for your version:
-   [github.com/snjsomnath/foton/archive/refs/tags/v0.3.3.zip](https://github.com/snjsomnath/foton/archive/refs/tags/v0.3.3.zip).
+   [github.com/snjsomnath/foton/archive/refs/tags/v0.3.4.zip](https://github.com/snjsomnath/foton/archive/refs/tags/v0.3.4.zip).
    Right-click the zip, choose **Extract All**, and extract it to your user
-   folder. You should end up with a folder called `foton-0.3.3`.
+   folder. You should end up with a folder called `foton-0.3.4`.
 2. Close other heavy programs, including Rhino. Keep a laptop plugged in.
 3. In PowerShell, run:
 
    ```
-   cd $HOME\foton-0.3.3
+   cd $HOME\foton-0.3.4
    & $HOME\foton-test\Scripts\python scripts\benchmark_suite.py
    ```
 
@@ -163,7 +167,7 @@ folder you unzip. Skip this part if Foton said `reference` or CPU in Part 3.
    so allow up to 20 minutes. If it stops with an error, copy all the text in
    the window into your report.
 
-4. When it's done, open the folder `foton-0.3.3\benchmarks\machines`. Inside is
+4. When it's done, open the folder `foton-0.3.4\benchmarks\machines`. Inside is
    a new folder named after your processor and graphics card, with one `.json`
    file in it. That file is your result.
 
@@ -181,7 +185,7 @@ change. You only need a GitHub account and a web browser.
    [github.com/snjsomnath/foton/tree/main/benchmarks/machines](https://github.com/snjsomnath/foton/tree/main/benchmarks/machines).
 2. Click **Add file**, then **Upload files**. GitHub may say it will make your
    own copy (a fork) of the project first. That's expected; agree to it.
-3. In File Explorer, open `foton-0.3.3\benchmarks\machines`. Drag the folder
+3. In File Explorer, open `foton-0.3.4\benchmarks\machines`. Drag the folder
    named after your computer (not just the file inside it) onto the GitHub page.
 4. Under **Commit changes**, type `Benchmark: <your processor> and <your graphics card>`,
    for example `Benchmark: Ryzen 9 7950X and RTX 4080`.
@@ -200,7 +204,7 @@ you have; a failed step is as useful as a working one.
 - Graphics card name and driver version (the Task Manager screenshot).
 - Windows version (Start, type `winver`), Rhino version (Help > About
   Rhinoceros) and Ladybug Tools version.
-- Whether Python was already installed before you started, and which version.
+- Whether Python was already installed before you started, which version, and whether you connected `uv` to `python_`.
 - Part 1: screenshots of the Installed tab and the HB-Foton toolbar tab.
 - Part 2: the full `report` text from Foton Settings after install and after
   check, how long the install took, and how long the first and second runs took.

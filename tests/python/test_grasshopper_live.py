@@ -86,7 +86,9 @@ def test_engine_version_range_matches_this_release():
     assert not foton_gh.engine_version_supported("0.3.2")
     assert not foton_gh.engine_version_supported("0.4.0")
     assert foton_gh.engine_version_supported("0.3.3.dev1")
-    assert ">=0.3.3,<0.4" in foton_gh.ENGINE_REQUIREMENT
+    assert foton_gh.ENGINE_REQUIREMENT.endswith("~=0.3.3")
+    # No "<" or ">", which a Windows shell would read as a redirect.
+    assert not any(c in foton_gh.ENGINE_REQUIREMENT for c in "<>|&^")
 
 
 def test_find_base_python_accepts_a_supported_interpreter():
@@ -167,6 +169,74 @@ def test_install_does_not_swap_a_python_the_user_chose(tmp_path, monkeypatch):
         with pytest.raises(foton_gh.FotonError):
             foton_gh.install_foton(python="/opt/python3.9")
     uv.assert_not_called()
+
+
+def test_python_uv_forces_the_private_python(tmp_path, monkeypatch):
+    monkeypatch.setenv("FOTON_HOME", str(tmp_path))
+    calls = []
+
+    def fake(command, on_line=None, cancel=None, timeout=None, extra_env=None):
+        calls.append(command)
+        if command[1:2] == ["venv"]:
+            _make_executable(Path(foton_gh._environment_file(command[-1], "python")), "")
+        if "pip" in command:
+            _make_executable(Path(foton_gh.environment_executable()), "")
+        return 0, []
+
+    with patch.object(foton_gh, "find_base_python") as find, \
+            patch.object(foton_gh, "ensure_uv", return_value="/fake/uv"), \
+            patch.object(foton_gh, "_stream_command", side_effect=fake):
+        assert foton_gh.install_foton(python=" UV ") == foton_gh.environment_executable()
+    find.assert_not_called()
+    assert calls[0][:2] == ["/fake/uv", "venv"]
+
+
+def test_a_silent_pip_failure_still_explains_itself(tmp_path, monkeypatch):
+    monkeypatch.setenv("FOTON_HOME", str(tmp_path))
+    environment_python = Path(foton_gh._environment_file(foton_gh.environment_folder(), "python"))
+    _make_executable(environment_python, "")
+
+    def fake(command, on_line=None, cancel=None, timeout=None, extra_env=None):
+        # pip printed nothing but left its own log behind.
+        log = Path(command[command.index("--log") + 1])
+        log.write_text("Collecting foton-daylight\nERROR: SSL: CERTIFICATE_VERIFY_FAILED\n")
+        return 2, []
+
+    lines = []
+    with patch.object(foton_gh, "_stream_command", side_effect=fake):
+        with pytest.raises(foton_gh.FotonError) as raised:
+            foton_gh.install_foton(progress=lines.append)
+    message = str(raised.value)
+    assert "exit code 2" in message
+    assert "CERTIFICATE_VERIFY_FAILED" in message
+    assert "-m pip install" in message and foton_gh.ENGINE_REQUIREMENT in message
+    log = Path(foton_gh.install_log_path()).read_text()
+    assert "Installing " + foton_gh.ENGINE_REQUIREMENT in log
+    assert "CERTIFICATE_VERIFY_FAILED" in log
+    # The error goes to the log file once; the component adds it to report itself.
+    assert not any("exit code" in line for line in lines)
+
+
+def test_windows_commands_open_no_console_window(monkeypatch):
+    started = []
+    monkeypatch.setattr(foton_gh, "_windows", lambda: True)
+    monkeypatch.setattr(foton_gh.subprocess, "Popen", lambda command, **options: started.append(options))
+    foton_gh._popen(["python", "-V"], stdout=foton_gh.subprocess.PIPE)
+    assert started[0]["creationflags"] == foton_gh.CREATE_NO_WINDOW
+
+
+def test_windows_falls_back_when_creationflags_is_unsupported(monkeypatch):
+    started = []
+
+    def popen(command, **options):
+        if "creationflags" in options:
+            raise TypeError("unexpected keyword")
+        started.append(options)
+
+    monkeypatch.setattr(foton_gh, "_windows", lambda: True)
+    monkeypatch.setattr(foton_gh.subprocess, "Popen", popen)
+    foton_gh._popen(["python", "-V"])
+    assert started == [{}]
 
 
 @pytest.mark.parametrize(

@@ -260,7 +260,7 @@ output = os.path.join(os.path.expanduser("~"), "foton_simulation", "first_exampl
     next(p for p in factor.Params.Input if p.Name == "_model").AddSource(paths.Params.Output[0])
     next(p for p in factor.Params.Input if p.Name == "executable_").AddSource(objects[0].Params.Output[1])
     from Grasshopper.Kernel.Special import GH_BooleanToggle, GH_Panel
-    for obj, port, x, y in ((objects[0], "_check", 100, 100), (annual, "_run", 450, 100), (objects[2], "_load", 950, 100), (factor, "_run", 1350, 100)):
+    for obj, port, x, y in ((objects[0], "install_", 100, 40), (objects[0], "_check", 100, 100), (annual, "_run", 450, 100), (objects[2], "_load", 950, 100), (factor, "_run", 1350, 100)):
         toggle = GH_BooleanToggle()
         toggle.CreateAttributes()
         toggle.Value = False
