@@ -341,6 +341,124 @@ def find_base_python(configured=None):
     )
 
 
+# When no Python 3.10 to 3.13 is installed, Foton fetches uv (a single-file
+# Python installer from Astral) and lets it download a private Python. Both
+# live in Foton's own folder, so nothing else on the computer changes.
+UV_PYTHON = "3.12"
+UV_DOWNLOAD = "https://github.com/astral-sh/uv/releases/latest/download/"
+
+
+def _system():
+    if _windows():
+        return "windows"
+    if os.path.isdir("/System/Library/CoreServices"):
+        return "macos"
+    return "linux"
+
+
+def _machine():
+    """``arm64`` or ``x86_64`` for the running computer."""
+    try:
+        import clr  # noqa: F401  (IronPython inside Rhino)
+        from System.Runtime.InteropServices import Architecture, RuntimeInformation
+
+        arm = RuntimeInformation.OSArchitecture == Architecture.Arm64
+        return "arm64" if arm else "x86_64"
+    except ImportError:
+        import platform
+
+        machine = platform.machine().lower()
+        return "arm64" if machine in ("arm64", "aarch64") else "x86_64"
+
+
+def uv_asset():
+    """The name of the uv release archive for this computer."""
+    arch = "aarch64" if _machine() == "arm64" else "x86_64"
+    system = _system()
+    if system == "windows":
+        return "uv-{0}-pc-windows-msvc.zip".format(arch)
+    if system == "macos":
+        return "uv-{0}-apple-darwin.tar.gz".format(arch)
+    return "uv-{0}-unknown-linux-gnu.tar.gz".format(arch)
+
+
+def uv_executable():
+    return os.path.join(foton_home(), "uv", "uv.exe" if _windows() else "uv")
+
+
+def _system_tool(name):
+    """curl and tar ship with macOS and with Windows 10 (1803) and later."""
+    if _windows():
+        path = os.path.join(os.environ.get("WINDIR", "C:" + os.sep + "Windows"), "System32", name + ".exe")
+    else:
+        path = os.path.join("/usr/bin", name)
+    return path if os.path.isfile(path) else name
+
+
+def uv_environment():
+    """Keep uv's Python, cache and settings inside Foton's folder."""
+    home = foton_home()
+    return {
+        "UV_PYTHON_INSTALL_DIR": os.path.join(home, "python"),
+        "UV_CACHE_DIR": os.path.join(home, "cache"),
+        "UV_PYTHON_PREFERENCE": "only-managed",
+        "UV_NO_CONFIG": "1",
+    }
+
+
+def ensure_uv(progress=None, cancel=None):
+    """Download uv into Foton's folder unless it is already there."""
+    target = uv_executable()
+    if os.path.isfile(target):
+        return target
+
+    def report(line):
+        if progress is not None and line.strip():
+            progress(line.rstrip())
+
+    folder = os.path.dirname(target)
+    staging = tempfile.mkdtemp(prefix="uv-", dir=_ensure_folder(foton_home()))
+    try:
+        archive = os.path.join(staging, uv_asset())
+        report("Downloading uv from " + UV_DOWNLOAD + uv_asset())
+        code, lines = _stream_command(
+            [_system_tool("curl"), "-fsSL", "--retry", "2", "-o", archive, UV_DOWNLOAD + uv_asset()],
+            report,
+            cancel,
+        )
+        if code != 0 or not os.path.isfile(archive):
+            raise FotonError(
+                "Could not download uv. Check the internet connection, or install "
+                "Python 3.10 to 3.13 from python.org and try again:\n" + "".join(lines[-10:])
+            )
+        unpacked = os.path.join(staging, "unpacked")
+        os.makedirs(unpacked)
+        code, lines = _stream_command([_system_tool("tar"), "-xf", archive, "-C", unpacked], report, cancel)
+        if code != 0:
+            raise FotonError("Could not unpack uv:\n" + "".join(lines[-10:]))
+        name = os.path.basename(target)
+        found = None
+        for root, _directories, files in os.walk(unpacked):
+            if name in files:
+                found = os.path.join(root, name)
+                break
+        if found is None:
+            raise FotonError("The uv download did not contain " + name)
+        _ensure_folder(folder)
+        shutil.move(found, target)
+        if not _windows():
+            os.chmod(target, 0o755)
+    finally:
+        shutil.rmtree(staging, True)
+    return target
+
+
+def _ensure_folder(folder):
+    if not os.path.isdir(folder):
+        os.makedirs(folder)
+    return folder
+
+
 def install_foton(python=None, progress=None, cancel=None, upgrade=False):
     """Create Foton's own environment and pip install the engine into it.
 
@@ -359,20 +477,35 @@ def install_foton(python=None, progress=None, cancel=None, upgrade=False):
                 return executable
         except FotonError:
             pass
-    command, version = find_base_python(python)
     folder = environment_folder()
 
     def report(line):
         if progress is not None and line.strip():
             progress(line.rstrip())
 
-    report("Using Python {0}: {1}".format(version, " ".join(command)))
     if not os.path.isfile(_environment_file(folder, "python")):
-        report("Creating Foton's environment in " + folder)
-        parent = os.path.dirname(folder)
-        if not os.path.isdir(parent):
-            os.makedirs(parent)
-        code, lines = _stream_command(command + ["-m", "venv", folder], report, cancel)
+        try:
+            command, version = find_base_python(python)
+        except FotonError:
+            if python:
+                raise  # the user chose a Python; don't silently use another
+            command = None
+        _ensure_folder(os.path.dirname(folder))
+        if command is not None:
+            report("Using Python {0}: {1}".format(version, " ".join(command)))
+            report("Creating Foton's environment in " + folder)
+            code, lines = _stream_command(command + ["-m", "venv", folder], report, cancel)
+        else:
+            report("No Python 3.10 to 3.13 found. Foton will download its own Python "
+                   + UV_PYTHON + " into " + foton_home())
+            uv = ensure_uv(progress, cancel)
+            report("Creating Foton's environment in " + folder)
+            code, lines = _stream_command(
+                [uv, "venv", "--seed", "--python", UV_PYTHON, folder],
+                report,
+                cancel,
+                extra_env=uv_environment(),
+            )
         if code != 0:
             raise FotonError("Could not create " + folder + ":\n" + "".join(lines[-20:]))
     python_path = _environment_file(folder, "python")
@@ -390,9 +523,11 @@ def install_foton(python=None, progress=None, cancel=None, upgrade=False):
     return executable
 
 
-def _stream_command(command, on_line=None, cancel=None, timeout=None):
+def _stream_command(command, on_line=None, cancel=None, timeout=None, extra_env=None):
     """Run a command, passing each output line on; returns (exit code, lines)."""
     env = _subprocess_environment(command[0])
+    if extra_env:
+        env.update(extra_env)
     process = subprocess.Popen(
         command,
         stdout=subprocess.PIPE,

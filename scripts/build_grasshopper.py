@@ -60,7 +60,7 @@ def main():
     clr.AddReference("Grasshopper")
     clr.AddReference("GH_IO")
     import Grasshopper as gh
-    from Grasshopper.Kernel import GH_Document, GH_UserObject, GH_ParamAccess
+    from Grasshopper.Kernel import GH_Document, GH_Exposure, GH_UserObject, GH_ParamAccess
     from GH_IO.Serialization import GH_Archive
     from System import Guid
     from System.Drawing import PointF
@@ -111,6 +111,10 @@ def main():
         user.Description.Category = "HB-Foton"
         user.Description.SubCategory = "Recipes"
         user.BaseGuid = obj.ComponentGuid
+        # Without this the user object inherits the legacy GhPython component's
+        # hidden exposure, and Grasshopper leaves it out of the ribbon and the
+        # canvas search.
+        user.Exposure = GH_Exposure.primary
         user.Path = os.path.join(OUTPUT, name + ".ghuser")
         if not user.SaveToFile():
             raise RuntimeError("Failed to save " + user.Path)
@@ -119,6 +123,8 @@ def main():
         restored = loaded.InstantiateObject()
         if restored is None or [p.Name for p in restored.Params.Input] != list(inputs):
             raise RuntimeError("User object round-trip failed: " + name)
+        if loaded.Exposure != GH_Exposure.primary:
+            raise RuntimeError("User object is not exposed in the ribbon: " + name)
         output_files.append(name + ".ghuser")
 
     example_code = '''import os

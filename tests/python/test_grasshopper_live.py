@@ -133,6 +133,82 @@ def test_install_creates_environment_then_pip_installs(tmp_path, monkeypatch):
     assert commands[1][-1] == foton_gh.ENGINE_REQUIREMENT
 
 
+def test_install_uses_uv_when_no_python_is_found(tmp_path, monkeypatch):
+    monkeypatch.setenv("FOTON_HOME", str(tmp_path))
+    calls = []
+
+    def fake(command, on_line=None, cancel=None, timeout=None, extra_env=None):
+        calls.append((command, extra_env))
+        if command[1:2] == ["venv"]:
+            _make_executable(Path(foton_gh._environment_file(command[-1], "python")), "")
+        if "pip" in command:
+            _make_executable(Path(foton_gh.environment_executable()), "")
+        return 0, []
+
+    missing = foton_gh.FotonError("Foton needs Python 3.10 to 3.13")
+    with patch.object(foton_gh, "find_base_python", side_effect=missing), \
+            patch.object(foton_gh, "ensure_uv", return_value="/fake/uv"), \
+            patch.object(foton_gh, "_stream_command", side_effect=fake):
+        assert foton_gh.install_foton() == foton_gh.environment_executable()
+    venv, environment = calls[0]
+    assert venv == ["/fake/uv", "venv", "--seed", "--python", foton_gh.UV_PYTHON,
+                    foton_gh.environment_folder()]
+    # uv's Python and cache stay inside Foton's folder.
+    assert environment["UV_PYTHON_INSTALL_DIR"].startswith(str(tmp_path))
+    assert environment["UV_CACHE_DIR"].startswith(str(tmp_path))
+    assert calls[1][0][1:4] == ["-m", "pip", "install"]
+
+
+def test_install_does_not_swap_a_python_the_user_chose(tmp_path, monkeypatch):
+    monkeypatch.setenv("FOTON_HOME", str(tmp_path))
+    missing = foton_gh.FotonError("Foton needs Python 3.10 to 3.13")
+    with patch.object(foton_gh, "find_base_python", side_effect=missing), \
+            patch.object(foton_gh, "ensure_uv") as uv:
+        with pytest.raises(foton_gh.FotonError):
+            foton_gh.install_foton(python="/opt/python3.9")
+    uv.assert_not_called()
+
+
+@pytest.mark.parametrize(
+    "system, machine, asset",
+    [
+        ("macos", "arm64", "uv-aarch64-apple-darwin.tar.gz"),
+        ("macos", "x86_64", "uv-x86_64-apple-darwin.tar.gz"),
+        ("windows", "x86_64", "uv-x86_64-pc-windows-msvc.zip"),
+        ("windows", "arm64", "uv-aarch64-pc-windows-msvc.zip"),
+    ],
+)
+def test_uv_download_matches_the_computer(monkeypatch, system, machine, asset):
+    monkeypatch.setattr(foton_gh, "_system", lambda: system)
+    monkeypatch.setattr(foton_gh, "_machine", lambda: machine)
+    assert foton_gh.uv_asset() == asset
+
+
+def test_ensure_uv_unpacks_the_binary_into_fotons_folder(tmp_path, monkeypatch):
+    if os.name == "nt":
+        pytest.skip("POSIX tar stand-in")
+    monkeypatch.setenv("FOTON_HOME", str(tmp_path))
+    import tarfile
+
+    source = tmp_path / "src" / "uv-aarch64-apple-darwin"
+    _make_executable(source / "uv", "#!/bin/sh\necho uv\n")
+    built = tmp_path / "uv.tar.gz"
+    with tarfile.open(built, "w:gz") as archive:
+        archive.add(source, arcname=source.name)
+
+    def fake(command, on_line=None, cancel=None, timeout=None, extra_env=None):
+        if command[1] == "-fsSL":
+            Path(command[command.index("-o") + 1]).write_bytes(built.read_bytes())
+            return 0, []
+        return foton_gh.subprocess.call(["tar"] + command[1:]), []
+
+    with patch.object(foton_gh, "_stream_command", side_effect=fake):
+        path = foton_gh.ensure_uv()
+    assert path == foton_gh.uv_executable()
+    assert os.access(path, os.X_OK)
+    assert [p.name for p in tmp_path.iterdir() if p.name.startswith("uv-")] == []
+
+
 # Bounce default ---------------------------------------------------------------
 
 
