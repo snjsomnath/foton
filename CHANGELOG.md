@@ -4,6 +4,13 @@ All notable Foton changes are recorded here.
 
 ## Unreleased
 
+- Faster live mode in Grasshopper with identical results. The background
+  worker keeps prepared weather in memory across geometry changes instead of
+  re-reading the EPW and the cached sky matrix on every run; the Grasshopper
+  bridge waits on a .NET event instead of IronPython's polling queue, passes
+  at most one progress update per quarter second to Rhino during a live run,
+  and reads the weather and schedule files in place instead of copying them.
+
 - Grasshopper now defaults to 8 diffuse bounces, the validated setting. The
   Foton Annual Daylight component used to pass `bounces_ = 1` when nothing was
   connected, which reads about 18 % low; scripted and command-line runs were

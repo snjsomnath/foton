@@ -68,13 +68,14 @@ def _options(defaults, options):
     return merged
 
 
-def new_study(options) -> HoneybeeStudy:
+def new_study(options, weather_memo=None) -> HoneybeeStudy:
     return HoneybeeStudy(
         options["model"],
         backend=options.get("backend", "auto"),
         grid_filter=options.get("grid_filter", "*"),
         radiance_bin=options.get("radiance_bin"),
         sky_source=options.get("sky_source", "foton"),
+        weather_memo=weather_memo,
     )
 
 

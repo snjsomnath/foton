@@ -399,7 +399,7 @@ def _stream_command(command, on_line=None, cancel=None, timeout=None):
         stderr=subprocess.STDOUT,
         env=env,
     )
-    lines = queue.Queue()
+    lines = _mailbox()
 
     def read():
         while True:
@@ -556,6 +556,41 @@ def thresholds(value=None):
     return result
 
 
+class _DotNetMailbox(object):
+    """A queue whose timed ``get`` wakes as soon as an item arrives.
+
+    IronPython's ``Queue.get(True, timeout)`` polls with sleeps of up to
+    50 ms, which a sub-second live run pays on every message. .NET's
+    ``BlockingCollection`` waits on a kernel event instead.
+    """
+
+    def __init__(self, collection):
+        self._collection = collection
+
+    def put(self, item):
+        self._collection.Add(item)
+
+    def get(self, block=True, timeout=None):
+        milliseconds = -1 if timeout is None else int(timeout * 1000)
+        taken, item = self._collection.TryTake(milliseconds if block else 0)
+        if not taken:
+            raise queue.Empty()
+        return item
+
+
+def _mailbox():
+    """A thread-safe queue for reader threads; .NET-backed under IronPython."""
+    if sys.platform == "cli":
+        try:
+            from System import Object
+            from System.Collections.Concurrent import BlockingCollection
+
+            return _DotNetMailbox(BlockingCollection[Object]())
+        except Exception:
+            pass
+    return queue.Queue()
+
+
 def _copy_or_write_model(model, folder):
     destination = os.path.join(folder, "model.hbjson")
     if isinstance(model, string_types):
@@ -620,14 +655,33 @@ def _copy_or_write_schedule(schedule, folder):
     return destination
 
 
-def _prepare_inputs(model, wea, schedule):
+def _prepare_inputs(model, wea, schedule, copy_files=True):
+    """Stage the inputs in a new temporary folder.
+
+    A live run reads files where they are (``copy_files=False``): the worker
+    keys its caches on file contents, so copying a 1.6 MB EPW on every slider
+    change only costs time. Objects (a Honeybee Model, a Wea) are still written.
+    """
     folder = tempfile.mkdtemp(prefix="foton-gh-inputs-")
+
+    def stage(value, write, kind, extensions):
+        if not copy_files and isinstance(value, string_types):
+            path = os.path.abspath(os.path.expanduser(str(value)))
+            if not os.path.isfile(path):
+                raise FotonError(kind + " does not exist: " + path)
+            if extensions and os.path.splitext(path)[1].lower() not in extensions:
+                raise FotonError("Weather input must be an EPW or WEA file")
+            return path
+        return write(value, folder)
+
     try:
         return (
             folder,
-            _copy_or_write_model(model, folder),
-            _copy_or_write_weather(wea, folder),
-            _copy_or_write_schedule(schedule, folder),
+            stage(model, _copy_or_write_model, "HBJSON model", None),
+            stage(wea, _copy_or_write_weather, "EPW/WEA file", (".epw", ".wea")),
+            None if schedule is None else stage(
+                schedule, _copy_or_write_schedule, "Schedule file", None
+            ),
         )
     except Exception:
         shutil.rmtree(folder, ignore_errors=True)
@@ -856,7 +910,7 @@ def _start_worker(executable):
     )
     worker = {
         "process": process,
-        "messages": queue.Queue(),
+        "messages": _mailbox(),
         "errors": [],
         "next_id": 1,
         "ready": False,
@@ -937,6 +991,10 @@ def _write_line(stream, line):
     stream.flush()
 
 
+# Shortest gap between progress updates passed on from a live run.
+LIVE_PROGRESS_INTERVAL = 0.25
+
+
 def worker_request(executable, command, options, progress=None, cancel=None):
     """Send one request to the background worker and return its manifest."""
     executable = discover_executable(executable)
@@ -946,6 +1004,7 @@ def worker_request(executable, command, options, progress=None, cancel=None):
     request_id = str(worker["next_id"])
     worker["next_id"] += 1
     line = json.dumps({"id": request_id, "command": command, "options": options})
+    last_progress = None
     try:
         _write_line(worker["process"].stdin, line)
         while True:
@@ -957,7 +1016,13 @@ def worker_request(executable, command, options, progress=None, cancel=None):
                 return message.get("manifest") or {}
             if event == "failed":
                 raise FotonError(message.get("message") or "Foton failed")
-            if progress is not None:
+            # Each progress call redraws Rhino; a live run that ends in a
+            # fraction of a second only needs the first one.
+            now = time.time()
+            if progress is not None and (
+                last_progress is None or now - last_progress >= LIVE_PROGRESS_INTERVAL
+            ):
+                last_progress = now
                 progress(message)
     except FotonError as error:
         if not isinstance(error, FotonCancelled) and worker["process"].poll() is None:
@@ -986,7 +1051,7 @@ def _run_process(command, progress=None, cancel=None):
         bufsize=1,
         env=env,
     )
-    messages = queue.Queue()
+    messages = _mailbox()
     errors = []
 
     def read_stdout():
@@ -1088,7 +1153,7 @@ def run_annual_daylight(
     limits = thresholds(thresholds_value)
     maximum_bounces = DEFAULT_BOUNCES if maximum_bounces is None else int(maximum_bounces)
     temp_folder, model_path, weather_path, schedule_path = _prepare_inputs(
-        model, wea, schedule
+        model, wea, schedule, copy_files=not live
     )
     try:
         if live:
