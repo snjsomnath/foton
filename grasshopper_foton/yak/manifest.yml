@@ -11,6 +11,7 @@ description: >
   component installs the engine (and, if needed, its own Python) on first use.
   MIT licence.
 url: https://github.com/snjsomnath/foton
+icon: icon.png
 keywords:
 - daylight
 - honeybee

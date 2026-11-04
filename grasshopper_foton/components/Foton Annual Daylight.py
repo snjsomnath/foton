@@ -1,47 +1,71 @@
+# Foton: GPU daylight simulation for Grasshopper.
+# Copyright (c) 2026 Sanjay Somanath. Released under the MIT licence.
+# https://github.com/snjsomnath/foton
 """
-Run Foton annual daylight through the external ``foton-honeybee`` executable.
+Run an annual daylight study on the GPU and get Daylight Autonomy, Continuous
+Daylight Autonomy, Useful Daylight Illuminance and Spatial Daylight Autonomy
+for every sensor grid in a Honeybee model.
 
-GhPython component setup (IronPython 2.7):
-
-Inputs
-------
-_model             Item, Honeybee Model or HBJSON path
-_wea               Item, Ladybug Wea or EPW/WEA path
-schedule_           Item, optional 8760-value collection/schedule or CSV path
-north_              Item, optional degrees or Rhino vector; default 0
-thresholds_         Item, optional ``-t 300 -lt 100 -ut 3000`` or 3 values
-grid_filter_        Item, optional identifier wildcard; default ``*``
-quality_            Item, ``preview`` or ``final``; default ``final``
-sky_density_        Item, 1 (Tregenza) or 2 (Reinhart MF:2); default 1
-backend_            Item, ``auto``, ``metal``, ``vulkan``, or ``reference``
-output_folder_      Item, requested output folder
-executable_         Item, optional full path to ``foton-honeybee``
-reuse_              Item, reuse a compatible completed output; default True
-direct_samples_     Item, optional advanced override
-indirect_samples_   Item, optional advanced override
-bounces_            Item, optional diffuse bounce count; default 8 (the validated setting)
-seed_               Item, optional deterministic seed; default 0
-live_               Item, keep Foton running between runs for fast slider
-                    changes; writes no files, so ``results`` stays empty
-_run                Item, Boolean run toggle
-
-Outputs
--------
-report              Text progress/warnings
-results             One-item results-folder list; connect to HB annual result components
-                    (empty in live mode: turn live_ off to save a results folder)
-DA, cDA              Sensor values in one DataTree branch per SensorGrid
-UDI, UDI_low, UDI_up Sensor values in one DataTree branch per SensorGrid
-sDA                  One area-weighted percentage per SensorGrid
-grid_ids, room_ids   Lists in the same order as the DataTree branches
-manifest             Path to ``run_manifest.json``
-timings              Timing dictionary
-timings_text         Timing lines for direct Panel display
-warnings             Validation warnings
-folder               Foton output folder
-
-Add the repository parent folder to Rhino's IronPython module search paths so
-``grasshopper_foton`` can be imported. Foton itself runs in external CPython.
+Results are written in the same layout as Honeybee's Annual Daylight recipe,
+so connect results to HB Annual Daylight Metrics or HB Annual Results to Data
+to use them with other Ladybug Tools components. Pair a metric with the grid
+meshes in LB Spatial Heatmap to see it on the model.
+-
+    Args:
+        _model: A Honeybee Model with sensor grids, or the path to an HBJSON file.
+        _wea: A Ladybug Wea, or the path to an EPW or WEA weather file.
+        schedule_: Optional. An occupancy schedule: a Honeybee schedule, 8760
+            values, or a CSV file. Default: 8 am to 6 pm every day.
+        north_: Optional. The north direction as degrees counterclockwise from
+            the Y axis, or a vector. Default: 0.
+        thresholds_: Optional. Illuminance thresholds in lux, as text
+            ("-t 300 -lt 100 -ut 3000") or three numbers: the DA threshold,
+            then the lower and upper UDI limits. Default: 300, 100, 3000.
+        grid_filter_: Optional. Which sensor grids to run, by identifier;
+            wildcards like "Office*" work. Default: all grids.
+        quality_: Optional. "final" (the default, validated against Radiance)
+            or "preview" (faster and noisier, for quick design checks).
+        sky_density_: Optional. 1 for 145 sky patches (Tregenza, the default)
+            or 2 for 577 (Reinhart MF:2).
+        backend_: Optional. auto (the default), metal, vulkan, or reference (a
+            slow CPU fallback for diagnosis only).
+        output_folder_: Optional. Where to write results. Default: a folder named
+            after the model in Honeybee's simulation folder.
+        executable_: Optional. Path to foton-honeybee, usually from Foton Settings.
+        reuse_: Optional. True (the default) loads an earlier result for exactly
+            the same inputs instead of running again.
+        direct_samples_: Optional. Advanced: rays per sky patch for direct light.
+            Leave empty to use the quality setting.
+        indirect_samples_: Optional. Advanced: rays per sensor for reflected
+            light. Leave empty to use the quality setting.
+        bounces_: Optional. How many times light reflects. Default: 8, the
+            validated setting.
+        seed_: Optional. Random seed, so the same inputs give the same
+            numbers. Default: 0.
+        live_: Optional. True keeps Foton running in the background so slider
+            and geometry changes update in seconds. Live runs write no files,
+            so results stays empty.
+        _run: Set to True to run the study.
+    Returns:
+        report: Progress and messages from the run.
+        results: The results folder, for HB Annual Daylight Metrics and HB
+            Annual Results to Data. Empty in live mode.
+        DA: Daylight Autonomy (%) for each sensor, one branch per grid.
+        cDA: Continuous Daylight Autonomy (%) for each sensor, one branch per grid.
+        UDI: Useful Daylight Illuminance (%): occupied hours between the lower
+            and upper limits, one branch per grid.
+        UDI_low: Percentage of occupied hours below the lower UDI limit.
+        UDI_up: Percentage of occupied hours above the upper UDI limit.
+        sDA: Spatial Daylight Autonomy (%) for each grid: the share of floor
+            area with DA of at least 50 %.
+        grid_ids: Sensor grid identifiers, in branch order.
+        room_ids: Room identifiers, in branch order.
+        manifest: Path to run_manifest.json. Connect to Foton Annual Results to
+            reload this run later without running it again.
+        timings: How long each stage took, as a dictionary.
+        timings_text: The same timings as text, for a Panel.
+        warnings: Anything worth checking about the model or the run.
+        folder: The Foton output folder.
 """
 
 from __future__ import print_function
@@ -51,7 +75,7 @@ import re
 import sys
 
 try:
-    from grasshopper_foton.foton_gh import FotonCancelled, FotonError
+    from grasshopper_foton.foton_gh import COMPONENT_VERSION, FotonCancelled, FotonError
     from grasshopper_foton.foton_gh import run_annual_daylight
 except ImportError:
     parent = os.environ.get("FOTON_GH_PARENT")
@@ -60,7 +84,7 @@ except ImportError:
         if parent not in sys.path:
             sys.path.insert(0, parent)
     try:
-        from grasshopper_foton.foton_gh import FotonCancelled, FotonError
+        from grasshopper_foton.foton_gh import COMPONENT_VERSION, FotonCancelled, FotonError
         from grasshopper_foton.foton_gh import run_annual_daylight
     except ImportError:
         raise RuntimeError(
@@ -72,11 +96,11 @@ except ImportError:
 
 ghenv.Component.Name = "Foton Annual Daylight"
 ghenv.Component.NickName = "FotonAnnual"
-ghenv.Component.Message = "Protocol 1"
+ghenv.Component.Message = COMPONENT_VERSION
 ghenv.Component.Category = "HB-Foton"
-ghenv.Component.SubCategory = "3 :: Recipes"
+ghenv.Component.SubCategory = "1 :: Recipes"
 if hasattr(ghenv.Component, "AdditionalHelpFromDocStrings"):
-    ghenv.Component.AdditionalHelpFromDocStrings = "1"
+    ghenv.Component.AdditionalHelpFromDocStrings = "2"
 
 
 report = None

@@ -1,18 +1,32 @@
+# Foton: GPU daylight simulation for Grasshopper.
+# Copyright (c) 2026 Sanjay Somanath. Released under the MIT licence.
+# https://github.com/snjsomnath/foton
 """
-Load a completed Foton annual-daylight manifest without rerunning the solver.
+Load a saved Foton annual daylight run without running it again.
 
-GhPython inputs
----------------
-_manifest   Item, ``run_manifest.json`` path or its containing output folder
-_load       Item, Boolean load toggle
-
-GhPython outputs
-----------------
-report, results, DA, cDA, UDI, UDI_low, UDI_up, sDA, grid_ids, room_ids,
-manifest, timings, timings_text, warnings, folder
-
-``results`` and the metric DataTrees follow the same branch ordering used by
-Honeybee annual result components and LB Spatial Heatmap.
+Connect the manifest output of Foton Annual Daylight, or a results folder,
+and the outputs match the ones that run produced.
+-
+    Args:
+        _manifest: The path to run_manifest.json, or the folder that holds it.
+        _load: Set to True to load the results.
+    Returns:
+        report: What was loaded.
+        results: The results folder, for HB Annual Daylight Metrics and HB
+            Annual Results to Data.
+        DA: Daylight Autonomy (%) for each sensor, one branch per grid.
+        cDA: Continuous Daylight Autonomy (%) for each sensor, one branch per grid.
+        UDI: Useful Daylight Illuminance (%) for each sensor, one branch per grid.
+        UDI_low: Percentage of occupied hours below the lower UDI limit.
+        UDI_up: Percentage of occupied hours above the upper UDI limit.
+        sDA: Spatial Daylight Autonomy (%) for each grid.
+        grid_ids: Sensor grid identifiers, in branch order.
+        room_ids: Room identifiers, in branch order.
+        manifest: Path to the loaded run_manifest.json.
+        timings: How long each stage of the original run took.
+        timings_text: The same timings as text, for a Panel.
+        warnings: Warnings recorded with the run.
+        folder: The Foton output folder.
 """
 
 from __future__ import print_function
@@ -21,7 +35,7 @@ import os
 import sys
 
 try:
-    from grasshopper_foton.foton_gh import FotonError, load_result_bundle
+    from grasshopper_foton.foton_gh import COMPONENT_VERSION, FotonError, load_result_bundle
 except ImportError:
     parent = os.environ.get("FOTON_GH_PARENT")
     if parent:
@@ -29,7 +43,7 @@ except ImportError:
         if parent not in sys.path:
             sys.path.insert(0, parent)
     try:
-        from grasshopper_foton.foton_gh import FotonError, load_result_bundle
+        from grasshopper_foton.foton_gh import COMPONENT_VERSION, FotonError, load_result_bundle
     except ImportError:
         raise RuntimeError(
             "Cannot import grasshopper_foton. Add the repository parent directory "
@@ -40,11 +54,11 @@ except ImportError:
 
 ghenv.Component.Name = "Foton Annual Results"
 ghenv.Component.NickName = "FotonResults"
-ghenv.Component.Message = "Protocol 1"
+ghenv.Component.Message = COMPONENT_VERSION
 ghenv.Component.Category = "HB-Foton"
-ghenv.Component.SubCategory = "4 :: Results"
+ghenv.Component.SubCategory = "2 :: Results"
 if hasattr(ghenv.Component, "AdditionalHelpFromDocStrings"):
-    ghenv.Component.AdditionalHelpFromDocStrings = "1"
+    ghenv.Component.AdditionalHelpFromDocStrings = "2"
 
 
 report = None

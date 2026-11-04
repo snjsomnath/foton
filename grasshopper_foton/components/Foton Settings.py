@@ -1,22 +1,38 @@
+# Foton: GPU daylight simulation for Grasshopper.
+# Copyright (c) 2026 Sanjay Somanath. Released under the MIT licence.
+# https://github.com/snjsomnath/foton
 """
-Discover and inspect the external ``foton-honeybee`` installation.
+Find Foton on this computer, install it if needed, and check that it can use
+the GPU.
 
-GhPython inputs
----------------
-executable_  Item, optional explicit ``foton-honeybee``/``.exe`` path
-backend_     Item, optional backend to inspect; default ``auto``
-python_      Item, optional Python 3.10-3.13 to install into; found automatically
-install_     Item, Boolean: install Foton into its own environment (~/.foton)
-             if it is missing or too old, then check it
-_check       Item, Boolean check toggle
-
-Without executable_, Foton is looked for in its own environment, on PATH and
-in the usual Python folders, so most users connect nothing.
-
-GhPython outputs
-----------------
-report, executable, engine_version, protocol_version, backend, capabilities,
-cache_folder
+Most people connect nothing but a Boolean Toggle to _check. The first time,
+set install_ to True: Foton is installed into its own folder (~/.foton), with
+its own Python if this computer has none. Nothing outside that folder changes.
+After that, Check reports the Foton version and the GPU it will use.
+-
+    Args:
+        executable_: Optional. Full path to foton-honeybee (foton-honeybee.exe on
+            Windows). Leave empty to look in ~/.foton, on PATH and in the usual
+            Python folders.
+        backend_: Optional. The GPU backend to check: auto (the default), metal,
+            vulkan, or reference (a slow CPU fallback for diagnosis only).
+        python_: Optional. A Python 3.10 to 3.13 for install_ to build Foton's
+            environment from. Leave empty to use one found on this computer,
+            or a private Python 3.12 if there is none.
+        install_: Set to True once to install Foton, or to upgrade an older
+            version, and then check it. Needs an internet connection and takes
+            a minute or two.
+        _check: Set to True to find Foton and report what it can run on.
+    Returns:
+        report: What was found or installed, and the full check report.
+        executable: Path to foton-honeybee. Connect it to executable_ on the
+            other Foton components if Foton is not in a standard place.
+        engine_version: The installed Foton version.
+        protocol_version: The version of the protocol the components use to
+            talk to Foton.
+        backend: The backend Foton will use, such as metal or vulkan.
+        capabilities: The full check report as a dictionary.
+        cache_folder: Folder where Foton keeps prepared weather data.
 """
 
 from __future__ import print_function
@@ -26,7 +42,7 @@ import os
 import sys
 
 try:
-    from grasshopper_foton.foton_gh import FotonError, capabilities as get_capabilities, install_foton
+    from grasshopper_foton.foton_gh import COMPONENT_VERSION, FotonError, capabilities as get_capabilities, install_foton
 except ImportError:
     parent = os.environ.get("FOTON_GH_PARENT")
     if parent:
@@ -34,7 +50,7 @@ except ImportError:
         if parent not in sys.path:
             sys.path.insert(0, parent)
     try:
-        from grasshopper_foton.foton_gh import FotonError, capabilities as get_capabilities, install_foton
+        from grasshopper_foton.foton_gh import COMPONENT_VERSION, FotonError, capabilities as get_capabilities, install_foton
     except ImportError:
         raise RuntimeError(
             "Cannot import grasshopper_foton. Add the repository parent directory "
@@ -45,11 +61,11 @@ except ImportError:
 
 ghenv.Component.Name = "Foton Settings"
 ghenv.Component.NickName = "FotonSettings"
-ghenv.Component.Message = "Protocol 1"
+ghenv.Component.Message = COMPONENT_VERSION
 ghenv.Component.Category = "HB-Foton"
 ghenv.Component.SubCategory = "0 :: Settings"
 if hasattr(ghenv.Component, "AdditionalHelpFromDocStrings"):
-    ghenv.Component.AdditionalHelpFromDocStrings = "1"
+    ghenv.Component.AdditionalHelpFromDocStrings = "2"
 
 
 report = None

@@ -1,38 +1,43 @@
+# Foton: GPU daylight simulation for Grasshopper.
+# Copyright (c) 2026 Sanjay Somanath. Released under the MIT licence.
+# https://github.com/snjsomnath/foton
 """
-Run Foton daylight factor through the external ``foton-honeybee`` executable.
+Run a daylight factor study on the GPU for every sensor grid in a Honeybee
+model.
 
-Daylight factor is the indoor illuminance under a CIE overcast sky as a
-percentage of the unobstructed outdoor illuminance. No weather file is needed.
-
-GhPython component setup (IronPython 2.7):
-
-Inputs
-------
-_model             Item, Honeybee Model or HBJSON path
-grid_filter_        Item, optional identifier wildcard; default ``*``
-quality_            Item, ``preview`` or ``final``; default ``final``
-sky_density_        Item, 1 (Tregenza) or 2 (Reinhart MF:2); default 1
-backend_            Item, ``auto``, ``metal``, ``vulkan``, or ``reference``
-output_folder_      Item, requested output folder
-executable_         Item, optional full path to ``foton-honeybee``
-bounces_            Item, optional diffuse bounce count; default 8 (the validated setting)
-live_               Item, keep Foton running between runs for fast slider
-                    changes; writes no files, so ``results`` stays empty
-_run                Item, Boolean run toggle
-
-Outputs
--------
-report              Text progress/warnings
-results             One-item results-folder list in Honeybee's daylight-factor
-                    layout (one .res file per SensorGrid); empty in live mode
-DF                  Daylight factor (%) in one DataTree branch per SensorGrid
-mean_DF             Mean daylight factor (%) per SensorGrid
-grid_ids, room_ids  Lists in the same order as the DataTree branches
-timings_text        Timing lines for direct Panel display
-folder              Foton output folder
-
-Pair ``DF`` with the SensorGrid meshes in LB Spatial Heatmap; branch and
-sensor order follow the HBJSON model.
+Daylight factor is the light indoors under an overcast sky, as a percentage of
+the light outdoors. It needs no weather file. Results are written in the same
+layout as Honeybee's Daylight Factor recipe. Pair DF with the grid meshes in
+LB Spatial Heatmap to see it on the model.
+-
+    Args:
+        _model: A Honeybee Model with sensor grids, or the path to an HBJSON file.
+        grid_filter_: Optional. Which sensor grids to run, by identifier;
+            wildcards like "Office*" work. Default: all grids.
+        quality_: Optional. "final" (the default, validated against Radiance)
+            or "preview" (faster and noisier, for quick design checks).
+        sky_density_: Optional. 1 for 145 sky patches (Tregenza, the default)
+            or 2 for 577 (Reinhart MF:2).
+        backend_: Optional. auto (the default), metal, vulkan, or reference (a
+            slow CPU fallback for diagnosis only).
+        output_folder_: Optional. Where to write results. Default: a folder named
+            after the model in Honeybee's simulation folder.
+        executable_: Optional. Path to foton-honeybee, usually from Foton Settings.
+        bounces_: Optional. How many times light reflects. Default: 8, the
+            validated setting.
+        live_: Optional. True keeps Foton running in the background so changes
+            update in seconds. Live runs write no files, so results stays empty.
+        _run: Set to True to run the study.
+    Returns:
+        report: Progress and messages from the run.
+        results: The results folder, in Honeybee's daylight factor layout.
+            Empty in live mode.
+        DF: Daylight factor (%) for each sensor, one branch per grid.
+        mean_DF: Average daylight factor (%) for each grid.
+        grid_ids: Sensor grid identifiers, in branch order.
+        room_ids: Room identifiers, in branch order.
+        timings_text: How long each stage took, as text for a Panel.
+        folder: The Foton output folder.
 """
 
 from __future__ import print_function
@@ -42,7 +47,7 @@ import re
 import sys
 
 try:
-    from grasshopper_foton.foton_gh import FotonCancelled, FotonError
+    from grasshopper_foton.foton_gh import COMPONENT_VERSION, FotonCancelled, FotonError
     from grasshopper_foton.foton_gh import run_daylight_factor
 except ImportError:
     parent = os.environ.get("FOTON_GH_PARENT")
@@ -51,7 +56,7 @@ except ImportError:
         if parent not in sys.path:
             sys.path.insert(0, parent)
     try:
-        from grasshopper_foton.foton_gh import FotonCancelled, FotonError
+        from grasshopper_foton.foton_gh import COMPONENT_VERSION, FotonCancelled, FotonError
         from grasshopper_foton.foton_gh import run_daylight_factor
     except ImportError:
         raise RuntimeError(
@@ -63,11 +68,11 @@ except ImportError:
 
 ghenv.Component.Name = "Foton Daylight Factor"
 ghenv.Component.NickName = "FotonDF"
-ghenv.Component.Message = "Protocol 1"
+ghenv.Component.Message = COMPONENT_VERSION
 ghenv.Component.Category = "HB-Foton"
-ghenv.Component.SubCategory = "3 :: Recipes"
+ghenv.Component.SubCategory = "1 :: Recipes"
 if hasattr(ghenv.Component, "AdditionalHelpFromDocStrings"):
-    ghenv.Component.AdditionalHelpFromDocStrings = "1"
+    ghenv.Component.AdditionalHelpFromDocStrings = "2"
 
 
 report = None

@@ -66,8 +66,9 @@ jobs:
 
   wheels:
     # The extension uses Python's stable ABI (abi3), so one wheel per platform
-    # covers Python 3.10 and later. The Intel Mac wheel is cross-compiled on
-    # the Apple-silicon runner instead of waiting for a slow Intel one.
+    # covers Python 3.10 and later. The Intel Mac wheel is built on a native
+    # Intel runner: the Vulkan crate compiles shaderc (C++) at build time,
+    # which is not worth the risk of cross-compiling.
     name: Wheel / ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -77,7 +78,7 @@ jobs:
           - {name: Linux x86_64, os: ubuntu-latest, target: "", test: true}
           - {name: Windows x86_64, os: windows-latest, target: "", test: true}
           - {name: macOS arm64, os: macos-14, target: aarch64-apple-darwin, test: true}
-          - {name: macOS x86_64, os: macos-14, target: x86_64-apple-darwin, test: false}
+          - {name: macOS x86_64, os: macos-15-intel, target: "", test: true}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7

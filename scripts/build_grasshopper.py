@@ -8,7 +8,6 @@ from __future__ import print_function
 import hashlib
 import json
 import os
-import re
 import traceback
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -43,9 +42,10 @@ def component_spec(name, code=None):
     def entries(text):
         result = []
         for line in text.splitlines():
-            match = re.match(r"^ {8}(\w+): (.*)$", line)
-            if match:
-                result.append([match.group(1), match.group(2).strip()])
+            name, separator, text = line.strip().partition(": ")
+            port = line.startswith(" " * 8) and not line.startswith(" " * 9)
+            if port and separator and name.replace("_", "").isalnum():
+                result.append([name, text.strip()])
             elif line.strip() and result:
                 result[-1][1] += " " + line.strip()
         return [tuple(entry) for entry in result]
@@ -57,7 +57,7 @@ def component_spec(name, code=None):
     )
 
     def setting(key):
-        return re.search(r"ghenv\.Component\.%s = \"([^\"]+)\"" % key, code).group(1)
+        return assigned_text(code, "ghenv.Component." + key)
 
     return {
         "name": name,
@@ -71,9 +71,22 @@ def component_spec(name, code=None):
     }
 
 
+def assigned_text(code, target):
+    """The quoted string assigned to ``target`` on a line of its own.
+
+    Plain string handling rather than ``re``: Rhino's IronPython 2 runs regular
+    expressions on .NET, where multiline anchors behave differently.
+    """
+    prefix = target + " = "
+    for line in code.splitlines():
+        line = line.strip()
+        if line.startswith(prefix) and line[len(prefix):][:1] in ("\"", "'"):
+            return line[len(prefix) + 1:-1]
+    raise RuntimeError("No %s found" % target)
+
+
 def component_version():
-    match = re.search(r'^COMPONENT_VERSION = "([^"]+)"', source("grasshopper_foton/foton_gh.py"), re.MULTILINE)
-    return match.group(1)
+    return assigned_text(source("grasshopper_foton/foton_gh.py"), "COMPONENT_VERSION")
 
 
 def embedded_script(name):

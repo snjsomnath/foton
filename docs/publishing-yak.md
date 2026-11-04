@@ -66,7 +66,7 @@ It checks the Grasshopper build, copies the package files into `dist/yak/`,
 runs `yak build --platform any` there, and moves the result to `dist/`:
 
 ```text
-dist/foton-0.3.2-any-any.yak
+dist/foton-<version>-any-any.yak
 ```
 
 **Why "any-any"?** Yak names a package `<name>-<version>-<rhino>-<platform>.yak`.
@@ -83,17 +83,17 @@ description says so.
 2. Install the file you just built:
 
    ```bash
-   yak install dist/foton-0.3.2-any-any.yak
+   yak install dist/foton-<version>-any-any.yak
    ```
 
 3. Restart Rhino and open Grasshopper. Rhino's Package Manager lists foton under
    **Installed**:
 
-   ![Package Manager, Installed tab, with foton 0.3.2 ticked](images/install/01-package-manager-installed.png)
+   ![Package Manager, Installed tab, with foton ticked](images/install/01-package-manager-installed.png)
 
 4. Check the four components appear on the **HB-Foton** tab and in canvas
-   search (double-click the canvas and type **Foton**). In 0.3.2 they do not:
-   its user objects are marked hidden, which is fixed from 0.3.3. Open the example from the package folder
+   search (double-click the canvas and type **Foton**), each with its own icon
+   and the version under it. Open the example from the package folder
    (`~/Library/Application Support/McNeel/Rhinoceros/packages/8.0/foton/<version>/`
    on a Mac, `%APPDATA%\McNeel\Rhinoceros\packages\8.0\foton\<version>\` on
    Windows) and run Check and Run on it.
@@ -109,15 +109,15 @@ McNeel runs a test server that does not appear in anyone's Package Manager.
 Push there first:
 
 ```bash
-yak push --source https://test.yak.rhino3d.com dist/foton-0.3.2-any-any.yak
+yak push --source https://test.yak.rhino3d.com dist/foton-<version>-any-any.yak
 yak search --source https://test.yak.rhino3d.com foton
 ```
 
-The search should print `foton (0.3.2)`. You can also install from it to check
+The search should print `foton (<version>)`. You can also install from it to check
 the download:
 
 ```bash
-yak install --source https://test.yak.rhino3d.com foton 0.3.2
+yak install --source https://test.yak.rhino3d.com foton <version>
 ```
 
 Treat the test server as temporary: McNeel can clear it at any time.
@@ -125,7 +125,7 @@ Treat the test server as temporary: McNeel can clear it at any time.
 ## Publish for real
 
 ```bash
-yak push dist/foton-0.3.2-any-any.yak
+yak push dist/foton-<version>-any-any.yak
 yak search foton
 ```
 
@@ -138,7 +138,7 @@ You cannot delete a version, but you can hide it ("yank" it) so Package Manager
 stops offering it:
 
 ```bash
-yak yank foton 0.3.2
+yak yank foton <version>
 ```
 
 People who already installed it keep it until they update. Push a fixed version

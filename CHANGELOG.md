@@ -15,11 +15,16 @@ Makes installing Foton in Rhino straightforward.
   finds no Python 3.10 to 3.13, it downloads uv into `~/.foton`, which fetches
   a private Python 3.12 for Foton's environment. Nothing outside `~/.foton`
   changes.
+- The components are easier to use: each has its own icon, a description,
+  and help text on every input and output (hover over one to read it). The
+  version shows under each component, and the toolbar groups them into
+  Settings, Recipes and Results.
 - Foton is packaged for Rhino's Package Manager (Yak). The release workflow
   builds the package, attaches it to the GitHub release and publishes it.
 - New step-by-step install guide with screenshots in
   `docs/grasshopper-quickstart.md`, and a maintainer guide in
   `docs/publishing-yak.md`.
+- The citation (CITATION.cff) now lists Alexander Hollberg as second author.
 - CI runs less: a push to main after a tested pull request gets a quick Linux
   check, a newer push cancels a pull request's older run, pull requests test
   four Python jobs instead of six, and the viewer is checked only when it
