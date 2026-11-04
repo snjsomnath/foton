@@ -5,31 +5,94 @@ passing release evidence should be described as validated.
 
 ## Install once
 
-1. Download the versioned `foton-grasshopper-<version>.zip` release asset and extract
-   the entire archive into a permanent folder. Keep `examples` beside the `.gh` file.
-2. Open **Foton First Analysis.gh** in Rhino 8 Grasshopper. The components already
-   contain their scripts and bridge; no script editing or module search paths are needed.
-   To reuse them in other definitions, copy the four `.ghuser` files into the
-   Grasshopper User Objects folder (available from Grasshopper's File / Special Folders menu).
-3. Set `install_` to True on **Foton Settings**. It finds a Python 3.10 to 3.13 on your
-   computer, creates Foton's own environment in `~/.foton`, and installs
-   `foton-daylight[honeybee]` into it. The download happens once, and the component
-   shows each step as it goes. Once Foton is installed, leaving the
-   toggle on costs only a quick check.
+### What you need
 
-If you have no Python 3.10 to 3.13, install one from python.org first. If you would
-rather install Foton yourself, run `python -m pip install "foton-daylight[honeybee]"`;
-Foton Settings looks in the usual pip, virtual-environment and pipx folders, so you
-normally don't need to connect a path.
+- **Rhino 8** on a Mac or a Windows PC.
+- **A GPU Foton can use.** On a Mac: any Apple silicon Mac (M1 or later). On
+  Windows: an NVIDIA RTX, AMD Radeon RX 6000 or newer, or Intel Arc graphics card
+  with a current driver. Other computers fall back to a slow CPU mode that is only
+  meant for checking problems.
+- **Python 3.10, 3.11, 3.12 or 3.13**, installed from
+  [python.org](https://www.python.org/downloads/). Rhino's own Python does not
+  count. A new Mac already has a `python3`, but it is version 3.9, which is too
+  old, so install one from python.org anyway.
 
-Radiance is not needed. The annual sky matrix is computed by Foton's own Perez
-all-weather model. Radiance 5.4a is used only to reproduce the validation evidence;
-if it is installed, Foton Settings reports it and a run can opt into its sky.
+Radiance is not needed.
 
-The downloadable asset is produced only from a Rhino-generated, round-trip-tested
-build matching the current component sources. If no asset is published yet, the
-manual scripts in `grasshopper_foton/components` remain developer sources, not a
-completed easy-install release.
+### Step 1: get the Foton components
+
+There are two ways. Use the first once Foton is listed in Rhino's Package
+Manager; until then, use the second.
+
+**A. From Rhino's Package Manager (once Foton is listed)**
+
+1. In Rhino, type `PackageManager` and press Enter.
+2. Search for **foton**, select it and click **Install**.
+3. Restart Rhino. The Installed tab now shows **foton**:
+
+   ![Package Manager, Installed tab, with foton 0.3.2 ticked](images/install/01-package-manager-installed.png)
+
+The package also contains the example definition. You can find it in Rhino's
+packages folder, under `foton/<version>/Foton First Analysis.gh`.
+
+**B. From the release download (works today)**
+
+1. Download `foton-grasshopper-<version>.zip` from the
+   [latest release](https://github.com/snjsomnath/foton/releases/latest).
+2. Unzip the whole archive into a folder you will keep. Keep the `examples`
+   folder next to `Foton First Analysis.gh`.
+3. To use the components in your own definitions, copy the four `.ghuser`
+   files into Grasshopper's User Objects folder. In Grasshopper, choose
+   **File > Special Folders > User Object Folder** to open it, then restart Rhino.
+
+### Step 2: find the components
+
+In 0.3.2 the Foton components are hidden from the Grasshopper toolbar and from
+canvas search, so typing "Foton" on the canvas finds nothing. This is fixed from
+0.3.3. Until then:
+
+1. Open **Foton First Analysis.gh**. It already has every component wired up.
+2. To use a component in your own definition, select it in the example, copy it
+   (Cmd+C on a Mac, Ctrl+C on Windows) and paste it into your definition.
+
+From 0.3.3, the components have their own **HB-Foton** tab, and you can also
+double-click an empty part of the canvas and type **Foton**.
+
+### Step 3: let Foton Settings install the rest
+
+1. Open **Foton First Analysis.gh** in Grasshopper.
+2. Set the `install_` toggle on **Foton Settings** to True. Foton Settings finds
+   your Python, makes Foton's own environment in a `.foton` folder in your home
+   folder, and downloads Foton into it. It shows each step as it goes. This
+   happens once and takes a minute or two.
+
+   ![Foton Settings showing the install steps](images/install/03-settings-install.png)
+
+3. Set `_check` to True. The report shows the Foton version and the GPU it will
+   use. It should say **Metal** on a Mac or **Vulkan** on Windows, not CPU.
+
+   ![Foton Settings check report naming the GPU](images/install/04-settings-check.png)
+
+If Foton Settings says it found no Python, install one from python.org (see
+"What you need") or connect the full path of your `python` to `python_`. If you
+would rather install Foton yourself, run
+`python -m pip install "foton-daylight[honeybee]"`; Foton Settings finds it in
+the usual places.
+
+### Step 4: run the example
+
+Set `_run` on **Foton Annual Daylight** to True. The first run also prepares the
+weather data, so it takes a little longer than later runs.
+
+![The example definition after a run](images/install/05-example-run.png)
+
+Connect `results` to **HB Annual Daylight Metrics** and its `DA` output, with the
+room's sensor grid mesh, to **LB Spatial Heatmap** to see the result in Rhino:
+
+![Daylight autonomy drawn by LB Spatial Heatmap](images/install/06-heatmap.png)
+
+The download is built in Rhino from the same component sources as the release
+and checked before it is published.
 
 ## Five-minute example
 
