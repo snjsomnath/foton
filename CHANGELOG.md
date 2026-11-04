@@ -2,8 +2,15 @@
 
 All notable Foton changes are recorded here.
 
-## Unreleased
+## 0.3.2 - 2026-11-04
 
+The first release with Foton's own sky: `pip install foton-daylight[honeybee]`
+now runs annual daylight with no Radiance install. It also brings live mode,
+daylight factor and a one-click install to Grasshopper, and a rewritten README
+for first-time visitors.
+
+- The README is rewritten for a first-time visitor, with charts of speed and
+  accuracy and a diagram of how a run works.
 - Grasshopper now defaults to 8 diffuse bounces, the validated setting. The
   Foton Annual Daylight component used to pass `bounces_ = 1` when nothing was
   connected, which reads about 18 % low; scripted and command-line runs were
