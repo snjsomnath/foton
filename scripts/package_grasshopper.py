@@ -17,6 +17,11 @@ def verify_build(root=ROOT):
     manifest = json.loads((folder / "build_manifest.json").read_text())
     if manifest.get("round_trip_passed") is not True:
         raise ValueError("Grasshopper archive round-trip has not passed")
+    if manifest.get("help_and_icons_verified") is not True:
+        raise ValueError(
+            "Grasshopper components lost tooltips or icons in the build: "
+            + "; ".join(manifest.get("help_warnings", ["not checked"]))
+        )
     required = {
         "Foton Settings.ghuser",
         "Foton Annual Daylight.ghuser",

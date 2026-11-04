@@ -179,7 +179,7 @@ def main():
         return obj
 
     version = component_version()
-    objects, output_files = [], []
+    objects, output_files, help_warnings = [], [], []
     for index, name in enumerate(COMPONENT_NAMES):
         spec = component_spec(name)
         inputs = [port for port, _ in spec["inputs"]]
@@ -205,16 +205,18 @@ def main():
         restored = loaded.InstantiateObject()
         if restored is None or [p.Name for p in restored.Params.Input] != list(inputs):
             raise RuntimeError("User object round-trip failed: " + name)
-        # Tooltips help but do not change results, so a lost one is reported
-        # rather than stopping the build.
+        # Recorded rather than raised, so the build finishes and every loss is
+        # listed at once; package_grasshopper.py refuses a build with any.
         for params, ports in ((restored.Params.Input, spec["inputs"]), (restored.Params.Output, spec["outputs"])):
             for param, (port, hint) in zip(params, ports):
                 if param.Description != hint:
-                    print("WARNING: %s %s tooltip after reload: %r" % (name, port, param.Description))
+                    help_warnings.append("%s %s tooltip after reload: %r" % (name, port, param.Description))
         if loaded.Exposure != GH_Exposure.primary:
             raise RuntimeError("User object is not exposed in the ribbon: " + name)
         if loaded.Icon is None:
-            print("WARNING: %s has no icon after reload" % name)
+            help_warnings.append("%s has no icon after reload" % name)
+        if not loaded.Description.Description.startswith(spec["description"][:40]):
+            help_warnings.append("%s description after reload: %r" % (name, loaded.Description.Description))
         if loaded.Description.SubCategory != spec["subcategory"]:
             raise RuntimeError("User object is in the wrong ribbon panel: " + name)
         if restored.Obsolete:
@@ -286,10 +288,13 @@ output = os.path.join(os.path.expanduser("~"), "foton_simulation", "first_exampl
             return hashlib.sha256(stream.read()).hexdigest()
     import Rhino
     manifest = {"schema_version": 1, "rhino_version": str(Rhino.RhinoApp.Version), "round_trip_passed": True,
+                "help_and_icons_verified": not help_warnings, "help_warnings": help_warnings,
                 "sources": dict((p, sha(os.path.join(ROOT, p))) for p in sources),
                 "artifacts": dict((p, sha(os.path.join(OUTPUT, p))) for p in output_files)}
     with open(os.path.join(OUTPUT, "build_manifest.json"), "w") as stream:
         json.dump(manifest, stream, indent=2, sort_keys=True)
+    for warning in help_warnings:
+        print("WARNING: " + warning)
     print("Foton Grasshopper artifacts built in " + OUTPUT)
 
 
