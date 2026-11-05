@@ -2,7 +2,7 @@
 
 All notable Foton changes are recorded here.
 
-## Unreleased
+## 0.3.4 - 2026-11-04
 
 Fixes the Grasshopper install on Windows, found by the first Windows test.
 

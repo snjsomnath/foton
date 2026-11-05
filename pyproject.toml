@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "foton-daylight"
-version = "0.3.3"
+version = "0.3.4"
 description = "Fast annual daylight simulation on the GPU for Honeybee models, checked against Radiance"
 readme = "README.md"
 requires-python = ">=3.10"
