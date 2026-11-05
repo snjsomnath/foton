@@ -1,0 +1,40 @@
+{
+  "commit": "967462c2c6f28f5db30069b91601063947558d84",
+  "engine_version": "0.3.5",
+  "rhino_version": "8.35.26251.13002",
+  "system": "Darwin",
+  "backend": "metal",
+  "tested_at": "2026-11-05",
+  "notes": "macOS 26.6.2 on Apple M4 Pro, Rhino 8.35.26251.13002 with the same Ladybug Tools install as the 0.3.4 checklist, existing Rhino profile, Radiance 5.4a. Components: the Grasshopper build committed at 967462c (built in Rhino 8.35 with scripts/build_grasshopper.py from the 0.3.5 version bump 4f2a1c5; build_manifest help_and_icons_verified and round_trip_passed true). Rhino was driven through McNeel's Rhino MCP router 0.4.0 (spawned Rhino instance, Python runner). install: dist/foton-0.3.5-any-any.yak from scripts/package_yak.py installed with yak install (yak list shows foton 0.3.5), Rhino restarted; the HB-Foton category holds one Foton subcategory with all four components, each with an icon and not obsolete, loaded from packages/8.0/foton/0.3.5; canvas search for Foton finds all four; each shows 0.3.5 as its message and its description ends Foton 0.3.5. Foton Settings install_ was toggled inside Rhino, using the install_ toggle wired in the example definition, with FOTON_HOME at a scratch folder and PIP_FIND_LINKS at the local 0.3.5 wheel (0.3.5 is not on PyPI yet; the ~=0.3.3 requirement accepts it): it installs in the background (Message counts Installing m:ss with a remark, and Rhino answered other calls meanwhile), was switched off mid-install and stopped cleanly (no pip process left), the next toggle carried on and ended at 0.3.5 / metal with the check report, and toggling again reported Foton 0.3.5 is already installed. Forced failure: with PIP_INDEX_URL at an unreachable URL and no find-links, install_ turned Settings red (Error level, Message Install failed); report holds pip's error, pip could not install Foton (exit code 1), the pip command to run in a terminal and the path of the full log; install.log and pip.log were written in FOTON_HOME. python_ = uv, run headless from the bundle's foton_gh with the installed Python 3.12 present: it skipped that Python, downloaded uv and Python 3.12.16 and installed 0.3.5 in 32 s. open_example, run, rerun, change_inputs, upgrade_invalidates_reuse, reload_moved_results, cancel: scripts/check_grasshopper.py in a freshly started Rhino against the extracted dist/foton-grasshopper-0.3.5.zip with FOTON_HONEYBEE_EXE=/Users/ssanjay/GitHub/foton-0.3.5/.venv/bin/foton-honeybee; all ten checks passed (rhino-smoke.json), engine 0.3.5 on metal. honeybee_metrics: HB Annual Daylight Metrics read the results folder of a fresh Foton Annual Daylight run of the bundle's shoebox example (executable_ set to the same foton-honeybee) and returned DA identical to Foton's own DA on all 36 sensors (max difference 0.0 pp), no errors or warnings; the run manifest reports engine 0.3.5. ladybug_heatmap: LB Spatial Heatmap built a 36-face mesh with vertex colours from those DA values and the example model's SensorGrid mesh (HB Load Objects into HB Get Grids and Views), no errors or warnings on the heatmap; HB Load Objects warned that the example's model schema 2.4.0 is newer than the installed Honeybee schema 2.2.0, and loaded it. ~/.foton was upgraded from 0.3.1 to the local 0.3.5 wheel (foton-honeybee capabilities: 0.3.5, metal, ready). Flipping _run during a run (new for 0.3.5): see additional_checks and README. Clicks were real AppKit mouse events posted to Rhino's event queue at the toggle's on-screen position while the screen was locked, so ESC could not be sent. Not covered: a fresh Rhino profile, Windows, the Package Manager window and hover tooltips by eye (checked through the component server instead), install_ against the published PyPI release, and ESC during a run.",
+  "scenarios": {
+    "install": true,
+    "open_example": true,
+    "run": true,
+    "cancel": true,
+    "rerun": true,
+    "change_inputs": true,
+    "upgrade_invalidates_reuse": true,
+    "reload_moved_results": true,
+    "honeybee_metrics": true,
+    "ladybug_heatmap": true
+  },
+  "additional_checks": {
+    "midrun_run_toggle": {
+      "annual_daylight": {
+        "run_completes_without_expired_error": true,
+        "canvas_locked_during_run": true,
+        "click_ignored": false,
+        "canvas_usable_after_run": true,
+        "esc_cancels": null
+      },
+      "daylight_factor": {
+        "run_completes_without_expired_error": true,
+        "canvas_locked_during_run": true,
+        "click_ignored": false,
+        "canvas_usable_after_run": true,
+        "esc_cancels": null
+      },
+      "note": "macOS: the double-click on _run during a run reaches the canvas while it is disabled and Grasshopper applies it right after the solution ends, so _run flips back to False and the component solves again with _run off, clearing its canvas outputs (results stay on disk). The same happens with the 0.3.4 components, which do not lock the canvas, and neither showed object expired during a solution, so the Windows error did not reproduce on macOS. esc_cancels is null: not tested, the screen was locked so no key events could reach Rhino."
+    }
+  }
+}

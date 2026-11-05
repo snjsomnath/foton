@@ -207,7 +207,7 @@ suites.
 | --- | --- | --- |
 | [Metal suite](../validation/results/2026-11-04-architectural-v4-metal-0.3.3-release/README.md) | Apple M4 Pro, macOS 26.6, Radiance 5.4a | reused from 0.3.3 |
 | [Vulkan suite](../validation/results/2026-11-04-architectural-v4-vulkan-t4-0.3.3/README.md) | NVIDIA Tesla T4, Linux (Google Colab), Radiance 5.4a | reused from 0.3.3 |
-| [Rhino 8 checklist](../validation/results/2026-11-05-rhino-macos-0.3.5/README.md) | Rhino 8.35, macOS, Metal, Ladybug Tools 1.9.0 | all ten scenarios, plus flipping `_run` during a run |
+| [Rhino 8 checklist](../validation/results/2026-11-05-rhino-macos-0.3.5/README.md) | Rhino 8.35, macOS, Metal, Ladybug Tools 1.9.0 | all ten scenarios. Flipping `_run` during a run: no error, but on macOS the click takes effect after the run instead of being ignored, as it did in 0.3.4; ESC not tested |
 
 ### Tested platforms for 0.3.4
 
