@@ -211,14 +211,17 @@ Foton is released under the
 published methods and data it builds on, and
 [THIRD_PARTY_LICENSES.md](https://github.com/snjsomnath/foton/blob/main/THIRD_PARTY_LICENSES.md)
 lists the open-source libraries inside the Python package.
+[ACKNOWLEDGEMENTS.md](https://github.com/snjsomnath/foton/blob/main/ACKNOWLEDGEMENTS.md)
+thanks the people and projects that made Foton possible.
 
 Foton works alongside [Ladybug Tools](https://www.ladybug.tools/) and is tested
 against [Radiance](https://www.radiance-online.org/). It is not affiliated with
 either project. The optional Honeybee packages are licensed separately under
 AGPL-3.0 and GPL-3.0, and Foton does not include their code.
 
-## Author
+## Authors
 
-Foton is written and maintained by
+Foton was started and is led by
 [Sanjay Somanath](https://github.com/snjsomnath) at Chalmers University of
-Technology.
+Technology. Its copyright belongs to the Foton contributors; see
+[AUTHORS.md](https://github.com/snjsomnath/foton/blob/main/AUTHORS.md).
