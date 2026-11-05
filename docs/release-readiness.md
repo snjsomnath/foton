@@ -198,6 +198,27 @@ combinations as tested and everything else as unverified. The
 a registered self-hosted GPU runner, but a run on any machine with Radiance
 and the GPU, committed under `validation/results/`, is equally valid evidence.
 
+### Tested platforms for 0.3.5
+
+0.3.5 changes only the Grasshopper components, so it reuses the 0.3.3 GPU
+suites.
+
+| Evidence | Platform | Result |
+| --- | --- | --- |
+| [Metal suite](../validation/results/2026-11-04-architectural-v4-metal-0.3.3-release/README.md) | Apple M4 Pro, macOS 26.6, Radiance 5.4a | reused from 0.3.3 |
+| [Vulkan suite](../validation/results/2026-11-04-architectural-v4-vulkan-t4-0.3.3/README.md) | NVIDIA Tesla T4, Linux (Google Colab), Radiance 5.4a | reused from 0.3.3 |
+| [Rhino 8 checklist](../validation/results/2026-11-05-rhino-macos-0.3.5/README.md) | Rhino 8.35, macOS, Metal, Ladybug Tools 1.9.0 | all ten scenarios. Flipping `_run` during a run: no error, but on macOS the click takes effect after the run instead of being ignored, as it did in 0.3.4; ESC not tested |
+
+### Tested platforms for 0.3.4
+
+0.3.4 changes only the Grasshopper components, so it reuses the 0.3.3 GPU
+suites.
+
+| Evidence | Platform | Result |
+| --- | --- | --- |
+| [Rhino 8 checklist](../validation/results/2026-11-04-rhino-macos-0.3.4/README.md) | Rhino 8.35, macOS, Metal, Ladybug Tools 1.9.0 | all ten scenarios |
+| Windows volunteer, 2026-11-05 | Rhino 8, Windows, Vulkan (GPU and system details to follow) | checked by a volunteer, not a full validation: Package Manager install, `install_` (about 1.5 minutes), Check selects Vulkan, the example and the volunteer's own room run. Flipping `_run` during a run showed "object expired during a solution", fixed in 0.3.5. The Python install and the benchmark are not done yet. |
+
 ### Tested platforms for 0.3.3
 
 | Evidence | Platform | Result |
@@ -231,8 +252,9 @@ and the GPU, committed under `validation/results/`, is equally valid evidence.
 | [Rhino 8 checklist](../validation/results/2026-11-03-rhino-macos/README.md) | Rhino 8.35, macOS, Metal, Ladybug Tools 1.9.0 | all ten scenarios |
 | [Reference campaign](../validation/results/2026-11-03-architectural-v4-metal-0.3.0/README.md) | Apple M4 Pro, 6.2 h with twelve Radiance workers | source of the published reference bundle |
 
-Unverified: Windows on any backend, Rhino on Windows, a fresh Rhino profile,
-any GPU other than the two above.
+Unverified: the Windows numerical suite and benchmark, Rhino on Windows beyond
+the one volunteer check above, a fresh Rhino profile, any GPU other than the
+two above.
 
 ## Launch checklist
 

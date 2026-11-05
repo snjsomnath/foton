@@ -1,0 +1,30 @@
+{
+  "scope": "automated_existing_Rhino_profile",
+  "checks": {
+    "run": true,
+    "reload_results": true,
+    "daylight_factor": true,
+    "reuse": true,
+    "upgrade_invalidates_reuse": true,
+    "changed_inputs_new_folder": true,
+    "live_matches_saved": true,
+    "live_reuses_coefficients": true,
+    "moved_results": true,
+    "cancel_external_process": true
+  },
+  "output": "/var/folders/81/qfpv0x1960ld1mtj3mzsvycr0000gn/T/foton-rhino-check-zqteyigw",
+  "backend": "metal",
+  "engine_version": "0.3.5",
+  "reuse_report": [
+    "reused\nReused compatible results."
+  ],
+  "reuse_paths": [
+    "/var/folders/81/qfpv0x1960ld1mtj3mzsvycr0000gn/T/foton-rhino-check-zqteyigw/annual/run_manifest.json",
+    "/var/folders/81/qfpv0x1960ld1mtj3mzsvycr0000gn/T/foton-rhino-check-zqteyigw/annual/run_manifest.json"
+  ],
+  "live_timings": [
+    "coefficient_trace_seconds: 0.0\ncold_end_to_end_seconds: None\nengine_acceleration_structure_seconds: 0.0\nengine_annual_reduction_seconds: 0.000431708525866\nengine_snapshot_seconds: 0.0\nengine_tracing_seconds: 0.0\nengine_upload_seconds: 5.6083e-05\nmetric_reduction_seconds: 0.0106094998773\nraw_export_seconds: 0.0\nstudy_preparation_seconds: 0.144406749867\ntotal_seconds: 0.0120888750535\nwarm_study_seconds: 0.0120888750535\nweather_seconds: 0.00117204105482\nwrite_seconds: 2.91969627142e-07"
+  ],
+  "rhino_version": "8.35.26251.13002",
+  "passed": true
+}

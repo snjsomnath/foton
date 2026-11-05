@@ -12,10 +12,11 @@ installs and the benchmark.
 3. Install Foton with Python on its own.
 4. Run the speed benchmark and send the result.
 
-**You need Foton 0.3.4 or newer.** 0.3.4 fixes the automatic install inside
-Grasshopper on Windows, which failed in 0.3.3. Check the version at the top of
+**You need Foton 0.3.5 or newer.** 0.3.4 fixed the automatic install inside
+Grasshopper on Windows, and 0.3.5 fixes an error when you flip a toggle during
+a run. Check the version at the top of
 [pypi.org/project/foton-daylight](https://pypi.org/project/foton-daylight/).
-The steps below say 0.3.4; if a newer version is out, use that number instead.
+The steps below say 0.3.5; if a newer version is out, use that number instead.
 
 **Please do the parts in this order.** Parts 1 and 2 test the route for people
 who have never installed Python. If Python is already on your computer, Part 2
@@ -79,7 +80,7 @@ The example file came with the package.
 1. Open File Explorer, paste this into the address bar and press Enter:
 
    ```
-   %APPDATA%\McNeel\Rhinoceros\packages\8.0\foton\0.3.4
+   %APPDATA%\McNeel\Rhinoceros\packages\8.0\foton\0.3.5
    ```
 
 2. Open **Foton First Analysis.gh** in Grasshopper. It holds a small shaded room
@@ -97,8 +98,13 @@ The example file came with the package.
    version and say **Vulkan** with your graphics card's name. If it says **CPU**
    or **reference** instead, that's important: take a screenshot.
 6. Set `_run` on **Foton Annual Daylight** to **True**. The first run takes a
-   little longer because it prepares the weather data. Note how long it takes,
-   then set it to False and True again and note the time of the second run too.
+   little longer because it prepares the weather data. Note how long it takes.
+   Set `_run` back to False and True: the component says **Reused** and loads
+   the saved result instantly. To time a real second run, connect a Boolean
+   Toggle set to False to `reuse_`, then set `_run` to False and True again and
+   note that time too. While that run is going, click `_run` once more. Note
+   whether Grasshopper shows "object expired during a solution", and what
+   happens when the run ends.
 7. Optional: connect `results` to **HB Annual Daylight Metrics**, and its `DA`
    output with the room's sensor grid mesh to **LB Spatial Heatmap**, to see the
    colours on the room in Rhino. Take a screenshot.
@@ -128,7 +134,7 @@ is also what the benchmark in Part 4 uses.
 
    ```
    py -3.12 -m venv $HOME\foton-test
-   & $HOME\foton-test\Scripts\python -m pip install "foton-daylight[honeybee]==0.3.4"
+   & $HOME\foton-test\Scripts\python -m pip install "foton-daylight[honeybee]==0.3.5"
    ```
 
 3. Check that Foton finds your graphics card:
@@ -152,14 +158,14 @@ steps the Grasshopper component goes through. It saves its results inside the
 folder you unzip. Skip this part if Foton said `reference` or CPU in Part 3.
 
 1. Download the Foton source for your version:
-   [github.com/snjsomnath/foton/archive/refs/tags/v0.3.4.zip](https://github.com/snjsomnath/foton/archive/refs/tags/v0.3.4.zip).
+   [github.com/snjsomnath/foton/archive/refs/tags/v0.3.5.zip](https://github.com/snjsomnath/foton/archive/refs/tags/v0.3.5.zip).
    Right-click the zip, choose **Extract All**, and extract it to your user
-   folder. You should end up with a folder called `foton-0.3.4`.
+   folder. You should end up with a folder called `foton-0.3.5`.
 2. Close other heavy programs, including Rhino. Keep a laptop plugged in.
 3. In PowerShell, run:
 
    ```
-   cd $HOME\foton-0.3.4
+   cd $HOME\foton-0.3.5
    & $HOME\foton-test\Scripts\python scripts\benchmark_suite.py
    ```
 
@@ -167,7 +173,7 @@ folder you unzip. Skip this part if Foton said `reference` or CPU in Part 3.
    so allow up to 20 minutes. If it stops with an error, copy all the text in
    the window into your report.
 
-4. When it's done, open the folder `foton-0.3.4\benchmarks\machines`. Inside is
+4. When it's done, open the folder `foton-0.3.5\benchmarks\machines`. Inside is
    a new folder named after your processor and graphics card, with one `.json`
    file in it. That file is your result.
 
@@ -185,7 +191,7 @@ change. You only need a GitHub account and a web browser.
    [github.com/snjsomnath/foton/tree/main/benchmarks/machines](https://github.com/snjsomnath/foton/tree/main/benchmarks/machines).
 2. Click **Add file**, then **Upload files**. GitHub may say it will make your
    own copy (a fork) of the project first. That's expected; agree to it.
-3. In File Explorer, open `foton-0.3.4\benchmarks\machines`. Drag the folder
+3. In File Explorer, open `foton-0.3.5\benchmarks\machines`. Drag the folder
    named after your computer (not just the file inside it) onto the GitHub page.
 4. Under **Commit changes**, type `Benchmark: <your processor> and <your graphics card>`,
    for example `Benchmark: Ryzen 9 7950X and RTX 4080`.

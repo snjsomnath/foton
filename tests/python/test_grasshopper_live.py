@@ -551,3 +551,21 @@ def test_install_starts_again_after_it_was_stopped(monkeypatch, tmp_path):
     assert second["executable"] == "/fake/foton-honeybee"
     assert second["error"] is None
     foton_gh.reset_install()
+
+
+def test_runs_lock_the_canvas_and_unlock_it(monkeypatch):
+    import types
+
+    canvas = types.SimpleNamespace(Enabled=True)
+    grasshopper = types.ModuleType("Grasshopper")
+    grasshopper.Instances = types.SimpleNamespace(ActiveCanvas=canvas)
+    monkeypatch.setitem(sys.modules, "Grasshopper", grasshopper)
+    unlock = foton_gh.lock_canvas()
+    assert canvas.Enabled is False
+    unlock()
+    assert canvas.Enabled is True
+
+
+def test_lock_canvas_is_harmless_outside_rhino(monkeypatch):
+    monkeypatch.delitem(sys.modules, "Grasshopper", raising=False)
+    foton_gh.lock_canvas()()  # no Grasshopper: nothing to lock, nothing raised
