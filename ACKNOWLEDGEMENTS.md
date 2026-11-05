@@ -53,4 +53,5 @@ the open.
 ## Chalmers
 
 Foton was made for teaching daylight design at Chalmers University of
-Technology.
+Technology. Thanks to Alexander Hollberg, supervisor and principal
+investigator, for funding this work and for the freedom to explore it.
