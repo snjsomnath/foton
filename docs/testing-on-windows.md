@@ -102,7 +102,9 @@ The example file came with the package.
    Set `_run` back to False and True: the component says **Reused** and loads
    the saved result instantly. To time a real second run, connect a Boolean
    Toggle set to False to `reuse_`, then set `_run` to False and True again and
-   note that time too.
+   note that time too. While that run is going, click `_run` once more. Note
+   whether Grasshopper shows "object expired during a solution", and what
+   happens when the run ends.
 7. Optional: connect `results` to **HB Annual Daylight Metrics**, and its `DA`
    output with the room's sensor grid mesh to **LB Spatial Heatmap**, to see the
    colours on the room in Rhino. Take a screenshot.

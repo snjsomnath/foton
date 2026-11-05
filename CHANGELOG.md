@@ -6,11 +6,13 @@ All notable Foton changes are recorded here.
 
 Fixes a Grasshopper error found by the second Windows test.
 
-- Foton Annual Daylight and Foton Daylight Factor ignore clicks on the
-  Grasshopper canvas while a run is in progress. Before, flipping a toggle
-  during a run expired the running component: Grasshopper kept reporting
-  "object expired during a solution" until the run ended as cancelled. Press
-  ESC to stop a run.
+- Foton Annual Daylight and Foton Daylight Factor lock the Grasshopper canvas
+  while a run is in progress. On Windows, flipping a toggle during a run
+  expired the running component: Grasshopper kept reporting "object expired
+  during a solution" until the run ended as cancelled. The lock is meant to
+  stop that; it still needs confirming on Windows. On a Mac the error never
+  happened, and a click made during a run takes effect once the run ends.
+  Press ESC to stop a run.
 - The Windows testing guide explains how to time a second run that isn't
   reused.
 
