@@ -165,6 +165,7 @@ running one after the other on the same model and settings traces only once.
 | Install can't download uv or Python | Check the internet connection (a proxy may block github.com). Or install Python 3.10 to 3.13 from python.org and set `install_` again, or connect a `python` executable to `python_`. |
 | Install failed | The component turns red and `report` shows each step and the error. Every step is also saved in `install.log`, and pip's own log in `pip.log`, both in the `.foton` folder in your home folder. The error ends with the exact command, so you can run it in Command Prompt or Terminal to see the problem directly. On an office network, a proxy or SSL inspection is the usual cause. |
 | Components missing from the toolbar | You're on 0.3.2 or earlier: update, or copy the components from **Foton First Analysis.gh**. |
+| "Object expired during a solution" | Fixed in 0.3.5. In 0.3.4 and earlier, flipping a toggle while a run is going shows this error until the run ends as cancelled. Wait for the run to finish, or press ESC to stop it, before changing inputs. |
 | Live run is no faster | The first live run starts Foton and traces as usual; only later runs on the same model are fast. |
 | Settings reports `gendaymtx` unavailable | Nothing to do: annual runs use Foton's built-in sky. Install Radiance 5.4a and set `RADIANCE_BIN` only to reproduce validation evidence or to opt into `gendaymtx`. |
 | Reference CPU selected | Update the GPU driver and inspect backend requirements; explicit Metal/Vulkan requests report errors instead of falling back. |

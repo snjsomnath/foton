@@ -480,6 +480,37 @@ def _ensure_folder(folder):
     return folder
 
 
+def lock_canvas():
+    """Ignore clicks on the Grasshopper canvas while a run is in progress.
+
+    A run lets Rhino redraw and checks for ESC, which also handles mouse
+    clicks. Flipping a toggle then expires the component that is still
+    running, and Grasshopper keeps reporting "object expired during a
+    solution" until the run ends as cancelled. Returns a function that
+    unlocks the canvas again; call it in a ``finally``.
+    """
+    try:
+        import Grasshopper
+
+        canvas = Grasshopper.Instances.ActiveCanvas
+    except Exception:  # outside Rhino, or no canvas open
+        return lambda: None
+    if canvas is None or not getattr(canvas, "Enabled", False):
+        return lambda: None
+    try:
+        canvas.Enabled = False
+    except Exception:
+        return lambda: None
+
+    def unlock():
+        try:
+            canvas.Enabled = True
+        except Exception:
+            pass
+
+    return unlock
+
+
 def install_log_path():
     """Where the last install_ run wrote every step, including pip's output."""
     return os.path.join(foton_home(), "install.log")

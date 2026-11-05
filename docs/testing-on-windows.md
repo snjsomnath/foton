@@ -97,8 +97,11 @@ The example file came with the package.
    version and say **Vulkan** with your graphics card's name. If it says **CPU**
    or **reference** instead, that's important: take a screenshot.
 6. Set `_run` on **Foton Annual Daylight** to **True**. The first run takes a
-   little longer because it prepares the weather data. Note how long it takes,
-   then set it to False and True again and note the time of the second run too.
+   little longer because it prepares the weather data. Note how long it takes.
+   Set `_run` back to False and True: the component says **Reused** and loads
+   the saved result instantly. To time a real second run, connect a Boolean
+   Toggle set to False to `reuse_`, then set `_run` to False and True again and
+   note that time too.
 7. Optional: connect `results` to **HB Annual Daylight Metrics**, and its `DA`
    output with the room's sensor grid mesh to **LB Spatial Heatmap**, to see the
    colours on the room in Rhino. Take a screenshot.

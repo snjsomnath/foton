@@ -75,7 +75,7 @@ import re
 import sys
 
 try:
-    from grasshopper_foton.foton_gh import COMPONENT_VERSION, FotonCancelled, FotonError
+    from grasshopper_foton.foton_gh import COMPONENT_VERSION, FotonCancelled, FotonError, lock_canvas
     from grasshopper_foton.foton_gh import run_annual_daylight
 except ImportError:
     parent = os.environ.get("FOTON_GH_PARENT")
@@ -84,7 +84,7 @@ except ImportError:
         if parent not in sys.path:
             sys.path.insert(0, parent)
     try:
-        from grasshopper_foton.foton_gh import COMPONENT_VERSION, FotonCancelled, FotonError
+        from grasshopper_foton.foton_gh import COMPONENT_VERSION, FotonCancelled, FotonError, lock_canvas
         from grasshopper_foton.foton_gh import run_annual_daylight
     except ImportError:
         raise RuntimeError(
@@ -179,6 +179,7 @@ if globals().get("_run", False):
     if globals().get("_model") is None or globals().get("_wea") is None:
         raise ValueError("Connect both _model and _wea before setting _run to True.")
     requested_output = optional("output_folder_", default_output(_model))
+    unlock_canvas = lock_canvas()
     try:
         bundle = run_annual_daylight(
             _model,
@@ -238,3 +239,5 @@ if globals().get("_run", False):
         report = str(error)
         ghenv.Component.Message = "Failed"
         raise RuntimeError(report)
+    finally:
+        unlock_canvas()
