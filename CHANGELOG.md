@@ -2,7 +2,9 @@
 
 All notable Foton changes are recorded here.
 
-## Unreleased
+## 0.3.5 - 2026-11-05
+
+Fixes a Grasshopper error found by the second Windows test.
 
 - Foton Annual Daylight and Foton Daylight Factor ignore clicks on the
   Grasshopper canvas while a run is in progress. Before, flipping a toggle
