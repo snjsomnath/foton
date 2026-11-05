@@ -40,8 +40,8 @@ in [NOTICE](NOTICE).
 
 ## People who shared their work
 
-Mathias Sønderskov Schaltz, and Stephan Hirth of VICUS Software, shared GPU
-daylight work on LinkedIn that encouraged us to try this ourselves.
+People in the building-simulation community who shared their own GPU daylight
+work on LinkedIn encouraged us to try this ourselves.
 
 ## How Foton was written
 
