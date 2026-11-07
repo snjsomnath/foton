@@ -167,6 +167,16 @@ about 1 percentage point
 - [FAQ](https://github.com/snjsomnath/foton/blob/main/docs/faq.md)
 - [Changelog](https://github.com/snjsomnath/foton/blob/main/CHANGELOG.md)
 
+### Daylight studio in Colab
+
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/snjsomnath/foton/blob/main/notebooks/daylight_studio.ipynb)
+
+An interactive notebook that runs Foton on a free Colab T4 GPU: shape a
+building, set each façade's windows, overhangs and a neighbour, and see the
+daylight factor and annual daylight autonomy on every floor in about a second.
+Choose *Runtime → Change runtime type → T4 GPU*, then *Run all*. See
+[notebooks/daylight_studio.ipynb](https://github.com/snjsomnath/foton/blob/main/notebooks/daylight_studio.ipynb).
+
 ### Live teaching demo
 
 A clone of this repository also includes a one-minute animated teaching demo
