@@ -29,6 +29,8 @@ def verify_build(root=ROOT):
         "Foton Daylight Factor.ghuser",
         "Foton First Analysis.gh",
         "Foton First Analysis.ghx",
+        "Foton Interactive Demo.gh",
+        "Foton Interactive Demo.ghx",
     }
     if set(manifest.get("artifacts", {})) != required:
         raise ValueError("Grasshopper build is incomplete")
@@ -36,6 +38,7 @@ def verify_build(root=ROOT):
         "scripts/build_grasshopper.py",
         "python/foton_bridge/__init__.py",
         "grasshopper_foton/foton_gh.py",
+        "grasshopper_foton/examples/demo_room.py",
         *(
             folder_name + name + suffix
             for name in (

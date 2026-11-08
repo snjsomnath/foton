@@ -24,6 +24,18 @@ loads Foton's CPython native extension.
 5. If Rhino cannot find the executable from `PATH`, connect its full path to
    `executable_`. No Python executable path or generated runner script is used.
 
+## Example definitions
+
+`scripts/build_grasshopper.py` also builds the two definitions that ship with
+the components:
+
+- **Foton First Analysis** runs the four components on a shoebox model.
+- **Foton Interactive Demo** builds a room from sliders and shows daylight
+  autonomy updating live, with an optional daylight factor plan, a neighbouring
+  block and a saved run that Honeybee reads. The room builder's code lives in
+  [`examples/demo_room.py`](examples/demo_room.py). It needs Ladybug Tools, so
+  build it in a Rhino that has Ladybug Tools installed.
+
 ## Components
 
 ### Foton Settings
@@ -46,7 +58,8 @@ step reports its exit code and the command to run by hand.
 ### Foton Annual Daylight
 
 Accepts a Honeybee Model or HBJSON path and a Ladybug Wea or EPW/WEA path. It
-also accepts Honeybee-style `-t/-lt/-ut` thresholds, an annual schedule, numeric
+also accepts Honeybee-style `-t/-lt/-ut` thresholds (or a single number for the
+DA threshold, such as a slider), an annual schedule, numeric
 or vector north, quality, sky density, backend, grid filter, and advanced sample
 overrides.
 

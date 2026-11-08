@@ -21,6 +21,6 @@ def test_stage_copies_the_verified_build(tmp_path):
     pytest.importorskip("honeybee")
     staged = package_yak.stage(tmp_path / "yak", ROOT)
     assert staged == sorted(package_yak.STAGED)
-    for name in package_yak.USER_OBJECTS:
+    for name in (*package_yak.USER_OBJECTS, "Foton First Analysis.gh", "Foton Interactive Demo.gh"):
         expected = (ROOT / "grasshopper_foton/distribution" / name).read_bytes()
         assert (tmp_path / "yak" / name).read_bytes() == expected

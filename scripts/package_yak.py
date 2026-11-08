@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Build the Rhino Package Manager (Yak) package from the verified Grasshopper build.
 
-The package holds the four Foton user objects, the example definition with its
-model and weather file, and the licence. It reuses the Rhino-built components
+The package holds the four Foton user objects, the two example definitions with
+their model and weather file, and the licence. It reuses the Rhino-built components
 that ``package_grasshopper.py`` checks; nothing is rebuilt here.
 """
 
@@ -30,6 +30,7 @@ STAGED = (
     "icon.png",
     *USER_OBJECTS,
     "Foton First Analysis.gh",
+    "Foton Interactive Demo.gh",
     "examples/shoebox.hbjson",
     "examples/gothenburg.epw",
     "LICENSE",
@@ -72,7 +73,7 @@ def stage(folder, root=ROOT):
     distribution = root / "grasshopper_foton/distribution"
     shutil.copy2(root / "grasshopper_foton/yak/manifest.yml", folder / "manifest.yml")
     shutil.copy2(root / "grasshopper_foton/yak/icon.png", folder / "icon.png")
-    for name in (*USER_OBJECTS, "Foton First Analysis.gh"):
+    for name in (*USER_OBJECTS, "Foton First Analysis.gh", "Foton Interactive Demo.gh"):
         shutil.copy2(distribution / name, folder / name)
     from validation.scenes import make_scene
 

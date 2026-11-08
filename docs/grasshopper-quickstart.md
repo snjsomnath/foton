@@ -30,15 +30,16 @@ folder in your home folder.
 
    ![Package Manager, Installed tab, with foton ticked](images/install/01-package-manager-installed.png)
 
-The package also contains the example definition. You can find it in Rhino's
-packages folder, under `foton/<version>/Foton First Analysis.gh`.
+The package also contains two example definitions, **Foton First Analysis.gh**
+and **Foton Interactive Demo.gh**. You can find them in Rhino's packages folder,
+under `foton/<version>/`.
 
 **B. From the release download**
 
 1. Download `foton-grasshopper-<version>.zip` from the
    [latest release](https://github.com/snjsomnath/foton/releases/latest).
 2. Unzip the whole archive into a folder you will keep. Keep the `examples`
-   folder next to `Foton First Analysis.gh`.
+   folder next to the two example definitions.
 3. Copy the four `.ghuser` files into Grasshopper's User Objects folder. In
    Grasshopper, choose **File > Special Folders > User Object Folder** to open
    it, then restart Rhino.
@@ -128,6 +129,36 @@ Use `quality_ = final` when evaluating accuracy; it is the preset the
 validated against converged Radiance. Preview is visibly labelled. Changing
 inputs, quality defaults, solver versions, backend, or sky model version invalidates
 automatic reuse. Missing/corrupt metric files also cause a new run in a numbered folder.
+
+## Interactive demo
+
+Open **Foton Interactive Demo.gh** to play with a room and watch its daylight
+change as you drag. It needs Ladybug Tools, like the heatmap above.
+
+![Daylight autonomy on the floor of the demo room, and daylight factor on a plan beside it](images/grasshopper-interactive-demo.png)
+
+The panel at the top left says what to do:
+
+1. If you haven't installed Foton yet, set `install_` on Foton Settings to True and
+   wait for it to finish.
+2. Drag the sliders under **Room**: width, depth, height, floors, rooms per floor,
+   rotation, how much of each wall is window, and the overhang. With one room, daylight
+   autonomy on the floor updates as you drag, in about a fifth of a second on an M4 Pro.
+   A bigger building takes longer: about 3 seconds for 3 floors of 4 rooms.
+3. Turn on **Neighbour block** and slide it closer to see the light drop. Turn on
+   **Daylight factor** to see it on the plan beside the room. Each slider move then
+   takes a little longer.
+4. Press **Save run**. Foton writes a normal results folder, and both Foton Annual
+   Results and Honeybee's HB Annual Daylight Metrics read it. A panel at the far right
+   compares the two: they agree to 0.00 %.
+
+The coloured groups show what is what. Blue groups are Foton's own components, the
+ones in the HB-Foton tab. Green groups are Ladybug Tools. Orange groups only belong to
+this demo: the room builder and two small helpers. Use the blue and green parts in your
+own definitions.
+
+Before the first **Save run**, HB Annual Daylight Metrics shows an orange warning
+because it has no results folder to read yet. It goes away once you save a run.
 
 ## Live mode for sliders
 
