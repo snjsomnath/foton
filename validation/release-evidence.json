@@ -1,6 +1,6 @@
 {
   "schema_version": 2,
-  "version": "0.3.5",
+  "version": "0.3.6",
   "note": "Evidence that qualifies the tagged release; scripts/verify_release_evidence.py checks every file here against the release commit. Each suite must be a complete, clean, non-smoke run of the corpus on the release commit (or an ancestor differing only by evidence, documentation, tests, workflows and the verifier). Both suites are judged against the published reference bundle references-corpus4-2026-11-03, exported from the Metal campaign validation/results/2026-11-03-architectural-v4-metal-0.3.0.",
   "numerical": [
     {
@@ -9,7 +9,7 @@
     },
     {
       "backend": "vulkan",
-      "suite": "validation/results/2026-11-04-architectural-v4-vulkan-t4-0.3.3/suite.json"
+      "suite": "validation/results/2026-11-08-architectural-v4-vulkan-t4-e200cfc/suite.json"
     }
   ],
   "rhino": [
