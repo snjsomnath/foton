@@ -13,6 +13,10 @@ byte-identical to 0.3.5.
   2.4 times faster on the 256-room office block. If a model doesn't fit in the
   card's memory, Foton falls back to system memory instead of failing. Setting
   `FOTON_VULKAN_HOST_MEMORY=1` forces the old behaviour, for comparisons.
+- Grasshopper runs on Vulkan are much faster. The component asks for hourly
+  illuminance, which Vulkan worked out on a single CPU thread: about 37 s of a
+  40 s run on the office block on a Colab L4. It now uses every CPU core and
+  SIMD, adding in the same order as before, so the values are unchanged.
 - Sample tiles are sent to the GPU eight at a time, all room BVHs are built in
   one go, and the sampling loop stops early, as it already did on Metal.
 
