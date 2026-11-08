@@ -490,38 +490,47 @@ impl Buffer {
         let requirements = unsafe { context.device.get_buffer_memory_requirements(handle) };
         let host_flags =
             vk::MemoryPropertyFlags::HOST_VISIBLE | vk::MemoryPropertyFlags::HOST_COHERENT;
-        let (memory_type, host_visible) = if host_visible {
-            let index = memory_type(&context.memory, requirements.memory_type_bits, host_flags)
-                .ok_or_else(|| backend("no host-visible Vulkan memory type supports the buffer"))?;
-            (index, true)
-        } else if let Some(index) = memory_type(
-            &context.memory,
-            requirements.memory_type_bits,
-            vk::MemoryPropertyFlags::DEVICE_LOCAL,
-        ) {
-            (index, false)
-        } else {
-            let index = memory_type(&context.memory, requirements.memory_type_bits, host_flags)
-                .ok_or_else(|| backend("no Vulkan memory type supports the buffer"))?;
-            (index, true)
+        let allocate = |required: vk::MemoryPropertyFlags| {
+            let index = memory_type(&context.memory, requirements.memory_type_bits, required)?;
+            let mut flags = vk::MemoryAllocateFlagsInfo::default()
+                .flags(vk::MemoryAllocateFlags::DEVICE_ADDRESS);
+            Some(unsafe {
+                context.device.allocate_memory(
+                    &vk::MemoryAllocateInfo::default()
+                        .allocation_size(requirements.size)
+                        .memory_type_index(index)
+                        .push_next(&mut flags),
+                    None,
+                )
+            })
         };
-        let mut flags =
-            vk::MemoryAllocateFlagsInfo::default().flags(vk::MemoryAllocateFlags::DEVICE_ADDRESS);
-        let memory = unsafe {
-            context.device.allocate_memory(
-                &vk::MemoryAllocateInfo::default()
-                    .allocation_size(requirements.size)
-                    .memory_type_index(memory_type)
-                    .push_next(&mut flags),
-                None,
-            )
+        // GPU memory first. If the card is out of it, or has none this buffer
+        // can use, fall back to host-visible memory: slower, but it still works.
+        let device_attempt = if host_visible {
+            None
+        } else {
+            allocate(vk::MemoryPropertyFlags::DEVICE_LOCAL)
+        };
+        let (memory, host_visible) = match device_attempt {
+            Some(Ok(memory)) => Ok((memory, false)),
+            Some(Err(error)) if error != vk::Result::ERROR_OUT_OF_DEVICE_MEMORY => {
+                Err(backend(format!("allocate Vulkan buffer memory: {error}")))
+            }
+            _ => match allocate(host_flags) {
+                Some(Ok(memory)) => Ok((memory, true)),
+                Some(Err(error)) => Err(backend(format!("allocate Vulkan buffer memory: {error}"))),
+                None => Err(backend(
+                    "no host-visible Vulkan memory type supports the buffer",
+                )),
+            },
         }
-        .map_err(vk_error("allocate Vulkan buffer memory"))?;
-        unsafe {
-            context
-                .device
-                .bind_buffer_memory(handle, memory, 0)
-                .map_err(vk_error("bind Vulkan buffer memory"))?;
+        .inspect_err(|_| unsafe { context.device.destroy_buffer(handle, None) })?;
+        if let Err(error) = unsafe { context.device.bind_buffer_memory(handle, memory, 0) } {
+            unsafe {
+                context.device.destroy_buffer(handle, None);
+                context.device.free_memory(memory, None);
+            }
+            return Err(backend(format!("bind Vulkan buffer memory: {error}")));
         }
         Ok(Self {
             device: Arc::clone(&context.device),
