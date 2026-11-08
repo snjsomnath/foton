@@ -36,7 +36,7 @@ except NameError:
 
 
 # Shown on each component; kept in step with pyproject.toml.
-COMPONENT_VERSION = "0.3.5"
+COMPONENT_VERSION = "0.3.6"
 PROTOCOL_NAME = "foton.honeybee"
 PROTOCOL_VERSION = 1
 METRICS = ("da", "cda", "udi_lower", "udi", "udi_upper")
@@ -151,12 +151,12 @@ def request_data(
 
 
 # The package the one-click install puts in Foton's own environment. The lower
-# bound is the first release with the built-in sky, the daylight-factor
-# command and the background worker these components use. "~=0.3.3" means
-# 0.3.3 or newer within 0.3, written without "<" or ">" so that no Windows
+# bound is these components' own release, so install_ upgrades an older engine
+# instead of keeping it: 0.3.6 made Vulkan runs much faster. "~=0.3.6" means
+# 0.3.6 or newer within 0.3, written without "<" or ">" so that no Windows
 # shell can read part of it as a redirect.
-ENGINE_REQUIREMENT = "foton-daylight[honeybee]~=0.3.3"
-ENGINE_MINIMUM = (0, 3, 3)
+ENGINE_REQUIREMENT = "foton-daylight[honeybee]~=0.3.6"
+ENGINE_MINIMUM = (0, 3, 6)
 ENGINE_MAXIMUM = (0, 4, 0)
 SUPPORTED_PYTHONS = ((3, 13), (3, 12), (3, 11), (3, 10))
 DEFAULT_BOUNCES = 8  # keep in step with foton.honeybee.annual.DEFAULT_MAXIMUM_BOUNCES
@@ -902,7 +902,10 @@ def thresholds(value=None):
     result = {"threshold": 300.0, "udi_lower": 100.0, "udi_upper": 3000.0}
     if value is None or value == "":
         return result
-    if isinstance(value, string_types):
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        # A lone number, such as a slider, is the DA threshold.
+        result["threshold"] = float(value)
+    elif isinstance(value, string_types):
         tokens = str(value).replace(",", " ").split()
         mapping = {"-t": "threshold", "-lt": "udi_lower", "-ut": "udi_upper"}
         index = 0
@@ -1372,7 +1375,9 @@ def worker_request(executable, command, options, progress=None, cancel=None):
     request_id = str(worker["next_id"])
     worker["next_id"] += 1
     line = json.dumps({"id": request_id, "command": command, "options": options})
-    last_progress = None
+    # Each progress call redraws Rhino. A live run usually ends well within
+    # the interval, so it shows none and the result arrives sooner.
+    last_progress = time.time()
     try:
         _write_line(worker["process"].stdin, line)
         while True:
@@ -1384,12 +1389,8 @@ def worker_request(executable, command, options, progress=None, cancel=None):
                 return message.get("manifest") or {}
             if event == "failed":
                 raise FotonError(message.get("message") or "Foton failed")
-            # Each progress call redraws Rhino; a live run that ends in a
-            # fraction of a second only needs the first one.
             now = time.time()
-            if progress is not None and (
-                last_progress is None or now - last_progress >= LIVE_PROGRESS_INTERVAL
-            ):
+            if progress is not None and now - last_progress >= LIVE_PROGRESS_INTERVAL:
                 last_progress = now
                 progress(message)
     except FotonError as error:

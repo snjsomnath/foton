@@ -83,10 +83,10 @@ def test_engine_version_range_matches_this_release():
     assert foton_gh._version_tuple(version)[:2] == foton_gh.ENGINE_MINIMUM[:2]
     if foton_gh._version_tuple(version) >= foton_gh.ENGINE_MINIMUM:
         assert foton_gh.engine_version_supported(version)
-    assert not foton_gh.engine_version_supported("0.3.2")
+    assert not foton_gh.engine_version_supported("0.3.5")
     assert not foton_gh.engine_version_supported("0.4.0")
-    assert foton_gh.engine_version_supported("0.3.3.dev1")
-    assert foton_gh.ENGINE_REQUIREMENT.endswith("~=0.3.3")
+    assert foton_gh.engine_version_supported("0.3.6.dev1")
+    assert foton_gh.ENGINE_REQUIREMENT.endswith("~=0.3.6")
     # No "<" or ">", which a Windows shell would read as a redirect.
     assert not any(c in foton_gh.ENGINE_REQUIREMENT for c in "<>|&^")
 
@@ -109,7 +109,7 @@ def test_find_base_python_rejects_an_old_interpreter(tmp_path, monkeypatch):
 def test_install_is_skipped_when_a_supported_engine_is_present(tmp_path, monkeypatch):
     monkeypatch.setenv("FOTON_HOME", str(tmp_path))
     _make_executable(Path(foton_gh.environment_executable()), "#!/bin/sh\n")
-    with patch.object(foton_gh, "capabilities", return_value={"engine_version": "0.3.3"}), \
+    with patch.object(foton_gh, "capabilities", return_value={"engine_version": "0.3.6"}), \
             patch.object(foton_gh, "_stream_command") as run:
         assert foton_gh.install_foton() == foton_gh.environment_executable()
     run.assert_not_called()

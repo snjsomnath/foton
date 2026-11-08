@@ -198,6 +198,20 @@ combinations as tested and everything else as unverified. The
 a registered self-hosted GPU runner, but a run on any machine with Radiance
 and the GPU, committed under `validation/results/`, is equally valid evidence.
 
+### Tested platforms for 0.3.6
+
+0.3.6 speeds up the Vulkan backend (GPU memory placement, batched dispatches
+and a threaded hourly export) without changing its results. The Metal engine
+is unchanged, so the 0.3.3 Metal suite still qualifies it. The Vulkan suite
+was rerun on a T4 on e200cfc, which has the 0.3.6 engine; only version numbers
+differ between that commit and the release.
+
+| Evidence | Platform | Result |
+|---|---|---|
+| [Metal suite](../validation/results/2026-11-04-architectural-v4-metal-0.3.3-release/README.md) | Apple M4 Pro, macOS 26.6, Radiance 5.4a | reused from 0.3.3 |
+| [Vulkan suite](../validation/results/2026-11-08-architectural-v4-vulkan-t4-e200cfc/README.md) | NVIDIA Tesla T4, Linux (Google Colab), Radiance 5.4a | 204 of 212, the same eight documented open cases; coefficients and annual results byte-identical to 0.3.3 |
+| Rhino 8 checklist | Rhino 8, macOS, Metal | to follow |
+
 ### Tested platforms for 0.3.5
 
 0.3.5 changes only the Grasshopper components, so it reuses the 0.3.3 GPU

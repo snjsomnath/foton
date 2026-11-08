@@ -77,6 +77,8 @@ ENGINE_UNCHANGED_PATHS = (
     "scripts/benchmark_",
     "scripts/compare_benchmarks.py",
     "scripts/refresh_readme_speed.py",
+    # The Colab demo notebook installs Foton from PyPI; the suite never runs it.
+    "notebooks/",
 )
 VERSION_FILES = (
     "Cargo.toml",

@@ -19,8 +19,9 @@ meshes in LB Spatial Heatmap to see it on the model.
         north_: Optional. The north direction as degrees counterclockwise from
             the Y axis, or a vector. Default: 0.
         thresholds_: Optional. Illuminance thresholds in lux, as text
-            ("-t 300 -lt 100 -ut 3000") or three numbers: the DA threshold,
-            then the lower and upper UDI limits. Default: 300, 100, 3000.
+            ("-t 300 -lt 100 -ut 3000"), three numbers (the DA threshold, then
+            the lower and upper UDI limits) or one number for the DA threshold
+            alone. Default: 300, 100, 3000.
         grid_filter_: Optional. Which sensor grids to run, by identifier;
             wildcards like "Office*" work. Default: all grids.
         quality_: Optional. "final" (the default, validated against Radiance)

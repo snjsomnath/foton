@@ -82,6 +82,11 @@ class GrasshopperFotonTests(unittest.TestCase):
             foton_gh.thresholds("-ut 2000 -t 250 -lt 50"),
             {"threshold": 250.0, "udi_lower": 50.0, "udi_upper": 2000.0},
         )
+        # A slider wired straight in sets the DA threshold alone.
+        self.assertEqual(
+            foton_gh.thresholds(450.0),
+            {"threshold": 450.0, "udi_lower": 100.0, "udi_upper": 3000.0},
+        )
         vector = type("Vector", (), {"X": -1.0, "Y": 0.0})()
         self.assertAlmostEqual(foton_gh.north_angle(vector), 90.0)
 

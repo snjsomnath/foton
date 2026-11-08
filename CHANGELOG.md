@@ -2,7 +2,7 @@
 
 All notable Foton changes are recorded here.
 
-## Unreleased
+## 0.3.6 - 2026-11-08
 
 Faster on NVIDIA, AMD and Intel graphics cards (Vulkan). Results are
 byte-identical to 0.3.5.
@@ -17,8 +17,22 @@ byte-identical to 0.3.5.
   illuminance, which Vulkan worked out on a single CPU thread: about 37 s of a
   40 s run on the office block on a Colab L4. It now uses every CPU core and
   SIMD, adding in the same order as before, so the values are unchanged.
+- `install_` in Grasshopper now upgrades an engine older than the
+  components, so installing 0.3.6 from the Package Manager also brings the
+  faster engine.
 - Sample tiles are sent to the GPU eight at a time, all room BVHs are built in
   one go, and the sampling loop stops early, as it already did on Metal.
+- A new example, **Foton Interactive Demo.gh**, ships with the Grasshopper
+  components. Drag sliders to change a room's size, rotation, windows and
+  overhang, stack up to six floors of up to six rooms, add a neighbouring
+  block, and watch daylight autonomy update: about a fifth of a second for
+  one room on an M4 Pro. A Save run button writes a results folder that
+  Foton Annual Results and Honeybee's HB Annual Daylight Metrics both read.
+- `thresholds_` on Foton Annual Daylight takes a single number as the DA
+  threshold, so a slider can be wired straight in.
+- Live runs are a little quicker in Grasshopper: the components build their
+  bridge once per Rhino session, and a run that ends within a quarter of a
+  second no longer redraws Rhino to show progress.
 
 ## 0.3.5 - 2026-11-05
 
