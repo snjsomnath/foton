@@ -117,8 +117,9 @@ const uint sobol_directions[512] = uint[512](
 uint sobol_uint(uint index, uint dimension) {
     uint gray = index ^ (index >> 1), value = 0;
     uint offset = (dimension % 16u) * 32u;
-    for (uint bit=0; bit<32; ++bit) {
-        if ((gray & (1u << bit)) != 0) value ^= sobol_directions[offset + bit];
+    // Stop at the highest set bit: the remaining bits contribute nothing.
+    for (uint bits=gray, bit=0; bits!=0; bits>>=1, ++bit) {
+        if ((bits & 1u) != 0) value ^= sobol_directions[offset + bit];
     }
     return value;
 }

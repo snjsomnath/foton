@@ -18,6 +18,10 @@ pub(crate) struct Context {
     pub queue: vk::Queue,
     pub command_pool: vk::CommandPool,
     pub memory: vk::PhysicalDeviceMemoryProperties,
+    /// Keep buffers in the GPU's own memory and copy through staging buffers.
+    /// Off only when `FOTON_VULKAN_HOST_MEMORY=1` asks for the old behaviour,
+    /// where every buffer lives in host-visible memory.
+    pub device_local: bool,
     pub queue_lock: Mutex<()>,
     // Owns the loaded Vulkan loader; dropping it unloads the library under
     // the instance on Linux, so it must outlive every Vulkan call.
@@ -103,6 +107,7 @@ impl Context {
             queue,
             command_pool,
             memory,
+            device_local: std::env::var("FOTON_VULKAN_HOST_MEMORY").as_deref() != Ok("1"),
             queue_lock: Mutex::new(()),
             _entry: entry,
         }))
@@ -135,7 +140,33 @@ impl Context {
                         .flags(vk::CommandBufferUsageFlags::ONE_TIME_SUBMIT),
                 )
                 .map_err(vk_error("begin Vulkan command buffer"))?;
+            // Make earlier submissions' writes visible to these commands, and
+            // these commands' writes visible to the next submission and the host.
+            let barrier = [vk::MemoryBarrier::default()
+                .src_access_mask(vk::AccessFlags::MEMORY_WRITE)
+                .dst_access_mask(vk::AccessFlags::MEMORY_READ | vk::AccessFlags::MEMORY_WRITE)];
+            self.device.cmd_pipeline_barrier(
+                command,
+                vk::PipelineStageFlags::ALL_COMMANDS,
+                vk::PipelineStageFlags::ALL_COMMANDS,
+                vk::DependencyFlags::empty(),
+                &barrier,
+                &[],
+                &[],
+            );
             record(command);
+            let host_barrier = [vk::MemoryBarrier::default()
+                .src_access_mask(vk::AccessFlags::MEMORY_WRITE)
+                .dst_access_mask(vk::AccessFlags::HOST_READ | vk::AccessFlags::MEMORY_READ)];
+            self.device.cmd_pipeline_barrier(
+                command,
+                vk::PipelineStageFlags::ALL_COMMANDS,
+                vk::PipelineStageFlags::HOST | vk::PipelineStageFlags::ALL_COMMANDS,
+                vk::DependencyFlags::empty(),
+                &host_barrier,
+                &[],
+                &[],
+            );
             self.device
                 .end_command_buffer(command)
                 .map_err(vk_error("end Vulkan command buffer"))?;
@@ -172,6 +203,8 @@ pub(crate) struct Buffer {
     pub handle: vk::Buffer,
     memory: vk::DeviceMemory,
     pub size: vk::DeviceSize,
+    /// True when the CPU can map this buffer directly.
+    host_visible: bool,
 }
 
 pub(crate) struct Pipeline {
@@ -262,6 +295,19 @@ impl Pipeline {
         push_constants: &[u8],
         groups: [u32; 3],
     ) -> Result<()> {
+        self.dispatch_batch(context, buffers, acceleration, &[(push_constants, groups)])
+    }
+
+    /// Like `dispatch`, but record several dispatches, each with its own push
+    /// constants, in one submission. The dispatches may overlap on the GPU, so
+    /// they must not depend on each other's results.
+    pub fn dispatch_batch(
+        &self,
+        context: &Context,
+        buffers: &[&Buffer],
+        acceleration: Option<vk::AccelerationStructureKHR>,
+        dispatches: &[(&[u8], [u32; 3])],
+    ) -> Result<()> {
         let storage_count = self
             .descriptor_types
             .iter()
@@ -345,16 +391,18 @@ impl Pipeline {
                 &[set],
                 &[],
             );
-            context.device.cmd_push_constants(
-                command,
-                self.layout,
-                vk::ShaderStageFlags::COMPUTE,
-                0,
-                push_constants,
-            );
-            context
-                .device
-                .cmd_dispatch(command, groups[0], groups[1], groups[2]);
+            for (push_constants, groups) in dispatches {
+                context.device.cmd_push_constants(
+                    command,
+                    self.layout,
+                    vk::ShaderStageFlags::COMPUTE,
+                    0,
+                    push_constants,
+                );
+                context
+                    .device
+                    .cmd_dispatch(command, groups[0], groups[1], groups[2]);
+            }
         });
         unsafe { context.device.destroy_descriptor_pool(pool, None) };
         result
@@ -379,42 +427,84 @@ impl Buffer {
         values: &[T],
         usage: vk::BufferUsageFlags,
     ) -> Result<Self> {
-        let buffer = Self::new(context, std::mem::size_of_val(values).max(4) as u64, usage)?;
-        buffer.write(values)?;
+        let buffer = Self::new(
+            context,
+            std::mem::size_of_val(values).max(4) as u64,
+            usage,
+            !context.device_local,
+        )?;
+        buffer.write(context, values)?;
         Ok(buffer)
     }
 
     /// Create a buffer of `size` bytes filled with zeros.
     pub fn zeroed(context: &Context, size: usize, usage: vk::BufferUsageFlags) -> Result<Self> {
-        let buffer = Self::new(context, size.max(4) as u64, usage)?;
-        unsafe {
-            let pointer = context
-                .device
-                .map_memory(buffer.memory, 0, buffer.size, vk::MemoryMapFlags::empty())
-                .map_err(vk_error("map Vulkan buffer"))?;
-            pointer.cast::<u8>().write_bytes(0, buffer.size as usize);
-            context.device.unmap_memory(buffer.memory);
+        let buffer = Self::new(context, size.max(4) as u64, usage, !context.device_local)?;
+        if buffer.host_visible {
+            unsafe {
+                let pointer = context
+                    .device
+                    .map_memory(buffer.memory, 0, buffer.size, vk::MemoryMapFlags::empty())
+                    .map_err(vk_error("map Vulkan buffer"))?;
+                pointer.cast::<u8>().write_bytes(0, buffer.size as usize);
+                context.device.unmap_memory(buffer.memory);
+            }
+        } else {
+            context.submit(|command| unsafe {
+                context
+                    .device
+                    .cmd_fill_buffer(command, buffer.handle, 0, vk::WHOLE_SIZE, 0);
+            })?;
         }
         Ok(buffer)
     }
 
-    fn new(context: &Context, size: vk::DeviceSize, usage: vk::BufferUsageFlags) -> Result<Self> {
+    /// Create a buffer of `size` bytes whose contents the GPU will overwrite
+    /// before reading, such as acceleration-structure storage and scratch.
+    pub fn uninitialized(
+        context: &Context,
+        size: usize,
+        usage: vk::BufferUsageFlags,
+    ) -> Result<Self> {
+        Self::new(context, size.max(4) as u64, usage, !context.device_local)
+    }
+
+    fn new(
+        context: &Context,
+        size: vk::DeviceSize,
+        usage: vk::BufferUsageFlags,
+        host_visible: bool,
+    ) -> Result<Self> {
         let handle = unsafe {
             context.device.create_buffer(
-                &vk::BufferCreateInfo::default()
-                    .size(size)
-                    .usage(usage | vk::BufferUsageFlags::SHADER_DEVICE_ADDRESS),
+                &vk::BufferCreateInfo::default().size(size).usage(
+                    usage
+                        | vk::BufferUsageFlags::SHADER_DEVICE_ADDRESS
+                        | vk::BufferUsageFlags::TRANSFER_SRC
+                        | vk::BufferUsageFlags::TRANSFER_DST,
+                ),
                 None,
             )
         }
         .map_err(vk_error("create Vulkan buffer"))?;
         let requirements = unsafe { context.device.get_buffer_memory_requirements(handle) };
-        let memory_type = memory_type(
+        let host_flags =
+            vk::MemoryPropertyFlags::HOST_VISIBLE | vk::MemoryPropertyFlags::HOST_COHERENT;
+        let (memory_type, host_visible) = if host_visible {
+            let index = memory_type(&context.memory, requirements.memory_type_bits, host_flags)
+                .ok_or_else(|| backend("no host-visible Vulkan memory type supports the buffer"))?;
+            (index, true)
+        } else if let Some(index) = memory_type(
             &context.memory,
             requirements.memory_type_bits,
-            vk::MemoryPropertyFlags::HOST_VISIBLE | vk::MemoryPropertyFlags::HOST_COHERENT,
-        )
-        .ok_or_else(|| backend("no host-visible Vulkan memory type supports the buffer"))?;
+            vk::MemoryPropertyFlags::DEVICE_LOCAL,
+        ) {
+            (index, false)
+        } else {
+            let index = memory_type(&context.memory, requirements.memory_type_bits, host_flags)
+                .ok_or_else(|| backend("no Vulkan memory type supports the buffer"))?;
+            (index, true)
+        };
         let mut flags =
             vk::MemoryAllocateFlagsInfo::default().flags(vk::MemoryAllocateFlags::DEVICE_ADDRESS);
         let memory = unsafe {
@@ -438,6 +528,7 @@ impl Buffer {
             handle,
             memory,
             size,
+            host_visible,
         })
     }
 
@@ -451,10 +542,28 @@ impl Buffer {
     }
 
     /// Copy `values` into the start of the buffer.
-    pub fn write<T: Pod>(&self, values: &[T]) -> Result<()> {
+    pub fn write<T: Pod>(&self, context: &Context, values: &[T]) -> Result<()> {
         let bytes: &[u8] = bytemuck::cast_slice(values);
         if bytes.len() > self.size as usize {
             return Err(backend("Vulkan buffer write exceeds allocation"));
+        }
+        if bytes.is_empty() {
+            return Ok(());
+        }
+        if !self.host_visible {
+            let staging = Self::new(
+                context,
+                bytes.len() as u64,
+                vk::BufferUsageFlags::empty(),
+                true,
+            )?;
+            staging.write(context, values)?;
+            let region = [vk::BufferCopy::default().size(bytes.len() as u64)];
+            return context.submit(|command| unsafe {
+                context
+                    .device
+                    .cmd_copy_buffer(command, staging.handle, self.handle, &region);
+            });
         }
         unsafe {
             let pointer = self
@@ -468,9 +577,23 @@ impl Buffer {
     }
 
     /// Read `count` values from the start of the buffer.
-    pub fn read<T: Pod>(&self, count: usize) -> Result<Vec<T>> {
-        if count * size_of::<T>() > self.size as usize {
+    pub fn read<T: Pod>(&self, context: &Context, count: usize) -> Result<Vec<T>> {
+        let length = count * size_of::<T>();
+        if length > self.size as usize {
             return Err(backend("Vulkan buffer read exceeds allocation"));
+        }
+        if length == 0 {
+            return Ok(Vec::new());
+        }
+        if !self.host_visible {
+            let staging = Self::new(context, length as u64, vk::BufferUsageFlags::empty(), true)?;
+            let region = [vk::BufferCopy::default().size(length as u64)];
+            context.submit(|command| unsafe {
+                context
+                    .device
+                    .cmd_copy_buffer(command, self.handle, staging.handle, &region);
+            })?;
+            return staging.read(context, count);
         }
         unsafe {
             let pointer = self
@@ -522,38 +645,69 @@ pub(crate) fn build_acceleration(
         &scene.vertices,
         vk::BufferUsageFlags::ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_KHR,
     )?;
+    // One index buffer for every mesh, and every bottom-level build in one
+    // submission instead of one submission and wait per mesh.
+    let indices = Buffer::from_data(
+        context,
+        &scene.triangles,
+        vk::BufferUsageFlags::ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_KHR,
+    )?;
+    let geometries = scene
+        .meshes
+        .iter()
+        .map(|mesh| {
+            let triangles = vk::AccelerationStructureGeometryTrianglesDataKHR::default()
+                .vertex_format(vk::Format::R32G32B32_SFLOAT)
+                .vertex_data(vk::DeviceOrHostAddressConstKHR {
+                    device_address: vertex.address(),
+                })
+                .vertex_stride(size_of::<daylight_core::Vec3>() as u64)
+                .max_vertex(scene.vertices.len().saturating_sub(1) as u32)
+                .index_type(vk::IndexType::UINT32)
+                .index_data(vk::DeviceOrHostAddressConstKHR {
+                    device_address: indices.address()
+                        + u64::from(mesh.first_triangle) * size_of::<[u32; 3]>() as u64,
+                });
+            [vk::AccelerationStructureGeometryKHR::default()
+                .geometry_type(vk::GeometryTypeKHR::TRIANGLES)
+                .flags(vk::GeometryFlagsKHR::OPAQUE)
+                .geometry(vk::AccelerationStructureGeometryDataKHR { triangles })]
+        })
+        .collect::<Vec<_>>();
     let mut bottoms = Vec::with_capacity(scene.meshes.len());
-    for mesh in &scene.meshes {
-        let first = mesh.first_triangle as usize;
-        let end = first + mesh.triangle_count as usize;
-        let indices = Buffer::from_data(
-            context,
-            &scene.triangles[first..end],
-            vk::BufferUsageFlags::ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_KHR,
-        )?;
-        let triangles = vk::AccelerationStructureGeometryTrianglesDataKHR::default()
-            .vertex_format(vk::Format::R32G32B32_SFLOAT)
-            .vertex_data(vk::DeviceOrHostAddressConstKHR {
-                device_address: vertex.address(),
-            })
-            .vertex_stride(size_of::<daylight_core::Vec3>() as u64)
-            .max_vertex(scene.vertices.len().saturating_sub(1) as u32)
-            .index_type(vk::IndexType::UINT32)
-            .index_data(vk::DeviceOrHostAddressConstKHR {
-                device_address: indices.address(),
-            });
-        let geometry = vk::AccelerationStructureGeometryKHR::default()
-            .geometry_type(vk::GeometryTypeKHR::TRIANGLES)
-            .flags(vk::GeometryFlagsKHR::OPAQUE)
-            .geometry(vk::AccelerationStructureGeometryDataKHR { triangles });
-        let (handle, storage) = build_one(
+    let mut scratches = Vec::with_capacity(scene.meshes.len());
+    let mut infos = Vec::with_capacity(scene.meshes.len());
+    for (mesh, geometry) in scene.meshes.iter().zip(&geometries) {
+        let (info, handle, storage, scratch) = prepare_build(
             context,
             vk::AccelerationStructureTypeKHR::BOTTOM_LEVEL,
-            &[geometry],
+            geometry,
             &[mesh.triangle_count],
         )?;
-        bottoms.push((handle, storage, indices));
+        infos.push(info);
+        bottoms.push((handle, storage));
+        scratches.push(scratch);
     }
+    let ranges = scene
+        .meshes
+        .iter()
+        .map(|mesh| {
+            [vk::AccelerationStructureBuildRangeInfoKHR::default()
+                .primitive_count(mesh.triangle_count)]
+        })
+        .collect::<Vec<_>>();
+    let range_slices = ranges
+        .iter()
+        .map(|range| range.as_slice())
+        .collect::<Vec<_>>();
+    if !infos.is_empty() {
+        context.submit(|command| unsafe {
+            context
+                .acceleration
+                .cmd_build_acceleration_structures(command, &infos, &range_slices);
+        })?;
+    }
+    drop(scratches);
     let instances = scene
         .instances
         .iter()
@@ -626,14 +780,8 @@ pub(crate) fn build_acceleration(
         &[geometry],
         &[instances.len() as u32],
     )?;
-    let mut resources = vec![vertex, instance_buffer];
-    let bottom_levels = bottoms
-        .into_iter()
-        .map(|(handle, storage, indices)| {
-            resources.push(indices);
-            (handle, storage)
-        })
-        .collect();
+    let resources = vec![vertex, indices, instance_buffer];
+    let bottom_levels = bottoms;
     Ok(Arc::new(Acceleration {
         loader: Arc::clone(&context.acceleration),
         handle,
@@ -649,6 +797,35 @@ fn build_one(
     geometries: &[vk::AccelerationStructureGeometryKHR<'_>],
     primitive_counts: &[u32],
 ) -> Result<(vk::AccelerationStructureKHR, Buffer)> {
+    let (info, handle, storage, _scratch) =
+        prepare_build(context, as_type, geometries, primitive_counts)?;
+    let ranges = primitive_counts
+        .iter()
+        .map(|count| vk::AccelerationStructureBuildRangeInfoKHR::default().primitive_count(*count))
+        .collect::<Vec<_>>();
+    context.submit(|command| unsafe {
+        context.acceleration.cmd_build_acceleration_structures(
+            command,
+            &[info],
+            &[ranges.as_slice()],
+        );
+    })?;
+    Ok((handle, storage))
+}
+
+/// Create an acceleration structure and its scratch buffer, and return the
+/// build description that fills it.
+fn prepare_build<'a>(
+    context: &Arc<Context>,
+    as_type: vk::AccelerationStructureTypeKHR,
+    geometries: &'a [vk::AccelerationStructureGeometryKHR<'a>],
+    primitive_counts: &[u32],
+) -> Result<(
+    vk::AccelerationStructureBuildGeometryInfoKHR<'a>,
+    vk::AccelerationStructureKHR,
+    Buffer,
+    Buffer,
+)> {
     let mut build_info = vk::AccelerationStructureBuildGeometryInfoKHR::default()
         .ty(as_type)
         .flags(vk::BuildAccelerationStructureFlagsKHR::PREFER_FAST_TRACE)
@@ -663,7 +840,7 @@ fn build_one(
             &mut sizes,
         );
     }
-    let storage = Buffer::zeroed(
+    let storage = Buffer::uninitialized(
         context,
         sizes.acceleration_structure_size as usize,
         vk::BufferUsageFlags::ACCELERATION_STRUCTURE_STORAGE_KHR,
@@ -678,7 +855,7 @@ fn build_one(
         )
     }
     .map_err(vk_error("create Vulkan acceleration structure"))?;
-    let scratch = Buffer::zeroed(
+    let scratch = Buffer::uninitialized(
         context,
         sizes.build_scratch_size as usize,
         vk::BufferUsageFlags::STORAGE_BUFFER,
@@ -687,18 +864,7 @@ fn build_one(
     build_info.scratch_data = vk::DeviceOrHostAddressKHR {
         device_address: scratch.address(),
     };
-    let ranges = primitive_counts
-        .iter()
-        .map(|count| vk::AccelerationStructureBuildRangeInfoKHR::default().primitive_count(*count))
-        .collect::<Vec<_>>();
-    context.submit(|command| unsafe {
-        context.acceleration.cmd_build_acceleration_structures(
-            command,
-            &[build_info],
-            &[ranges.as_slice()],
-        );
-    })?;
-    Ok((handle, storage))
+    Ok((build_info, handle, storage, scratch))
 }
 
 fn memory_type(

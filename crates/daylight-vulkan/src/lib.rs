@@ -18,7 +18,7 @@ use bytemuck::{Pod, Zeroable};
 use daylight_core::{
     AnalysisMetadata, AnalysisRequest, AnalysisResult, AnnualIlluminance, Backend,
     BackendCapabilities, CoefficientMatrix, DaylightError, GpuTimings, InstanceUpdate, Result,
-    SOLVER_VERSION, SceneData, SceneHandle, Vec3, annual_metrics_from_accumulators,
+    SOLVER_VERSION, SceneData, SceneHandle, SkyMatrix, Vec3, annual_metrics_from_accumulators,
     evaluate_daylight_factor, patch_directions, patch_sample_directions, patch_solid_angles,
     scene_fingerprint,
 };
@@ -62,6 +62,10 @@ struct TransportUniforms {
 /// split into sample tiles so cancellation is honoured between tiles and no
 /// single submission runs long enough to trip a driver watchdog (TDR on Windows).
 const MAX_PATHS_PER_DISPATCH: usize = 1 << 22;
+
+/// Sample tiles recorded into one GPU submission. Cancellation is checked
+/// between submissions.
+const TILES_PER_SUBMISSION: usize = 8;
 
 fn sample_tile(sensor_count: usize, maximum_samples: u32) -> u32 {
     let per_sensor = MAX_PATHS_PER_DISPATCH / sensor_count.max(1);
@@ -462,8 +466,41 @@ impl VulkanBackend {
             let mut sample_offset = 0u32;
             while sample_offset < request.maximum_samples {
                 check_cancelled(cancelled)?;
-                let sample_count = tile.min(request.maximum_samples - sample_offset);
-                self.diffuse.dispatch(
+                // Several tiles per submission let the GPU start the next tile
+                // while the longest paths of the last one finish. The tiles add
+                // integer ticks with atomics, so their order does not matter.
+                let mut batch = Vec::with_capacity(TILES_PER_SUBMISSION);
+                while sample_offset < request.maximum_samples && batch.len() < TILES_PER_SUBMISSION
+                {
+                    let sample_count = tile.min(request.maximum_samples - sample_offset);
+                    batch.push((
+                        TransportUniforms {
+                            sensor_count: scene.sensors.len() as u32,
+                            sample_offset,
+                            sample_count,
+                            maximum_bounces: request.maximum_bounces,
+                            patch_count: request.sky.basis.row_count() as u32,
+                            active_mask: u32::MAX,
+                            max_transparent: MAX_TRANSPARENT,
+                            total_sample_count: request.maximum_samples,
+                            scene_seed_low: request.scene_seed as u32,
+                            scene_seed_high: (request.scene_seed >> 32) as u32,
+                            accumulator_scale: TRANSPORT_SCALE,
+                            padding_two: 0,
+                        },
+                        [
+                            sample_count.div_ceil(8),
+                            (scene.sensors.len() as u32).div_ceil(8),
+                            1,
+                        ],
+                    ));
+                    sample_offset += sample_count;
+                }
+                let dispatches = batch
+                    .iter()
+                    .map(|(uniforms, groups)| (bytemuck::bytes_of(uniforms), *groups))
+                    .collect::<Vec<_>>();
+                self.diffuse.dispatch_batch(
                     &self.context,
                     &[
                         &common.sensors,
@@ -476,27 +513,8 @@ impl VulkanBackend {
                         &indirect,
                     ],
                     Some(acceleration.handle),
-                    bytemuck::bytes_of(&TransportUniforms {
-                        sensor_count: scene.sensors.len() as u32,
-                        sample_offset,
-                        sample_count,
-                        maximum_bounces: request.maximum_bounces,
-                        patch_count: request.sky.basis.row_count() as u32,
-                        active_mask: u32::MAX,
-                        max_transparent: MAX_TRANSPARENT,
-                        total_sample_count: request.maximum_samples,
-                        scene_seed_low: request.scene_seed as u32,
-                        scene_seed_high: (request.scene_seed >> 32) as u32,
-                        accumulator_scale: TRANSPORT_SCALE,
-                        padding_two: 0,
-                    }),
-                    [
-                        sample_count.div_ceil(8),
-                        (scene.sensors.len() as u32).div_ceil(8),
-                        1,
-                    ],
+                    &dispatches,
                 )?;
-                sample_offset += sample_count;
             }
             self.finalize.dispatch(
                 &self.context,
@@ -573,12 +591,12 @@ impl VulkanBackend {
                 1,
             ],
         )?;
-        let occupied_ticks = occupied.read::<u32>(scene.sensors.len())?;
-        let threshold_ticks = threshold.read::<u32>(scene.sensors.len())?;
-        let continuous_ticks = continuous.read::<u32>(scene.sensors.len())?;
-        let udi_lower_ticks = udi_lower.read::<u32>(scene.sensors.len())?;
-        let udi_ticks = udi.read::<u32>(scene.sensors.len())?;
-        let udi_upper_ticks = udi_upper.read::<u32>(scene.sensors.len())?;
+        let occupied_ticks = occupied.read::<u32>(&self.context, scene.sensors.len())?;
+        let threshold_ticks = threshold.read::<u32>(&self.context, scene.sensors.len())?;
+        let continuous_ticks = continuous.read::<u32>(&self.context, scene.sensors.len())?;
+        let udi_lower_ticks = udi_lower.read::<u32>(&self.context, scene.sensors.len())?;
+        let udi_ticks = udi.read::<u32>(&self.context, scene.sensors.len())?;
+        let udi_upper_ticks = udi_upper.read::<u32>(&self.context, scene.sensors.len())?;
         let occupied_weight = occupied_ticks.first().copied().unwrap_or(0) as f32 / ANNUAL_SCALE;
         let to_weights = |values: Vec<u32>| {
             values
@@ -606,7 +624,7 @@ impl VulkanBackend {
         )?;
         let annual_reduction_ms = reduction_started.elapsed().as_secs_f64() * 1_000.0;
         let values = coefficients
-            .read::<Vec3>(coefficient_count)?
+            .read::<Vec3>(&self.context, coefficient_count)?
             .into_iter()
             .map(|value| [value.x, value.y, value.z])
             .collect();
@@ -615,7 +633,7 @@ impl VulkanBackend {
         let daylight_factor = Some(compute_daylight_factor(&coefficient_matrix, &scene)?);
         let annual_illuminance = request
             .export_illuminance
-            .then(|| annual_illuminance(&coefficient_matrix, request));
+            .then(|| annual_illuminance(&coefficient_matrix, &request.sky));
         progress(1.0);
         Ok(AnalysisResult {
             solver_revision,
@@ -866,28 +884,54 @@ fn normal_transform(matrix: [f32; 16]) -> Result<NormalTransform> {
     })
 }
 
-fn annual_illuminance(
-    coefficients: &CoefficientMatrix,
-    request: &AnalysisRequest,
-) -> AnnualIlluminance {
-    let timestep_count = request.sky.timestep_count;
-    let mut values = vec![0.0; coefficients.sensor_count * timestep_count];
-    for sensor in 0..coefficients.sensor_count {
-        for timestep in 0..timestep_count {
-            let mut response = [0.0; 3];
-            for patch in 0..coefficients.basis.row_count() {
-                let coefficient = coefficients.get(sensor, patch);
-                let sky = request.sky.get(patch, timestep);
-                for component in 0..3 {
-                    response[component] += coefficient[component] * sky[component];
-                }
-            }
-            values[sensor * timestep_count + timestep] =
-                response[0] * 47.435 + response[1] * 119.93 + response[2] * 11.635;
-        }
+fn annual_illuminance(coefficients: &CoefficientMatrix, sky: &SkyMatrix) -> AnnualIlluminance {
+    let timestep_count = sky.timestep_count;
+    let sensor_count = coefficients.sensor_count;
+    let mut values = vec![0.0; sensor_count * timestep_count];
+    if timestep_count == 0 || sensor_count == 0 {
+        return AnnualIlluminance {
+            sensor_count,
+            timestep_count,
+            values,
+        };
     }
+    // Sensors are split across CPU threads. Within a sensor, the patch loop
+    // is outermost so the sky is read in memory order, but every hour still
+    // adds its patches in the same order with the same operations as a
+    // patch-innermost loop, so the result is bit-for-bit the same.
+    let threads = std::thread::available_parallelism()
+        .map(|count| count.get())
+        .unwrap_or(1)
+        .min(sensor_count);
+    let sensors_per_thread = sensor_count.div_ceil(threads);
+    std::thread::scope(|scope| {
+        for (chunk_index, chunk) in values
+            .chunks_mut(sensors_per_thread * timestep_count)
+            .enumerate()
+        {
+            scope.spawn(move || {
+                let mut response = vec![[0.0f32; 3]; timestep_count];
+                for (offset, row) in chunk.chunks_mut(timestep_count).enumerate() {
+                    let sensor = chunk_index * sensors_per_thread + offset;
+                    response.fill([0.0; 3]);
+                    for patch in 0..coefficients.basis.row_count() {
+                        let coefficient = coefficients.get(sensor, patch);
+                        let sky = &sky.values[patch * timestep_count..(patch + 1) * timestep_count];
+                        for (sum, sky) in response.iter_mut().zip(sky) {
+                            for component in 0..3 {
+                                sum[component] += coefficient[component] * sky[component];
+                            }
+                        }
+                    }
+                    for (value, sum) in row.iter_mut().zip(&response) {
+                        *value = sum[0] * 47.435 + sum[1] * 119.93 + sum[2] * 11.635;
+                    }
+                }
+            });
+        }
+    });
     AnnualIlluminance {
-        sensor_count: coefficients.sensor_count,
+        sensor_count,
         timestep_count,
         values,
     }
@@ -922,6 +966,7 @@ fn compute_daylight_factor(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use daylight_core::SkyBasis;
 
     #[test]
     fn supports_only_hardware_vendor_allowlist() {
@@ -929,6 +974,47 @@ mod tests {
         assert!(is_supported_vendor(AMD_VENDOR_ID));
         assert!(is_supported_vendor(INTEL_VENDOR_ID));
         assert!(!is_supported_vendor(0x106B));
+    }
+
+    #[test]
+    fn threaded_annual_illuminance_matches_the_simple_loop_bit_for_bit() {
+        let basis = SkyBasis::Tregenza;
+        let patches = basis.row_count();
+        let (sensor_count, timestep_count) = (37, 53);
+        let mut state = 0x1234_5678u32;
+        let mut next = || {
+            state ^= state << 13;
+            state ^= state >> 17;
+            state ^= state << 5;
+            (state >> 8) as f32 / (1u32 << 24) as f32
+        };
+        let coefficient_values = (0..sensor_count * patches)
+            .map(|_| [next() * 0.01, next() * 0.01, next() * 0.01])
+            .collect();
+        let sky_values = (0..patches * timestep_count)
+            .map(|_| [next() * 300.0, next() * 300.0, next() * 300.0])
+            .collect();
+        let coefficients = CoefficientMatrix::new(sensor_count, basis, coefficient_values).unwrap();
+        let sky = SkyMatrix::new(basis, timestep_count, sky_values).unwrap();
+        let mut expected = Vec::with_capacity(sensor_count * timestep_count);
+        for sensor in 0..sensor_count {
+            for timestep in 0..timestep_count {
+                let mut response = [0.0f32; 3];
+                for patch in 0..patches {
+                    let coefficient = coefficients.get(sensor, patch);
+                    let value = sky.get(patch, timestep);
+                    for component in 0..3 {
+                        response[component] += coefficient[component] * value[component];
+                    }
+                }
+                expected.push(response[0] * 47.435 + response[1] * 119.93 + response[2] * 11.635);
+            }
+        }
+        let actual = annual_illuminance(&coefficients, &sky);
+        assert_eq!(actual.sensor_count, sensor_count);
+        assert_eq!(actual.timestep_count, timestep_count);
+        let bits = |values: &[f32]| values.iter().map(|v| v.to_bits()).collect::<Vec<_>>();
+        assert_eq!(bits(&actual.values), bits(&expected));
     }
 
     #[test]
