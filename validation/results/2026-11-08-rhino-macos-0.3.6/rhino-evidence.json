@@ -1,0 +1,21 @@
+{
+  "commit": "22bd6e69079f889ba754857189704831d0dde258",
+  "engine_version": "0.3.6",
+  "rhino_version": "8.35.26251.13002",
+  "system": "Darwin",
+  "backend": "metal",
+  "tested_at": "2026-11-08",
+  "notes": "macOS 26.6.2 on Apple M4 Pro, Rhino 8.35.26251.13002 with the same Ladybug Tools install as the 0.3.5 checklist, existing Rhino profile, Radiance 5.4a. Components: the Grasshopper build committed at 22bd6e6 (built in Rhino 8.35 with scripts/build_grasshopper.py; build_manifest help_and_icons_verified and round_trip_passed true; adds Foton Interactive Demo). Rhino was driven through McNeel's Rhino MCP router 0.4.0 (spawned Rhino instance, Python runner). install: dist/foton-0.3.6-any-any.yak from scripts/package_yak.py installed with yak install (yak list shows foton 0.3.6), Rhino restarted; the HB-Foton category holds one Foton subcategory with all four components, each with an icon and not obsolete, loaded from packages/8.0/foton/0.3.6, each description naming Foton 0.3.6. Foton Settings install_ was toggled inside Rhino with the install_ toggle wired in the First Analysis example, with FOTON_HOME at a scratch folder and PIP_FIND_LINKS at the local 0.3.6 wheel, both set in Rhino's IronPython os.environ (0.3.6 is not on PyPI yet): it installs in the background (Message counts Installing m:ss), was switched off mid-install and stopped cleanly (no pip process left), the next toggle carried on and ended at 0.3.6 / metal after 9 s, and toggling again reported Foton 0.3.6 is already installed. Forced failure: with PIP_INDEX_URL at an unreachable URL and no find-links, install_ turned Settings red (Error level, Message Install failed); report holds pip's error, pip could not install Foton (exit code 1), the pip command to run in a terminal and the path of the full log; install.log and pip.log were written in FOTON_HOME. python_ = uv, run outside Rhino from the bundle's foton_gh with the installed Python 3.12 present: it downloaded uv and Python 3.12.16 and installed 0.3.6 in 45 s (capabilities 0.3.6, metal, ready). open_example, run, rerun, change_inputs, upgrade_invalidates_reuse, reload_moved_results, cancel: scripts/check_grasshopper.py in a freshly started Rhino against the extracted dist/foton-grasshopper-0.3.6.zip with FOTON_HONEYBEE_EXE=/Users/ssanjay/GitHub/foton-0.3.6/.venv/bin/foton-honeybee; all ten checks passed (rhino-smoke.json), engine 0.3.6 on metal. open_example also covered Foton Interactive Demo.gh opened from packages/8.0/foton/0.3.6: it solved on opening (sDA 53.75 %), sliders, the neighbour block, the Daylight factor switch, 3 floors x 4 rooms and Save run all worked, and after Save run the canvas had no errors or warnings; before the first save HB Annual Daylight Metrics warns that _results has no data, as expected. honeybee_metrics: HB Annual Daylight Metrics read the results folder of a fresh Foton Annual Daylight run of the bundle's shoebox example (executable_ set to the same foton-honeybee) and returned DA identical to Foton's own DA on all 36 sensors (max difference 0.0 pp), no errors or warnings; the run manifest reports engine 0.3.6 on metal. In the demo, HB Annual Daylight Metrics matched the saved run on all 240 sensors (largest DA difference 0.00 %). ladybug_heatmap: LB Spatial Heatmap built a 36-face mesh with vertex colours from those DA values and the example model's SensorGrid mesh (HB Load Objects into HB Get Grids and Views), no errors or warnings on the heatmap; HB Load Objects warned that the example's model schema 2.4.0 is newer than the installed Honeybee schema 2.2.0, and loaded it. ~/.foton was not changed. Not covered: a fresh Rhino profile, Windows, the Package Manager window and hover tooltips by eye (checked through the component server instead), install_ against the published PyPI release, ESC during a run, and the 0.3.5 check of flipping _run during a run.",
+  "scenarios": {
+    "install": true,
+    "open_example": true,
+    "run": true,
+    "cancel": true,
+    "rerun": true,
+    "change_inputs": true,
+    "upgrade_invalidates_reuse": true,
+    "reload_moved_results": true,
+    "honeybee_metrics": true,
+    "ladybug_heatmap": true
+  }
+}
