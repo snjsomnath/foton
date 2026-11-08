@@ -36,7 +36,7 @@ except NameError:
 
 
 # Shown on each component; kept in step with pyproject.toml.
-COMPONENT_VERSION = "0.3.5"
+COMPONENT_VERSION = "0.3.6"
 PROTOCOL_NAME = "foton.honeybee"
 PROTOCOL_VERSION = 1
 METRICS = ("da", "cda", "udi_lower", "udi", "udi_upper")
@@ -151,12 +151,12 @@ def request_data(
 
 
 # The package the one-click install puts in Foton's own environment. The lower
-# bound is the first release with the built-in sky, the daylight-factor
-# command and the background worker these components use. "~=0.3.3" means
-# 0.3.3 or newer within 0.3, written without "<" or ">" so that no Windows
+# bound is these components' own release, so install_ upgrades an older engine
+# instead of keeping it: 0.3.6 made Vulkan runs much faster. "~=0.3.6" means
+# 0.3.6 or newer within 0.3, written without "<" or ">" so that no Windows
 # shell can read part of it as a redirect.
-ENGINE_REQUIREMENT = "foton-daylight[honeybee]~=0.3.3"
-ENGINE_MINIMUM = (0, 3, 3)
+ENGINE_REQUIREMENT = "foton-daylight[honeybee]~=0.3.6"
+ENGINE_MINIMUM = (0, 3, 6)
 ENGINE_MAXIMUM = (0, 4, 0)
 SUPPORTED_PYTHONS = ((3, 13), (3, 12), (3, 11), (3, 10))
 DEFAULT_BOUNCES = 8  # keep in step with foton.honeybee.annual.DEFAULT_MAXIMUM_BOUNCES

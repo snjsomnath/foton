@@ -2,7 +2,7 @@
 
 All notable Foton changes are recorded here.
 
-## Unreleased
+## 0.3.6 - 2026-11-08
 
 Faster on NVIDIA, AMD and Intel graphics cards (Vulkan). Results are
 byte-identical to 0.3.5.
@@ -17,6 +17,9 @@ byte-identical to 0.3.5.
   illuminance, which Vulkan worked out on a single CPU thread: about 37 s of a
   40 s run on the office block on a Colab L4. It now uses every CPU core and
   SIMD, adding in the same order as before, so the values are unchanged.
+- `install_` in Grasshopper now upgrades an engine older than the
+  components, so installing 0.3.6 from the Package Manager also brings the
+  faster engine.
 - Sample tiles are sent to the GPU eight at a time, all room BVHs are built in
   one go, and the sampling loop stops early, as it already did on Metal.
 
