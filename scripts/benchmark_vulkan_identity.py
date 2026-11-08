@@ -10,7 +10,8 @@ Run it once with each build installed, then compare the two output folders:
 Each scene runs as a plain annual study and again with hourly illuminance
 exported, the way the Grasshopper component asks for it. The output files of
 the last repeat are hashed, so ``compare`` shows whether two builds wrote
-byte-identical results, and how long each stage took.
+byte-identical results (``metadata.json`` holds timings and is left out), and
+how long each stage took.
 """
 
 from __future__ import annotations
@@ -104,10 +105,12 @@ def compare(args):
     identical = True
     for before, after in zip(old["cases"], new["cases"]):
         label = f"{before['scene']} {'hourly' if before['hourly'] else 'annual'}"
+        # metadata.json records run timings, so it always differs.
         differing = sorted(
             name
             for name in set(before["hashes"]) | set(after["hashes"])
             if before["hashes"].get(name) != after["hashes"].get(name)
+            and Path(name).name != "metadata.json"
         )
         identical &= not differing
         print(f"\n{label}: {len(before['hashes'])} files, {len(differing)} differ")

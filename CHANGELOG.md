@@ -2,6 +2,20 @@
 
 All notable Foton changes are recorded here.
 
+## Unreleased
+
+Faster on NVIDIA, AMD and Intel graphics cards (Vulkan). Results are
+byte-identical to 0.3.5.
+
+- The scene, its BVH and the result buffers now live in the graphics card's
+  own memory. Before, they sat in system memory, so on a separate card every
+  ray read the scene over the PCIe bus. On a Colab L4 this makes tracing about
+  2.4 times faster on the 256-room office block. If a model doesn't fit in the
+  card's memory, Foton falls back to system memory instead of failing. Setting
+  `FOTON_VULKAN_HOST_MEMORY=1` forces the old behaviour, for comparisons.
+- Sample tiles are sent to the GPU eight at a time, all room BVHs are built in
+  one go, and the sampling loop stops early, as it already did on Metal.
+
 ## 0.3.5 - 2026-11-05
 
 Fixes a Grasshopper error found by the second Windows test.
