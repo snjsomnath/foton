@@ -294,7 +294,7 @@ def _prepare_geometry(model, room_map, *, include_aperture_glazing=False):
                         )
                     interior_faces.add(str(objects[0]))
             groups[room_id].append(
-                (exported_face.punched_geometry, material_index(face))
+                (_punched_geometry(exported_face), material_index(face))
             )
             if include_aperture_glazing and not exclude_subfaces:
                 for subface in (*exported_face.apertures, *exported_face.doors):
@@ -304,7 +304,7 @@ def _prepare_geometry(model, room_map, *, include_aperture_glazing=False):
                     exported_aperture_identifiers.append(subface.identifier)
     for face in model.orphaned_faces:
         groups[CONTEXT_ROOM_ID].append(
-            (face.punched_geometry, material_index(face))
+            (_punched_geometry(face), material_index(face))
         )
 
     for shade in model.shades:
@@ -547,6 +547,27 @@ def _aperture_metadata(model, room_map):
                     }
                 )
     return metadata
+
+
+def _punched_geometry(face):
+    """The face with holes for its apertures and doors, in a plane from its own vertices.
+
+    A Face3D keeps the plane it was made with, and Honeybee triangulates in that
+    plane. Faces made in Rhino (HB Room from Solid) carry Rhino's surface frame,
+    whose origin can sit tens of metres away with a flipped x axis. Ear clipping
+    in that frame keeps zero-area triangles through collinear window corners,
+    which the GPU backends reject as degenerate. Rebuilding the face from its
+    vertices gives the plane Honeybee computes for faces made in Python, so
+    those models triangulate exactly as before.
+    """
+    from ladybug_geometry.geometry3d import Face3D
+
+    geometry = face.geometry
+    rebuilt = Face3D(geometry.boundary, holes=geometry.holes)
+    subfaces = tuple(sub.geometry for sub in (*face.apertures, *face.doors))
+    if not subfaces:
+        return rebuilt
+    return Face3D.from_punched_geometry(rebuilt, subfaces)
 
 
 def _append_geometry(
