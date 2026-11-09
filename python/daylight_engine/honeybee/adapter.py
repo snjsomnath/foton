@@ -82,6 +82,7 @@ def prepare_honeybee_scene(
     grid_size=0.5,
     sensor_height=0.75,
     include_aperture_glazing=False,
+    check=True,
 ) -> PreparedHoneybeeScene:
     """Convert a Honeybee model, or an HBJSON path, into a ``PreparedHoneybeeScene``.
 
@@ -91,6 +92,13 @@ def prepare_honeybee_scene(
     sensor grids by identifier, with ``*`` wildcards. ``include_aperture_glazing``
     adds window glass as thin transmitting surfaces; without it windows are
     open holes.
+
+    ``check=False`` skips Honeybee's model validation (``Model.check_all``), the
+    defensive copy, and the model-dictionary fingerprint, which together take
+    longer than tracing a small model. Use it for models built in code that are
+    known to be valid; a model not in metres is still copied and converted. The
+    fingerprint is then a hash of the prepared geometry and sensors instead of
+    the model dictionary, so it still changes whenever the scene does.
     """
     if not isinstance(grid_filter, str) or not grid_filter:
         raise ValueError("grid_filter must be a non-empty string")
@@ -99,7 +107,9 @@ def prepare_honeybee_scene(
     if not np.isfinite(sensor_height) or sensor_height <= 0:
         raise ValueError("sensor_height must be finite and positive")
 
-    model, validation_warnings = _load_and_normalize_model(model_or_path)
+    model, validation_warnings = _load_and_normalize_model(
+        model_or_path, check=check
+    )
     _validate_supported_model(
         model, include_aperture_glazing=include_aperture_glazing
     )
@@ -127,13 +137,16 @@ def prepare_honeybee_scene(
         "scene_origin": _scene_origin(geometry_arrays["vertices"]),
     }
     geometry_info["scene_origin_m"] = arrays["scene_origin"].tolist()
-    fingerprint = _fingerprint_model(
-        model,
-        grid_filter,
-        grid_size,
-        sensor_height,
-        include_aperture_glazing,
-    )
+    if check:
+        fingerprint = _fingerprint_model(
+            model,
+            grid_filter,
+            grid_size,
+            sensor_height,
+            include_aperture_glazing,
+        )
+    else:
+        fingerprint = _fingerprint_arrays(arrays, geometry_info)
     return PreparedHoneybeeScene(
         model=model,
         model_fingerprint=fingerprint,
@@ -153,7 +166,7 @@ def _scene_origin(vertices):
     return np.round(midpoint)
 
 
-def _load_and_normalize_model(model_or_path):
+def _load_and_normalize_model(model_or_path, check=True):
     try:
         from honeybee.model import Model
     except ImportError as error:
@@ -165,12 +178,18 @@ def _load_and_normalize_model(model_or_path):
     if isinstance(model_or_path, (str, Path)):
         model = Model.from_file(str(Path(model_or_path).expanduser().resolve()))
     elif isinstance(model_or_path, Model):
-        model = model_or_path.duplicate()
+        # The copy keeps the caller's model untouched by the unit conversion.
+        # Without checks it is only made when a conversion is needed.
+        model = model_or_path
+        if check or model.units != "Meters":
+            model = model.duplicate()
     else:
         raise TypeError("model must be a honeybee.model.Model or an .hbjson path")
 
     if model.units != "Meters":
         model.convert_to_units("Meters")
+    if not check:
+        return model, []
     messages = model.check_all(
         raise_exception=False,
         detailed=True,
@@ -889,6 +908,17 @@ def _radiance_properties(model):
         return model.properties.radiance
     except (AttributeError, ImportError):
         return None
+
+
+def _fingerprint_arrays(arrays, geometry_info):
+    """Fingerprint of the prepared scene itself: geometry, sensors and materials."""
+    digest = sha256()
+    for name in sorted(arrays):
+        digest.update(name.encode("utf-8"))
+        digest.update(np.ascontiguousarray(arrays[name]).tobytes())
+    digest.update(str(geometry_info.get("material_fingerprint", "")).encode("utf-8"))
+    digest.update(b"adapter_schema:3")
+    return digest.hexdigest()
 
 
 def _fingerprint_model(

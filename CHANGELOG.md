@@ -10,6 +10,11 @@ All notable Foton changes are recorded here.
   of windows triangulated into zero-area slivers in that frame. Faces are now
   triangulated in a plane computed from their own vertices. Models built in
   Python triangulate exactly as before.
+- `prepare_honeybee_scene` and `HoneybeeStudy` take `check=False` to skip
+  Honeybee's model validation, the defensive copy and the model-dictionary
+  fingerprint. For a model built in code those took longer than tracing it:
+  on a 3-room, 2 900-sensor model, preparing drops from about 0.28 s to 0.05 s.
+  The default is unchanged; a model not in metres is still converted.
 
 ## 0.3.6 - 2026-11-08
 
