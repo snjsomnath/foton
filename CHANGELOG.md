@@ -4,6 +4,12 @@ All notable Foton changes are recorded here.
 
 ## Unreleased
 
+- Honeybee models drawn in Rhino no longer fail with "triangle N is
+  degenerate". HB Room from Solid stores Rhino's surface frame as each face's
+  plane, often tens of metres away with a flipped x axis, and walls with rows
+  of windows triangulated into zero-area slivers in that frame. Faces are now
+  triangulated in a plane computed from their own vertices. Models built in
+  Python triangulate exactly as before.
 - `prepare_honeybee_scene` and `HoneybeeStudy` take `check=False` to skip
   Honeybee's model validation, the defensive copy and the model-dictionary
   fingerprint. For a model built in code those took longer than tracing it:

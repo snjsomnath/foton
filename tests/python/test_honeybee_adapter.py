@@ -16,6 +16,7 @@ from ladybug_geometry.geometry3d import Vector3D
 
 from foton.honeybee.adapter import (
     _append_geometry,
+    _punched_geometry,
     prepare_honeybee_scene,
 )
 from foton.honeybee.radiance import (
@@ -35,7 +36,41 @@ from foton.honeybee.validation import compare_coefficient_convergence
 from scripts.validate_honeybee_coefficients import _ray_is_on_triangle_edge
 
 
+FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "honeybee"
+
+
+def _smallest_cross_products(geometry):
+    """float32 |cross| of every triangle, as the GPU backends compute it."""
+    mesh = geometry.triangulated_mesh3d
+    vertices = np.array([(p.x, p.y, p.z) for p in mesh.vertices], dtype=np.float32)
+    triangles = np.array(mesh.faces)
+    edges_a = vertices[triangles[:, 1]] - vertices[triangles[:, 0]]
+    edges_b = vertices[triangles[:, 2]] - vertices[triangles[:, 0]]
+    return np.linalg.norm(np.cross(edges_a, edges_b), axis=1)
+
+
 class HoneybeeAdapterTests(unittest.TestCase):
+    def test_rhino_surface_frame_does_not_make_degenerate_triangles(self):
+        # A wall from Grasshopper's HB Room from Solid: Rhino's surface frame is
+        # its plane (origin 60 m away, flipped x), and 14 windows in two rows.
+        import json
+        from honeybee.face import Face
+
+        data = json.loads((FIXTURES / "rhino_frame_wall.json").read_text())
+        face = Face.from_dict(data)
+        self.assertGreater(np.sum(_smallest_cross_products(face.punched_geometry) < 1e-6), 0)
+        self.assertTrue(np.all(_smallest_cross_products(_punched_geometry(face)) > 1e-3))
+
+    def test_faces_made_in_python_triangulate_as_before(self):
+        room = Room.from_box("Room", 8, 6, 3)
+        for face in room.faces[1:5]:
+            face.apertures_by_ratio_rectangle(0.4, 1.5, 0.8, 1.5, 0.3)
+        for face in room.faces:
+            ours = _punched_geometry(face).triangulated_mesh3d
+            honeybee = face.punched_geometry.triangulated_mesh3d
+            self.assertEqual(ours.vertices, honeybee.vertices)
+            self.assertEqual(ours.faces, honeybee.faces)
+
     def test_overlapping_rooms_remain_a_recorded_warning(self):
         model = Model(
             "Overlap",
