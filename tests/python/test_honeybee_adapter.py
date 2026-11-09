@@ -47,6 +47,37 @@ class HoneybeeAdapterTests(unittest.TestCase):
             {"000108"},
         )
 
+    def test_prepare_without_checks_matches_checked_scene(self):
+        room = Room.from_box("Room", 4, 6, 3)
+        room.wall_apertures_by_ratio(0.4)
+        model = Model("Checked", [room])
+        checked = prepare_honeybee_scene(model, include_aperture_glazing=True)
+        unchecked = prepare_honeybee_scene(
+            model, include_aperture_glazing=True, check=False
+        )
+        for name, array in checked.arrays.items():
+            np.testing.assert_array_equal(unchecked.arrays[name], array)
+        self.assertEqual(unchecked.grid_info, checked.grid_info)
+        self.assertEqual(unchecked.validation_warnings, ())
+        self.assertNotEqual(unchecked.model_fingerprint, "")
+        # Unchecked, a model in metres is used as is rather than copied.
+        self.assertIs(unchecked.model, model)
+
+    def test_prepare_without_checks_still_converts_units(self):
+        model = Model("Imperial", [Room.from_box("Room", 20, 30, 10)], units="Feet")
+        prepared = prepare_honeybee_scene(model, grid_size=2.0, check=False)
+        self.assertEqual(model.units, "Feet")
+        self.assertEqual(prepared.model.units, "Meters")
+        self.assertIsNot(prepared.model, model)
+
+    def test_unchecked_fingerprint_changes_with_the_scene(self):
+        small = Model("A", [Room.from_box("Room", 4, 6, 3)])
+        large = Model("B", [Room.from_box("Room", 8, 6, 3)])
+        self.assertNotEqual(
+            prepare_honeybee_scene(small, check=False).model_fingerprint,
+            prepare_honeybee_scene(large, check=False).model_fingerprint,
+        )
+
     def test_conversion_does_not_mutate_model_units(self):
         room = Room.from_box("Room", 20, 30, 10)
         model = Model("Imperial", [room], units="Feet")

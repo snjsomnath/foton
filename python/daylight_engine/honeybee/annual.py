@@ -105,7 +105,12 @@ class AnnualDaylightRun:
 
 
 class HoneybeeStudy:
-    """Prepared Honeybee model with a resident native scene and coefficient cache."""
+    """Prepared Honeybee model with a resident native scene and coefficient cache.
+
+    ``check=False`` skips Honeybee's model validation and the defensive copy
+    (see :func:`prepare_honeybee_scene`), for models built in code that are
+    known to be valid.
+    """
 
     def __init__(
         self,
@@ -119,6 +124,7 @@ class HoneybeeStudy:
         weather_cache: str | Path | None = None,
         sky_source: str = "foton",
         weather_memo: dict | None = None,
+        check: bool = True,
     ) -> None:
         started = time.perf_counter()
         # Shared with other studies in a long-lived worker; see prepare_annual_weather.
@@ -135,6 +141,7 @@ class HoneybeeStudy:
             grid_size=grid_size,
             sensor_height=sensor_height,
             include_aperture_glazing=True,
+            check=check,
         )
         from foton import Engine
 
