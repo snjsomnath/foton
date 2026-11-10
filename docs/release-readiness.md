@@ -198,6 +198,19 @@ combinations as tested and everything else as unverified. The
 a registered self-hosted GPU runner, but a run on any machine with Radiance
 and the GPU, committed under `validation/results/`, is equally valid evidence.
 
+### Tested platforms for 0.3.7
+
+0.3.7 changes how Honeybee faces are triangulated, so models drawn in Rhino
+no longer fail with "triangle N is degenerate", and lets models built in code
+skip Honeybee's model checks. Both are in the Python adapter, so every suite
+was run again on 536fa73, the release code.
+
+| Evidence | Platform | Result |
+|---|---|---|
+| [Metal suite](../validation/results/2026-11-09-architectural-v4-metal-0.3.7-release/README.md) | Apple M4 Pro, macOS, Radiance 5.4a | 204 of 212, the same eight documented open cases; 211 cases byte-identical to 0.3.3, the acceptance model at MF:2 differs by at most 1.4e-5 relative |
+| [Vulkan suite](../validation/results/2026-11-10-architectural-v4-vulkan-t4-0.3.7/README.md) | NVIDIA Tesla T4, Linux (Google Colab), Radiance 5.4a | 204 of 212, the same eight documented open cases; 210 cases byte-identical to 0.3.6, the acceptance model differs by at most 1.2e-6 relative |
+| [Rhino 8 checklist](../validation/results/2026-11-10-rhino-macos-0.3.7/README.md) | Rhino 8.35, macOS, Metal | all ten scenarios |
+
 ### Tested platforms for 0.3.6
 
 0.3.6 speeds up the Vulkan backend (GPU memory placement, batched dispatches
@@ -210,7 +223,7 @@ differ between that commit and the release.
 |---|---|---|
 | [Metal suite](../validation/results/2026-11-04-architectural-v4-metal-0.3.3-release/README.md) | Apple M4 Pro, macOS 26.6, Radiance 5.4a | reused from 0.3.3 |
 | [Vulkan suite](../validation/results/2026-11-08-architectural-v4-vulkan-t4-e200cfc/README.md) | NVIDIA Tesla T4, Linux (Google Colab), Radiance 5.4a | 204 of 212, the same eight documented open cases; coefficients and annual results byte-identical to 0.3.3 |
-| Rhino 8 checklist | Rhino 8, macOS, Metal | to follow |
+| [Rhino 8 checklist](../validation/results/2026-11-08-rhino-macos-0.3.6/README.md) | Rhino 8.35, macOS, Metal | all ten scenarios |
 
 ### Tested platforms for 0.3.5
 
