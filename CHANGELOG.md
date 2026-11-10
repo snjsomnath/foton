@@ -2,7 +2,10 @@
 
 All notable Foton changes are recorded here.
 
-## Unreleased
+## 0.3.7 - 2026-11-09
+
+Fixes Honeybee models drawn in Rhino, and lets models built in code skip
+Honeybee's model checks.
 
 - Honeybee models drawn in Rhino no longer fail with "triangle N is
   degenerate". HB Room from Solid stores Rhino's surface frame as each face's
@@ -10,6 +13,8 @@ All notable Foton changes are recorded here.
   of windows triangulated into zero-area slivers in that frame. Faces are now
   triangulated in a plane computed from their own vertices. Models built in
   Python triangulate exactly as before.
+- `install_` in Grasshopper now requires 0.3.7, so installing it from the
+  Package Manager also brings the fix.
 - `prepare_honeybee_scene` and `HoneybeeStudy` take `check=False` to skip
   Honeybee's model validation, the defensive copy and the model-dictionary
   fingerprint. For a model built in code those took longer than tracing it:

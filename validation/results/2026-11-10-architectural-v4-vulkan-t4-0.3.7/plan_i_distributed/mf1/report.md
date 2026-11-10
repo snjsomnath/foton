@@ -1,0 +1,2001 @@
+# Foton report
+
+Status: **passed**
+
+```json
+{
+  "scene": "plan_i_distributed",
+  "scene_spec": {
+    "suite_version": 4,
+    "identifier": "plan_i_distributed",
+    "category": "form",
+    "question": "How does a distributed opening illuminate a I-shaped plan?",
+    "interactions": [
+      "concave_plan",
+      "reentrant_occlusion",
+      "window_shape",
+      "window_position"
+    ],
+    "room_count": 1,
+    "include_glazing": true,
+    "footprint_family": "i",
+    "window_profile": "distributed"
+  },
+  "model_summary": {
+    "rooms": 1,
+    "apertures": 12,
+    "shades": 0,
+    "sensors": 74,
+    "floor_area": 90.0,
+    "aperture_area": 14.399999999999999
+  },
+  "sky_density": 1,
+  "status": "passed",
+  "passed": true,
+  "model_sha256": "196f436c288f6086c5ef84018de5e164b3265fda70feab9f343fea01238c8fe7",
+  "weather_sha256": "98246499f5e0508387c41d22a6f492c76a8ec52c17ceb31712069871a196bcee",
+  "gpu_executed": true,
+  "candidate": {
+    "capabilities": {
+      "name": "Vulkan device: Tesla T4",
+      "hardware_acceleration": true,
+      "supports_ray_tracing": true,
+      "supports_async_jobs": true
+    },
+    "direct": {
+      "metric_label": "static_sDA300_50",
+      "solver_version": "0.3.7",
+      "scene_fingerprint": 16343183456666100934,
+      "basis": "Tregenza",
+      "quality": "Final",
+      "glazing_model": "radiance_thin_glass_non_refracting",
+      "schedule_timestep_count": 1,
+      "direct_sample_count": 256,
+      "convergence": 1.0,
+      "transport_backend": "vulkan",
+      "used_reference_fallback": false
+    },
+    "full": {
+      "metric_label": "static_sDA300_50",
+      "solver_version": "0.3.7",
+      "scene_fingerprint": 16343183456666100934,
+      "basis": "Tregenza",
+      "quality": "Final",
+      "glazing_model": "radiance_thin_glass_non_refracting",
+      "schedule_timestep_count": 1,
+      "direct_sample_count": 256,
+      "convergence": 1.0,
+      "transport_backend": "vulkan",
+      "used_reference_fallback": false
+    }
+  },
+  "sky_bin_audit": {
+    "passed": true,
+    "ray_count": 2336,
+    "command": [
+      "/content/radiance-5.4.b268408ad5-Linux/usr/local/radiance/bin/rcalc",
+      "-e",
+      "MF:1",
+      "-f",
+      "/content/radiance-5.4.b268408ad5-Linux/usr/local/radiance/lib/reinhart.cal",
+      "-e",
+      "Dx=$1;Dy=$2;Dz=$3;$1=rbin"
+    ],
+    "calibration_sha256": "92b8c09984de7a551773530b3146ba79a51e1b003245f230b6e7b430eb6c26cd"
+  },
+  "sky_sources": {
+    "candidate": {
+      "sky_source": "foton",
+      "sky_version": "foton-sky-r1 (foton-daylight 0.3.7)",
+      "weather_id": "aff05f88fed2459a6796dca3cabd63daf743bc359ea5c7394adb01155f6785fb"
+    },
+    "reference": {
+      "sky_source": "gendaymtx",
+      "sky_version": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+      "gendaymtx": "/content/radiance-5.4.b268408ad5-Linux/usr/local/radiance/bin/gendaymtx",
+      "weather_id": "fa596a1b71c81c8eee4f32b17ea6d10a57aabce8541ff637ac4a9c1ee69c4ac1"
+    },
+    "sun_up_hours_equal": true,
+    "compared_hours": 4405,
+    "max_relative_difference": 0.0,
+    "mean_relative_difference": 0.0
+  },
+  "settings": {
+    "direct_samples": 256,
+    "maximum_samples": 65536,
+    "maximum_bounces": 8
+  },
+  "direct_io": "binary",
+  "oracle_stable": true,
+  "reference_source": {
+    "bundle": "/content/bundle/foton-references-corpus4-2026-11-03",
+    "model_sha256": "866ca4a3ef8dd207bb87e8300e19721a4e5021db43a21942b4162f00265ee545",
+    "model_sha256_matches": false,
+    "sensor_grid_sha256": "274288e18ebb896ca8da417745929f291321088f610eaef564604626c7d101ce",
+    "sensor_grid_sha256_matches": true,
+    "sensor_grid_max_difference": 0.0,
+    "geometry_matches": true,
+    "one_bounce_replicates": 4
+  },
+  "direct_stability": {
+    "grids": [
+      {
+        "absolute_error": {
+          "maximum": 0.0006667673587799072,
+          "p95": 5.021854303777218e-05,
+          "p99": 0.00017416622722521424
+        },
+        "bias_percent": 0.09946762968961857,
+        "identifier": "plan_i_distributed_grid",
+        "passed": true,
+        "rms_normalized_error_percent": 1.592207671185183,
+        "worst_index": [
+          70,
+          129,
+          0
+        ]
+      }
+    ],
+    "passed": true,
+    "samples_per_patch": [
+      256,
+      1024
+    ]
+  },
+  "depth_stability": {
+    "grids": [
+      {
+        "absolute_error": {
+          "maximum": 0.0008347779512405396,
+          "p95": 8.018918742891401e-05,
+          "p99": 0.00017492007464170456
+        },
+        "bias_percent": 0.013576275130760929,
+        "identifier": "plan_i_distributed_grid",
+        "passed": true,
+        "rms_normalized_error_percent": 1.0693101680118828,
+        "worst_index": [
+          58,
+          0,
+          0
+        ]
+      }
+    ],
+    "passed": true
+  },
+  "sample_stability": {
+    "grids": [
+      {
+        "absolute_error": {
+          "maximum": 0.0004875548183917999,
+          "p95": 6.439327262341976e-05,
+          "p99": 0.00013884156942367554
+        },
+        "bias_percent": 0.02922593892597605,
+        "identifier": "plan_i_distributed_grid",
+        "passed": true,
+        "rms_normalized_error_percent": 0.8437425630563632,
+        "worst_index": [
+          13,
+          0,
+          0
+        ]
+      }
+    ],
+    "passed": true
+  },
+  "oracle_levels": [
+    {
+      "material_bounces": 1,
+      "repeatability": {
+        "gates": {
+          "absolute_energy_bias_percent": 1.0,
+          "rms_normalized_rmse_percent": 5.0
+        },
+        "grids": [
+          {
+            "identifier": "plan_i_distributed_grid",
+            "sensor_count": 74,
+            "stages": {
+              "direct": {
+                "absolute_error": {
+                  "maximum": 0.0008851776365190744,
+                  "p50": 0.0,
+                  "p90": 8.886249270290136e-05,
+                  "p95": 0.00018473598174750805,
+                  "p99": 0.0003990876430179924
+                },
+                "candidate_energy": 20.491259183765422,
+                "cvrmse_percent": 12.792894874179431,
+                "energy_difference_negligible": false,
+                "nmbe_percent": -0.06065941676949259,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 20.503696606543137,
+                "relative_energy_error_percent": 0.060659416769492595,
+                "rms_normalized_rmse_percent": 3.4525077926843255,
+                "rms_normalized_to": "stage",
+                "worst": {
+                  "candidate": 0.00699650077149272,
+                  "global_sensor_index": 5,
+                  "local_sensor_index": 5,
+                  "reference": 0.006111323134973645,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 45
+                }
+              },
+              "indirect": {
+                "absolute_error": {
+                  "maximum": 0.001334572210907936,
+                  "p50": 5.091763341624755e-06,
+                  "p90": 0.00013793344260193408,
+                  "p95": 0.0002712684217840433,
+                  "p99": 0.0005819601938128471
+                },
+                "candidate_energy": 6.59417012175922,
+                "cvrmse_percent": 60.61749923327831,
+                "energy_difference_negligible": true,
+                "negligible_relative_to_direct": false,
+                "nmbe_percent": 0.02066272099335294,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 6.5928078682637725,
+                "relative_energy_error_percent": 0.020662720993352944,
+                "rms_normalized_rmse_percent": 3.90632778483319,
+                "rms_normalized_to": "full",
+                "worst": {
+                  "candidate": -0.00023025600239634514,
+                  "global_sensor_index": 5,
+                  "local_sensor_index": 5,
+                  "reference": 0.001104316208511591,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 45
+                }
+              }
+            },
+            "start_sensor_index": 0
+          }
+        ],
+        "half_run_count": 2,
+        "oracle_stable": true,
+        "run_count": 4,
+        "schema_version": 1
+      },
+      "runs": [
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "1",
+              "-ad",
+              "20000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "2",
+              "-ad",
+              "20000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 155.5868329014629,
+            "full": 430.1961660385132
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "1",
+              "-ad",
+              "20000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "2",
+              "-ad",
+              "20000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 169.05791591852903,
+            "full": 422.54904098808765
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "1",
+              "-ad",
+              "20000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "2",
+              "-ad",
+              "20000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 159.28508306387812,
+            "full": 422.06124996300787
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "1",
+              "-ad",
+              "20000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "2",
+              "-ad",
+              "20000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 158.64216710906476,
+            "full": 423.5446249367669
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        }
+      ],
+      "samples": 20000
+    },
+    {
+      "material_bounces": 8,
+      "repeatability": {
+        "gates": {
+          "absolute_energy_bias_percent": 1.0,
+          "rms_normalized_rmse_percent": 5.0
+        },
+        "grids": [
+          {
+            "identifier": "plan_i_distributed_grid",
+            "sensor_count": 74,
+            "stages": {
+              "direct": {
+                "absolute_error": {
+                  "maximum": 0.0004573296755552292,
+                  "p50": 0.0,
+                  "p90": 4.5930035412311554e-05,
+                  "p95": 9.412341023562476e-05,
+                  "p99": 0.000201299786567688
+                },
+                "candidate_energy": 20.489847145709426,
+                "cvrmse_percent": 6.632914557601628,
+                "energy_difference_negligible": true,
+                "nmbe_percent": -0.011499003370351056,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 20.49220354488571,
+                "relative_energy_error_percent": 0.011499003370351054,
+                "rms_normalized_rmse_percent": 1.7896494844399915,
+                "rms_normalized_to": "stage",
+                "worst": {
+                  "candidate": 0.007949938531965017,
+                  "global_sensor_index": 42,
+                  "local_sensor_index": 42,
+                  "reference": 0.007492608856409788,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 78
+                }
+              },
+              "indirect": {
+                "absolute_error": {
+                  "maximum": 0.0010457132011651993,
+                  "p50": 1.271595829166472e-05,
+                  "p90": 7.912764704087749e-05,
+                  "p95": 0.00015579303726553917,
+                  "p99": 0.00033156340941786766
+                },
+                "candidate_energy": 12.678403377594268,
+                "cvrmse_percent": 18.73755904087168,
+                "energy_difference_negligible": true,
+                "negligible_relative_to_direct": false,
+                "nmbe_percent": 0.01855553493634198,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 12.676051268472598,
+                "relative_energy_error_percent": 0.01855553493634198,
+                "rms_normalized_rmse_percent": 1.8389047659707107,
+                "rms_normalized_to": "full",
+                "worst": {
+                  "candidate": 0.0375761054456234,
+                  "global_sensor_index": 46,
+                  "local_sensor_index": 46,
+                  "reference": 0.0386218186467886,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 0
+                }
+              }
+            },
+            "start_sensor_index": 0
+          }
+        ],
+        "half_run_count": 2,
+        "oracle_stable": true,
+        "run_count": 4,
+        "schema_version": 1
+      },
+      "runs": [
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "1",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "9",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 226.37725004460663,
+            "full": 5313.629874959588
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "1",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "9",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 224.79487501550466,
+            "full": 5251.083084032871
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "1",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "9",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 237.35449998639524,
+            "full": 5217.737583909184
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "1",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "9",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 231.14733304828405,
+            "full": 5231.300792074762
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        }
+      ],
+      "samples": 40000
+    },
+    {
+      "material_bounces": 12,
+      "repeatability": {
+        "gates": {
+          "absolute_energy_bias_percent": 1.0,
+          "rms_normalized_rmse_percent": 5.0
+        },
+        "grids": [
+          {
+            "identifier": "plan_i_distributed_grid",
+            "sensor_count": 74,
+            "stages": {
+              "direct": {
+                "absolute_error": {
+                  "maximum": 0.0004456997849047184,
+                  "p50": 0.0,
+                  "p90": 4.569953307509422e-05,
+                  "p95": 9.42545011639595e-05,
+                  "p99": 0.0002086655586026609
+                },
+                "candidate_energy": 20.48806577042172,
+                "cvrmse_percent": 6.8561643638287615,
+                "energy_difference_negligible": false,
+                "nmbe_percent": -0.0638023749376602,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 20.50114598845179,
+                "relative_energy_error_percent": 0.06380237493766018,
+                "rms_normalized_rmse_percent": 1.8497910099116024,
+                "rms_normalized_to": "stage",
+                "worst": {
+                  "candidate": 0.013529779855161905,
+                  "global_sensor_index": 1,
+                  "local_sensor_index": 1,
+                  "reference": 0.013084080070257187,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 81
+                }
+              },
+              "indirect": {
+                "absolute_error": {
+                  "maximum": 0.0009960546158254147,
+                  "p50": 1.2957044418726582e-05,
+                  "p90": 8.166464976966381e-05,
+                  "p95": 0.000157771457452327,
+                  "p99": 0.00032040243968367577
+                },
+                "candidate_energy": 12.681284619826556,
+                "cvrmse_percent": 18.439845795179863,
+                "energy_difference_negligible": true,
+                "negligible_relative_to_direct": false,
+                "nmbe_percent": 0.0494654752714196,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 12.67501486348361,
+                "relative_energy_error_percent": 0.04946547527141959,
+                "rms_normalized_rmse_percent": 1.8100520391346042,
+                "rms_normalized_to": "full",
+                "worst": {
+                  "candidate": 0.0006081745959818363,
+                  "global_sensor_index": 67,
+                  "local_sensor_index": 67,
+                  "reference": -0.00038788001984357834,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 67
+                }
+              }
+            },
+            "start_sensor_index": 0
+          }
+        ],
+        "half_run_count": 2,
+        "oracle_stable": true,
+        "run_count": 4,
+        "schema_version": 1
+      },
+      "runs": [
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "1",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "13",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 236.63358390331268,
+            "full": 5550.575541099533
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "1",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "13",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 235.7779999729246,
+            "full": 5520.722124958411
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "1",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "13",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 233.96483401302248,
+            "full": 5522.96595799271
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "1",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "13",
+              "-ad",
+              "40000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 234.62579096667469,
+            "full": 5537.189834052697
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        }
+      ],
+      "samples": 40000
+    },
+    {
+      "material_bounces": 12,
+      "repeatability": {
+        "gates": {
+          "absolute_energy_bias_percent": 1.0,
+          "rms_normalized_rmse_percent": 5.0
+        },
+        "grids": [
+          {
+            "identifier": "plan_i_distributed_grid",
+            "sensor_count": 74,
+            "stages": {
+              "direct": {
+                "absolute_error": {
+                  "maximum": 0.00023642205633223057,
+                  "p50": 0.0,
+                  "p90": 2.343550295336172e-05,
+                  "p95": 5.560927093029022e-05,
+                  "p99": 0.00011555803939700127
+                },
+                "candidate_energy": 20.490921051948188,
+                "cvrmse_percent": 3.7375699196543635,
+                "energy_difference_negligible": true,
+                "nmbe_percent": -0.01372902192377117,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 20.493734641270088,
+                "relative_energy_error_percent": 0.013729021923771168,
+                "rms_normalized_rmse_percent": 1.0082368644001445,
+                "rms_normalized_to": "stage",
+                "worst": {
+                  "candidate": 0.005274238996207714,
+                  "global_sensor_index": 69,
+                  "local_sensor_index": 69,
+                  "reference": 0.005510661052539945,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 44
+                }
+              },
+              "indirect": {
+                "absolute_error": {
+                  "maximum": 0.0007097255438566208,
+                  "p50": 9.111350664170459e-06,
+                  "p90": 4.832854028791189e-05,
+                  "p95": 8.69468494784087e-05,
+                  "p99": 0.0001916330074891448
+                },
+                "candidate_energy": 12.692037410851487,
+                "cvrmse_percent": 11.228642001387888,
+                "energy_difference_negligible": true,
+                "negligible_relative_to_direct": false,
+                "nmbe_percent": 0.03017785759028311,
+                "passed": true,
+                "physically_near_zero": false,
+                "reference_energy": 12.688208381395391,
+                "relative_energy_error_percent": 0.030177857590283113,
+                "rms_normalized_rmse_percent": 1.1031326316674985,
+                "rms_normalized_to": "full",
+                "worst": {
+                  "candidate": 0.03476198948919773,
+                  "global_sensor_index": 20,
+                  "local_sensor_index": 20,
+                  "reference": 0.03547171503305435,
+                  "rgb_channel": 0,
+                  "sky_patch_index": 0
+                }
+              }
+            },
+            "start_sensor_index": 0
+          }
+        ],
+        "half_run_count": 2,
+        "oracle_stable": true,
+        "run_count": 4,
+        "schema_version": 1
+      },
+      "runs": [
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "1",
+              "-ad",
+              "80000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "13",
+              "-ad",
+              "80000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 379.13562497124076,
+            "full": 9634.729832992889
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "1",
+              "-ad",
+              "80000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "13",
+              "-ad",
+              "80000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 379.0997079340741,
+            "full": 9633.022667025216
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "1",
+              "-ad",
+              "80000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "13",
+              "-ad",
+              "80000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 372.52454191911966,
+            "full": 9672.310041962191
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        },
+        {
+          "commands": [
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "1",
+              "-ad",
+              "80000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ],
+            [
+              "/usr/local/radiance/bin/rfluxmtx",
+              "-I+",
+              "-h",
+              "-y",
+              "74",
+              "-ab",
+              "13",
+              "-ad",
+              "80000",
+              "-lw",
+              "1e-7",
+              "-dr",
+              "0",
+              "-n",
+              "12",
+              "-",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome",
+              "-i",
+              "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct"
+            ]
+          ],
+          "timings_ms": {
+            "direct": 382.7131250873208,
+            "full": 9678.980958997272
+          },
+          "versions": {
+            "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)",
+            "rfluxmtx": "Usage: /usr/local/radiance/bin/rfluxmtx [-v][rcontrib options] sender.rad receiver.rad [-i system.oct] [system.rad ..]"
+          }
+        }
+      ],
+      "samples": 80000
+    }
+  ],
+  "export_command": [
+    "/content/radiance-5.4.b268408ad5-Linux/usr/local/radiance/bin/oconv",
+    "/content/suite-vulkan-0.3.7/plan_i_distributed/mf1/oracle/scene.rad"
+  ],
+  "direct_oracles": [
+    {
+      "commands": [
+        [
+          "/usr/local/radiance/bin/oconv",
+          "-i",
+          "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct",
+          "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome"
+        ],
+        [
+          "/usr/local/radiance/bin/rcontrib",
+          "-h",
+          "-w",
+          "-ab",
+          "0",
+          "-M",
+          "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/direct_256/sky_modifiers.txt",
+          "-n",
+          "1",
+          "-fdd",
+          "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/direct_256/direct_scene.oct"
+        ]
+      ],
+      "elapsed_ms": 2942.1013749670237,
+      "invocation_count": 5,
+      "sample_count": 256,
+      "versions": {
+        "oconv": "/usr/local/radiance/bin/oconv: fatal - unknown option: '-version'",
+        "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)"
+      },
+      "worker_pool_size": 12
+    },
+    {
+      "commands": [
+        [
+          "/usr/local/radiance/bin/oconv",
+          "-i",
+          "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/scene.oct",
+          "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/oracle/sky.dome"
+        ],
+        [
+          "/usr/local/radiance/bin/rcontrib",
+          "-h",
+          "-w",
+          "-ab",
+          "0",
+          "-M",
+          "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/direct_1024/sky_modifiers.txt",
+          "-n",
+          "1",
+          "-fdd",
+          "/Users/ssanjay/GitHub/foton/validation/results/2026-11-03-architectural-v4-metal-0.3.0/plan_i_distributed/mf1/direct_1024/direct_scene.oct"
+        ]
+      ],
+      "elapsed_ms": 11539.838209049776,
+      "invocation_count": 5,
+      "sample_count": 1024,
+      "versions": {
+        "oconv": "/usr/local/radiance/bin/oconv: fatal - unknown option: '-version'",
+        "rcontrib": "RADIANCE 5.4a 2022-04-07 LBNL (5.4.b268408ad5)"
+      },
+      "worker_pool_size": 12
+    }
+  ],
+  "coefficients": {
+    "schema_version": 1,
+    "passed": true,
+    "matrix_shape": [
+      74,
+      146,
+      3
+    ],
+    "gates": {
+      "direct": {
+        "absolute_nmbe_percent": 2.0,
+        "rms_normalized_rmse_percent": 5.0
+      },
+      "indirect": {
+        "absolute_nmbe_percent": 3.0,
+        "rms_normalized_rmse_percent": 10.0
+      },
+      "full": {
+        "absolute_nmbe_percent": 5.0,
+        "rms_normalized_rmse_percent": 10.0
+      }
+    },
+    "grids": [
+      {
+        "identifier": "plan_i_distributed_grid",
+        "full_identifier": "plan_i_distributed_grid",
+        "start_sensor_index": 0,
+        "sensor_count": 74,
+        "stages": {
+          "direct": {
+            "nmbe_percent": -0.22682867921029515,
+            "cvrmse_percent": 3.575590887631945,
+            "rms_normalized_rmse_percent": 0.9643074724454326,
+            "reference_energy": 20.498682697023206,
+            "candidate_energy": 20.45218580580604,
+            "relative_energy_error_percent": 0.22682867921029515,
+            "physically_near_zero": false,
+            "rms_normalized_to": "stage",
+            "absolute_error": {
+              "p50": 0.0,
+              "p90": 1.3103301171213388e-05,
+              "p95": 3.8043130189180374e-05,
+              "p99": 0.0001135142520070076,
+              "maximum": 0.00037631718441843987
+            },
+            "worst": {
+              "global_sensor_index": 48,
+              "local_sensor_index": 48,
+              "sky_patch_index": 133,
+              "rgb_channel": 0,
+              "reference": 0.006344357039779425,
+              "candidate": 0.0067206742241978645,
+              "position": [
+                6.5,
+                0.5,
+                0.75
+              ]
+            },
+            "passed": true
+          },
+          "indirect": {
+            "nmbe_percent": -0.3547089404475057,
+            "cvrmse_percent": 15.432149059047815,
+            "rms_normalized_rmse_percent": 1.5158407531547127,
+            "reference_energy": 12.683768000574254,
+            "candidate_energy": 12.638777541490597,
+            "relative_energy_error_percent": 0.35470894044750584,
+            "physically_near_zero": false,
+            "rms_normalized_to": "full",
+            "absolute_error": {
+              "p50": 1.7138325347332284e-05,
+              "p90": 5.609169602394104e-05,
+              "p95": 7.77812092565e-05,
+              "p99": 0.0001654946245253086,
+              "maximum": 0.0019363760948181152
+            },
+            "worst": {
+              "global_sensor_index": 61,
+              "local_sensor_index": 61,
+              "sky_patch_index": 0,
+              "rgb_channel": 0,
+              "reference": 0.03845026716589928,
+              "candidate": 0.03651389107108116,
+              "position": [
+                9.5,
+                9.5,
+                0.75
+              ]
+            },
+            "passed": true,
+            "negligible_relative_to_direct": false
+          },
+          "full": {
+            "nmbe_percent": -0.2757100466586328,
+            "cvrmse_percent": 5.6920253178927265,
+            "rms_normalized_rmse_percent": 1.4626962923197575,
+            "reference_energy": 33.18245069759746,
+            "candidate_energy": 33.090963347296636,
+            "relative_energy_error_percent": 0.2757100466586328,
+            "physically_near_zero": false,
+            "rms_normalized_to": "stage",
+            "absolute_error": {
+              "p50": 1.6904447875276674e-05,
+              "p90": 5.246519867796451e-05,
+              "p95": 7.063379598548636e-05,
+              "p99": 0.00014094921061769128,
+              "maximum": 0.0019363760948181152
+            },
+            "worst": {
+              "global_sensor_index": 61,
+              "local_sensor_index": 61,
+              "sky_patch_index": 0,
+              "rgb_channel": 0,
+              "reference": 0.03845026716589928,
+              "candidate": 0.03651389107108116,
+              "position": [
+                9.5,
+                9.5,
+                0.75
+              ]
+            },
+            "passed": true
+          }
+        }
+      }
+    ]
+  },
+  "one_bounce_diagnostic": {
+    "schema_version": 1,
+    "passed": false,
+    "matrix_shape": [
+      74,
+      146,
+      3
+    ],
+    "gates": {
+      "direct": {
+        "absolute_nmbe_percent": 2.0,
+        "rms_normalized_rmse_percent": 5.0
+      },
+      "indirect": {
+        "absolute_nmbe_percent": 3.0,
+        "rms_normalized_rmse_percent": 10.0
+      },
+      "full": {
+        "absolute_nmbe_percent": 5.0,
+        "rms_normalized_rmse_percent": 10.0
+      }
+    },
+    "grids": [
+      {
+        "identifier": "plan_i_distributed_grid",
+        "full_identifier": "plan_i_distributed_grid",
+        "start_sensor_index": 0,
+        "sensor_count": 74,
+        "stages": {
+          "direct": {
+            "nmbe_percent": -0.22682867921029515,
+            "cvrmse_percent": 3.575590887631945,
+            "rms_normalized_rmse_percent": 0.9643074724454326,
+            "reference_energy": 20.498682697023206,
+            "candidate_energy": 20.45218580580604,
+            "relative_energy_error_percent": 0.22682867921029515,
+            "physically_near_zero": false,
+            "rms_normalized_to": "stage",
+            "absolute_error": {
+              "p50": 0.0,
+              "p90": 1.3103301171213388e-05,
+              "p95": 3.8043130189180374e-05,
+              "p99": 0.0001135142520070076,
+              "maximum": 0.00037631718441843987
+            },
+            "worst": {
+              "global_sensor_index": 48,
+              "local_sensor_index": 48,
+              "sky_patch_index": 133,
+              "rgb_channel": 0,
+              "reference": 0.006344357039779425,
+              "candidate": 0.0067206742241978645,
+              "position": [
+                6.5,
+                0.5,
+                0.75
+              ]
+            },
+            "passed": true
+          },
+          "indirect": {
+            "nmbe_percent": 91.7207620953319,
+            "cvrmse_percent": 528.5497847187414,
+            "rms_normalized_rmse_percent": 34.07139001114888,
+            "reference_energy": 6.5922842176091745,
+            "candidate_energy": 12.638777541490597,
+            "relative_energy_error_percent": 91.7207620953319,
+            "physically_near_zero": false,
+            "rms_normalized_to": "full",
+            "absolute_error": {
+              "p50": 9.218771401720005e-05,
+              "p90": 0.00019659940153360367,
+              "p95": 0.0002411299938103184,
+              "p99": 0.00044302036985754967,
+              "maximum": 0.015493825078010559
+            },
+            "worst": {
+              "global_sensor_index": 73,
+              "local_sensor_index": 73,
+              "sky_patch_index": 0,
+              "rgb_channel": 0,
+              "reference": 0.018420904874801636,
+              "candidate": 0.033914729952812195,
+              "position": [
+                11.5,
+                0.5,
+                0.75
+              ]
+            },
+            "passed": false,
+            "negligible_relative_to_direct": false
+          },
+          "full": {
+            "nmbe_percent": 22.14759056615117,
+            "cvrmse_percent": 128.5794399321845,
+            "rms_normalized_rmse_percent": 34.061523102440376,
+            "reference_energy": 27.090966914632382,
+            "candidate_energy": 33.090963347296636,
+            "relative_energy_error_percent": 22.147590566151163,
+            "physically_near_zero": false,
+            "rms_normalized_to": "stage",
+            "absolute_error": {
+              "p50": 9.166018935502507e-05,
+              "p90": 0.00019409999367780983,
+              "p95": 0.00023593008518218994,
+              "p99": 0.000413249246776104,
+              "maximum": 0.015493825078010559
+            },
+            "worst": {
+              "global_sensor_index": 73,
+              "local_sensor_index": 73,
+              "sky_patch_index": 0,
+              "rgb_channel": 0,
+              "reference": 0.018420904874801636,
+              "candidate": 0.033914729952812195,
+              "position": [
+                11.5,
+                0.5,
+                0.75
+              ]
+            },
+            "passed": false
+          }
+        }
+      }
+    ]
+  },
+  "controlled_skies": {
+    "uniform": {
+      "bias_percent": -0.0851893449527471,
+      "rms_normalized_error_percent": 0.3102365982243369,
+      "absolute_error": {
+        "p95": 0.17147410943615088,
+        "p99": 0.2005971595589018,
+        "maximum": 0.2042693110200844
+      },
+      "worst_index": [
+        30
+      ],
+      "passed": true,
+      "physically_near_zero": false,
+      "negligible": false,
+      "reference_mean": 19.91668079551897,
+      "reference_fraction_of_uniform": 1.0,
+      "rms_normalized_to_uniform_percent": 0.3102365982243369
+    },
+    "overcast": {
+      "bias_percent": -0.03489439914925634,
+      "rms_normalized_error_percent": 0.26751967422055145,
+      "absolute_error": {
+        "p95": 0.09932646751403808,
+        "p99": 0.11296655654907226,
+        "maximum": 0.11535167694091797
+      },
+      "worst_index": [
+        9
+      ],
+      "passed": true,
+      "physically_near_zero": false,
+      "negligible": false,
+      "reference_mean": 12.838888168334961,
+      "reference_fraction_of_uniform": 0.6446298956871033,
+      "rms_normalized_to_uniform_percent": 0.1834220773726535
+    },
+    "horizon": {
+      "bias_percent": -0.7272737766303862,
+      "rms_normalized_error_percent": 1.715229264626439,
+      "absolute_error": {
+        "p95": 0.07990837331636441,
+        "p99": 0.0948916432837574,
+        "maximum": 0.12956836672493788
+      },
+      "worst_index": [
+        30
+      ],
+      "passed": true,
+      "physically_near_zero": false,
+      "negligible": false,
+      "reference_mean": 2.1534886961049677,
+      "reference_fraction_of_uniform": 0.10812487874934856,
+      "rms_normalized_to_uniform_percent": 0.1487617512852019
+    },
+    "north": {
+      "bias_percent": -0.13572268262726947,
+      "rms_normalized_error_percent": 0.4858526724358463,
+      "absolute_error": {
+        "p95": 0.06000080108642577,
+        "p99": 0.08442201852798452,
+        "maximum": 0.10394001007080078
+      },
+      "worst_index": [
+        8
+      ],
+      "passed": true,
+      "physically_near_zero": false,
+      "negligible": false,
+      "reference_mean": 4.720008850097656,
+      "reference_fraction_of_uniform": 0.23698772490024567,
+      "rms_normalized_to_uniform_percent": 0.127931202471214
+    },
+    "east": {
+      "bias_percent": -0.24322931692801397,
+      "rms_normalized_error_percent": 0.37497298536992923,
+      "absolute_error": {
+        "p95": 0.07638720870018001,
+        "p99": 0.09215713500976562,
+        "maximum": 0.09225320816040039
+      },
+      "worst_index": [
+        56
+      ],
+      "passed": true,
+      "physically_near_zero": false,
+      "negligible": false,
+      "reference_mean": 5.662489891052246,
+      "reference_fraction_of_uniform": 0.28430891036987305,
+      "rms_normalized_to_uniform_percent": 0.13782143102468147
+    },
+    "south": {
+      "bias_percent": 0.04893853281079651,
+      "rms_normalized_error_percent": 0.3111659644923306,
+      "absolute_error": {
+        "p95": 0.05388624668121335,
+        "p99": 0.06339130103588098,
+        "maximum": 0.07582098245620728
+      },
+      "worst_index": [
+        9
+      ],
+      "passed": true,
+      "physically_near_zero": false,
+      "negligible": false,
+      "reference_mean": 5.427553176879883,
+      "reference_fraction_of_uniform": 0.27251294255256653,
+      "rms_normalized_to_uniform_percent": 0.10611612303624375
+    },
+    "west": {
+      "bias_percent": -0.11848875387028082,
+      "rms_normalized_error_percent": 0.41554701675543443,
+      "absolute_error": {
+        "p95": 0.07427208423614498,
+        "p99": 0.12144734382629394,
+        "maximum": 0.12329292297363281
+      },
+      "worst_index": [
+        12
+      ],
+      "passed": true,
+      "physically_near_zero": false,
+      "negligible": false,
+      "reference_mean": 5.569372177124023,
+      "reference_fraction_of_uniform": 0.2796335518360138,
+      "rms_normalized_to_uniform_percent": 0.1517078867219807
+    }
+  },
+  "annual": {
+    "schema_version": 1,
+    "oracle": "converged-coefficients",
+    "passed": true,
+    "occupied_hours": 3650,
+    "structural": {
+      "sun_up_hours_match": true,
+      "grid_ids_match": true,
+      "grid_counts_match": true
+    },
+    "grids": [
+      {
+        "identifier": "plan_i_distributed_grid",
+        "sensor_count": 74,
+        "illuminance": {
+          "nmbe_percent": -0.08475229837225659,
+          "cvrmse_percent": 1.522793236460386,
+          "absolute_error_percentiles_lux": {
+            "p50": 4.8351287841796875,
+            "p90": 28.17655639648439,
+            "p95": 40.07606201171875,
+            "p99": 71.31573608398438
+          },
+          "maximum_absolute_error_lux": 293.099609375,
+          "worst": {
+            "sensor_index": 0,
+            "position": [
+              0.5,
+              11.5,
+              0.75
+            ],
+            "hour_of_year": 2725.5,
+            "foton_lux": 21809.806640625,
+            "radiance_lux": 21516.70703125
+          },
+          "physically_dark": false,
+          "passed": true
+        },
+        "metrics": {
+          "da": {
+            "mean_absolute_error_percentage_points": 0.15027582376897494,
+            "maximum_error_percentage_points": 0.6005479452054772,
+            "passed": true
+          },
+          "cda": {
+            "mean_absolute_error_percentage_points": 0.07445231732447616,
+            "maximum_error_percentage_points": 0.29924003696875445,
+            "passed": true
+          },
+          "udi_lower": {
+            "mean_absolute_error_percentage_points": 0.06997963717141796,
+            "maximum_error_percentage_points": 0.40767123287671225,
+            "passed": true
+          },
+          "udi": {
+            "mean_absolute_error_percentage_points": 0.08185671973343149,
+            "maximum_error_percentage_points": 0.4076712328767229,
+            "passed": true
+          },
+          "udi_upper": {
+            "mean_absolute_error_percentage_points": 0.028200666419844585,
+            "maximum_error_percentage_points": 0.2457534246575328,
+            "passed": true
+          }
+        },
+        "sda": {
+          "foton_percent": 100.0,
+          "radiance_percent": 100.0,
+          "difference_percentage_points": 0.0,
+          "tolerance_percentage_points": 2.0,
+          "ambiguous_sensor_count": 0,
+          "ambiguity_band_percentage_points": 5.0,
+          "unexplained_flip_percentage_points": 0.0,
+          "passed": true
+        }
+      }
+    ]
+  },
+  "outcomes": {
+    "numerical_correctness": "passed",
+    "honeybee_compatibility": "passed",
+    "performance": "measured"
+  },
+  "compatibility": {
+    "official_loader": {
+      "passed": true,
+      "tolerance_percentage_points": 0.05,
+      "maximum_error_percentage_points": 0.004997859589039422,
+      "metrics": {
+        "da": [
+          {
+            "identifier": "plan_i_distributed_grid",
+            "maximum_error_percentage_points": 0.00479452054794649,
+            "passed": true
+          }
+        ],
+        "cda": [
+          {
+            "identifier": "plan_i_distributed_grid",
+            "maximum_error_percentage_points": 0.004997859589039422,
+            "passed": true
+          }
+        ],
+        "udi": [
+          {
+            "identifier": "plan_i_distributed_grid",
+            "maximum_error_percentage_points": 0.004931506849317202,
+            "passed": true
+          }
+        ],
+        "udi_lower": [
+          {
+            "identifier": "plan_i_distributed_grid",
+            "maximum_error_percentage_points": 0.004931506849313649,
+            "passed": true
+          }
+        ],
+        "udi_upper": [
+          {
+            "identifier": "plan_i_distributed_grid",
+            "maximum_error_percentage_points": 0.004931506849315426,
+            "passed": true
+          }
+        ]
+      }
+    },
+    "stock": {
+      "status": "not_applicable",
+      "passed": true
+    }
+  },
+  "darkness": {
+    "required": false,
+    "passed": true,
+    "maximum_lux": null,
+    "tolerance_lux": 1e-06
+  },
+  "performance": {
+    "candidate_cold": {
+      "study_preparation_seconds": 0.4818942390002121,
+      "weather_seconds": 0.42193176000000676,
+      "metric_reduction_seconds": 0.1703156610001315,
+      "write_seconds": 0.022703106000335538,
+      "total_seconds": 0.6153961600002731,
+      "cold_end_to_end_seconds": 1.0972903990004852,
+      "warm_study_seconds": null,
+      "raw_export_seconds": 0.003975637000166898,
+      "engine_upload_seconds": 0.027516976,
+      "engine_acceleration_structure_seconds": 0.0,
+      "engine_tracing_seconds": 0.022264676,
+      "engine_annual_reduction_seconds": 0.008353801,
+      "engine_snapshot_seconds": 0.0,
+      "coefficient_trace_seconds": 0.022264676
+    },
+    "candidate_cached": {
+      "study_preparation_seconds": 0.4818942390002121,
+      "weather_seconds": 0.4157243110003037,
+      "metric_reduction_seconds": 0.13441662300010648,
+      "write_seconds": 0.013511585999822273,
+      "total_seconds": 0.563951845000247,
+      "cold_end_to_end_seconds": null,
+      "warm_study_seconds": 0.563951845000247,
+      "raw_export_seconds": 0.002541218999795092,
+      "engine_upload_seconds": 0.027468944,
+      "engine_acceleration_structure_seconds": 0.0,
+      "engine_tracing_seconds": 8.3e-08,
+      "engine_annual_reduction_seconds": 0.008113628,
+      "engine_snapshot_seconds": 0.0,
+      "coefficient_trace_seconds": 0.0
+    },
+    "coefficient_stages_seconds": {
+      "direct": 0.02580202899980577,
+      "full": 0.04228049800030931
+    }
+  },
+  "elapsed_seconds": 3.738578612999845,
+  "result_class": "passed"
+}
+```
