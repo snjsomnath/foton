@@ -1,5 +1,5 @@
 # Foton: GPU daylight simulation for Grasshopper.
-# Copyright (c) 2026 Sanjay Somanath. Released under the MIT licence.
+# Copyright (c) 2026 The Foton contributors. Released under the MIT licence.
 # https://github.com/snjsomnath/foton
 """
 Run a daylight factor study on the GPU for every sensor grid in a Honeybee

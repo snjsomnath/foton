@@ -2,12 +2,15 @@
 
 All notable Foton changes are recorded here.
 
-## Unreleased
+## 0.3.8 - 2026-11-14
+
+Lets a long-running worker reuse one engine across Honeybee studies.
 
 - `HoneybeeStudy` takes `engine=` to reuse an existing `foton.Engine`
   instead of creating one per study. A worker that runs many studies saves
   about 130 ms per study on Vulkan, and avoids the NVIDIA driver running out
   of static TLS after a dozen or so studies on Linux.
+- `install_` in Grasshopper now requires 0.3.8, in step with the components.
 
 ## 0.3.7 - 2026-11-09
 
