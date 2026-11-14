@@ -56,6 +56,20 @@ class HoneybeeScheduleTests(unittest.TestCase):
         self.assertTrue(second.metadata["solver"]["coefficient_cache_hit"])
         self.assertEqual(second.timings["coefficient_trace_seconds"], 0.0)
 
+    def test_study_reuses_a_given_engine(self):
+        engine = Engine({"backend": "reference"})
+        model = Model("Shared", [Room.from_box("Room", 2, 2, 3)])
+        with patch("foton.Engine", side_effect=AssertionError("created an engine")):
+            first = HoneybeeStudy(model, engine=engine, grid_size=5)
+            second = HoneybeeStudy(model, engine=engine, grid_size=5)
+        self.assertIs(first.engine, engine)
+        self.assertIs(second.engine, engine)
+        np.testing.assert_allclose(
+            first.daylight_factor(quality="preview").grids[0].values,
+            HoneybeeStudy(model, backend="reference", grid_size=5)
+            .daylight_factor(quality="preview").grids[0].values,
+        )
+
     def test_binary_gendaymtx_parser_preserves_order(self):
         values = np.arange(12, dtype=np.float32)
         content = (
