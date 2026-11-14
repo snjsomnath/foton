@@ -110,6 +110,13 @@ class HoneybeeStudy:
     ``check=False`` skips Honeybee's model validation and the defensive copy
     (see :func:`prepare_honeybee_scene`), for models built in code that are
     known to be valid.
+
+    ``engine`` reuses an existing :class:`foton.Engine` instead of creating one
+    (``backend`` is then ignored). A long-lived worker that runs many studies
+    should create one engine and pass it to each: creating a Vulkan engine
+    takes about 130 ms, and on Linux every create and drop also loads and
+    unloads the NVIDIA driver, which after a dozen or so studies runs out of
+    static TLS ("Unable to find a Vulkan driver").
     """
 
     def __init__(
@@ -125,6 +132,7 @@ class HoneybeeStudy:
         sky_source: str = "foton",
         weather_memo: dict | None = None,
         check: bool = True,
+        engine=None,
     ) -> None:
         started = time.perf_counter()
         # Shared with other studies in a long-lived worker; see prepare_annual_weather.
@@ -143,9 +151,11 @@ class HoneybeeStudy:
             include_aperture_glazing=True,
             check=check,
         )
-        from foton import Engine
+        if engine is None:
+            from foton import Engine
 
-        self.engine = Engine({"backend": backend})
+            engine = Engine({"backend": backend})
+        self.engine = engine
         self.capabilities = dict(self.engine.capabilities())
         self.scene = self.prepared.create_native_scene(self.engine)
         self._preparation_seconds = time.perf_counter() - started
