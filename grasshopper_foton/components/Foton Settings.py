@@ -1,5 +1,5 @@
 # Foton: GPU daylight simulation for Grasshopper.
-# Copyright (c) 2026 Sanjay Somanath. Released under the MIT licence.
+# Copyright (c) 2026 The Foton contributors. Released under the MIT licence.
 # https://github.com/snjsomnath/foton
 """
 Find Foton on this computer, install it if needed, and check that it can use

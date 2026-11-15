@@ -36,7 +36,7 @@ except NameError:
 
 
 # Shown on each component; kept in step with pyproject.toml.
-COMPONENT_VERSION = "0.3.7"
+COMPONENT_VERSION = "0.3.8"
 PROTOCOL_NAME = "foton.honeybee"
 PROTOCOL_VERSION = 1
 METRICS = ("da", "cda", "udi_lower", "udi", "udi_upper")
@@ -152,11 +152,11 @@ def request_data(
 
 # The package the one-click install puts in Foton's own environment. The lower
 # bound is these components' own release, so install_ upgrades an older engine
-# instead of keeping it: 0.3.7 fixes models drawn in Rhino. "~=0.3.7" means
-# 0.3.7 or newer within 0.3, written without "<" or ">" so that no Windows
+# instead of keeping it, so new components never run an older engine. "~=0.3.8" means
+# 0.3.8 or newer within 0.3, written without "<" or ">" so that no Windows
 # shell can read part of it as a redirect.
-ENGINE_REQUIREMENT = "foton-daylight[honeybee]~=0.3.7"
-ENGINE_MINIMUM = (0, 3, 7)
+ENGINE_REQUIREMENT = "foton-daylight[honeybee]~=0.3.8"
+ENGINE_MINIMUM = (0, 3, 8)
 ENGINE_MAXIMUM = (0, 4, 0)
 SUPPORTED_PYTHONS = ((3, 13), (3, 12), (3, 11), (3, 10))
 DEFAULT_BOUNCES = 8  # keep in step with foton.honeybee.annual.DEFAULT_MAXIMUM_BOUNCES
