@@ -198,6 +198,20 @@ combinations as tested and everything else as unverified. The
 a registered self-hosted GPU runner, but a run on any machine with Radiance
 and the GPU, committed under `validation/results/`, is equally valid evidence.
 
+### Tested platforms for 0.3.8
+
+0.3.8 lets `HoneybeeStudy` reuse an existing engine (`engine=`). The change is
+in the Python adapter, which the suite runs, so every suite was run again. The
+Metal suite and the Rhino checklist ran on 16e9459, the release code. The
+Vulkan suite ran on 7eca2fe, which differs from it only in the rebuilt
+Grasshopper files.
+
+| Evidence | Platform | Result |
+|---|---|---|
+| [Metal suite](../validation/results/2026-11-14-architectural-v4-metal-0.3.8-release/README.md) | Apple M4 Pro, macOS, Radiance 5.4a | 204 of 212, the same eight documented open cases; byte-identical to 0.3.7 in all 212 cases |
+| [Vulkan suite](../validation/results/2026-11-15-architectural-v4-vulkan-t4-0.3.8/README.md) | NVIDIA Tesla T4, Linux (Google Colab), Radiance 5.4a | 204 of 212, the same eight documented open cases; byte-identical to 0.3.7 in all 212 cases |
+| [Rhino 8 checklist](../validation/results/2026-11-14-rhino-macos-0.3.8/README.md) | Rhino 8.35, macOS, Metal | all ten scenarios |
+
 ### Tested platforms for 0.3.7
 
 0.3.7 changes how Honeybee faces are triangulated, so models drawn in Rhino
